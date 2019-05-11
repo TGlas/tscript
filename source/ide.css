@@ -1,0 +1,164 @@
+.ide {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+a:link,
+a:visited,
+a:active,
+a:hover
+{
+	color: #44c;
+	text-decoration: underline;
+}
+
+li {
+	margin-left: 3ex;
+}
+
+h1 {
+	font-size: 24pt;
+	margin-top: 20pt;
+}
+
+h2 {
+	font-size: 16pt;
+	margin-top: 20pt;
+}
+
+p {
+	margin: 10px 0 10px 0;
+}
+
+.ide-main {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	min-width: 40vw;
+	min-height: 40vh;
+	color: #000;
+	background: #f00;
+	overflow: hidden;
+	font-family: monospace;
+	font-size: 10pt;
+}
+
+.ide-panel-area {
+	position: absolute;
+	left: 0;
+	top: 30px;
+	width: 100vw;
+	height: calc(100vh - 30px);
+	min-width: 650px;
+	min-height: 300px;
+	background: #aaa;
+	overflow: hidden;
+}
+
+.ide-toolbar {
+	width: 100vw;
+	height: 30px;
+	background: #ccc;
+	color: #000;
+	overflow: hidden;
+	border-bottom: #888 solid 2px;
+	box-sizing: border-box;
+}
+
+.ide-sourcecode {
+	/* overridden in file codemirror.css, class .CodeMirror */
+	resize: none;
+	width: 60vw;
+	height: calc(100vh - 200px);
+	background: #fff;
+	color: #000;
+	overflow: scroll;
+}
+
+.ide-stackview {
+	background: #ffe;
+	color: #000;
+	border-left: #888 solid 2px;
+	border-bottom: #888 solid 2px;
+	overflow: hidden;
+}
+
+.ide-programview {
+	background: #ffe;
+	color: #000;
+	overflow: hidden;
+	border-left: #888 solid 2px;
+}
+
+.ide-messages {
+	width: 100%;
+	height: 100%;
+	background: #eee;
+	color: #000;
+	overflow: scroll;
+	padding: 0 5px 0 0;
+	box-sizing: border-box;
+}
+
+.ide-message
+{
+	width: 100%;
+	white-space: nowrap;
+}
+
+.ide-message:hover
+{
+	background: #cdf;
+}
+
+.ide-errormessage
+{
+	cursor: pointer;
+	color: #f00;
+	text-decoration: underline;
+}
+
+.ide-errormessage:hover
+{
+	font-weight: bold;
+}
+
+.ide-program-ancestor
+{
+	background: #fc8;
+}
+
+.ide-program-current
+{
+	background: #fa4;
+	font-weight: bold;
+}
+
+.ide-turtle
+{
+	background: #eee;
+	width: 100%;
+	height: 100%;
+}
+
+.ide-index { color: #00f; }
+
+.ide-integer { color: #088; }
+.ide-real { color: #480; }
+.ide-string { color: #c00; }
+.ide-collection { color: #c60; }
+.ide-keyword { color: #00c; }
+.ide-builtin { color: #808; }
+.ide-userclass { color: #000; }

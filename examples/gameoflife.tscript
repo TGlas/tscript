@@ -1,0 +1,65 @@
+#
+# Game of Life
+# https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+#
+
+# initialize the field
+var fieldsize = 25;
+var field = [];
+for var y in 0:fieldsize do
+{
+	var row = [];
+	for var x in 0:fieldsize do row.push(math.random() < 0.2);
+	field.push(row);
+}
+
+# progress the dynamics by one time step
+function step()
+{
+	var newfield = [];
+	for var y in 0:fieldsize do
+	{
+		var row = [];
+		for var x in 0:fieldsize do
+		{
+			var n = 0;
+			for var b in -1:2 do
+				for var a in -1:2 do
+					if field[(y+b+fieldsize) % fieldsize][(x+a+fieldsize) % fieldsize] then n += 1;
+			if field[y][x] then row.push(n == 3 or n == 4);
+			else row.push(n == 3);
+		}
+		newfield.push(row);
+	}
+	field = newfield;
+}
+
+# redraw the whole field
+function draw()
+{
+	# size of a cell in pixels
+	var sz = math.min(canvas.width() // fieldsize, canvas.height() // fieldsize);
+	if sz <= 0 then return;
+
+	for var y in 0:fieldsize do
+	{
+		for var x in 0:fieldsize do
+		{
+			if field[y][x] then canvas.setFillColor(1, 1, 1);
+			else canvas.setFillColor(0, 0, 1);
+			canvas.fillRect(x*sz, y*sz, sz, sz);
+		}
+	}
+}
+
+# draw the initial state
+canvas.setFillColor(0, 0, 0);
+canvas.clear();
+draw();
+
+# infinite "game" loop
+while true do
+{
+	step();
+	draw();
+}

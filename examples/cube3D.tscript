@@ -1,0 +1,111 @@
+#
+# 3D cube
+#
+
+use namespace math;
+
+class Face
+{
+public:
+	var color;
+	var points;
+	constructor(points_, color_)
+	{
+		points = points_;
+		color = color_;
+	}
+}
+
+var points3d = [
+		[-1,-1,-1],
+		[+1,-1,-1],
+		[-1,+1,-1],
+		[+1,+1,-1],
+		[-1,-1,+1],
+		[+1,-1,+1],
+		[-1,+1,+1],
+		[+1,+1,+1],
+	];
+var faces = [
+		Face([0,1,3,2], [1,0,0]),
+		Face([1,0,4,5], [1,1,0]),
+		Face([3,1,5,7], [0,1,0]),
+		Face([2,3,7,6], [0,0,1]),
+		Face([0,2,6,4], [1,0,1]),
+		Face([6,7,5,4], [0,1,1]),
+	];
+
+function matmat(m1, m2)
+{
+	var ret = [[1,0,0], [0,1,0], [0,0,1]];
+	for var i in 0:3 do
+	{
+		for var j in 0:3 do
+		{
+			var sum = 0.0;
+			for var k in 0:3 do sum += m1[i][k] * m2[k][j];
+			ret[i][j] = sum;
+		}
+	}
+	return ret;
+}
+
+function matvec(m, v)
+{
+	var ret = [0,0,0];
+	for var j in 0:3 do
+	{
+		var sum = 0.0;
+		for var k in 0:3 do sum += m[j][k] * v[k];
+		ret[j] = sum;
+	}
+	return ret;
+}
+
+function projection(v)
+{
+	use namespace canvas;
+	var w = width() / 2;
+	var h = height() / 2;
+	var s = min(w, h);
+	return [w + s * v[0] / (v[2] + 3), h + s * v[1] / (v[2] + 3)];
+}
+
+function draw(yaw, pitch)
+{
+	var rot_yaw = [[cos(yaw),0,sin(yaw)], [0,1,0], [-sin(yaw),0,cos(yaw)]];
+	var rot_pitch = [[1,0,0], [0,cos(pitch),sin(pitch)], [0,-sin(pitch),cos(pitch)]];
+	var rot = matmat(rot_yaw, rot_pitch);
+	var points2d = [];
+	for var p in points3d do
+	{
+		var p3d = matvec(rot, p);
+		var p2d = projection(p3d);
+		points2d.push(p2d);
+	}
+	for var f in faces do
+	{
+		var list = [];
+		for var i in f.points do list.push(points2d[i]);
+		var v0 = [list[1][0] - list[0][0], list[1][1] - list[0][1]];
+		var v1 = [list[2][0] - list[1][0], list[2][1] - list[1][1]];
+		var det = v0[0] * v1[1] - v0[1] * v1[0];
+		if det <= 0 then continue;
+		use namespace canvas;
+		setFillColor(f.color[0], f.color[1], f.color[2]);
+		frameArea(list);
+	}
+}
+
+draw(0, 0);
+
+function onMouseMove(event)
+{
+	use namespace canvas;
+	setFillColor(1, 1, 1);
+	clear();
+	draw(width() / 2 - event.x / 100, event.y / 100 - height() / 2);
+}
+
+setEventHandler("canvas.mousemove", onMouseMove);
+enterEventMode();

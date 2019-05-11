@@ -1,0 +1,50 @@
+#
+# Koch snowflake
+# https://en.wikipedia.org/wiki/Koch_snowflake
+#
+
+function segment(length, depth)
+{
+	length /= 3;
+	if depth <= 0 then
+	{
+		turtle.move(length);
+		turtle.turn(60);
+		turtle.move(length);
+		turtle.turn(-120);
+		turtle.move(length);
+		turtle.turn(60);
+		turtle.move(length);
+	}
+	else
+	{
+		segment(length, depth-1);
+		turtle.turn(60);
+		segment(length, depth-1);
+		turtle.turn(-120);
+		segment(length, depth-1);
+		turtle.turn(60);
+		segment(length, depth-1);
+	}
+}
+
+var h0 = -80 / 3 * math.sqrt(3);
+for var depth in 0:6 do
+{
+	turtle.reset(-80, h0, 90);
+	turtle.color(0, 0, 0);
+	for 0:3 do
+	{
+		segment(160, depth);
+		turtle.turn(-120);
+	}
+	if depth == 5 then break;
+	wait(1000);
+	turtle.reset(-80, h0, 90);
+	turtle.color(1, 1, 1);
+	for 0:3 do
+	{
+		segment(160, depth);
+		turtle.turn(-120);
+	}
+}

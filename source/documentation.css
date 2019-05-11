@@ -1,0 +1,339 @@
+
+/* general page styles */
+
+*
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+
+#doc-main
+{
+	font-family: sans-serif;
+	font-size: 12pt;
+	line-height: 140%;
+	color: #000;
+}
+
+#searchtext
+{
+	margin: 10px 10px 10px 10px;
+	padding: 0 10px 0 10px;
+	width: 28vw;
+	height: 30px;
+	vertical-align: middle;
+	background: #eee;
+	color: #444;
+	border: 1px solid #888;
+	border-radius: 4px;
+	font-size: 10pt;
+	line-height: 130%;
+}
+
+input:focus
+{
+	background: #fff;
+	color: #000;
+	border: 1px solid #000;
+}
+
+#sidebar
+{
+	position: fixed;
+	left: 0vw;
+	top: 0vh;
+	width: 30vw;
+	height: 100vh;
+}
+
+#version
+{
+	width: 100%;
+	height: 25px;
+	line-height: 25px;
+	color: #000;
+	background: #ddd;
+	padding: 2px;
+	text-align: center;
+	font-size: 7pt;
+	cursor: pointer;
+}
+
+#search
+{
+	width: 100%;
+	height: 50px;
+	color: #fff;
+	background: #44c;
+}
+
+#tree
+{
+	width: 100%;
+	height: calc(100vh - 75px);
+	color: #000;
+	background: #ddd;
+}
+
+#content
+{
+	display: block;
+	position: fixed;
+	left: 30vw;
+	top: 0vw;
+	width: 70vw;
+	height: 100vh;
+	padding: 3vh 5vw 3vh 5vw;
+	color: #000;
+	background: #fff;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	border-left: solid 5px #88c;
+	border-right: solid 5px #88c;
+}
+
+#content .pad
+{
+	margin-bottom: 10vh;
+}
+
+.related
+{
+	margin-top: 10vh;
+	transform: scale(0.9);
+	padding: 10px;
+	background: #f4f4fc;
+	border: 2px solid #44c;
+	border-radius: 10px;
+}
+
+
+/* styles for the content */
+
+a:link,
+a:visited
+{
+	color: #44c;
+	text-decoration: underline;
+}
+
+a:active,
+a:hover
+{
+	color: #c44;
+	text-decoration: underline;
+}
+
+h1 {
+	font-size: 20pt;
+	line-height: 130%;
+	margin: 10pt 0 10pt 0;
+}
+
+h2 {
+	font-size: 18pt;
+	line-height: 130%;
+	margin: 9pt 0 9pt 0;
+}
+
+h3 {
+	font-size: 16pt;
+	line-height: 130%;
+	margin: 8pt 0 8pt 0;
+}
+
+p, ul, ol {
+	margin: 8pt 0 8pt 0;
+}
+
+li {
+	margin: 3pt 0 3pt 3ex;
+}
+
+pre {
+	width: 100%;
+	overflow-x: auto;
+	padding: 5pt;
+	margin: 3pt 0 3pt 0;
+}
+
+div.code {
+	cursor: copy;
+}
+
+code {
+	font-family: monospace;
+}
+
+hr {
+	margin: 5vh 0 5vh 0;
+	height: 1px;
+	background: #888;
+}
+
+.nicetable
+{
+	margin: 5px auto 5px auto;
+	border-collapse: collapse;
+	display: table;
+}
+
+.nicetable th
+{
+	border: 2px solid #854;
+	background: #fa8;
+	font-weight: bold;
+	padding: 1ex;
+	text-align: center;
+}
+
+.nicetable td
+{
+	border: 2px solid #558;
+	background: #aaf;
+	padding: 1ex;
+	text-align: center;
+}
+
+.methods
+{
+	margin: 5px auto 5px 0px;
+	border-collapse: collapse;
+	display: table;
+}
+
+.methods th
+{
+	border: 1px solid #888;
+	background: #fed;
+	font-weight: bold;
+	padding: 1ex;
+	text-align: left;
+	vertical-align: top;
+}
+
+.methods td
+{
+	border: 1px solid #888;
+	padding: 1ex;
+	text-align: left;
+}
+
+.searchresults
+{
+	font-size: 70%;
+	margin-left: 5ex;
+	color: #666;
+}
+
+/* styles for the tree view */
+
+.entry
+{
+	padding: 4px 4px 2px 4px;
+}
+
+.current
+{
+	background: #fa4;
+}
+
+.tgui-tree
+{
+	font-family: sans-serif;
+	font-size: 10pt;
+	line-height: 150%;
+	color: #000;
+	border: none;
+	padding: 3px;
+	position: relative;
+
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+.tgui-tree-main
+{
+	border-collapse: collapse;
+}
+
+.tgui-tree-cell-toggle
+{
+	display: block;
+	width: 15px;
+}
+
+.tgui-tree-cell-content
+{
+	width: calc(100% - 15px);
+	white-space: nowrap;
+}
+
+.tgui-tree-toggle
+{
+	vertical-align: middle;
+	padding-right: 3px;
+	color: #999;
+	transition: color 0.5s;
+}
+
+.tgui-tree-toggle:hover
+{
+	color: #000;
+}
+
+.tgui-tree-element
+{
+}
+
+.tgui-tree-element:hover
+{
+	background: #cdf;
+}
+
+.tgui-hidden
+{
+	display: none;
+}
+
+
+/* highlighting */
+
+.example {
+	margin: 10px 0 10px 0;
+	padding: 10px;
+	border: 2px solid #c66;
+	border-radius: 10px;
+}
+
+.warning {
+	margin: 10px 0 10px 0;
+	padding: 10px;
+	border: 4px solid #c66;
+	background: #fcc;
+	border-radius: 10px;
+}
+
+.keyword { font-family: monospace; background: #dde; border: 1px solid #dde; border-radius: 2px; font-weight: bold; }
+
+.code { background: #ddd; }
+.code-keyword { color: #00c; }
+.code-identifier { color: #000; }
+.code-integer { color: #088; }
+.code-real { color: #480; }
+.code-string { color: #800; }
+.code-operator { color: #000; }
+.code-grouping { color: #080; }
+.code-delimiter { color: #000; }
+.code-comment { color: #888; }
+
+.ebnf { background: #dee; }
+.ebnf-identifier { color: #c00; }
+.ebnf-literal { color: #080; }
+.ebnf-special { color: #808; font-style: italic; }
+.ebnf-operator { color: #000; }
+.ebnf-grouping { color: #c80; }
+.ebnf-delimiter { color: #888; }
