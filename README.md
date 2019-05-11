@@ -1,5 +1,6 @@
 # TScript
-This is the reference implementation of the TScript ("teaching-script") programming language.
+This is the reference implementation of the TScript ("teaching-script")
+programming language.
 
 ## Getting Started
 TScript comes as a single html file. It does not require installation.
@@ -19,13 +20,14 @@ print("Hello World");
 ```
 For proper example code have a look at the [examples](examples)
 directory. There is a whole battery of unit tests in the file
-[source/unittests.html](source/unittests.html).
+[source/unittest.html](source/unittest.html).
 
 ## Authors
 TScript was written by Tobias Glasmachers.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the
+[LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 TScript uses [CodeMirror](https://codemirror.net/) and
