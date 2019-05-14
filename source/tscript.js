@@ -23,8 +23,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 0,
-			day: 11,
+			patch: 1,
+			day: 14,
 			month: 5,
 			year: 2019,
 			full: function()
@@ -721,6 +721,7 @@ let errors = {
 		"am-16b": "cannot order types '$$' and '$$'",
 		"am-17": "cannot construct an array of negative size",
 		"am-18": "parameter 'position' of 'Array.insert' is out of range; position is $$, array size is $$",
+		"am-18b": "'Array.pop' cannot be applied to an empty array",
 		"am-19": "the 'comparator' function passed to 'Array.sort' must return a numeric value, found '$$'",
 		"am-20": "invalid string index '$$' of type '$$', 'Integer' or 'Range' expected",
 		"am-21": "string index '$$' out of range; index must not be negative",
@@ -1066,7 +1067,7 @@ let core = {
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"pop": function(object) {
-						if (object.value.b.length == 0) return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
+						if (object.value.b.length == 0) this.error("/argument-mismatch/am-18b");
 						return object.value.b.pop();
 					},
 					"insert": function(object, position, item) {

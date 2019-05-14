@@ -1440,6 +1440,16 @@ if (doc) doc.children.push({
 			</p>
 		`,
 		"children": []},
+		{"id": "am-18b",
+		"content": `
+			<p>
+			The <a href="#/language/types/array">Array.pop</a> function removes
+			the last item of the array, which is returned. If the array is
+			empty and hence there is no item to remove and return then this
+			error is reported.
+			</p>
+		`,
+		"children": []},
 		{"id": "am-19",
 		"content": `
 			<p>

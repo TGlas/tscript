@@ -3268,6 +3268,16 @@ let tests = [
 				"error"],
 	},
 	{
+		name: "am-18b",
+		description: "test of argument mismatch error am-18b",
+		code: `
+			[].pop();
+		`,
+		expectation: [
+				{type: "error", href: "#/errors/argument-mismatch/am-18b"},
+				"error"],
+	},
+	{
 		name: "am-19",
 		description: "test of argument mismatch error am-19",
 		code: `

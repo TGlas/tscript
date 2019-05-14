@@ -3391,8 +3391,8 @@ if (doc) doc.children.push({
 			</td></tr>
 			<tr><th>pop</th><td>
 				The <code class="code">function pop()</code> removes and returns
-				the last item from the array. When applied to the empty array is
-				does nothing and returns <keyword>null</keyword>.
+				the last item from the array. When applied to the empty array it
+				raises an error.
 			</td></tr>
 			<tr><th>insert</th><td>
 				The <code class="code">function insert(position, item)</code>
