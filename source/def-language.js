@@ -72,10 +72,9 @@ if (doc) doc.children.push({
 			A TScript program consists of a sequence of tokens. Each
 			token is a meaningful and often short string of characters
 			with clear semantics. Tokens can be separated by whitespace,
-			comments, other terminals, or they can be self-terminated.
-			There are eight different types of tokens. A sequence of
-			input characters that does not match any of the token types
-			results in a syntax error.
+			comments, other terminals, or they can be self-delimiting.
+			A sequence of input characters that does not match any of
+			the token types results in a syntax error.
 			</p>
 
 			<h2>Whitespace and Comments</h2>
@@ -198,20 +197,29 @@ if (doc) doc.children.push({
 			<ul>
 				<li><keyword>and</keyword></li>
 				<li><keyword>break</keyword></li>
+				<li><keyword>case</keyword></li>
 				<li><keyword>catch</keyword></li>
 				<li><keyword>class</keyword></li>
+				<li><keyword>const</keyword></li>
 				<li><keyword>constructor</keyword></li>
 				<li><keyword>continue</keyword></li>
+				<li><keyword>default</keyword></li>
 				<li><keyword>do</keyword></li>
 				<li><keyword>else</keyword></li>
+				<li><keyword>enum</keyword></li>
+				<li><keyword>export</keyword></li>
 				<li><keyword>false</keyword></li>
 				<li><keyword>for</keyword></li>
 				<li><keyword>from</keyword></li>
 				<li><keyword>function</keyword></li>
 				<li><keyword>if</keyword></li>
+				<li><keyword>import</keyword></li>
+				<li><keyword>include</keyword></li>
+				<li><keyword>module</keyword></li>
 				<li><keyword>namespace</keyword></li>
 				<li><keyword>not</keyword></li>
 				<li><keyword>null</keyword></li>
+				<li><keyword>operator</keyword></li>
 				<li><keyword>or</keyword></li>
 				<li><keyword>private</keyword></li>
 				<li><keyword>protected</keyword></li>
@@ -219,6 +227,7 @@ if (doc) doc.children.push({
 				<li><keyword>return</keyword></li>
 				<li><keyword>static</keyword></li>
 				<li><keyword>super</keyword></li>
+				<li><keyword>switch</keyword></li>
 				<li><keyword>then</keyword></li>
 				<li><keyword>this</keyword></li>
 				<li><keyword>throw</keyword></li>
@@ -287,9 +296,9 @@ if (doc) doc.children.push({
 			indentation is optional, and statements can extend beyond
 			the end of the current line. Instead, declarations and
 			statements are delimited by keywords and, in most cases,
-			with a semicolon <tscript>;</tscript>. This means that in
-			many cases the tokens in between semicolon tokens form a
-			single statement.
+			with a semicolon&nbsp;<tscript>;</tscript>. This means that
+			in many cases the tokens in between semicolons form a single
+			statement.
 			</p>
 			<p>
 			Another useful structural property of the TScript language that
@@ -1865,7 +1874,7 @@ if (doc) doc.children.push({
 			If a parameter of a function specifies a default value then the
 			corresponding argument can be dropped. A neat way of providing
 			values only for some parameters is to use <i>named</i> arguments,
-			i.e., arguments with <ebnf>identifier&nbsp;"="</ebnf>
+			i.e., arguments with <ebnf>identifier "="</ebnf>
 			present. Named arguments must not be followed by positional arguments,
 			since that would be extremely confusing and error-prone. Also
 			arguments without default values can be specified by name, although
@@ -2212,18 +2221,18 @@ if (doc) doc.children.push({
 			</p>
 			<table class="nicetable">
 				<tr><th>precedence</th><th>operator type</th><th>operators</th><th>evaluation order</th></tr>
-				<tr><td>0</td><td>right&nbsp;unary</td><td><code class="code">[] .</code></td><td>left-to-right</td></tr>
+				<tr><td>0</td><td>right&nbsp;unary</td><td><code class="code">[]</code> <code class="code">.</code></td><td>left-to-right</td></tr>
 				<tr><td>0</td><td>right&nbsp;n-ary</td><td><code class="code">()</code></td><td>left-to-right</td></tr>
 				<tr><td>1</td><td>binary</td><td><code class="code">^</code></td><td>left-to-right</td></tr>
-				<tr><td>2</td><td>left&nbsp;unary</td><td><code class="code">+ -</code></td><td>right-to-left</td></tr>
-				<tr><td>3</td><td>binary</td><td><code class="code">* / \/\/ %</code></td><td>left-to-right</td></tr>
-				<tr><td>4</td><td>binary</td><td><code class="code">+ -</code></td><td>left-to-right</td></tr>
+				<tr><td>2</td><td>left&nbsp;unary</td><td><code class="code">+</code> <code class="code">-</code></td><td>right-to-left</td></tr>
+				<tr><td>3</td><td>binary</td><td><code class="code">*</code> <code class="code">/</code> <code class="code">\/\/</code> <code class="code">%</code></td><td>left-to-right</td></tr>
+				<tr><td>4</td><td>binary</td><td><code class="code">+</code> <code class="code">-</code></td><td>left-to-right</td></tr>
 				<tr><td>5</td><td>binary</td><td><code class="code">:</code></td><td>left-to-right</td></tr>
-				<tr><td>6</td><td>binary</td><td><code class="code">== != &lt; &lt;= &gt; &gt;=</code></td><td>left-to-right</td></tr>
+				<tr><td>6</td><td>binary</td><td><code class="code">==</code> <code class="code">!=</code> <code class="code">&lt;</code> <code class="code">&lt;=</code> <code class="code">&gt;</code> <code class="code">&gt;=</code></td><td>left-to-right</td></tr>
 				<tr><td>7</td><td>left&nbsp;unary</td><td><code class="code">not</code></td><td>right-to-left</td></tr>
 				<tr><td>8</td><td>binary</td><td><code class="code">and</code></td><td>left-to-right</td></tr>
-				<tr><td>9</td><td>binary</td><td><code class="code">or xor</code></td><td>left-to-right</td></tr>
-				<tr><td>10</td><td>assignment</td><td><code class="code">= += -= *= /= \/\/= %= ^=</code></td><td>right-to-left</td></tr>
+				<tr><td>9</td><td>binary</td><td><code class="code">or</code> <code class="code">xor</code></td><td>left-to-right</td></tr>
+				<tr><td>10</td><td>assignment</td><td><code class="code">=</code> <code class="code">+=</code> <code class="code">-=</code> <code class="code">*=</code> <code class="code">/=</code> <code class="code">\/\/=</code> <code class="code">%=</code> <code class="code">^=</code></td><td>right-to-left</td></tr>
 			</table>
 
 			<h2>Parentheses</h2>
@@ -2243,9 +2252,10 @@ if (doc) doc.children.push({
 		"title": "Constants",
 		"content": `
 			<p>
-			Constants are expressions that do not depend on the values of
-			variables. Their main uses are as default values of parameters
-			of functions and as initializers of attributes.
+			Constants are expressions that do not depend on the values
+			of variables. Their main uses are as immediate values within
+			expressions and as initializers of attributes. A further use
+			is as default values of function parameters.
 			</p>
 			<p>
 			All <a href="#/language/expressions/literals">literals</a> of
@@ -2292,7 +2302,7 @@ if (doc) doc.children.push({
 		program flow. Besides assignments and constructs like
 		conditionals and loops, also simple expressions are considered
 		statements since they can have side effects, e.g., by calling
-		<code class="code">print</code> and <code class="code">wait</code>.
+		<code class="code">print</code> or <code class="code">wait</code>.
 		Statements are formally defined as follows:
 		<ebnf>
 			statement = block
@@ -2355,7 +2365,7 @@ if (doc) doc.children.push({
 			or to a constant.
 			</p>
 			<p>
-			Assignments are evaluation from right to left: the <ebnf>expression</ebnf>
+			Assignments are evaluated from right to left: the <ebnf>expression</ebnf>
 			on the right-hand-side (rhs) is evaluated before the <ebnf>lhs</ebnf>. The
 			effect of an assignment with <code class="code">operator =</code> is
 			that the variable referenced by the <ebnf>lhs</ebnf> is overwritten
@@ -2803,8 +2813,8 @@ if (doc) doc.children.push({
 			usually a block of statements, called the catch-block. The value
 			passed to the <keyword>throw</keyword> instruction, known as the
 			<i>exception</i>, is assigned to the variable declared after
-			<keyword>catch</keyword>. Catch blocks are most commonly used to
-			react to error conditions, which are reported by throwing an
+			<keyword>catch</keyword>. Catch blocks are used to react to
+			error conditions, which are reported by throwing an
 			exception.
 			</p>
 			<div class="example">
@@ -2866,10 +2876,10 @@ if (doc) doc.children.push({
 		Programmers can extend the type system to new kinds of information
 		by writing their own classes. Simple classes like a date class can
 		behave similar to atomic types. More complex classes can for
-		example act as containers, or represent resources like data base
-		connections. Classes support proper information hiding, which
-		allows the programmer to separate implementation details from a
-		public interface.
+		example act as containers, or represent resources (like files).
+		Classes support proper information hiding, which allows the
+		programmer to separate implementation details from a public
+		interface.
 		</p>
 		<p>
 		TScript does not distinguish between built-in types and classes,
@@ -2952,9 +2962,9 @@ if (doc) doc.children.push({
 		"title": "The Type <i>Integer</i>",
 		"content": `
 			<p>
-			There exists <i>2<sup>32</sup></i> values of type Integer, namely
+			There exist <i>2<sup>32</sup></i> values of type Integer, namely
 			the whole numbers in the range <i>-2147483648 = -2<sup>31</sup></i>
-			to <i>2147483647 = 2<sup>31-1</sup></i>. Non-negative integers can be
+			to <i>2147483647 = 2<sup>31</sup>-1</i>. Non-negative integers can be
 			represented directly as
 			<a href="#/language/expressions/literals/integers">integer literals</a>.
 			The values are immutable.
@@ -2974,7 +2984,7 @@ if (doc) doc.children.push({
 			<tr><th>unary&nbsp;+</th><td>
 				The operator is a no-operation, or more correctly, the identity
 				mapping. It returns its argument unmodified. It merely exists for
-				symmetry with unary -, e.g., in the following situation:
+				symmetry with unary&nbsp;-, e.g., in the following situation:
 				<tscript>
 					var a = [-1, +1];
 				</tscript>
@@ -3009,8 +3019,8 @@ if (doc) doc.children.push({
 					print(5 / 3);     # 1.6666...
 					print(4 / 3);     # 1.3333...
 					print(1 / 3);     # 0.3333...
-					print((-1) / 3);  # -0.3333...
 					print(-1 / 3);    # -0.3333...
+					print(1 / -3);    # -0.3333...
 				</tscript>
 			</td></tr>
 			<tr><th>binary&nbsp;\/\/</th><td>
@@ -3027,8 +3037,9 @@ if (doc) doc.children.push({
 					print(5 // 3);     # 1
 					print(4 // 3);     # 1
 					print(1 // 3);     # 0
-					print((-1) // 3);  # -1, since we round down
-					print(-1 // 3);    # 0, since // binds stronger than -
+					print(-1 // 3);    # -1, since we round down
+					print(1 // -3);    # -1 again
+					print(-(1 // 3));  # 0
 				</tscript>
 			</td></tr>
 			<tr><th>binary&nbsp;%</th><td>
@@ -3043,17 +3054,17 @@ if (doc) doc.children.push({
 					print(5 % 3);     # 2
 					print(4 % 3);     # 1
 					print(1 % 3);     # 1
-					print((-1) % 3);  # 2, not -1
-					print(1 % -3);    # same as above, since 1//-3 = (-1)//3
-					print(-1 % 3);    # -1, since % binds stronger than -
+					print(-1 % 3);    # 2, not -1
+					print(1 % -3);    # 2 again, since 1//-3 = -1//3
+					print(-(1 % 3));  # -1
 				</tscript>
 			</td></tr>
 			<tr><th>binary&nbsp;^</th><td>
 				The operation <i>n ^ m</i> computes the <i>m</i>-th power of
-				<i>n</i>. If <m> is non-negative then the result is an integer,
-				which is subject to the usual under- and overflow rules. For
-				negative exponent both arguments are converted to reals before
-				applying the same operator for reals. Examples:
+				<i>n</i>. If <i>m</i> is non-negative then the result is an
+				integer, which is subject to the usual under- and overflow rules.
+				For negative exponent both arguments are converted to reals
+				before applying the same operator for reals. Examples:
 				<tscript>
 					print(2 ^ 4);       # 16
 					print(-2 ^ 4);      # -16
@@ -3137,8 +3148,8 @@ if (doc) doc.children.push({
 			<tr><th>unary&nbsp;+</th><td>
 				The unary <code class="code">operator +</code> is a no-operation,
 				or more correctly, the identity mapping. It returns its argument
-				unmodified. It merely exists for symmetry with unary -, i.e., in
-				the following situation:
+				unmodified. It merely exists for symmetry with unary&nbsp;-, i.e.,
+				in the following situation:
 				<tscript>
 					var a = [-1.0, +1.0];
 				</tscript>
@@ -3164,9 +3175,9 @@ if (doc) doc.children.push({
 				integer division and with the modulo operation defined below.
 				For example:
 				<tscript>
-					print(3.14 // 1.5);     # 2
-					print(-3.14 // 1.5);    # -2
-					print((-3.15) // 1.5);  # -3
+					print(3.5 // 1.5);      # 2
+					print(-3.5 // 1.5);     # -3
+					print(-(3.5 // 1.5));   # -2
 				</tscript>
 			</td></tr>
 			<tr><th>binary&nbsp;%</th><td>
@@ -3176,9 +3187,9 @@ if (doc) doc.children.push({
 				(for positive denominator, otherwise the result is negated).
 				For example:
 				<tscript>
-					print(3.14 % 1.5);     # 0.15
-					print(-3.14 % 1.5);    # -0.14
-					print((-3.15) % 1.5);  # 1.3599999999999999
+					print(3.5 % 1.5);      # 0.5
+					print(-3.5 % 1.5);     # 1
+					print(-(3.5 % 1.5));   # -0.5
 				</tscript>
 			</td></tr>
 			<tr><th>binary&nbsp;^</th><td>
@@ -3203,21 +3214,21 @@ if (doc) doc.children.push({
 				<code class="code">constructor(value)</code> converts the
 				value to a real. For reals this amounts to copying, integers
 				are converted, and strings are parsed as decimal numbers.
-				The result is subject to under- and overflow. All other types
+				The result is subject to roundoff errors. All other types
 				and all error conditions result in not-a-number.
 			</td></tr>
-			<tr><th>inFinite</th><td>
-				<code class="code">inFinite()</code> test whether the value
+			<tr><th>isFinite</th><td>
+				<code class="code">isFinite()</code> test whether the value
 				is finite. This is the case if it is neither infinite nor
 				NaN.
 			</td></tr>
-			<tr><th>inInfinite</th><td>
-				<code class="code">inFinite()</code> test whether the value
+			<tr><th>isInfinite</th><td>
+				<code class="code">isInfinite()</code> test whether the value
 				is infinite. This is the case if it equals positive or
 				negative infinity.
 			</td></tr>
-			<tr><th>inNan</th><td>
-				<code class="code">inFinite()</code> test whether the value
+			<tr><th>isNan</th><td>
+				<code class="code">isNan()</code> test whether the value
 				is not-a-number.
 			</td></tr>
 			<tr><th>inf</th><td>
@@ -3251,10 +3262,10 @@ if (doc) doc.children.push({
 			<table class="methods">
 			<tr><th>binary&nbsp;+</th><td>
 				Concatenate two strings as sequences of characters. Only one of the
-				operands must be a string in order to trigger the application of this
-				operator; the other operand is converted to a string as if it had
-				been passed to the String constructor. The following two statements
-				are equivalent:
+				operands needs to be a string in order to trigger the application of
+				this operator; the other operand is converted to a string as if it
+				had been passed to the String constructor. The following two
+				statements are equivalent:
 				<tscript>
 					print("pi = " + math.pi());
 					print("pi = " + String(math.pi()));
@@ -3308,7 +3319,7 @@ if (doc) doc.children.push({
 			<tr><th>split</th><td>
 				The <code class="code">function split(separator)</code> splits
 				the string into substrings, separated by the separator string.
-				It returns the substrings as an array. If case of two consecutive
+				It returns the substrings as an array. In case of two consecutive
 				separators or a separator at the beginning or end of the string
 				the resulting substring is empty. Example:
 				<tscript>
@@ -3461,7 +3472,7 @@ if (doc) doc.children.push({
 			accessed with keys. Any two different strings form two different
 			keys, which can refer to different items. The empty string is a
 			legal key. Of course, not every possible string refers to an item,
-			but only key that were explicitly defined.
+			but only keys that were explicitly defined.
 			</p>
 			<p>
 			Conceptually, keys in a dictionary are not ordered. In particular,
@@ -3654,7 +3665,7 @@ if (doc) doc.children.push({
 		"title": "The Type <i>Type</i>",
 		"content": `
 			<p>
-			The values of type Type represent types, i.e., built-in types are
+			The values of type Type represent types, i.e., built-in types and
 			classes. They are immutable. A type value can be constructed from
 			any value.
 			</p>
@@ -3672,7 +3683,7 @@ if (doc) doc.children.push({
 					var ttt = Type(tt);
 					print(ttt);     # &lt;Type Type&gt;
 
-					var b = t(3:8); # construct a new Array from a range
+					var b = t(3:8); # construct a new Array from a range using "t"
 					print(b);       # [3,4,5,6,7]
 				</tscript>
 			</div>
@@ -3727,7 +3738,8 @@ if (doc) doc.children.push({
 			<tr><th>superclass</th><td>
 				<code class="code">static function superclass(type)</code>
 				returns a type object representing the direct super class of
-				the given <i>type</i>, or null if the it not have a super class.
+				the given <i>type</i>, or null if the it does not have a super
+				class.
 			</td></tr>
 			<tr><th>isOfType</th><td>
 				<code class="code">static function isOfType(value, type)</code>
@@ -3738,7 +3750,7 @@ if (doc) doc.children.push({
 			<tr><th>isDerivedFrom</th><td>
 				<code class="code">static function isDerivedFrom(subclass, superclass)</code>
 				tests whether <i>subclass</i> inherits <i>superclass</i> as a direct
-				or indirect base, or since the types coincide.
+				or indirect base (including the case that the types coincide).
 			</td></tr>
 			</table>
 		`,
