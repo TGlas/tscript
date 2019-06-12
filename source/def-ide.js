@@ -70,8 +70,8 @@ if (doc) doc.children.push({
 		<p>
 		It follows a wide element with colored background, called the
 		program state indicator. It indicates whether the program is just
-		about to be written, whether it parsed successfully or whether
-		an error occurred, and whether the program is running or
+		about to be written, whether it was parsed successfully or whether
+		an error occurred, and whether the program is running, waiting, or
 		interrupted.
 		</p>
 		<p>
@@ -105,7 +105,7 @@ if (doc) doc.children.push({
 			<tr><th>key</th><th>effect</th></tr>
 			<tr><td>control-A</td><td>select all</td></tr>
 			<tr><td>control-Z</td><td>undo last change</td></tr>
-			<tr><td>control-Y</td><td>redo last change</td></tr>
+			<tr><td>shift-control-Z</td><td>redo last change</td></tr>
 			<tr><td>control-Y</td><td>redo last change</td></tr>
 			<tr><td>control-Home</td><td>jump to start of the document</td></tr>
 			<tr><td>control-End</td><td>jump to end of the document</td></tr>
@@ -153,7 +153,7 @@ if (doc) doc.children.push({
 		This panel contains information only while the program is running.
 		It displays the program state as a tree. At the topmost level, the
 		tree contains one node per stack frame, which is the entity holding
-		all local variables of the program. The bottom-most stack frame
+		all local variables of a function. The bottom-most stack frame
 		(with index [0]) holds the global variables.
 		</p>
 		<p>
