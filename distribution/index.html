@@ -398,8 +398,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 2,
-			day: 12,
+			patch: 3,
+			day: 29,
 			month: 6,
 			year: 2019,
 			full: function()
@@ -698,7 +698,7 @@ module.typed2json = function(arg)
 				}
 				else
 				{
-					var ret = {};
+					let ret = {};
 					for (let key in value)
 					{
 						if (! value.hasOwnProperty(key)) continue;
@@ -712,7 +712,7 @@ module.typed2json = function(arg)
 // compare typed values for equality, return true or false
 module.equal = function(lhs, rhs)
 {
-	var rec = function(lhs, rhs, k)
+	let rec = function(lhs, rhs, k)
 	{
 		if (lhs === rhs) return true;
 		else if (module.isDerivedFrom(lhs.type, module.typeid_null) && module.isDerivedFrom(rhs.type, module.typeid_null))
@@ -1388,7 +1388,7 @@ let core = {
 					"split": function(object, separator) {
 						if (! module.isDerivedFrom(separator.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["separator", "String.split", "string", module.displayname(separator.type)]);
 						let a = object.value.b.split(separator.value.b);
-						var arr = [];
+						let arr = [];
 						for (let i=0; i<a.length; i++) arr.push({"type": this.program.types[module.typeid_string], "value": {"b": a[i]}});
 						return {"type": this.program.types[module.typeid_array], "value": {"b": arr}};
 					},
@@ -2162,64 +2162,29 @@ let lib_turtle = {
 						if (! module.isNumeric(y.type)) this.error("/argument-mismatch/am-1", ["y", "turtle.reset", "numeric argument", module.displayname(y.type)]);
 						if (! module.isNumeric(degrees.type)) this.error("/argument-mismatch/am-1", ["degrees", "turtle.reset", "numeric argument", module.displayname(degrees.type)]);
 						if (! module.isDerivedFrom(down.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["down", "turtle.reset", "boolean", module.displayname(down.type)]);
-						if (this.service.turtle)
-						{
-							this.service.turtle.turtle_position = [x.value.b, y.value.b];
-							this.service.turtle.turtle_angle = degrees.value.b;
-							this.service.turtle.turtle_pen = down.value.b;
-							this.service.turtle.turtle_color = "rgb(0,0,0)";
-						}
+						if (this.service.turtle) this.service.turtle.reset.call(this, x.value.b, y.value.b, degrees.value.b, down.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"move": function(distance) {
 						if (! module.isNumeric(distance.type)) this.error("/argument-mismatch/am-1", ["distance", "turtle.move", "numeric argument", module.displayname(distance.type)]);
-						if (this.service.turtle)
-						{
-							let x = this.service.turtle.turtle_position[0];
-							let y = this.service.turtle.turtle_position[1];
-							let a = Math.PI / 180 * this.service.turtle.turtle_angle;
-							let s = Math.sin(a);
-							let c = Math.cos(a);
-							let xx = x + s * distance.value.b;
-							let yy = y + c * distance.value.b;
-							this.service.turtle.turtle_position = [xx, yy];
-							if (this.service.turtle.turtle_pen)
-							{
-								let ctx = this.service.turtle.getContext("2d");
-								ctx.lineWidth = 1;
-								ctx.strokeStyle = this.service.turtle.turtle_color;
-								ctx.beginPath();
-								ctx.moveTo(300+3*x, 300-3*y);
-								ctx.lineTo(300+3*xx, 300-3*yy);
-								ctx.stroke();
-							}
-						}
+						if (this.service.turtle) this.service.turtle.move.call(this, distance.value.b);
+						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
+					},
+					"turn": function(degrees) {
+						if (! module.isNumeric(degrees.type)) this.error("/argument-mismatch/am-1", ["degrees", "turtle.turn", "numeric argument", module.displayname(degrees.type)]);
+						if (this.service.turtle) this.service.turtle.turn.call(this, degrees.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"color": function(red, green, blue) {
 						if (! module.isNumeric(  red.type)) this.error("/argument-mismatch/am-1", [  "red", "turtle.color", "numeric argument", module.displayname(  red.type)]);
 						if (! module.isNumeric(green.type)) this.error("/argument-mismatch/am-1", ["green", "turtle.color", "numeric argument", module.displayname(green.type)]);
 						if (! module.isNumeric( blue.type)) this.error("/argument-mismatch/am-1", [ "blue", "turtle.color", "numeric argument", module.displayname( blue.type)]);
-						let r = red.value.b;
-						if (r < 0) r = 0;
-						else if (r > 1) r = 1;
-						let g = green.value.b;
-						if (g < 0) g = 0;
-						else if (g > 1) g = 1;
-						let b = blue.value.b;
-						if (b < 0) b = 0;
-						else if (b > 1) b = 1;
-						if (this.service.turtle) this.service.turtle.turtle_color = "rgb(" + Math.round(255*r) + "," + Math.round(255*g) + "," + Math.round(255*b) + ")";
-						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
-					},
-					"turn": function(degrees) {
-						if (! module.isNumeric(degrees.type)) this.error("/argument-mismatch/am-1", ["degrees", "turtle.turn", "numeric argument", module.displayname(degrees.type)]);
-						if (this.service.turtle) this.service.turtle.turtle_angle = (this.service.turtle.turtle_angle + degrees.value.b) % 360.0;
+						if (this.service.turtle) this.service.turtle.color.call(this, red.value.b, green.value.b, blue.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"pen": function(down) {
 						if (! module.isDerivedFrom(down.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["down", "turtle.pen", "boolean", module.displayname(down.type)]);
-						if (this.service.turtle) this.service.turtle.turtle_pen = down.value.b;
+						if (this.service.turtle) this.service.turtle.pen.call(this, down.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 			},
@@ -2296,84 +2261,51 @@ let lib_canvas = {
 	"impl": {
 			"canvas": {
 					"width": function() {
-						let ret = 0;
-						if (this.service.canvas) ret = this.service.canvas.width;
+						let ret = this.service.canvas.width.call(this);
 						return {"type": this.program.types[module.typeid_integer], "value": {"b": ret}};
 					},
 					"height": function() {
-						let ret = 0;
-						if (this.service.canvas) ret = this.service.canvas.height;
+						let ret = this.service.canvas.height.call(this);
 						return {"type": this.program.types[module.typeid_integer], "value": {"b": ret}};
 					},
 					"setLineWidth": function(width) {
 						if (! module.isNumeric(width.type)) this.error("/argument-mismatch/am-1", ["width", "canvas.setLineWidth", "numeric argument", module.displayname(width.type)]);
 						if (width.value.b <= 0) this.error("/user/ue-2", ["error in canvas.setLineWidth; width must be positive"]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.lineWidth = width.value.b;
-						}
+						this.service.canvas.setLineWidth.call(this, width.value.b);
+						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"setLineColor": function(red, green, blue, alpha) {
 						if (! module.isNumeric(red.type))   this.error("/argument-mismatch/am-1", ["red",   "canvas.setLineColor", "numeric argument", module.displayname(red.type)]);
 						if (! module.isNumeric(green.type)) this.error("/argument-mismatch/am-1", ["green", "canvas.setLineColor", "numeric argument", module.displayname(green.type)]);
 						if (! module.isNumeric(blue.type))  this.error("/argument-mismatch/am-1", ["blue",  "canvas.setLineColor", "numeric argument", module.displayname(blue.type)]);
 						if (! module.isNumeric(alpha.type)) this.error("/argument-mismatch/am-1", ["alpha", "canvas.setLineColor", "numeric argument", module.displayname(alpha.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							let r = Math.min(1, Math.max(0, red.value.b));
-							let g = Math.min(1, Math.max(0, green.value.b));
-							let b = Math.min(1, Math.max(0, blue.value.b));
-							let a = Math.min(1, Math.max(0, alpha.value.b));
-							ctx.strokeStyle = "rgba(" + Math.round(255 * r) + "," + Math.round(255 * g) + "," + Math.round(255 * b) + "," + a + ")";
-						}
+						this.service.canvas.setLineColor.call(this, red.value.b, green.value.b, blue.value.b, alpha.value.b);
+						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"setFillColor": function(red, green, blue, alpha) {
 						if (! module.isNumeric(red.type))   this.error("/argument-mismatch/am-1", ["red",   "canvas.setFillColor", "numeric argument", module.displayname(red.type)]);
 						if (! module.isNumeric(green.type)) this.error("/argument-mismatch/am-1", ["green", "canvas.setFillColor", "numeric argument", module.displayname(green.type)]);
 						if (! module.isNumeric(blue.type))  this.error("/argument-mismatch/am-1", ["blue",  "canvas.setFillColor", "numeric argument", module.displayname(blue.type)]);
 						if (! module.isNumeric(alpha.type)) this.error("/argument-mismatch/am-1", ["alpha", "canvas.setFillColor", "numeric argument", module.displayname(alpha.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							let r = Math.min(1, Math.max(0, red.value.b));
-							let g = Math.min(1, Math.max(0, green.value.b));
-							let b = Math.min(1, Math.max(0, blue.value.b));
-							let a = Math.min(1, Math.max(0, alpha.value.b));
-							ctx.fillStyle = "rgba(" + Math.round(255 * r) + "," + Math.round(255 * g) + "," + Math.round(255 * b) + "," + a + ")";
-						}
+						this.service.canvas.setFillColor.call(this, red.value.b, green.value.b, blue.value.b, alpha.value.b);
+						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"setFont": function(fontface, fontsize) {
 						if (! module.isDerivedFrom(fontface.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["fontface", "canvas.setFont", "string", module.displayname(fontface.type)]);
 						if (! module.isNumeric(fontsize.type)) this.error("/argument-mismatch/am-1", ["fontsize", "canvas.setFont", "numeric argument", module.displayname(fontsize.type)]);
 						if (fontsize.value.b <= 0) this.error("/user/ue-2", ["error in canvas.setFont; fontsize must be positive"]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.font = fontsize.value.b + "px " + fontface.value.b;
-							this.service.canvas.font_size = fontsize.value.b;
-						}
+						this.service.canvas.setFont.call(this, fontface.value.b, fontsize.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"setTextAlign": function(alignment) {
 						if (! module.isDerivedFrom(alignment.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["alignment", "canvas.setTextAlign", "string", module.displayname(alignment.type)]);
 						let a = alignment.value.b;
 						if (a != "left" && a != "center" && a != "right") this.error("/user/ue-2", ["error in canvas.setTextAlign; invalid alignment value"]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.textAlign = a;
-						}
+						this.service.canvas.setTextAlign.call(this, alignment.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"clear": function() {
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.setTransform(1, 0, 0, 1, 0, 0);
-							ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-						}
+						this.service.canvas.clear.call(this);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"line": function(x1, y1, x2, y2) {
@@ -2381,14 +2313,7 @@ let lib_canvas = {
 						if (! module.isNumeric(y1.type)) this.error("/argument-mismatch/am-1", ["y1", "canvas.line", "numeric argument", module.displayname(y1.type)]);
 						if (! module.isNumeric(x2.type)) this.error("/argument-mismatch/am-1", ["x2", "canvas.line", "numeric argument", module.displayname(x2.type)]);
 						if (! module.isNumeric(y2.type)) this.error("/argument-mismatch/am-1", ["y2", "canvas.line", "numeric argument", module.displayname(y2.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							ctx.moveTo(x1.value.b, y1.value.b);
-							ctx.lineTo(x2.value.b, y2.value.b);
-							ctx.stroke();
-						}
+						this.service.canvas.line.call(this, x1.value.b, y1.value.b, x2.value.b, y2.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"rect": function(left, top, width, height) {
@@ -2396,13 +2321,7 @@ let lib_canvas = {
 						if (! module.isNumeric(top.type))    this.error("/argument-mismatch/am-1", ["top",    "canvas.rect", "numeric argument", module.displayname(top.type)]);
 						if (! module.isNumeric(width.type))  this.error("/argument-mismatch/am-1", ["width",  "canvas.rect", "numeric argument", module.displayname(width.type)]);
 						if (! module.isNumeric(height.type)) this.error("/argument-mismatch/am-1", ["height", "canvas.rect", "numeric argument", module.displayname(height.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							ctx.rect(left.value.b, top.value.b, width.value.b, height.value.b);
-							ctx.stroke();
-						}
+						this.service.canvas.rect.call(this, left.value.b, top.value.b, width.value.b, height.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"fillRect": function(left, top, width, height) {
@@ -2410,11 +2329,7 @@ let lib_canvas = {
 						if (! module.isNumeric(top.type))    this.error("/argument-mismatch/am-1", ["top",    "canvas.fillRect", "numeric argument", module.displayname(top.type)]);
 						if (! module.isNumeric(width.type))  this.error("/argument-mismatch/am-1", ["width",  "canvas.fillRect", "numeric argument", module.displayname(width.type)]);
 						if (! module.isNumeric(height.type)) this.error("/argument-mismatch/am-1", ["height", "canvas.fillRect", "numeric argument", module.displayname(height.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.fillRect(left.value.b, top.value.b, width.value.b, height.value.b);
-						}
+						this.service.canvas.fillRect.call(this, left.value.b, top.value.b, width.value.b, height.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"frameRect": function(left, top, width, height) {
@@ -2422,59 +2337,34 @@ let lib_canvas = {
 						if (! module.isNumeric(top.type))    this.error("/argument-mismatch/am-1", ["top",    "canvas.frameRect", "numeric argument", module.displayname(top.type)]);
 						if (! module.isNumeric(width.type))  this.error("/argument-mismatch/am-1", ["width",  "canvas.frameRect", "numeric argument", module.displayname(width.type)]);
 						if (! module.isNumeric(height.type)) this.error("/argument-mismatch/am-1", ["height", "canvas.frameRect", "numeric argument", module.displayname(height.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							ctx.rect(left.value.b, top.value.b, width.value.b, height.value.b);
-							ctx.fill();
-							ctx.stroke();
-						}
+						this.service.canvas.frameRect.call(this, left.value.b, top.value.b, width.value.b, height.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"circle": function(x, y, radius) {
 						if (! module.isNumeric(x.type))      this.error("/argument-mismatch/am-1", ["x",      "canvas.circle", "numeric argument", module.displayname(x.type)]);
 						if (! module.isNumeric(y.type))      this.error("/argument-mismatch/am-1", ["y",      "canvas.circle", "numeric argument", module.displayname(y.type)]);
 						if (! module.isNumeric(radius.type)) this.error("/argument-mismatch/am-1", ["radius", "canvas.circle", "numeric argument", module.displayname(radius.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							ctx.arc(x.value.b, y.value.b, radius.value.b, 0, 2 * Math.PI, false);
-							ctx.stroke();
-						}
+						this.service.canvas.circle.call(this, x.value.b, y.value.b, radius.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"fillCircle": function(x, y, radius) {
 						if (! module.isNumeric(x.type))      this.error("/argument-mismatch/am-1", ["x",      "canvas.fillCircle", "numeric argument", module.displayname(x.type)]);
 						if (! module.isNumeric(y.type))      this.error("/argument-mismatch/am-1", ["y",      "canvas.fillCircle", "numeric argument", module.displayname(y.type)]);
 						if (! module.isNumeric(radius.type)) this.error("/argument-mismatch/am-1", ["radius", "canvas.fillCircle", "numeric argument", module.displayname(radius.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							ctx.arc(x.value.b, y.value.b, radius.value.b, 0, 2 * Math.PI, false);
-							ctx.fill();
-						}
+						this.service.canvas.fillCircle.call(this, x.value.b, y.value.b, radius.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"frameCircle": function(x, y, radius) {
 						if (! module.isNumeric(x.type))      this.error("/argument-mismatch/am-1", ["x",      "canvas.frameCircle", "numeric argument", module.displayname(x.type)]);
 						if (! module.isNumeric(y.type))      this.error("/argument-mismatch/am-1", ["y",      "canvas.frameCircle", "numeric argument", module.displayname(y.type)]);
 						if (! module.isNumeric(radius.type)) this.error("/argument-mismatch/am-1", ["radius", "canvas.frameCircle", "numeric argument", module.displayname(radius.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							ctx.arc(x.value.b, y.value.b, radius.value.b, 0, 2 * Math.PI, false);
-							ctx.fill();
-							ctx.stroke();
-						}
+						this.service.canvas.frameCircle.call(this, x.value.b, y.value.b, radius.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"curve": function(points, closed) {
 						if (! module.isDerivedFrom(points.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["points", "canvas.curve", "array", module.displayname(points.type)]);
 						if (! module.isDerivedFrom(closed.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["closed", "canvas.curve", "boolean", module.displayname(closed.type)]);
+						let list = [];
 						for (let i=0; i<points.value.b.length; i++)
 						{
 							let p = points.value.b[i];
@@ -2484,29 +2374,14 @@ let lib_canvas = {
 							let y = p.value.b[1];
 							if (! module.isNumeric(x.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][0]", "canvas.curve", "numeric argument", module.displayname(x.type)]);
 							if (! module.isNumeric(y.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][1]", "canvas.curve", "numeric argument", module.displayname(y.type)]);
+							list.push([x.value.b, y.value.b]);
 						}
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							let n = points.value.b.length;
-							if (n > 0)
-							{
-								let p = points.value.b[0];
-								ctx.moveTo(p.value.b[0].value.b, p.value.b[1].value.b);
-								for (let i=1; i<n; i++)
-								{
-									let p = points.value.b[i];
-									ctx.lineTo(p.value.b[0].value.b, p.value.b[1].value.b);
-								}
-							}
-							if (closed.value.b) ctx.closePath();
-							ctx.stroke();
-						}
+						this.service.canvas.curve.call(this, list, closed.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"fillArea": function(points) {
 						if (! module.isDerivedFrom(points.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["points", "canvas.fillArea", "array", module.displayname(points.type)]);
+						let list = [];
 						for (let i=0; i<points.value.b.length; i++)
 						{
 							let p = points.value.b[i];
@@ -2516,29 +2391,14 @@ let lib_canvas = {
 							let y = p.value.b[1];
 							if (! module.isNumeric(x.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][0]", "canvas.fillArea", "numeric argument", module.displayname(x.type)]);
 							if (! module.isNumeric(y.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][1]", "canvas.fillArea", "numeric argument", module.displayname(y.type)]);
+							list.push([x.value.b, y.value.b]);
 						}
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							let n = points.value.b.length;
-							if (n > 0)
-							{
-								let p = points.value.b[0];
-								ctx.moveTo(p.value.b[0].value.b, p.value.b[1].value.b);
-								for (let i=1; i<n; i++)
-								{
-									let p = points.value.b[i];
-									ctx.lineTo(p.value.b[0].value.b, p.value.b[1].value.b);
-								}
-							}
-							ctx.closePath();
-							ctx.fill();
-						}
+						this.service.canvas.fillArea.call(this, list);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"frameArea": function(points) {
 						if (! module.isDerivedFrom(points.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["points", "canvas.frameArea", "array", module.displayname(points.type)]);
+						let list = [];
 						for (let i=0; i<points.value.b.length; i++)
 						{
 							let p = points.value.b[i];
@@ -2548,80 +2408,35 @@ let lib_canvas = {
 							let y = p.value.b[1];
 							if (! module.isNumeric(x.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][0]", "canvas.frameArea", "numeric argument", module.displayname(x.type)]);
 							if (! module.isNumeric(y.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][1]", "canvas.frameArea", "numeric argument", module.displayname(y.type)]);
+							list.push([x.value.b, y.value.b]);
 						}
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.beginPath();
-							let n = points.value.b.length;
-							if (n > 0)
-							{
-								let p = points.value.b[0];
-								ctx.moveTo(p.value.b[0].value.b, p.value.b[1].value.b);
-								for (let i=1; i<n; i++)
-								{
-									let p = points.value.b[i];
-									ctx.lineTo(p.value.b[0].value.b, p.value.b[1].value.b);
-								}
-							}
-							ctx.closePath();
-							ctx.fill();
-							ctx.stroke();
-						}
+						this.service.canvas.frameArea.call(this, list);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"text": function(x, y, str) {
 						if (! module.isNumeric(x.type)) this.error("/argument-mismatch/am-1", ["x", "canvas.text", "numeric argument", module.displayname(x.type)]);
 						if (! module.isNumeric(y.type)) this.error("/argument-mismatch/am-1", ["y", "canvas.text", "numeric argument", module.displayname(y.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.textBaseline = "top";
-							let lines = module.toString(str).split('\n');
-							let xx = x.value.b;
-							let yy = y.value.b;
-							for (let i=0; i<lines.length; i++)
-							{
-								ctx.fillText(lines[i], xx, yy);
-								yy += this.service.canvas.font_size;
-							}
-						}
+						this.service.canvas.text.call(this, x.value.b, y.value.b, module.toString(str));
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"reset": function() {
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.setTransform(1, 0, 0, 1, 0, 0);
-						}
+						this.service.canvas.reset.call(this);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"shift": function(dx, dy) {
 						if (! module.isNumeric(dx.type)) this.error("/argument-mismatch/am-1", ["dx", "canvas.shift", "numeric argument", module.displayname(dx.type)]);
 						if (! module.isNumeric(dy.type)) this.error("/argument-mismatch/am-1", ["dy", "canvas.shift", "numeric argument", module.displayname(dy.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.translate(dx.value.b, dy.value.b);
-						}
+						this.service.canvas.shift.call(this, dx.value.b, dy.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"scale": function(factor) {
 						if (! module.isNumeric(factor.type)) this.error("/argument-mismatch/am-1", ["factor", "canvas.scale", "numeric argument", module.displayname(factor.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.scale(factor.value.b, factor.value.b);
-						}
+						this.service.canvas.scale.call(this, factor.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"rotate": function(angle) {
 						if (! module.isNumeric(angle.type)) this.error("/argument-mismatch/am-1", ["angle", "canvas.rotate", "numeric argument", module.displayname(angle.type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.rotate(angle.value.b);
-						}
+						this.service.canvas.rotate.call(this, angle.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"transform": function(A, b) {
@@ -2637,18 +2452,10 @@ let lib_canvas = {
 						if (b.value.b.length != 2) this.error("/user/ue-2", ["error in canvas.transform; b must be an array of size two."]);
 						if (! module.isNumeric(b.value.b[0].type)) this.error("/argument-mismatch/am-1", ["b[0]", "canvas.transform", "numeric argument", module.displayname(b.value.b[0].type)]);
 						if (! module.isNumeric(b.value.b[1].type)) this.error("/argument-mismatch/am-1", ["b[1]", "canvas.transform", "numeric argument", module.displayname(b.value.b[1].type)]);
-						if (this.service.canvas)
-						{
-							let ctx = this.service.canvas.getContext("2d");
-							ctx.transform(
-										A.value.b[0].value.b[0].value.b,
-										A.value.b[1].value.b[0].value.b,
-										A.value.b[0].value.b[1].value.b,
-										A.value.b[1].value.b[1].value.b,
-										b.value.b[0].value.b,
-										b.value.b[1].value.b,
-									);
-						}
+						this.service.canvas.transform.call(this,
+								[[A.value.b[0].value.b[0].value.b, A.value.b[0].value.b[1].value.b],
+								 [A.value.b[1].value.b[0].value.b, A.value.b[1].value.b[1].value.b]],
+								[b.value.b[0].value.b, b.value.b[1].value.b]);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 			},
@@ -3773,7 +3580,7 @@ function parse_call(state, parent, base)
 		if (module.isDerivedFrom(base.typedvalue.type, module.typeid_function)) f = base.typedvalue.value.b.func;
 		else if (module.isDerivedFrom(base.typedvalue.type, module.typeid_type))
 		{
-			var cls = base.typedvalue.value.b;
+			let cls = base.typedvalue.value.b;
 			if (cls.class_constructor.access != "public")
 			{
 				// check whether the constructor is accessible from the current context
@@ -6532,7 +6339,7 @@ function parse_throw(state, parent)
 						else
 						{
 							// save the exception
-							var ex = frame.temporaries.pop();
+							let ex = frame.temporaries.pop();
 
 							// search for a try block
 							let remove_frame = 0;
@@ -6951,6 +6758,248 @@ module.Interpreter = function(program)
 	this.service = { };       // external services, mostly for communication with the IDE
 	this.eventnames = { };    // registry of event types
 	this.eventmode = false;   // is the program in event handling mode?
+
+	this.service.turtle = {
+		"x": 0.0,
+		"y": 0.0,
+		"angle": 0.0,
+		"down": true,
+		"rgb": "rgb(0,0,0)",
+		"reset": function(x, y, degrees, down) {
+			this.service.turtle.x = x;
+			this.service.turtle.y = y;
+			this.service.turtle.angle = degrees;
+			this.service.turtle.down = down;
+			this.service.turtle.rgb = "rgb(0,0,0)";
+		},
+		"move": function(distance) {
+			let a = Math.PI / 180 * this.service.turtle.angle;
+			let s = Math.sin(a);
+			let c = Math.cos(a);
+			let x = this.service.turtle.x + distance * s;
+			let y = this.service.turtle.y + distance * c;
+			if (this.service.turtle.down && this.service.turtle.dom)
+			{
+				let ctx = this.service.turtle.dom.getContext("2d");
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = this.service.turtle.rgb;
+				ctx.beginPath();
+				ctx.moveTo(300+3*this.service.turtle.x, 300-3*this.service.turtle.y);
+				ctx.lineTo(300+3*x, 300-3*y);
+				ctx.stroke();
+			}
+			this.service.turtle.x = x;
+			this.service.turtle.y = y;
+		},
+		"turn": function(degrees) {
+			this.service.turtle.angle = (this.service.turtle.angle + degrees) % 360.0;
+		},
+		"color": function(red, green, blue) {
+			if (red < 0) red = 0;
+			else if (red > 1) red = 1;
+			if (green < 0) green = 0;
+			else if (green > 1) green = 1;
+			if (blue < 0) blue = 0;
+			else if (blue > 1) blue = 1;
+			this.service.turtle.rgb = "rgb(" + Math.round(255*red) + "," + Math.round(255*green) + "," + Math.round(255*blue) + ")";
+		},
+		"pen": function(down) {
+			this.service.turtle.down = down;
+		}
+	};
+
+	this.service.canvas = {
+		"font_size": 16,
+		"width": function() {
+			if (! this.service.canvas.dom) return 0;
+			return this.service.canvas.dom.width;
+		},
+		"height": function() {
+			if (! this.service.canvas.dom) return 0;
+			return this.service.canvas.dom.height;
+		},
+		"setLineWidth": function(width) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.lineWidth = width;
+		},
+		"setLineColor": function(red, green, blue, alpha) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			let r = Math.min(1, Math.max(0, red));
+			let g = Math.min(1, Math.max(0, green));
+			let b = Math.min(1, Math.max(0, blue));
+			let a = Math.min(1, Math.max(0, alpha));
+			ctx.strokeStyle = "rgba(" + Math.round(255 * r) + "," + Math.round(255 * g) + "," + Math.round(255 * b) + "," + a + ")";
+		},
+		"setFillColor": function(red, green, blue, alpha) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			let r = Math.min(1, Math.max(0, red));
+			let g = Math.min(1, Math.max(0, green));
+			let b = Math.min(1, Math.max(0, blue));
+			let a = Math.min(1, Math.max(0, alpha));
+			ctx.fillStyle = "rgba(" + Math.round(255 * r) + "," + Math.round(255 * g) + "," + Math.round(255 * b) + "," + a + ")";
+		},
+		"setFont": function(fontface, fontsize) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.font = fontsize + "px " + fontface;
+			this.service.canvas.font_size = fontsize;
+		},
+		"setTextAlign": function(alignment) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.textAlign = alignment;
+		},
+		"clear": function() {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.setTransform(1, 0, 0, 1, 0, 0);
+			ctx.fillRect(0, 0, this.service.canvas.dom.width, this.service.canvas.dom.height);
+		},
+		"line": function(x1, y1, x2, y2) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			ctx.moveTo(x1, y1);
+			ctx.lineTo(x2, y2);
+			ctx.stroke();
+		},
+		"rect": function(left, top, width, height) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			ctx.rect(left, top, width, height);
+			ctx.stroke();
+		},
+		"fillRect": function(left, top, width, height) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.fillRect(left, top, width, height);
+		},
+		"frameRect": function(left, top, width, height) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			ctx.rect(left, top, width, height);
+			ctx.fill();
+			ctx.stroke();
+		},
+		"circle": function(x, y, radius) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+			ctx.stroke();
+		},
+		"fillCircle": function(x, y, radius) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+			ctx.fill();
+		},
+		"frameCircle": function(x, y, radius) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+			ctx.fill();
+			ctx.stroke();
+		},
+		"curve": function(points, closed) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			let n = points.length;
+			if (n > 0)
+			{
+				let p = points[0];
+				ctx.moveTo(p[0], p[1]);
+				for (let i=1; i<n; i++)
+				{
+					let p = points[i];
+					ctx.lineTo(p[0], p[1]);
+				}
+			}
+			if (closed) ctx.closePath();
+			ctx.stroke();
+		},
+		"fillArea": function(points) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			let n = points.length;
+			if (n > 0)
+			{
+				let p = points[0];
+				ctx.moveTo(p[0], p[1]);
+				for (let i=1; i<n; i++)
+				{
+					let p = points[i];
+					ctx.lineTo(p[0], p[1]);
+				}
+			}
+			ctx.closePath();
+			ctx.fill();
+		},
+		"frameArea": function(points) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.beginPath();
+			let n = points.length;
+			if (n > 0)
+			{
+				let p = points[0];
+				ctx.moveTo(p[0], p[1]);
+				for (let i=1; i<n; i++)
+				{
+					let p = points[i];
+					ctx.lineTo(p[0], p[1]);
+				}
+			}
+			ctx.closePath();
+			ctx.fill();
+			ctx.stroke();
+		},
+		"text": function(x, y, str) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.textBaseline = "top";
+			let lines = str.split('\n');
+			for (let i=0; i<lines.length; i++)
+			{
+				ctx.fillText(lines[i], x, y);
+				y += this.service.canvas.font_size;
+			}
+		},
+		"reset": function() {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.setTransform(1, 0, 0, 1, 0, 0);
+		},
+		"shift": function(dx, dy) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.translate(dx, dy);
+		},
+		"scale": function(factor) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.scale(factor, factor);
+		},
+		"rotate": function(angle) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.rotate(angle);
+		},
+		"transform": function(A, b) {
+			if (! this.service.canvas.dom) return;
+			let ctx = this.service.canvas.dom.getContext("2d");
+			ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
+		}
+	};
 
 	// exception type
 	function RuntimeError(msg, line, ch, href)
@@ -8558,7 +8607,7 @@ function stackinfo(value, node_id)
 
 	if (value === null)
 	{
-		for (var i=module.interpreter.stack.length-1; i>=0; i--)
+		for (let i=module.interpreter.stack.length-1; i>=0; i--)
 		{
 			ret.children.push({
 					"nodetype": "frame",
@@ -9048,8 +9097,8 @@ function updateControls()
 	{
 		if (module.interpreter.stack.length > 0)
 		{
-			var frame = module.interpreter.stack[module.interpreter.stack.length - 1];
-			var pe = frame.pe[frame.pe.length - 1];
+			let frame = module.interpreter.stack[module.interpreter.stack.length - 1];
+			let pe = frame.pe[frame.pe.length - 1];
 			if (pe.where) setCursorPosition(pe.where.line, pe.where.ch);
 		}
 		else
@@ -9120,21 +9169,17 @@ function clear()
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.clearRect(0, 0, module.turtle.width, module.turtle.height);
 	}
-	module.turtle.turtle_position = [0, 0];
-	module.turtle.turtle_angle = 0;
-	module.turtle.turtle_color = "rgb(0,0,0)";
-	module.turtle.turtle_pen = true;
-	{
-		let ctx = module.canvas.getContext("2d");
-		ctx.setTransform(1, 0, 0, 1, 0, 0);
-		ctx.clearRect(0, 0, module.canvas.width, module.canvas.height);
-		ctx.lineWidth = 1;
-		ctx.fillStyle = "#000";
-		ctx.strokeStyle = "#000";
-		ctx.font = "16px Helvetica";
-		ctx.textAlign = "left";
-		ctx.textBaseline = "top";
-	}
+	if (module.interpreter) module.interpreter.service.turtle.reset.call(module.interpreter, 0, 0, 0, true);
+
+	let ctx = module.canvas.getContext("2d");
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.clearRect(0, 0, module.canvas.width, module.canvas.height);
+	ctx.lineWidth = 1;
+	ctx.fillStyle = "#000";
+	ctx.strokeStyle = "#000";
+	ctx.font = "16px Helvetica";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "top";
 }
 
 // Prepare everything for the program to start running,
@@ -9189,8 +9234,8 @@ function prepare_run()
 				{
 					updateControls();
 				};
-		module.interpreter.service.turtle = module.turtle;
-		module.interpreter.service.canvas = module.canvas;
+		module.interpreter.service.turtle.dom = module.turtle;
+		module.interpreter.service.canvas.dom = module.canvas;
 		module.interpreter.eventnames["canvas.resize"] = true;
 		module.interpreter.eventnames["canvas.mousedown"] = true;
 		module.interpreter.eventnames["canvas.mouseup"] = true;
@@ -10109,10 +10154,54 @@ module.create = function()
 			"properties": {"width": 600, "height": 600},
 			"classname": "ide ide-turtle",
 		});
+//		"x": 0.0,
+//		"y": 0.0,
+//		"angle": 0.0,
+//		"down": true,
+//		"rgb": "rgb(0,0,0)",
+//		"reset": function(x, y, degrees, down) {
+//			module.turtle.x = x;
+//			module.turtle.y = y;
+//			module.turtle.angle = degrees;
+//			module.turtle.down = down;
+//			module.turtle.rgb = "rgb(0,0,0)";
+//		},
+//		"move": function(distance) {
+//			let a = Math.PI / 180 * module.turtle.angle;
+//			let s = Math.sin(a);
+//			let c = Math.cos(a);
+//			let x = module.turtle.x + distance * s;
+//			let y = module.turtle.y + distance * c;
+//			if (module.turtle.down)
+//			{
+//				let ctx = module.turtle.dom.getContext("2d");
+//				ctx.lineWidth = 1;
+//				ctx.strokeStyle = module.turtle.rgb;
+//				ctx.beginPath();
+//				ctx.moveTo(300+3*module.turtle.x, 300-3*module.turtle.y);
+//				ctx.lineTo(300+3*x, 300-3*y);
+//				ctx.stroke();
+//			}
+//			module.turtle.x = x;
+//			module.turtle.y = y;
+//		},
+//		"turn": function(degrees) {
+//			module.turtle.angle = (module.turtle.angle + degrees) % 360.0;
+//		},
+//		"color": function(red, green, blue) {
+//			if (red < 0) red = 0;
+//			else if (red > 1) red = 1;
+//			if (green < 0) green = 0;
+//			else if (green > 1) green = 1;
+//			if (blue < 0) blue = 0;
+//			else if (blue > 1) blue = 1;
+//			module.turtle.rgb = "rgb(" + Math.round(255*red) + "," + Math.round(255*green) + "," + Math.round(255*blue) + ")";
+//		},
+//		"pen": function(down) {
+//			module.turtle.down = down;
+//		}
+//	};
 	module.turtle.addEventListener("contextmenu", function(event) { event.preventDefault(); return false; });
-	module.turtle.turtle_position = [0, 0];
-	module.turtle.turtle_angle = 0;
-	module.turtle.turtle_pen = true;
 
 	function createTypedEvent(displayname, dict)
 	{
@@ -10169,7 +10258,7 @@ module.create = function()
 	module.canvas.addEventListener("contextmenu", function(event) { event.preventDefault(); return false; });
 	panel_canvas.content.tabIndex = -1;
 	panel_canvas.size = [0, 0];
-	module.canvas.font_size = 16;
+//	module.canvas.font_size = 16;
 	function buttonName(button)
 	{
 		if (button == 0) return "left";

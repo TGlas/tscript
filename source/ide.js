@@ -96,7 +96,7 @@ function stackinfo(value, node_id)
 
 	if (value === null)
 	{
-		for (var i=module.interpreter.stack.length-1; i>=0; i--)
+		for (let i=module.interpreter.stack.length-1; i>=0; i--)
 		{
 			ret.children.push({
 					"nodetype": "frame",
@@ -586,8 +586,8 @@ function updateControls()
 	{
 		if (module.interpreter.stack.length > 0)
 		{
-			var frame = module.interpreter.stack[module.interpreter.stack.length - 1];
-			var pe = frame.pe[frame.pe.length - 1];
+			let frame = module.interpreter.stack[module.interpreter.stack.length - 1];
+			let pe = frame.pe[frame.pe.length - 1];
 			if (pe.where) setCursorPosition(pe.where.line, pe.where.ch);
 		}
 		else
@@ -658,21 +658,17 @@ function clear()
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.clearRect(0, 0, module.turtle.width, module.turtle.height);
 	}
-	module.turtle.turtle_position = [0, 0];
-	module.turtle.turtle_angle = 0;
-	module.turtle.turtle_color = "rgb(0,0,0)";
-	module.turtle.turtle_pen = true;
-	{
-		let ctx = module.canvas.getContext("2d");
-		ctx.setTransform(1, 0, 0, 1, 0, 0);
-		ctx.clearRect(0, 0, module.canvas.width, module.canvas.height);
-		ctx.lineWidth = 1;
-		ctx.fillStyle = "#000";
-		ctx.strokeStyle = "#000";
-		ctx.font = "16px Helvetica";
-		ctx.textAlign = "left";
-		ctx.textBaseline = "top";
-	}
+	if (module.interpreter) module.interpreter.service.turtle.reset.call(module.interpreter, 0, 0, 0, true);
+
+	let ctx = module.canvas.getContext("2d");
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+	ctx.clearRect(0, 0, module.canvas.width, module.canvas.height);
+	ctx.lineWidth = 1;
+	ctx.fillStyle = "#000";
+	ctx.strokeStyle = "#000";
+	ctx.font = "16px Helvetica";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "top";
 }
 
 // Prepare everything for the program to start running,
@@ -727,8 +723,8 @@ function prepare_run()
 				{
 					updateControls();
 				};
-		module.interpreter.service.turtle = module.turtle;
-		module.interpreter.service.canvas = module.canvas;
+		module.interpreter.service.turtle.dom = module.turtle;
+		module.interpreter.service.canvas.dom = module.canvas;
 		module.interpreter.eventnames["canvas.resize"] = true;
 		module.interpreter.eventnames["canvas.mousedown"] = true;
 		module.interpreter.eventnames["canvas.mouseup"] = true;
@@ -1647,10 +1643,54 @@ module.create = function()
 			"properties": {"width": 600, "height": 600},
 			"classname": "ide ide-turtle",
 		});
+//		"x": 0.0,
+//		"y": 0.0,
+//		"angle": 0.0,
+//		"down": true,
+//		"rgb": "rgb(0,0,0)",
+//		"reset": function(x, y, degrees, down) {
+//			module.turtle.x = x;
+//			module.turtle.y = y;
+//			module.turtle.angle = degrees;
+//			module.turtle.down = down;
+//			module.turtle.rgb = "rgb(0,0,0)";
+//		},
+//		"move": function(distance) {
+//			let a = Math.PI / 180 * module.turtle.angle;
+//			let s = Math.sin(a);
+//			let c = Math.cos(a);
+//			let x = module.turtle.x + distance * s;
+//			let y = module.turtle.y + distance * c;
+//			if (module.turtle.down)
+//			{
+//				let ctx = module.turtle.dom.getContext("2d");
+//				ctx.lineWidth = 1;
+//				ctx.strokeStyle = module.turtle.rgb;
+//				ctx.beginPath();
+//				ctx.moveTo(300+3*module.turtle.x, 300-3*module.turtle.y);
+//				ctx.lineTo(300+3*x, 300-3*y);
+//				ctx.stroke();
+//			}
+//			module.turtle.x = x;
+//			module.turtle.y = y;
+//		},
+//		"turn": function(degrees) {
+//			module.turtle.angle = (module.turtle.angle + degrees) % 360.0;
+//		},
+//		"color": function(red, green, blue) {
+//			if (red < 0) red = 0;
+//			else if (red > 1) red = 1;
+//			if (green < 0) green = 0;
+//			else if (green > 1) green = 1;
+//			if (blue < 0) blue = 0;
+//			else if (blue > 1) blue = 1;
+//			module.turtle.rgb = "rgb(" + Math.round(255*red) + "," + Math.round(255*green) + "," + Math.round(255*blue) + ")";
+//		},
+//		"pen": function(down) {
+//			module.turtle.down = down;
+//		}
+//	};
 	module.turtle.addEventListener("contextmenu", function(event) { event.preventDefault(); return false; });
-	module.turtle.turtle_position = [0, 0];
-	module.turtle.turtle_angle = 0;
-	module.turtle.turtle_pen = true;
 
 	function createTypedEvent(displayname, dict)
 	{
@@ -1707,7 +1747,7 @@ module.create = function()
 	module.canvas.addEventListener("contextmenu", function(event) { event.preventDefault(); return false; });
 	panel_canvas.content.tabIndex = -1;
 	panel_canvas.size = [0, 0];
-	module.canvas.font_size = 16;
+//	module.canvas.font_size = 16;
 	function buttonName(button)
 	{
 		if (button == 0) return "left";

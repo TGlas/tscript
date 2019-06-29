@@ -4266,11 +4266,11 @@ window.addEventListener("load", function()
 						run(expectation.js);
 					}
 					let pix1 = context.getImageData(0, 0, 600, 600).data;
-					let pix2 = interpreter.service.turtle.getContext("2d").getImageData(0, 0, 600, 600).data;
+					let pix2 = interpreter.service.turtle.dom.getContext("2d").getImageData(0, 0, 600, 600).data;
 					if (pix1.length != pix2.length) reportFailed("incompatible canvas size", pix1.length, pix2.length);
 					for (let i=0; i<pix1.length; i++)
 					{
-						if (Math.abs(pix1[i] - pix2[i]) > 10) { reportFailed("failed", interpreter.service.turtle, canvas); return; }
+						if (Math.abs(pix1[i] - pix2[i]) > 10) { reportFailed("failed", interpreter.service.turtle.dom, canvas); return; }
 					}
 					reportPassed();
 				}
@@ -4289,11 +4289,11 @@ window.addEventListener("load", function()
 						run(expectation.js);
 					}
 					let pix1 = context.getImageData(0, 0, 600, 600).data;
-					let pix2 = interpreter.service.canvas.getContext("2d").getImageData(0, 0, 600, 600).data;
+					let pix2 = interpreter.service.canvas.dom.getContext("2d").getImageData(0, 0, 600, 600).data;
 					if (pix1.length != pix2.length) reportFailed("incompatible canvas size", pix1.length, pix2.length);
 					for (let i=0; i<pix1.length; i++)
 					{
-						if (Math.abs(pix1[i] - pix2[i]) > 10) { reportFailed("failed", interpreter.service.canvas, canvas); return; }
+						if (Math.abs(pix1[i] - pix2[i]) > 10) { reportFailed("failed", interpreter.service.canvas.dom, canvas); return; }
 					}
 					reportPassed();
 				}
@@ -4358,17 +4358,12 @@ window.addEventListener("load", function()
 					return s;
 				});
 		interpreter.service.message = (function(msg, line, ch, href) { result.push({type: "error", href: href}); });
-		interpreter.service.turtle = document.createElement('canvas');
-		interpreter.service.turtle.width = 600;
-		interpreter.service.turtle.height = 600;
-		interpreter.service.turtle.turtle_position = [0, 0];
-		interpreter.service.turtle.turtle_angle = 0;
-		interpreter.service.turtle.turtle_color = "rgb(0,0,0)";
-		interpreter.service.turtle.turtle_pen = true;
-		interpreter.service.canvas = document.createElement('canvas');
-		interpreter.service.canvas.width = 600;
-		interpreter.service.canvas.height = 600;
-		interpreter.service.canvas.font_size = 16;
+		interpreter.service.turtle.dom = document.createElement("canvas");
+		interpreter.service.turtle.dom.width = 600;
+		interpreter.service.turtle.dom.height = 600;
+		interpreter.service.canvas.dom = document.createElement("canvas");
+		interpreter.service.canvas.dom.width = 600;
+		interpreter.service.canvas.dom.height = 600;
 		interpreter.eventnames["canvas.resize"] = true;
 		interpreter.eventnames["canvas.mousedown"] = true;
 		interpreter.eventnames["canvas.mouseup"] = true;
