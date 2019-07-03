@@ -398,9 +398,9 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 3,
-			day: 29,
-			month: 6,
+			patch: 4,
+			day: 3,
+			month: 7,
 			year: 2019,
 			full: function()
 					{
@@ -715,6 +715,7 @@ module.equal = function(lhs, rhs)
 	let rec = function(lhs, rhs, k)
 	{
 		if (lhs === rhs) return true;
+		else if (lhs.type === rhs.type && lhs.value == rhs.value) return true;
 		else if (module.isDerivedFrom(lhs.type, module.typeid_null) && module.isDerivedFrom(rhs.type, module.typeid_null))
 		{
 			// null values are always equal
