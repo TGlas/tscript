@@ -1157,6 +1157,10 @@ function loadConfig()
 				buttons[i].hotkey = config.hotkeys[i];
 			}
 		}
+		if (config.hasOwnProperty("options"))
+		{
+			TScript.options = config.options;
+		}
 	}
 	return null;
 }
@@ -1165,11 +1169,12 @@ loadConfig();
 // save hotkeys
 function saveConfig()
 {
-	let config = {"hotkeys": []};
+	let config = {"options": TScript.options, "hotkeys": []};
 	for (let i=0; i<buttons.length; i++)
 	{
 		config.hotkeys.push(buttons[i].hotkey);
 	}
+	console.log(config);
 	localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 }
 
@@ -1192,15 +1197,16 @@ function configDlg()
 				}
 			};
 	let dlg_buttons = [];
+	let div = tgui.createElement({parent: dlg, type: "div"});
 	for (let i=0; i<buttons.length; i++)
 	{
 		let description = Object.assign({}, buttons[i]);
 		description.width = 20;
 		description.height = 20;
-		description.style = {"float": "left", "height": "22px"};
+		description.style = {"height": "22px"};
 		if (description.hotkey) description.tooltip += " (" + description.hotkey + ")";
 		delete description.hotkey;
-		description.parent = dlg;
+		description.parent = div;
 		{
 			let btn = i;
 			description.click = function()
@@ -1254,6 +1260,19 @@ function configDlg()
 		}
 		dlg_buttons.push(tgui.createButton(description));
 	}
+
+	let checked = "";
+	
+	div = tgui.createElement({parent: dlg, type: "div"});
+	let h3 = tgui.createElement({parent: div, type: "h3", text: "Coding Style"});
+	let p = tgui.createElement({parent: div, type: "p"});
+	let lbl = tgui.createElement({parent: p, type: "label", "html":" enable style errors "});
+	let checkbox = tgui.createElement({parent: lbl, type: "input", properties: {type: "checkbox"},
+				click: function(event)
+				{ TScript.options.checkstyle = checkbox.checked; },
+			});
+	if (TScript.options.checkstyle) checkbox.checked = true;
+//	html: "<p><label><input id=\"check_style\" " + checked + " type=\"checkbox\"/></label></p>"});
 
 	tgui.startModal(dlg);
 }

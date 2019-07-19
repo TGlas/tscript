@@ -56,6 +56,11 @@ let module = {
 
 	// implementation limit
 	maxstacksize: 1000,
+
+	// options and configurations
+	options: {
+			checkstyle: false,   // must be false by default, so counter examples in the documentation work
+		},
 };
 
 
@@ -629,7 +634,6 @@ let errors = {
 		"se-9": "syntax error in super reference; identifier expected after dot '.'",
 		"se-10": "syntax error in $$; name (identifier or super name) expected",
 		"se-11": "syntax error in namespace reference; identifier expected after dot '.'",
-//		"se-12": "error in $$; $$ '$$' requires a 'this' object and hence can be accessed only from inside the class '$$' or a derived class",
 		"se-13": "error in $$; $$ '$$' requires a 'this' object and hence cannot be accessed from a static context",
 		"se-14": "syntax error in argument list; positional argument follows named argument",
 		"se-15": "syntax error in argument list; expected comma ',' or closing parenthesis ')'",
@@ -760,7 +764,6 @@ let errors = {
 		"ne-7": "error in $$; cannot access variable '$$', which is declared in a different function",
 		"ne-8": "error in $$; '$$' cannot be accessed because it is a private member of type '$$'",
 		"ne-9": "error in namespace lookup; name '$$' not found in namespace '$$'",
-//		"ne-10": "name '$$' does not refer to a variable, function, or type",
 		"ne-11": "a name referring to a namespace is not allowed in this context",
 		"ne-12": "type '$$' does not have a public static member '$$'",
 		"ne-13": "type '$$' does not have a public member '$$'",
@@ -786,6 +789,12 @@ let errors = {
 		"ue-1": "assertion failed; $$",
 		"ue-2": "runtime error; $$",
 		"ue-3": "uncaught exception; $$",
+	},
+	"style": {
+		"ste-1": "coding style violation; invalid line indentation",
+		"ste-2": "coding style violation; inconsistent block indentation",
+		"ste-3": "coding style violation; the $$ name '$$' should start with a lowercase letter or with an underscore",
+		"ste-4": "coding style violation; the class name '$$' should start with a capital letter",
 	},
 	"internal": {
 		"ie-1": "internal parser error; $$",
@@ -2160,7 +2169,11 @@ module.get_token = function (state, peek)
 	peek = (peek !== undefined) ? peek : false;
 	let where = (peek) ? state.get() : false;
 	state.skip();
-	if (state.eof()) return {"type": "end-of-file", "value": "", "code": ""};
+	let line = state.line;
+	if (state.eof()) return {"type": "end-of-file", "value": "", "code": "", "line": line};
+
+	let indent = state.indentation();
+	let tok = null;
 
 	let c = state.current();
 	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')
@@ -2176,7 +2189,7 @@ module.get_token = function (state, peek)
 		}
 		let value = state.source.substring(start, state.pos);
 		if (where) state.set(where); else state.skip();
-		return {"type": (module.keywords.hasOwnProperty(value)) ? "keyword" : "identifier", "value": value, "code": value};
+		tok = {"type": (module.keywords.hasOwnProperty(value)) ? "keyword" : "identifier", "value": value, "code": value, "line": line};
 	}
 	else if (c >= '0' && c <= '9')
 	{
@@ -2207,7 +2220,7 @@ module.get_token = function (state, peek)
 		let value = state.source.substring(start, state.pos);
 		let n = parseFloat(value);
 		if (where) state.set(where); else state.skip();
-		return {"type": type, "value": n, "code": value};
+		tok = {"type": type, "value": n, "code": value, "line": line};
 	}
 	else if (c == '\"')
 	{
@@ -2262,7 +2275,7 @@ module.get_token = function (state, peek)
 			}
 		}
 		if (where) state.set(where); else state.skip();
-		return {"type": "string", "value": value, "code": code};
+		tok = {"type": "string", "value": value, "code": code, "line": line};
 	}
 	else
 	{
@@ -2276,16 +2289,41 @@ module.get_token = function (state, peek)
 			if (op != "!")
 			{
 				if (where) state.set(where); else state.skip();
-				return {"type": "operator", "value": op, "code": op};
+				tok = {"type": "operator", "value": op, "code": op, "line": line};
 			}
 		}
-		let type = null;
-		if (module.groupings.indexOf(c) >= 0) type = "grouping";
-		else if (module.delimiters.indexOf(c) >= 0) type = "delimiter";
-		else state.error("/syntax/se-5", [c]);
-		if (where) state.set(where); else state.skip();
-		return {"type": type, "value": c, "code": c};
+		if (tok === null)
+		{
+			let type = null;
+			if (module.groupings.indexOf(c) >= 0) type = "grouping";
+			else if (module.delimiters.indexOf(c) >= 0) type = "delimiter";
+			else state.error("/syntax/se-5", [c]);
+			if (where) state.set(where); else state.skip();
+			tok = {"type": type, "value": c, "code": c, "line": line};
+		}
 	}
+
+	if (module.options.checkstyle && ! state.builtin())
+	{
+		// check for indentation problems
+		if (tok.type == "keyword" && (tok.value == "public" || tok.value == "protected" || tok.value == "private"))
+		{ }
+		else if (tok.type == "operator" && tok.value == ":")
+		{ }
+		else
+		{
+			let topmost = state.indent[state.indent.length - 1];
+//console.log(indent, tok, state.indent);
+			if (topmost < 0 && line != -1-topmost)
+			{
+				if (indent <= state.indent[state.indent.length - 2]) state.error("/style/ste-1");
+				state.indent[state.indent.length - 1] = indent;
+			}
+			else if (indent < topmost && state.current() != '}') state.error("/style/ste-1");
+		}
+	}
+
+	return tok;
 }
 
 
@@ -3576,7 +3614,6 @@ function parse_expression(state, parent, lhs)
 				ex.step = constantstep;
 				ex.sim = simfalse;
 			}
-//			else state.error("/name/ne-10", [name]);
 			else module.assert(false, "If this assertion fails then error ne-10 must be re-activated.");
 		}
 		else if (token.type == "keyword" && token.value == "this")
@@ -3723,11 +3760,19 @@ function parse_expression(state, parent, lhs)
 			// parse the function body
 			token = module.get_token(state);
 			if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["anonymous function"]);
+			state.indent.push(-1 - token.line);
 			while (true)
 			{
 				token = module.get_token(state, true);
 				if (token.type == "grouping" && token.value == '}')
 				{
+					state.indent.pop();
+					if (module.options.checkstyle && ! state.builtin())
+					{
+						let indent = state.indentation();
+						let topmost = state.indent[state.indent.length - 1];
+						if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+					}
 					module.get_token(state);
 					break;
 				}
@@ -4544,6 +4589,12 @@ function parse_var(state, parent, container)
 		if (token.type != "identifier") state.error("/syntax/se-50");
 		if (parent.names.hasOwnProperty(token.value)) state.error("/name/ne-14", [token.value]);
 
+		// check variable name
+		if (module.options.checkstyle && ! state.builtin() && token.value[0] >= 'A' && token.value[0] <= 'Z')
+		{
+			state.error("/style/ste-3", ["variable", token.value]);
+		}
+
 		// create the variable
 		let id = (container.petype == "type") ? container.objectsize : container.variables.length;
 		let pe = { "petype": "variable", "where": where, "parent": parent, "name": token.value, "id": id,
@@ -4636,6 +4687,12 @@ function parse_function(state, parent, petype)
 	let fname = token.value;
 	if (parent.names.hasOwnProperty(fname)) state.error("/name/ne-15", [fname]);
 
+	// check function name
+	if (module.options.checkstyle && ! state.builtin() && fname[0] >= 'A' && fname[0] <= 'Z')
+	{
+		state.error("/style/ste-3", ["function", fname]);
+	}
+
 	// create the function
 	let func = { "petype": petype, "where": where, "declaration": true, "parent": parent, "commands": [], "variables": [], "name": fname, "names": {}, "params": [], "step": scopestep, "sim": simfalse };
 	parent.names[fname] = func;
@@ -4687,11 +4744,19 @@ function parse_function(state, parent, petype)
 	// parse the function body
 	token = module.get_token(state);
 	if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["function declaration"]);
+	state.indent.push(-1 - token.line);
 	while (true)
 	{
 		token = module.get_token(state, true);
 		if (token.type == "grouping" && token.value == '}')
 		{
+			state.indent.pop();
+			if (module.options.checkstyle && ! state.builtin())
+			{
+				let indent = state.indentation();
+				let topmost = state.indent[state.indent.length - 1];
+				if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+			}
 			module.get_token(state);
 			break;
 		}
@@ -4835,11 +4900,19 @@ function parse_constructor(state, parent)
 
 	// parse the constructor body
 	if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["constructor declaration"]);
+	state.indent.push(-1 - token.line);
 	while (true)
 	{
 		token = module.get_token(state, true);
 		if (token.type == "grouping" && token.value == '}')
 		{
+			state.indent.pop();
+			if (module.options.checkstyle && ! state.builtin())
+			{
+				let indent = state.indentation();
+				let topmost = state.indent[state.indent.length - 1];
+				if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+			}
 			module.get_token(state);
 			break;
 		}
@@ -4906,6 +4979,12 @@ function parse_class(state, parent)
 	let cname = token.value;
 	if (parent.names.hasOwnProperty(cname)) state.error("/name/ne-18", [cname]);
 
+	// check class name
+	if (module.options.checkstyle && ! state.builtin() && (cname[0] < 'A' || cname[0] > 'Z'))
+	{
+		state.error("/style/ste-4", [cname]);
+	}
+
 	// create the class
 	let cls = { "petype": "type", "where": where, "parent": parent, "objectsize": 0, "variables": [], "staticvariables": [], "members": {}, "staticmembers": {}, "name": cname, "names": {},
 			"step": function()
@@ -4954,6 +5033,7 @@ function parse_class(state, parent)
 		token = module.get_token(state);
 	}
 	if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["class declaration"]);
+	state.indent.push(-1 - token.line);
 
 	// parse the class body
 	let access = null;
@@ -4963,6 +5043,13 @@ function parse_class(state, parent)
 		token = module.get_token(state, true);
 		if (token.type == "grouping" && token.value == '}')
 		{
+			state.indent.pop();
+			if (module.options.checkstyle && ! state.builtin())
+			{
+				let indent = state.indentation();
+				let topmost = state.indent[state.indent.length - 1];
+				if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+			}
 			module.get_token(state);
 			break;
 		}
@@ -5094,6 +5181,12 @@ function parse_namespace(state, parent)
 	if (token.type != "identifier") state.error("/syntax/se-64");
 	let nname = token.value;
 
+	// check namespace name
+	if (module.options.checkstyle && ! state.builtin() && nname[0] >= 'A' && nname[0] <= 'Z')
+	{
+		state.error("/style/ste-3", ["namespace", nname]);
+	}
+
 	// obtain the named object corresponding to the namespace globally across instances
 	let global_nspace = null;
 	if (parent.names.hasOwnProperty(nname))
@@ -5115,12 +5208,20 @@ function parse_namespace(state, parent)
 	// parse the namespace body
 	token = module.get_token(state);
 	if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["namespace declaration"]);
+	state.indent.push(-1 - token.line);
 	while (true)
 	{
 		// check for end-of-body
 		token = module.get_token(state, true);
 		if (token.type == "grouping" && token.value == '}')
 		{
+			state.indent.pop();
+			if (module.options.checkstyle && ! state.builtin())
+			{
+				let indent = state.indentation();
+				let topmost = state.indent[state.indent.length - 1];
+				if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+			}
 			module.get_token(state);
 			break;
 		}
@@ -6083,12 +6184,20 @@ function parse_statement(state, parent, var_allowed)
 		{
 			// parse a scope
 			module.get_token(state);
+			state.indent.push(-1 - token.line);
 			let scope = { "petype": "scope", "where": where, "parent": parent, "commands": [], "names": {}, "step": scopestep, "sim": simfalse };
 			while (true)
 			{
 				token = module.get_token(state, true);
 				if (token.type == "grouping" && token.value == '}')
 				{
+					state.indent.pop();
+					if (module.options.checkstyle && ! state.builtin())
+					{
+						let indent = state.indentation();
+						let topmost = state.indent[state.indent.length - 1];
+						if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+					}
 					module.get_token(state);
 					break;
 				}
@@ -6131,6 +6240,21 @@ function parse_statement_or_declaration(state, parent)
 	if (! state.builtin())
 	{
 		state.skip();
+
+//		if (module.options.checkstyle && ! state.builtin())
+//		{
+//			// check for indentation problems
+//			let indent = state.indentation();
+//			let topmost = state.indent[state.indent.length - 1];
+//			if (topmost < 0)
+//			{
+//console.log(state.indent);
+//				if (indent <= state.indent[state.indent.length - 2]) state.error("/style/ste-1");
+//				state.indent[state.indent.length - 1] = indent;
+//			}
+//			else if (indent != topmost && state.current() != '}') state.error("/style/ste-1");
+//		}
+
 		if (! state.program.breakpoints.hasOwnProperty(state.line))
 		{
 			// create and register a new breakpoint
@@ -6158,6 +6282,8 @@ function parse_statement_or_declaration(state, parent)
 // The function returns an object with the fields
 //   program - the "parsed" program as an AST object, or null in case of failure
 //   errors  - an array of with array error objects with fields type, line, message
+// If module.option.checkstyle is set to true then the parser reports
+// coding style warnings in the errors return value.
 module.parse = function(sourcecode)
 {
 	function ParseError(msg) { this.message = msg; }
@@ -6184,6 +6310,7 @@ module.parse = function(sourcecode)
 			"pos": 0,               // zero-based position in the source code string
 			"line": 1,              // one-based line number
 			"ch": 0,                // zero-based character number within the line
+			"indent": [0],          // stack of nested indentation widths
 			"errors": [],           // list of errors, currently at most one
 			"impl": {},             // implementations of built-in functions
 			"builtin": function()
@@ -6222,6 +6349,18 @@ module.parse = function(sourcecode)
 					{ return { "pos": this.pos, "line": this.line, "ch": this.ch }; },
 			"set": function(where)
 					{ this.pos = where.pos; this.line = where.line, this.ch = where.ch },
+			"indentation": function()
+					{
+						let w = 0;
+						for (let i=this.pos - this.ch; i<this.pos; i++)
+						{
+							let c = this.source[i];
+							if (c == ' ') w++;
+							else if (c == '\t') { w += 4; w -= (w % 4); }
+							else break;
+						}
+						return w;
+					},
 			"advance": function(n)
 					{
 						if (n === undefined) n = 1;
@@ -6325,7 +6464,7 @@ module.parse = function(sourcecode)
 			let err = {
 						type: "error",
 						href: "#/errors/internal/ie-1",
-						message: module.composeError("/internal/ie-1", module.ex2string(ex)),
+						message: module.composeError("/internal/ie-1", [module.ex2string(ex)]),
 					};
 			return { "program": null, "errors": [err] };
 		}

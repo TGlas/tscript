@@ -2221,6 +2221,79 @@ if (doc) doc.children.push({
 		`,
 		"children": []},
 	]},
+	{"id": "style",
+	"name": "Style Errors",
+	"title": "Style Errors",
+	"content": `
+		This section collects errors reported by the style checker. They are not
+		programming errors in a strict sense. Yet, if configured to do so,
+		TScript reports style errors to enforce good programming style. This
+		behavior can be changed in the configuration dialog.
+	`,
+	"children": [
+		{"id": "ste-1",
+		"content": `
+			<p>
+			This error is reported if the indentation of a program is
+			inconsistent. The indentation in each block must be larger
+			than in its surrounding block, and it must be consistent
+			within the block.
+			<tscript>
+			print("hello");
+			{
+			print("world");   # wrong; inner block indentation must
+			                  # exceed outer block indentation
+			}
+			</tscript>
+			</p>
+		`,
+		"children": []},
+		{"id": "ste-2",
+		"content": `
+			<p>
+			This error is reported if the indentation of program block
+			markers is inconsistent, i.e., if the indentation of the line
+			containing an opening brace differs from the indentation of
+			the line with the corresponding closing brace:
+			<tscript>
+			if true then {
+				print("true!");
+				}   # This brace must not be indented
+			</tscript>
+			</p>
+		`,
+		"children": []},
+		{"id": "ste-3",
+		"content": `
+			<p>
+			This error can occur when a variable, function, or namespace name
+			starts with a capital letter. By convention, these names start with
+			a lowercase letter or an underscore.
+			</p>
+			<tscript>
+			{
+				var foo = 7;   # okay
+				var Bar = 8;   # wrong; easily mistaken for a type
+			}
+			</tscript>
+		`,
+		"children": []},
+		{"id": "ste-4",
+		"content": `
+			<p>
+			This error can occur when a class name starts with a
+			lowercase letter or an underscore. By convention, TScript
+			class names start with a capital letter.
+			</p>
+			<tscript>
+			{
+				class Foo {}   # okay
+				class bar {}   # wrong
+			}
+			</tscript>
+		`,
+		"children": []},
+	]},
 	{"id": "internal",
 	"name": "Internal Errors",
 	"title": "Internal Errors",
