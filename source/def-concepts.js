@@ -377,5 +377,83 @@ if (doc) doc.children.push({
 		</p>
 	`,
 	"children": []},
+	{"id": "style",
+	"name": "Style",
+	"title": "Coding Style",
+	"content": `
+		<p>
+		Also beyond its basic syntax, the TScript language aims to teach
+		good coding style. Therefore there exists an official style
+		guide. It aims to be not too restrictive, while emphasizing a
+		few points that can make code much easier to read. These two
+		points are:
+		<ul>
+			<li>indentation, and</li>
+			<li>capitalization of identifiers.</li>
+		</ul>
+		</p>
+		<h3>Style Checking Mode</h3>
+		<p>
+		Although the core language does not enforce any particular
+		coding style, it can be helpful for beginners to get used to a
+		style that fosters readable code early on. Therefore the TScript
+		IDE offers the option to enable a special <i>style checking
+		mode</i>. In this mode, violations of this style guide are
+		reported as errors. The mode can be enabled/disables in the
+		configuration dialog accessible through the toolbar.
+		</p>
+		<h3>Indentation</h3>
+		<p>
+		The language syntax does not enforce indentation. Quite the
+		contrary is the case: whitespace is entirely insignificant.
+		However, it is clear that cleanly indented code is significantly
+		easier to read. Therefore, clean indentation of blocks is
+		enforced by this style guide.
+		</p>
+		<p>
+		RULES: Each block (scope, function/class/namespace body) is
+		indented uniformly. Its indentation exceeds the indentation of
+		the surrounding block. Lines containing matching opening and
+		closing braces must have the same indentation.
+		</p>
+		<p>
+		</p>
+		<tscript>
+			function foo()
+			{ print("foo"); }   # okay
+
+			function bar() {
+					print("bar");
+				} # wrong; indentation of braces does not match
+
+			function foo2()
+			{
+					print("foo");
+				print("foo2");	# wrong; block is not indented consistently
+			}
+
+			function bar2()
+			{
+			print("bar2");   # wrong; indentation does not increase
+			}
+		</tscript>
+		</p>
+		<h3>Capitalization of Identifiers</h3>
+		<p>
+		TScript uses the convention that identifiers starting with a
+		capital letter denote types, while all other identifiers denote
+		variables, functions, and namespaces. 
+		</p>
+		<tscript>
+			var N = 1000;         # should be "n"
+			function Display(x)   # should be "display"
+			{ print(x); }
+			namespace Stuff {     # should be "stuff"
+				class set { }     # should be "Set"
+			}
+			var T = Integer;      # this is borderline, but should be "t"
+		</tscript>
+	`,
+	"children": []},
 ]
 });

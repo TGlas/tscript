@@ -65,7 +65,8 @@ if (doc) doc.children.push({
 		<p>
 		The button with the gear symbol opens the configuration dialog.
 		Currently it allows to configure the hotkeys associated with the
-		toolbar buttons.
+		toolbar buttons. Furthermore, there is a checkbox that enables
+		<a href="#/concepts/style">style checking mode</a>.
 		</p>
 		<p>
 		It follows a wide element with colored background, called the

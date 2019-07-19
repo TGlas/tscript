@@ -259,6 +259,8 @@ function processCode(code, css_prefix, lex)
 						{ return (! this.good()); },
 				"eof": function()
 						{ return this.pos >= this.source.length; },
+				"indentation": function()
+						{ return 0; },
 				"error": function(path, args)
 						{
 							if (args === undefined) args = [];
