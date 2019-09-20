@@ -376,11 +376,7 @@ CodeMirror.defineMode("text/tscript", function(config, parserConfig)
 "use strict";
 
 let isStrict = (function() { return !this; })();
-if (! isStrict)
-{
-	alert("NOT IN STRICT MODE!");
-	debugger;
-}
+if (! isStrict) console.log("WARNING: NOT IN STRICT MODE!");
 
 ///////////////////////////////////////////////////////////
 // The TScript Programming Language
@@ -398,9 +394,9 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 5,
-			day: 19,
-			month: 7,
+			patch: 6,
+			day: 20,
+			month: 9,
 			year: 2019,
 			full: function()
 					{
@@ -463,11 +459,7 @@ module.assert = function(condition, message)
 {
 	if (message === undefined) message = "TScript internal assertion failed";
 	else message = "TScript internal assertion failed; " + message;
-	if (! condition)
-	{
-//		alert(message);
-		throw new AssertionError(message);
-	}
+	if (! condition) throw new AssertionError(message);
 }
 
 // obtain the "displayname", which is the "name" if no special displayname is defined
@@ -511,11 +503,11 @@ module.isNumeric = function(type)
 	return false;
 }
 
-// Recursively apply an operation recursively to a loop-free typed data structure.
+// Recursively apply an operation to a loop-free typed data structure.
 // If a loop is detected then a "recursive data structure" exception is thrown.
 // The function operation is invoked on each non-container value.
-// The function compose is invoked on a container holding return values of operation and container.
-// Both functions return the processed result.
+// The function compose(...) is invoked on a container holding return values
+// of operation and container. Both functions return the processed result.
 function recApply(value, operation, compose)
 {
 	function doit(v, k)
@@ -990,10 +982,9 @@ module.previewValue = function (arg, depth)
 ///////////////////////////////////////////////////////////
 // error messages
 //
-// Here comes a nested dictionary containing all error
-// messages, as well as a few helper functions for error
-// processing and display. An error is identified by an ID,
-// which is an absolute path into the nested dictionary.
+// Nested dictionary of all error messages. An error is
+// identified by an ID, which is an absolute path into the
+// data structure.
 //
 
 let errors = {
@@ -2477,7 +2468,7 @@ let lib_canvas = {
 // lexer
 //
 // The task of the lexer is to return the next token in the
-// string. It handles composite operators properly.
+// input stream. It handles composite operators properly.
 //
 
 
@@ -2688,7 +2679,6 @@ module.get_token = function (state, peek)
 		else
 		{
 			let topmost = state.indent[state.indent.length - 1];
-//console.log(indent, tok, state.indent);
 			if (topmost < 0 && line != -1-topmost)
 			{
 				if (indent <= state.indent[state.indent.length - 2]) state.error("/style/ste-1");
@@ -2704,8 +2694,9 @@ module.get_token = function (state, peek)
 
 ///////////////////////////////////////////////////////////
 // The parser parses source code and translates the program
-// into a description object. Each object in the structure
-// shall provide the following fields:
+// into a description object, based on an abstract syntax
+// tree. Each object in the structure shall provide the
+// following fields:
 //  * petype: program element type, a string
 //  * parent: parent scope
 //  * step: function executing the current "step" (as in
@@ -2979,11 +2970,11 @@ function peek_keyword(state)
 // Functions starting with "parse_" alter the parser state.
 // These functions return the program element they created.
 // They throw an exception on error. The only purpose of
-// the exception is that it interrupts the control flow;
-// the actual error message is stored in the state object.
+// the exception is to interrupt the control flow; the
+// actual error message is stored in the state object.
 //
 
-// deep copy of a JSON-style data structure
+// deep copy of a JSON-like data structure
 function deepcopy(value, excludekeys)
 {
 	if (excludekeys === undefined) excludekeys = {};
@@ -3532,8 +3523,6 @@ function parse_name(state, parent, errorname, allow_namespace)
 		let sub_cl = get_type(parent);
 		let super_cl = get_type(lookup);
 		module.assert(sub_cl && module.isDerivedFrom(sub_cl, super_cl.id));   // this used to raise se-12, however, that case should now be covered in resolve_name
-//		if (sub_cl === null || ! module.isDerivedFrom(sub_cl, super_cl.id)) state.error("/syntax/se-12", [errorname, lookup.petype, name, module.displayname(super_cl)]);
-			
 
 		// check for an enclosing non-static method
 		let fn = get_function(parent);
@@ -5956,7 +5945,7 @@ function parse_for(state, parent)
 
 function parse_dowhile(state, parent)
 {
-	// handle "do" keyword#
+	// handle "do" keyword
 	let where = state.get();
 	let token = module.get_token(state);
 	module.assert(token.type == "keyword" && token.value == "do", "[parse_dowhile] internal error");
@@ -6245,7 +6234,6 @@ function parse_return(state, parent)
 						{
 							// actual function return, move the argument to the then-current temporaries stack
 							let arg = frame.temporaries.pop();
-//							module.assert(frame.temporaries.length == 0, "temporaries stack is non-empty when returning from a function");
 							this.stack.pop();
 							if (this.stack.length > 0) this.stack[this.stack.length - 1].temporaries.push(arg);
 							return true;
@@ -6616,20 +6604,6 @@ function parse_statement_or_declaration(state, parent)
 	{
 		state.skip();
 
-//		if (module.options.checkstyle && ! state.builtin())
-//		{
-//			// check for indentation problems
-//			let indent = state.indentation();
-//			let topmost = state.indent[state.indent.length - 1];
-//			if (topmost < 0)
-//			{
-//console.log(state.indent);
-//				if (indent <= state.indent[state.indent.length - 2]) state.error("/style/ste-1");
-//				state.indent[state.indent.length - 1] = indent;
-//			}
-//			else if (indent != topmost && state.current() != '}') state.error("/style/ste-1");
-//		}
-
 		if (! state.program.breakpoints.hasOwnProperty(state.line))
 		{
 			// create and register a new breakpoint
@@ -6875,8 +6849,8 @@ module.parse = function(sourcecode)
 // given point in time during execution, and it holds the "program
 // pointer". It runs the program in a background thread, which should be
 // stopped before the interpreter is discarded. If the program is not
-// running in the background, then it can also be run in step-by-step in
-// the foreground thread.
+// running in the background, then it can also be triggered step-by-step
+// in the foreground thread.
 module.Interpreter = function(program)
 {
 	///////////////////////////////////////////////////////////
