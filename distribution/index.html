@@ -394,9 +394,9 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 6,
-			day: 20,
-			month: 9,
+			patch: 7,
+			day: 7,
+			month: 10,
 			year: 2019,
 			full: function()
 					{
@@ -9250,7 +9250,8 @@ module.addMessage = function(type, text, line, ch, href)
 	let lines = text.split('\n');
 	for (let i=0; i<lines.length; i++)
 	{
-		let msg = tgui.createElement({"type": "div", "parent": td, "classname": "ide ide-message" + (type != "print" ? " ide-errormessage" : ""), "text": lines[i]});
+		let s = lines[i];
+		let msg = tgui.createElement({"type": "div", "parent": td, "classname": "ide ide-message" + (type != "print" ? " ide-errormessage" : ""), "text": s});
 		if (line !== undefined)
 		{
 			msg.ide_line = line;
@@ -19824,7 +19825,7 @@ p {
 .ide-message
 {
 	width: 100%;
-	white-space: nowrap;
+	white-space: pre;
 }
 
 .ide-message:hover

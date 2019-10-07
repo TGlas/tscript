@@ -625,7 +625,8 @@ module.addMessage = function(type, text, line, ch, href)
 	let lines = text.split('\n');
 	for (let i=0; i<lines.length; i++)
 	{
-		let msg = tgui.createElement({"type": "div", "parent": td, "classname": "ide ide-message" + (type != "print" ? " ide-errormessage" : ""), "text": lines[i]});
+		let s = lines[i];
+		let msg = tgui.createElement({"type": "div", "parent": td, "classname": "ide ide-message" + (type != "print" ? " ide-errormessage" : ""), "text": s});
 		if (line !== undefined)
 		{
 			msg.ide_line = line;

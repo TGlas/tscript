@@ -115,7 +115,7 @@ p {
 .ide-message
 {
 	width: 100%;
-	white-space: nowrap;
+	white-space: pre;
 }
 
 .ide-message:hover
