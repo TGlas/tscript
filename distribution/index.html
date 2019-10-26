@@ -19520,13 +19520,13 @@ span.CodeMirror-selectedtext { background: none; }
 
 .tgui-tooltip
 {
+	display: none;
 	left: 1px;
-	top: 3px;
+	top: 25px;
 	background-color: #eec;
 	color: #000;
 	font-family: sans-serif;
 	font-size: 9pt;
-	opacity: 0;
 	position: absolute;
 	transition: opacity 0.5s;
 	padding: 2px;
@@ -19538,7 +19538,7 @@ span.CodeMirror-selectedtext { background: none; }
 
 .tgui-control:hover .tgui-tooltip
 {
-	opacity: 1;
+	display: block;
 }
 
 .tgui-label
@@ -19782,7 +19782,6 @@ p {
 	height: 30px;
 	background: #ccc;
 	color: #000;
-	overflow: hidden;
 	border-bottom: #888 solid 2px;
 	box-sizing: border-box;
 }

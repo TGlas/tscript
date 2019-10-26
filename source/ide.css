@@ -72,7 +72,6 @@ p {
 	height: 30px;
 	background: #ccc;
 	color: #000;
-	overflow: hidden;
 	border-bottom: #888 solid 2px;
 	box-sizing: border-box;
 }
