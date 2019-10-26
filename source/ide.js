@@ -1183,20 +1183,19 @@ function configDlg()
 {
 	let dlg = tgui.createElement({
 			"type": "div",
-			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee"},
-			"html": "<h3>Configure Hotkeys</h3><p>Click a button to configure its hotkey, or press escape to exit.</p>",
+			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
 		});
-	dlg.onKeyDown = function(event)
-			{
-				if (event.key == "Escape")
-				{
-					saveConfig();
-					tgui.stopModal();
-					event.preventDefault();
-					event.stopPropagation();
-					return false;
-				}
-			};
+	let titlebar = tgui.createElement({
+			"parent": dlg,
+			"type": "div",
+			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "22px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
+			"text": "configuration",
+		});
+	let content = tgui.createElement({
+			"parent": dlg,
+			"type": "div",
+			"html": "<h3 style=\"margin-top: 20px;\">Configure Hotkeys</h3><p>Click a button to configure its hotkey.</p>",
+		});
 	let dlg_buttons = [];
 	let div = tgui.createElement({parent: dlg, type: "div"});
 	for (let i=0; i<buttons.length; i++)
@@ -1265,7 +1264,7 @@ function configDlg()
 	let checked = "";
 	
 	div = tgui.createElement({parent: dlg, type: "div"});
-	let h3 = tgui.createElement({parent: div, type: "h3", text: "Coding Style"});
+	let h3 = tgui.createElement({parent: div, type: "h3", style: {"margin-top": "20px"}, text: "Coding Style"});
 	let p = tgui.createElement({parent: div, type: "p"});
 	let lbl = tgui.createElement({parent: p, type: "label", "html":" enable style errors "});
 	let checkbox = tgui.createElement({parent: lbl, type: "input", properties: {type: "checkbox"},
@@ -1273,7 +1272,32 @@ function configDlg()
 				{ TScript.options.checkstyle = checkbox.checked; },
 			});
 	if (TScript.options.checkstyle) checkbox.checked = true;
-//	html: "<p><label><input id=\"check_style\" " + checked + " type=\"checkbox\"/></label></p>"});
+
+	let close = tgui.createElement({
+			"parent": dlg,
+			"type": "button",
+			"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
+			"text": "Close",
+		});
+	close.addEventListener("click", function(event)
+			{
+				tgui.stopModal();
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			});
+
+	dlg.onKeyDown = function(event)
+			{
+				if (event.key == "Escape")
+				{
+					saveConfig();
+					tgui.stopModal();
+					event.preventDefault();
+					event.stopPropagation();
+					return false;
+				}
+			};
 
 	tgui.startModal(dlg);
 }
@@ -1305,21 +1329,32 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"properties": {"size": Math.max(2, files.length)},
 			"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "calc(70vh - 80px)", "top": "30px", "background": "#fff", "overflow": "scroll"},
 		});
+	let buttons = tgui.createElement({
+			"parent": dlg,
+			"type": "div",
+			"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "25px", "bottom": "10px"},
+		});
 	let name = {value: filename};
 	if (allowNewFilename)
 	{
 		name = tgui.createElement({
-				"parent": dlg,
+				"parent": buttons,
 				"type": "input",
-				"style": {"position": "absolute", "width": "calc(46vw - 120px)", "left": "2vw", "height": "20px", "bottom": "10px", "background": "#fff"},
+				"style": {"width": "calc(46vw - 240px)", "height": "20px", "background": "#fff"},
 				"text": filename,
 			});
 	}
 	let okay = tgui.createElement({
-			"parent": dlg,
+			"parent": buttons,
 			"type": "button",
-			"style": {"position": "absolute", "width": "100px", "right": "2vw", "height": "25px", "bottom": "10px"},
+			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
 			"text": "Okay",
+		});
+	let cancel = tgui.createElement({
+			"parent": buttons,
+			"type": "button",
+			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"text": "Cancel",
 		});
 
 	// populate options
@@ -1367,6 +1402,13 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 						onOkay(fn);
 					}
 				}
+				return false;
+			});
+	cancel.addEventListener("click", function(event)
+			{
+				tgui.stopModal();
+				event.preventDefault();
+				event.stopPropagation();
 				return false;
 			});
 

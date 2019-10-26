@@ -40,6 +40,10 @@ p {
 	margin: 10px 0 10px 0;
 }
 
+button {
+	border: black 1px solid;
+}
+
 .ide-main {
 	position: fixed;
 	left: 0;

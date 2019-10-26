@@ -43,11 +43,11 @@ module.releaseHotkey = function(hotkey)
 	delete hotkeys[module.normalizeHotkey(hotkey)];
 }
 
-module.setTooltip = function(element, tooltip = "")
+module.setTooltip = function(element, tooltip = "", direction="left")
 {
 	let tt = element.getElementsByClassName("tgui-tooltip");
 	for (let i=0; i<tt.length; i++) element.removeChild(tt[i]);
-	createControl("div", {"parent": element, "text": tooltip}, "tgui tgui-tooltip");
+	createControl("div", {"parent": element, "text": tooltip}, "tgui tgui-tooltip tgui-tooltip-" + direction);
 }
 
 // Create a new DOM element, acting as the control's main DOM element.
@@ -90,6 +90,7 @@ function createControl(type, description, classname)
 
 	// add a tooltip
 	if (description.hasOwnProperty("tooltip")) module.setTooltip(element, description.tooltip);
+	else if (description.hasOwnProperty("tooltip-right")) module.setTooltip(element, description["tooltip-right"], "right");
 
 	// add a click handler
 	if (description.hasOwnProperty("click"))
@@ -715,6 +716,7 @@ module.createPanel = function(description)
 				},
 				"parent": control.titlebar_container,
 				"classname": "tgui-panel-dockbutton",
+				"tooltip-right": "minimize",
 			});
 	control.button_float = tgui.createButton({
 				"click": function () { control.dock("float"); return false; },
@@ -739,6 +741,7 @@ module.createPanel = function(description)
 				},
 				"parent": control.titlebar_container,
 				"classname": "tgui-panel-dockbutton",
+				"tooltip-right": "floating",
 			});
 	control.button_max = tgui.createButton({
 				"click": function () { control.dock("max"); return false; },
@@ -759,6 +762,7 @@ module.createPanel = function(description)
 				},
 				"parent": control.titlebar_container,
 				"classname": "tgui-panel-dockbutton",
+				"tooltip-right": "maximize",
 			});
 	control.button_right = tgui.createButton({
 				"click": function () { control.dock("right"); return false; },
@@ -783,6 +787,7 @@ module.createPanel = function(description)
 				},
 				"parent": control.titlebar_container,
 				"classname": "tgui-panel-dockbutton",
+				"tooltip-right": "dock right",
 			});
 	control.button_left = tgui.createButton({
 				"click": function () { control.dock("left"); return false; },
@@ -807,6 +812,7 @@ module.createPanel = function(description)
 				},
 				"parent": control.titlebar_container,
 				"classname": "tgui-panel-dockbutton",
+				"tooltip-right": "dock left",
 			});
 
 	// create the content div
