@@ -19,7 +19,7 @@ In TScript, "hello world" is a one-liner:
 ```
 print("Hello World");
 ```
-For proper example code have a look at the [examples](examples)
+For proper example code have a look at the [examples](https://github.com/TGlas/tscript/tree/master/examples)
 directory.
 
 ## Testing
