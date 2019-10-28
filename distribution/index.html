@@ -394,8 +394,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 8,
-			day: 26,
+			patch: 9,
+			day: 27,
 			month: 10,
 			year: 2019,
 			full: function()
@@ -1825,7 +1825,7 @@ let core = {
 			},
 			"exists": function(key) {
 				if (! module.isDerivedFrom(key.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["key", "exists", "string", module.displayname(key.type)]);
-				let ret = localStorage.getItem("tscript.data." + key) !== null;
+				let ret = localStorage.getItem("tscript.data." + key.value.b) !== null;
 				return {"type": this.program.types[module.typeid_boolean], "value": {"b": ret}};
 			},
 			"load": function(key) {
