@@ -1145,7 +1145,6 @@ let buttons = [
 // load hotkeys
 function loadConfig()
 {
-//return null;   // don'load buggy NaN and null data
 	let str = localStorage.getItem("tscript.ide.config");
 	if (str)
 	{
@@ -1438,7 +1437,6 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 				}
 			};
 
-	// go!
 	tgui.startModal(dlg);
 	(allowNewFilename ? name : list).focus();
 	return dlg;
@@ -1705,54 +1703,21 @@ module.create = function()
 			"properties": {"width": 600, "height": 600},
 			"classname": "ide ide-turtle",
 		});
-//		"x": 0.0,
-//		"y": 0.0,
-//		"angle": 0.0,
-//		"down": true,
-//		"rgb": "rgb(0,0,0)",
-//		"reset": function(x, y, degrees, down) {
-//			module.turtle.x = x;
-//			module.turtle.y = y;
-//			module.turtle.angle = degrees;
-//			module.turtle.down = down;
-//			module.turtle.rgb = "rgb(0,0,0)";
-//		},
-//		"move": function(distance) {
-//			let a = Math.PI / 180 * module.turtle.angle;
-//			let s = Math.sin(a);
-//			let c = Math.cos(a);
-//			let x = module.turtle.x + distance * s;
-//			let y = module.turtle.y + distance * c;
-//			if (module.turtle.down)
-//			{
-//				let ctx = module.turtle.dom.getContext("2d");
-//				ctx.lineWidth = 1;
-//				ctx.strokeStyle = module.turtle.rgb;
-//				ctx.beginPath();
-//				ctx.moveTo(300+3*module.turtle.x, 300-3*module.turtle.y);
-//				ctx.lineTo(300+3*x, 300-3*y);
-//				ctx.stroke();
-//			}
-//			module.turtle.x = x;
-//			module.turtle.y = y;
-//		},
-//		"turn": function(degrees) {
-//			module.turtle.angle = (module.turtle.angle + degrees) % 360.0;
-//		},
-//		"color": function(red, green, blue) {
-//			if (red < 0) red = 0;
-//			else if (red > 1) red = 1;
-//			if (green < 0) green = 0;
-//			else if (green > 1) green = 1;
-//			if (blue < 0) blue = 0;
-//			else if (blue > 1) blue = 1;
-//			module.turtle.rgb = "rgb(" + Math.round(255*red) + "," + Math.round(255*green) + "," + Math.round(255*blue) + ")";
-//		},
-//		"pen": function(down) {
-//			module.turtle.down = down;
-//		}
-//	};
 	module.turtle.addEventListener("contextmenu", function(event) { event.preventDefault(); return false; });
+
+	// ensure that the turtle area remains square and centered
+	let makeSquare = function()
+	{
+		let w = module.turtle.parentElement.offsetWidth;
+		let h = module.turtle.parentElement.offsetHeight;
+		let size = Math.min(w, h);
+		module.turtle.style.width = size + "px";
+		module.turtle.style.height = size + "px";
+		module.turtle.style.marginLeft = ((w > size) ? Math.floor((w - size) / 2) : 0) + "px";
+		module.turtle.style.marginTop = ((h > size) ? Math.floor((h - size) / 2) : 0) + "px";
+	};
+	panel_turtle.onArrange = makeSquare;
+	panel_turtle.onResize = makeSquare;
 
 	function createTypedEvent(displayname, dict)
 	{

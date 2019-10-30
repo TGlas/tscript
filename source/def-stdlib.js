@@ -355,14 +355,16 @@ if (doc) doc.children.push({
 		equipped with a pen that can move around and draw lines. The turtle
 		moves in a two-dimensional area. It is described by a Cartesian
 		coordinate system with horizontal (x) and vertical (y) axes. The origin
-		is in the center of the area, and the visible area extends from -100 to
+		is at the center of the area, and the visible area extends from -100 to
 		+100 in each direction. The turtle can leave the visible area.
 		</p>
 		<p>
-		The turtle can move and turn. While doing so it can lower and raise a
-		pen. While lowered, the pen draws the path taken by the turtle. The
-		result of such drawing is known as "turtle graphics". The color of the
-		pen can be changed.
+		At program start, the turtle is located at the origin of its coordinate
+		system, it is equipped with a black pen, it and faces upwards, or in
+		other words, along the positive y-axis. The turtle can move and turn.
+		While doing so it can lower and raise a pen. While lowered, the pen
+		draws the path taken by the turtle. The result of such drawing is known
+		as "turtle graphics". The color of the pen can be changed.
 		</p>
 		<table class="methods">
 		<tr><th>reset</th><td>
