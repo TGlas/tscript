@@ -866,7 +866,7 @@ let cmd_load = function()
 
 				module.editor_title.innerHTML = "editor &mdash; " + filename;
 				module.document.filename = filename;
-				module.sourcecode.setValue(localStorage.getItem("tscript_code_" + filename));
+				module.sourcecode.setValue(localStorage.getItem("tscript.code." + filename));
 				module.sourcecode.getDoc().setCursor({line: 0, ch: 0}, );
 				module.sourcecode.getDoc().clearHistory();
 				module.document.dirty = false;
@@ -884,7 +884,7 @@ let cmd_save = function()
 		return;
 	}
 
-	localStorage.setItem("tscript_code_" + module.document.filename, module.sourcecode.getValue());
+	localStorage.setItem("tscript.code." + module.document.filename, module.sourcecode.getValue());
 	module.document.dirty = false;
 }
 
@@ -1280,6 +1280,7 @@ function configDlg()
 		});
 	close.addEventListener("click", function(event)
 			{
+				saveConfig();
 				tgui.stopModal();
 				event.preventDefault();
 				event.stopPropagation();
@@ -1307,7 +1308,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	let files = [];
 	for (let key in localStorage)
 	{
-		if (key.substr(0, 13) == "tscript_code_") files.push(key.substr(13));
+		if (key.substr(0, 13) == "tscript.code.") files.push(key.substr(13));
 	}
 	files.sort();
 
@@ -1380,7 +1381,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 					{
 						if (confirm("Delete file \"" + fn + "\"\nAre you sure?"))
 						{
-							delete localStorage.removeItem("tscript_code_" + fn);
+							delete localStorage.removeItem("tscript.code." + fn);
 							files.splice(index, 1);
 							list.remove(index);
 						}
@@ -1605,10 +1606,7 @@ module.create = function()
 			"state": "left",
 			"fallbackState": "float",
 			"dockedheight": 600,
-			"onArrange": function()
-			{
-				if (module.sourcecode) module.sourcecode.refresh();
-			},
+			"onArrange": function() { if (module.sourcecode) module.sourcecode.refresh(); },
 		});
 	panel_editor.textarea = tgui.createElement({"type": "textarea", "parent": panel_editor.content, "classname": "ide ide-sourcecode"});
 	module.sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {

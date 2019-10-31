@@ -483,7 +483,7 @@ module.iconcontainer = null;
 // load panel arrangement data from local storage
 function loadPanelData(title)
 {
-	let str = localStorage.getItem("tgui_panels");
+	let str = localStorage.getItem("tgui.panels");
 	if (str)
 	{
 		let paneldata = JSON.parse(str);
@@ -509,7 +509,7 @@ function savePanelData()
 		d.dockedheight = p.dockedheight;
 		paneldata[p.title] = d;
 	}
-	localStorage.setItem("tgui_panels", JSON.stringify(paneldata));
+	localStorage.setItem("tgui.panels", JSON.stringify(paneldata));
 }
 
 module.preparePanels = function(panelcontainer, iconcontainer)
@@ -615,8 +615,8 @@ function arrange()
 		p.onArrange();
 	}
 
-	arrangeDocked(module.panels_left, 0, w60, h);
-	arrangeDocked(module.panels_right, w60, w40, h);
+	arrangeDocked(module.panels_left, 0, (module.panels_right.length > 0) ? w60 : w, h);
+	arrangeDocked(module.panels_right, (module.panels_left.length > 0) ? w60 : 0, (module.panels_left.length > 0) ? w40 : w, h);
 
 	savePanelData();
 }
