@@ -674,7 +674,7 @@ function clear()
 
 // Prepare everything for the program to start running,
 // put the IDE into stepping mode at the start of the program.
-function prepare_run()
+module.prepare_run = function()
 {
 	clear();
 
@@ -771,7 +771,7 @@ let cmd_reset = function()
 
 let cmd_run = function()
 {
-	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) prepare_run();
+	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
 	if (! module.interpreter) return;
 	module.interpreter.run();
 	updateControls();
@@ -787,7 +787,7 @@ let cmd_interrupt = function()
 
 let cmd_step_into = function()
 {
-	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) prepare_run();
+	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_into();
@@ -796,7 +796,7 @@ let cmd_step_into = function()
 
 let cmd_step_over = function()
 {
-	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) prepare_run();
+	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_over();
@@ -805,12 +805,116 @@ let cmd_step_over = function()
 
 let cmd_step_out = function()
 {
-	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) prepare_run();
+	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_out();
 	updateControls();
 };
+
+let cmd_export = function()
+{
+	let title = module.document.filename;
+	if (! title || title == "") title = "tscript-export";
+	let fn = title;
+	if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
+
+	let dlg = tgui.createElement({
+			"type": "div",
+			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
+		});
+	let titlebar = tgui.createElement({
+			"parent": dlg,
+			"type": "div",
+			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "22px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
+			"text": "export",
+		});
+	let status = tgui.createElement({
+			"parent": dlg,
+			"type": "div",
+			"text": "status: preparing ...",
+			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "40px", "color": "#000", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000"},
+		});
+	let download_turtle = tgui.createElement({
+			"parent": dlg,
+			"type": "a",
+			"properties": {"target": "_blank", "download": fn},
+			"text": "download standalone turtle application",
+			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "100px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
+		});
+	let download_canvas = tgui.createElement({
+			"parent": dlg,
+			"type": "a",
+			"properties": {"target": "_blank", "download": fn},
+			"text": "download standalone canvas application",
+			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "160px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
+		});
+
+	let close = tgui.createElement({
+			"parent": dlg,
+			"type": "button",
+			"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
+			"text": "Close",
+		});
+	close.addEventListener("click", function(event)
+			{
+				saveConfig();
+				tgui.stopModal();
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			});
+
+	dlg.onKeyDown = function(event)
+			{
+				if (event.key == "Escape")
+				{
+					saveConfig();
+					tgui.stopModal();
+					event.preventDefault();
+					event.stopPropagation();
+					return false;
+				}
+			};
+
+	tgui.startModal(dlg);
+
+	let source = ide.sourcecode.getValue().replace(/\n/g, "\\n").replace(/'/g, "\\'");
+
+	{
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", window.location, true);
+		xhr.overrideMimeType("text/html");
+		xhr.onreadystatechange = function()
+		{
+			if (xhr.readyState == 4)
+			{
+				let page = xhr.responseText;
+
+				let key = 'if (ide) window.addEventListener("load", ide.create, false);';
+				let pos = page.indexOf(key);
+				pos = page.indexOf(key, pos+1) + key.length + 1;
+				let title1 = page.indexOf("<title>") + 7;
+				let title2 = page.indexOf("</title>");
+
+				let s1 = page.substr(0, title1);
+				let s2 = page.substr(title2, pos - title2);
+				let s3 = page.substr(pos);
+
+				let s_init = "ide.sourcecode.setValue('" + source + "');\nide.prepare_run();\nide.interpreter.run();\n";
+				let turtle = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.removeChild(ide.main);\nide.turtle.parentNode.removeChild(ide.turtle);\ndocument.body.appendChild(ide.turtle);\nide.turtle.style.width="100vh";\nide.turtle.style.height="100vh";\n' + s_init + '}, false);\n';
+				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.removeChild(ide.main);\nide.canvas.parentNode.removeChild(ide.canvas);\ndocument.body.appendChild(ide.canvas);\nide.canvas.style.width="100vw";\nide.canvas.style.height="100vh";\nlet init = function() {\nif (ide.canvas.offsetWidth == 0 || ide.canvas.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = ide.canvas.offsetWidth;\nide.canvas.height = ide.canvas.offsetHeight;\n' + s_init + 'ide.canvas.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
+
+				status.innerHTML = "status: ready for download";
+				download_turtle.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + turtle + s3);
+				download_turtle.style.display = "block";
+				download_canvas.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + canvas + s3);
+				download_canvas.style.display = "block";
+			}
+		}
+		xhr.send();
+	}
+}
 
 let cmd_toggle_breakpoint = function()
 {
@@ -1140,6 +1244,26 @@ let buttons = [
 			"tooltip": "toggle breakpoint",
 			"hotkey": "F8",
 		},
+		{
+			"click": cmd_export,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.strokeStyle = "#080";
+						ctx.lineWidth = 1.5;
+						ctx.beginPath();
+						ctx.moveTo( 3,  7);
+						ctx.lineTo(10,  7);
+						ctx.lineTo(10,  3);
+						ctx.lineTo(17, 10);
+						ctx.lineTo(10, 17);
+						ctx.lineTo(10, 13);
+						ctx.lineTo( 3, 13);
+						ctx.closePath();
+						ctx.stroke();
+					},
+			"tooltip": "export program as webpage",
+		},
 	];
 
 // load hotkeys
@@ -1174,7 +1298,6 @@ function saveConfig()
 	{
 		config.hotkeys.push(buttons[i].hotkey);
 	}
-	console.log(config);
 	localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 }
 
@@ -1451,7 +1574,7 @@ module.create = function()
 	module.toolbar = tgui.createElement({"type": "div", "parent": module.main, "classname": "ide ide-toolbar"});
 
 	// prepare menu bar
-	let sep = [false, false, false, true, false, false, true, false, false, false, true];
+	let sep = [false, false, false, true, false, false, true, false, false, false, true, true];
 	for (let i=0; i<buttons.length; i++)
 	{
 		let description = Object.assign({}, buttons[i]);

@@ -63,6 +63,12 @@ if (doc) doc.children.push({
 		location.
 		</p>
 		<p>
+		The green arrow opens the export dialog. It allows to export
+		programs using turtle graphics or canvas graphics as standalone
+		applications (web pages). These files can be ran in a browser,
+		i.e., independent of the TScript IDE.
+		</p>
+		<p>
 		The button with the gear symbol opens the configuration dialog.
 		Currently it allows to configure the hotkeys associated with the
 		toolbar buttons. Furthermore, there is a checkbox that enables

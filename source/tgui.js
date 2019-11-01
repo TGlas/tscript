@@ -43,6 +43,10 @@ module.releaseHotkey = function(hotkey)
 	delete hotkeys[module.normalizeHotkey(hotkey)];
 }
 
+// remove all hotkeys
+module.releaseAllHotkeys = function()
+{ hotkeys = {}; }
+
 module.setTooltip = function(element, tooltip = "", direction="left")
 {
 	let tt = element.getElementsByClassName("tgui-tooltip");
@@ -1090,7 +1094,6 @@ document.addEventListener("keydown", function(event)
 		if (event.ctrlKey) key = "control-" + key;
 		if (event.shiftKey) key = "shift-" + key;
 		key = module.normalizeHotkey(key);
-//		console.log(key);
 
 		// handle global hotkeys
 		if (hotkeys.hasOwnProperty(key))
