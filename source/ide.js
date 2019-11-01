@@ -903,7 +903,7 @@ let cmd_export = function()
 
 				let s_init = "ide.sourcecode.setValue('" + source + "');\nide.prepare_run();\nide.interpreter.run();\n";
 				let turtle = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.removeChild(ide.main);\nide.turtle.parentNode.removeChild(ide.turtle);\ndocument.body.appendChild(ide.turtle);\nide.turtle.style.width="100vh";\nide.turtle.style.height="100vh";\n' + s_init + '}, false);\n';
-				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.removeChild(ide.main);\nide.canvas.parentNode.removeChild(ide.canvas);\ndocument.body.appendChild(ide.canvas);\nide.canvas.style.width="100vw";\nide.canvas.style.height="100vh";\nlet init = function() {\nif (ide.canvas.offsetWidth == 0 || ide.canvas.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = ide.canvas.offsetWidth;\nide.canvas.height = ide.canvas.offsetHeight;\n' + s_init + 'ide.canvas.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
+				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.removeChild(ide.main);\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\nlet init = function() {\nif (cv.offsetWidth == 0 || cv.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
 
 				status.innerHTML = "status: ready for download";
 				download_turtle.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + turtle + s3);
