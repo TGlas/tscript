@@ -1997,3 +1997,9 @@ return module;
 }());
 
 if (ide) window.addEventListener("load", ide.create, false);
+
+window.onbeforeunload = function(event)
+{
+	event.preventDefault();
+	event.returnValue = '';
+};

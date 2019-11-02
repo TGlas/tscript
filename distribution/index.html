@@ -394,8 +394,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 12,
-			day: 1,
+			patch: 13,
+			day: 2,
 			month: 11,
 			year: 2019,
 			full: function()
@@ -10631,6 +10631,12 @@ return module;
 }());
 
 if (ide) window.addEventListener("load", ide.create, false);
+
+window.onbeforeunload = function(event)
+{
+	event.preventDefault();
+	event.returnValue = '';
+};
 "use strict"
 
 ///////////////////////////////////////////////////////////
