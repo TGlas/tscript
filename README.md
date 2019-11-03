@@ -21,9 +21,9 @@ print("Hello World");
 ```
 For proper example code have a look at the [examples](https://github.com/TGlas/tscript/tree/master/examples)
 directory. Demos of the examples:
- - [turtle graphics: snowflake](https://github.com/TGlas/tscript/tree/master/examples/demos/snowflake.html)
- - [canvas graphics: game of life](https://github.com/TGlas/tscript/tree/master/examples/demos/gameoflife.html)
- - [canvas graphics: 3D cube](https://github.com/TGlas/tscript/tree/master/examples/demos/cube3D.html)
+ - [turtle graphics: snowflake](https://https://tglas.github.io/tscript/examples/demos/snowflake.html)
+ - [canvas graphics: game of life](https://tglas.github.io/tscript/examples/demos/gameoflife.html)
+ - [canvas graphics: 3D cube](https://tglas.github.io/tscript/examples/demos/cube3D.html)
 
 ## Testing
 If something does not work as expected then please run the
