@@ -22,22 +22,9 @@ print("Hello World");
 ```
 For proper example code have a look at the [examples](https://github.com/TGlas/tscript/tree/master/examples)
 directory. Demos of the examples:
-```html
-<table><tr>
-<td width="33%">
-<ul>
-<li><a target="demoframe" href="https://tglas.github.io/tscript/examples/demos/snowflake.html">turtle graphics: snowflake</a></li>
-<li><a target="demoframe" href="https://tglas.github.io/tscript/examples/demos/gameoflife.html">canvas graphics: game of life</a></li>
-<li><a target="demoframe" href="https://tglas.github.io/tscript/examples/demos/cube3D.html">canvas graphics: 3D cube</a></li>
-</ul>
-</td>
-<td width="66%">
-<div style="position: relative;  width: 100%; padding-top: 100%; background: #aaa;">
-<iframe name="demoframe"></iframe>
-</div>
-</td>
-</tr></table>
-```
+ - [turtle graphics: snowflake](https://tglas.github.io/tscript/examples/demos/snowflake.html){:target="_blank"}
+ - [canvas graphics: game of life](https://tglas.github.io/tscript/examples/demos/gameoflife.html){:target="_blank"}
+ - [canvas graphics: 3D cube](https://tglas.github.io/tscript/examples/demos/cube3D.html){:target="_blank"}
 
 ## Testing
 If something does not work as expected then please run the
