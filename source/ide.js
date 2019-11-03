@@ -1998,8 +1998,6 @@ return module;
 
 if (ide) window.addEventListener("load", ide.create, false);
 
-window.onbeforeunload = function(event)
-{
-	event.preventDefault();
-	event.returnValue = '';
+window.onbeforeunload = function(event){
+if (String(document.title).startsWith("TScript IDE")) { event.preventDefault(); event.returnValue = ''; }
 };

@@ -516,7 +516,7 @@ if (doc) doc.children.push({
 			fills a rectangle with the current fill color.
 		</td></tr>
 		<tr><th>frameRect</th><td>
-			The <code class="code">function filledRect(left, top, width, height)</code>
+			The <code class="code">function frameRect(left, top, width, height)</code>
 			fills a rectangle with the current fill color and draws the outline with
 			the current line color and line width.
 		</td></tr>
@@ -530,7 +530,7 @@ if (doc) doc.children.push({
 			fills a circle with the current fill color.
 		</td></tr>
 		<tr><th>frameCircle</th><td>
-			The <code class="code">function filledCircle(x, y, radius)</code>
+			The <code class="code">function frameCircle(x, y, radius)</code>
 			fills a circle with the current fill color and draws the outline with
 			the current line color and line width.
 		</td></tr>
