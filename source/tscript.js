@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 13,
-			day: 2,
+			patch: 14,
+			day: 3,
 			month: 11,
 			year: 2019,
 			full: function()
