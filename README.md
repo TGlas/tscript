@@ -26,6 +26,11 @@ directory. Demos of the examples:
  - [canvas graphics: game of life](https://tglas.github.io/tscript/examples/demos/gameoflife.html)
  - [canvas graphics: 3D cube](https://tglas.github.io/tscript/examples/demos/cube3D.html)
 
+## Documentation
+The documentation is included in the IDE. It can be accessed with the
+button at the top right. It is also available
+[here.](https://tglas.github.io/tscript/distribution/index.html?doc)
+
 ## Testing
 If something does not work as expected then please run the
 [unit tests](https://tglas.github.io/tscript/source/unittest.html)

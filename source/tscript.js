@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 14,
-			day: 3,
+			patch: 15,
+			day: 7,
 			month: 11,
 			year: 2019,
 			full: function()
@@ -1437,8 +1437,8 @@ let core = {
 				let s = module.toString.call(this, text);
 				let ret = null;
 				if (! this.service.documentation_mode && this.service.prompt) ret = this.service.prompt(s);
-				if (ret === null) return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
-				else return {"type": this.program.types[module.typeid_string], "value": {"b": ret}};
+				if (ret === null) ret = "";
+				return {"type": this.program.types[module.typeid_string], "value": {"b": ret}};
 			},
 			"wait": function(milliseconds) {
 				if (! module.isNumeric(milliseconds.type)) this.error("/argument-mismatch/am-1", ["milliseconds", "wait", "numeric argument", module.displayname(arg.type)]);

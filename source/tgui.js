@@ -569,6 +569,7 @@ function arrangeDocked(list, left, width, height)
 // arrange all panels so that they fit
 function arrange()
 {
+	if (! module.panelcontainer) return;
 	let w = module.panelcontainer.clientWidth;
 	let h = module.panelcontainer.clientHeight;
 	let w60 = Math.round(0.6 * w);
