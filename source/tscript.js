@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 15,
-			day: 7,
+			patch: 16,
+			day: 12,
 			month: 11,
 			year: 2019,
 			full: function()
@@ -3351,7 +3351,7 @@ function parse_expression(state, parent, lhs)
 					};
 			ex.sim = simfalse;
 		}
-		else if (token.value == "null")
+		else if (token.type == "keyword" && token.value == "null")
 		{
 			// constant
 			ex.petype = "constant";
@@ -3359,7 +3359,7 @@ function parse_expression(state, parent, lhs)
 			ex.step = constantstep;
 			ex.sim = simfalse;
 		}
-		else if (token.value == "true" || token.value == "false")
+		else if (token.type == "keyword" && (token.value == "true" || token.value == "false"))
 		{
 			// constant
 			ex.petype = "constant";
