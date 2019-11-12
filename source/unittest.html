@@ -46,6 +46,66 @@ td
 // definition of all unit test
 //
 let tests = [
+	// lexer
+	{
+		name: "lexer and token types",
+		description: "test the types of constants - including errors that remained undetected for much too long",
+		code: `
+			print(Type(null));
+			print(Type(false));
+			print(Type(true));
+			print(Type(0));
+			print(Type(0.0));
+			print(Type("null"));
+			print(Type("false"));
+			print(Type("true"));
+			print(Type("0"));
+			print(Type("0.0"));
+		`,
+		expectation: [
+				{type: "print", message: "<Type Null>"},
+				{type: "print", message: "<Type Boolean>"},
+				{type: "print", message: "<Type Boolean>"},
+				{type: "print", message: "<Type Integer>"},
+				{type: "print", message: "<Type Real>"},
+				{type: "print", message: "<Type String>"},
+				{type: "print", message: "<Type String>"},
+				{type: "print", message: "<Type String>"},
+				{type: "print", message: "<Type String>"},
+				{type: "print", message: "<Type String>"},
+				"finished"],
+	},
+	{
+		name: "incomplete real number format 1",
+		description: "notation like .5 is disallowed",
+		code: `
+			print(.5);
+		`,
+		expectation: [
+				{type: "error", href: "#/errors/syntax/se-42"},
+				"parsing failed"],
+	},
+	{
+		name: "incomplete real number format 2",
+		description: "notation like 5. is disallowed",
+		code: `
+			print(5.);
+		`,
+		expectation: [
+				{type: "error", href: "#/errors/syntax/se-1"},
+				"parsing failed"],
+	},
+	{
+		name: "incomplete real number format 3",
+		description: "notation like 5e is disallowed",
+		code: `
+			print(5e);
+		`,
+		expectation: [
+				{type: "error", href: "#/errors/syntax/se-1"},
+				"parsing failed"],
+	},
+
 	// basic language constructs
 	{
 		name: "blocks, variables, scoping, and assignment",

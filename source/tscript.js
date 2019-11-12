@@ -2200,6 +2200,7 @@ module.get_token = function (state, peek)
 				// parse fractional part
 				type = "real";
 				state.advance();
+				if (state.eof() || (state.current() < '0' || state.current() > '9')) state.error("/syntax/se-1");
 				while (! state.eof() && (state.current() >= '0' && state.current() <= '9')) state.advance();
 			}
 			if (state.current() == 'e' || state.current() == 'E')

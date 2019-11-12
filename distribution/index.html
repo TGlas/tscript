@@ -2575,6 +2575,7 @@ module.get_token = function (state, peek)
 				// parse fractional part
 				type = "real";
 				state.advance();
+				if (state.eof() || (state.current() < '0' || state.current() > '9')) state.error("/syntax/se-1");
 				while (! state.eof() && (state.current() >= '0' && state.current() <= '9')) state.advance();
 			}
 			if (state.current() == 'e' || state.current() == 'E')
@@ -16969,15 +16970,27 @@ if (doc) doc.children.push({
 		{"id": "se-1",
 		"content": `
 			<p>
-			This error occurs when a number is parsed as a floating point
-			literal with exponent indicator <code class="code">E</code> or
-			<code class="code">e</code>, but the indicator is not followed
-			by a number, as it should.
+			This error occurs in two situations:
+			<ol>
+				<li>
+					A number is parsed as a floating point literal with decimal dot
+					<code class="code">.</code>, but the dot is not followed by a
+					number, as it should.
+				</li>
+				<li>
+					A number is parsed as a floating point literal with exponent
+					indicator <code class="code">E</code> or <code class="code">e</code>,
+					but the indicator is not followed by a number, as it should.
+				</li>
+			</lo>
 			</p>
 			<div class="example">
 				<h3>Example</h3>
 				<tscript>
-					print(-6.2E+002);   # exponent is present
+					print(5.0);         # number with decimal place
+					# print(5.);        # error
+					# print(.5);        # (different error)
+					print(-6.2E+002);   # number with exponent
 					# print(-6.2E+);    # error
 				</tscript>
 			</div>
