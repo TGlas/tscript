@@ -12720,7 +12720,7 @@ if (doc) doc.children.push({
 			empty-dictionary = "{" "}" ;
 			nonempty-dictionary = "{" key-value { "," key-value } [ "," ] "}" ;
 			key-value = (string | identifier) ":" expression ;
-			lambda = "function" [ closure ] "(" param-list ") func-body" ;
+			lambda = "function" [ closure ] "(" param-list ")" func-body ;
 			closure = "[" [ closure-param { "," closure-param } ] "]" ;
 			closure-param = [ identifier "=" ] expression ;
 			param-list = [ param-decl { "," param-decl } ] ;
@@ -13626,7 +13626,7 @@ if (doc) doc.children.push({
 				<p>
 				An anonymous function or lambda function follows the syntax:
 				<ebnf>
-					lambda = "function" [ closure ] "(" param-list ") func-body" ;
+					lambda = "function" [ closure ] "(" param-list ")" func-body ;
 					  closure = "[" [ closure-param { "," closure-param } ] "]" ;
 					  closure-param = [ identifier "=" ] expression ;
 					  param-list = [ param-decl { "," param-decl } ] ;
@@ -16600,7 +16600,8 @@ if (doc) doc.children.push({
 			turtle clockwise, where 360 <i>degrees</i> are one full rotation.
 		</td></tr>
 		<tr><th>color</th><td>
-			The <code class="code">function color(red, green, blue)</code>
+			The <code class="code">function color(
+			, green, blue)</code>
 			sets the color of the pen, defined by red, green and blue components.
 			All values are clipped to the range [0,&nbsp;1].
 		</td></tr>
@@ -16637,10 +16638,10 @@ if (doc) doc.children.push({
 		to the corners of pixels. Hence, the coordinates of the center of
 		the top/left pixel are (0.5, 0.5). All drawing operations are
 		defined in continuous coordinates. Conceptually, drawing a red line
-		of width 1 from point (10, 10) to point (20, 10) spills red inc
+		of width 1 from point (10, 10) to point (20, 10) spills red ink
 		over the rectangle with corners (10, 9.5), (10, 10.5), (20, 10.5),
 		(20, 9.5). Therefore the pixels in rows y=9 and y=10 are covered
-		by 50% red inc. When drawing on top of white background, then the
+		by 50% red ink. When drawing on top of white background, then the
 		drawing command results in two consecutive horizontal pixel rows
 		of light red color. However, the intended is most probably to fill
 		a single pixel row with fully red color. This is achieved by

@@ -432,7 +432,7 @@ if (doc) doc.children.push({
 			empty-dictionary = "{" "}" ;
 			nonempty-dictionary = "{" key-value { "," key-value } [ "," ] "}" ;
 			key-value = (string | identifier) ":" expression ;
-			lambda = "function" [ closure ] "(" param-list ") func-body" ;
+			lambda = "function" [ closure ] "(" param-list ")" func-body ;
 			closure = "[" [ closure-param { "," closure-param } ] "]" ;
 			closure-param = [ identifier "=" ] expression ;
 			param-list = [ param-decl { "," param-decl } ] ;
@@ -1338,7 +1338,7 @@ if (doc) doc.children.push({
 				<p>
 				An anonymous function or lambda function follows the syntax:
 				<ebnf>
-					lambda = "function" [ closure ] "(" param-list ") func-body" ;
+					lambda = "function" [ closure ] "(" param-list ")" func-body ;
 					  closure = "[" [ closure-param { "," closure-param } ] "]" ;
 					  closure-param = [ identifier "=" ] expression ;
 					  param-list = [ param-decl { "," param-decl } ] ;
