@@ -286,7 +286,7 @@ function programinfo(value, node_id)
 
 		let pe = value;
 		if (pe.petype == "expression") pe = pe.sub;
-		else if (pe.petype == "group") pe = pe.sub;
+		while (pe.petype == "group") pe = pe.sub;
 
 		ret.element = document.createElement("div");
 		let s = "";
@@ -701,7 +701,7 @@ module.prepare_run = function()
 
 	if (program)
 	{
-// console.log(program);
+//console.log(program);
 		module.interpreter = new TScript.Interpreter(program);
 		module.interpreter.service.documentation_mode = false;
 		module.interpreter.service.print = (function(msg) { module.addMessage("print", msg); });
