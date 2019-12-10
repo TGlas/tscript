@@ -2875,6 +2875,28 @@ let tests = [
 				"parsing failed"],
 	},
 	{
+		name: "se-81b",
+		description: "test of syntax error 81b",
+		code: `
+			for var i in 0:10 do break
+			print("foo");
+		`,
+		expectation: [
+				{type: "error", href: "#/errors/syntax/se-81b"},
+				"parsing failed"],
+	},
+	{
+		name: "se-81c",
+		description: "test of syntax error 81c",
+		code: `
+			for var i in 0:10 do continue
+			print("foo");
+		`,
+		expectation: [
+				{type: "error", href: "#/errors/syntax/se-81c"},
+				"parsing failed"],
+	},
+	{
 		name: "se-82",
 		description: "test of syntax error 82",
 		code: `

@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 17,
-			day: 3,
+			patch: 18,
+			day: 10,
 			month: 12,
 			year: 2019,
 			full: function()
@@ -688,6 +688,8 @@ let errors = {
 		"se-79": "syntax error in return; a constructor does not return a value",
 		"se-80": "syntax error in return; the program does not return a value",
 		"se-81": "syntax error in return; semicolon ';' expected",
+		"se-81b": "syntax error in break; semicolon ';' expected",
+		"se-81c": "syntax error in continue; semicolon ';' expected",
 		"se-82": "syntax error in try-catch statement: 'catch' expected",
 		"se-84": "syntax error in try-catch statement: 'var' expected after 'catch'",
 		"se-85": "syntax error in try-catch statement: identifier expected after 'var'",
@@ -5761,6 +5763,10 @@ function parse_break(state, parent)
 		p = p.parent;
 	}
 
+	// parse the closing semicolon
+	token = module.get_token(state);
+	if (token.type != "delimiter" || token.value != ';') state.error("/syntax/se-81b");
+
 	// create the break object
 	return {
 			"petype": "continue",
@@ -5803,6 +5809,10 @@ function parse_continue(state, parent)
 		if (p.petype.indexOf("loop") >= 0) break;
 		p = p.parent;
 	}
+
+	// parse the closing semicolon
+	token = module.get_token(state);
+	if (token.type != "delimiter" || token.value != ';') state.error("/syntax/se-81c");
 
 	// create the continue object
 	return {

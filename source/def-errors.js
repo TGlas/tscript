@@ -1044,6 +1044,22 @@ if (doc) doc.children.push({
 			</p>
 		`,
 		"children": []},
+		{"id": "se-81b",
+		"content": `
+			<p>
+			A <a href="#/language/statements/break-continue">break</a> statement ends with
+			a semicolon. The error message indicates that this is not the case.
+			</p>
+		`,
+		"children": []},
+		{"id": "se-81c",
+		"content": `
+			<p>
+			A <a href="#/language/statements/break-continue">continue</a> statement ends with
+			a semicolon. The error message indicates that this is not the case.
+			</p>
+		`,
+		"children": []},
 		{"id": "se-82",
 		"content": `
 			<p>
