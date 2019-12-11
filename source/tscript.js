@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 18,
-			day: 10,
+			patch: 19,
+			day: 11,
 			month: 12,
 			year: 2019,
 			full: function()
@@ -7015,7 +7015,7 @@ module.Interpreter = function(program)
 		let frame = this.stack[len - 1];
 		let pe = frame.pe[frame.pe.length - 1];
 		let line = pe.where ? pe.where.line : -1;
-		while (this.stack.length > 0)
+		while (this.stack.length > 0 && (this.status == "waiting" || this.status == "running"))
 		{
 			this.step();
 			if (this.stack.length < len) break;
