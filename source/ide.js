@@ -715,9 +715,10 @@ module.prepare_run = function()
 					if (href === undefined) href = "";
 					module.addMessage("error", msg, line, ch, href);
 				});
-		module.interpreter.service.statechanged = function()
+		module.interpreter.service.statechanged = function(stop)
 				{
-					updateStatus();
+					if (stop) updateControls();
+					else updateStatus();
 					if (module.interpreter.status == "finished") module.sourcecode.focus();
 				};
 		module.interpreter.service.breakpoint = function()
@@ -774,7 +775,7 @@ let cmd_run = function()
 	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
 	if (! module.interpreter) return;
 	module.interpreter.run();
-	updateControls();
+//	updateControls();
 	module.canvas.parentElement.focus();
 };
 
@@ -782,7 +783,7 @@ let cmd_interrupt = function()
 {
 	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) return;
 	module.interpreter.interrupt();
-	updateControls();
+//	updateControls();
 };
 
 let cmd_step_into = function()
@@ -791,7 +792,7 @@ let cmd_step_into = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_into();
-	updateControls();
+//	updateControls();
 };
 
 let cmd_step_over = function()
@@ -800,7 +801,7 @@ let cmd_step_over = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_over();
-	updateControls();
+//	updateControls();
 };
 
 let cmd_step_out = function()
@@ -809,7 +810,7 @@ let cmd_step_out = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_out();
-	updateControls();
+//	updateControls();
 };
 
 let cmd_export = function()

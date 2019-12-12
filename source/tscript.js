@@ -19,7 +19,7 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 20,
+			patch: 21,
 			day: 12,
 			month: 12,
 			year: 2019,
@@ -1392,7 +1392,7 @@ let core = {
 
 			"terminate": function() {
 				this.status = "finished";
-				if (this.service.statechanged) this.service.statechanged();
+				if (this.service.statechanged) this.service.statechanged(true);
 			},
 			"assert": function(condition, message) {
 				if (! module.isDerivedFrom(condition.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["condition", "assert", "boolean", module.displayname(condition.type)]);
@@ -1563,6 +1563,7 @@ let core = {
 								frame.ip[frame.ip.length - 1]--;   // infinite loop
 								frame.temporaries = [];            // discard return values (hack...)
 
+//console.log("eventqueue.length", this.eventqueue.length);
 								if (this.eventqueue.length == 0)
 								{
 									if (! this.service.documentation_mode) this.wait(10);
@@ -6502,6 +6503,7 @@ module.Interpreter = function(program)
 	this.thread = false;      // state of the thread
 	this.stop = false;        // request to stop the thread
 	this.background = false;  // is the thread responsible for running the program?
+	this.halt = null;         // function testing whether the thread should be halted
 	this.status = "";         // program status: "running", "waiting", "error", "finished"
 	this.stack = [];          // full state of the program
 	this.breakpoints = {};    // breakpoints for debugging, keys are lines
@@ -6790,14 +6792,27 @@ module.Interpreter = function(program)
 			if (t >= this.waittime)
 			{
 				this.status = "running";
-				if (this.service.statechanged) this.service.statechanged();
+				if (this.service.statechanged) this.service.statechanged(false);
 			}
 		}
 
 		if (this.status == "running")
 		{
 			let start = (new Date()).getTime();
-			while (this.background && (new Date()).getTime() - start < 14 && this.status == "running") this.step();
+			while (this.background && (new Date()).getTime() - start < 14 && this.status == "running")
+			{
+				this.step();
+
+				if (this.halt)
+				{
+					if (this.halt.call(this))
+					{
+						this.halt = null;
+						this.background = false;
+						if (this.service.statechanged) this.service.statechanged(true);
+					}
+				}
+			}
 			if (this.background) this.enqueueEvent("timer", {"type": this.program.types[module.typeid_null], "value": {"b": null}});
 		}
 
@@ -6808,6 +6823,7 @@ module.Interpreter = function(program)
 	// reset the program state, set the instruction pointer to its start
 	this.reset = function()
 	{
+		this.halt = null;
 		this.background = false;
 		this.stack = [{
 				"pe": [this.program],       // array(n), program elements
@@ -6816,19 +6832,25 @@ module.Interpreter = function(program)
 				"variables": []             // array, global variables
 			}];
 		this.status = "running";
-		if (this.service.statechanged) this.service.statechanged();
+		if (this.service.statechanged) this.service.statechanged(true);
 	};
 
 	// start or continue running the program in the background
 	this.run = function()
 	{
-		if (this.status == "running" || this.status == "waiting") this.background = true;
+		if (this.status == "running" || this.status == "waiting")
+		{
+			this.background = true;
+			if (this.service.statechanged) this.service.statechanged(false);
+		}
 	};
 
 	// interrupt the program in the background, keep the state
 	this.interrupt = function()
 	{
+		this.halt = null;
 		this.background = false;
+		if (this.service.statechanged) this.service.statechanged(true);
 	};
 
 	// raise a fatal runtime error, preserve the interpreter state for debugging
@@ -6863,7 +6885,7 @@ module.Interpreter = function(program)
 		if (this.status != "running") return false;
 		this.waittime = (new Date()).getTime() + milliseconds;
 		this.status = "waiting";
-		if (this.service.statechanged) this.service.statechanged();
+		if (this.service.statechanged) this.service.statechanged(false);
 		return true;
 	};
 
@@ -6922,7 +6944,7 @@ module.Interpreter = function(program)
 			if (t >= this.waittime)
 			{
 				this.status = "running";
-				if (this.service.statechanged) this.service.statechanged();
+				if (this.service.statechanged) this.service.statechanged(false);
 			}
 		}
 
@@ -6931,7 +6953,7 @@ module.Interpreter = function(program)
 		if (this.stack.length == 0)
 		{
 			this.status = "finished";
-			if (this.service.statechanged) this.service.statechanged();
+			if (this.service.statechanged) this.service.statechanged(true);
 			return;
 		}
 
@@ -6973,13 +6995,14 @@ module.Interpreter = function(program)
 		{
 			if (ex instanceof RuntimeError)
 			{
+				this.halt = null;
 				this.background = false;
 				if (this.service.message)
 				{
 					this.service.message("runtime error in line " + ex.line + ": " + ex.message, ex.line, ex.ch, ex.href);
 				}
 				this.status = "error";
-				if (this.service.statechanged) this.service.statechanged();
+				if (this.service.statechanged) this.service.statechanged(true);
 			}
 			else
 			{
@@ -6989,9 +7012,10 @@ module.Interpreter = function(program)
 				let msg = module.composeError("/internal/ie-2", [module.ex2string(ex)]);
 				if (this.service.message) this.service.message(msg, null, null, "#/errors/internal/ie-2");
 
+				this.halt = null;
 				this.background = false;
 				this.status = "error";
-				if (this.service.statechanged) this.service.statechanged();
+				if (this.service.statechanged) this.service.statechanged(true);
 			}
 		}
 	};
@@ -6999,7 +7023,8 @@ module.Interpreter = function(program)
 	this.step_into = function()
 	{
 		if (this.background || this.status != "running") return;
-		this.step();
+		this.halt = function() { return true; };
+		this.background = true;
 	};
 
 	// move to a different line in the same function
@@ -7009,29 +7034,25 @@ module.Interpreter = function(program)
 		let len = this.stack.length;
 		if (len == 0)
 		{
-			this.step();
+			this.halt = function() { return true; };
+			this.background = true;
 			return;
 		}
 		let frame = this.stack[len - 1];
 		let pe = frame.pe[frame.pe.length - 1];
 		let line = pe.where ? pe.where.line : -1;
-		while (this.stack.length > 0 && (this.status == "waiting" || this.status == "running"))
-		{
-			this.step();
-			if (this.stack.length < len) break;
-			else if (this.stack.length == len)
-			{
-				let pe = frame.pe[frame.pe.length - 1];
-				let ln = pe.where ? pe.where.line : -1;
-				if (ln != line) break;
-			}
-			else
-			{
-				let frame = this.stack[this.stack.length - 1];
-				let pe = frame.pe[frame.pe.length - 1];
-				if (pe.petype == "breakpoint" && pe.active()) break;
-			}
-		}
+		this.halt = (function(len, line) { return function()
+				{
+					if (this.stack.length < len) return true;
+					else if (this.stack.length == len)
+					{
+						let pe = frame.pe[frame.pe.length - 1];
+						let ln = pe.where ? pe.where.line : -1;
+						if (ln != line) return true;
+					}
+					return false;
+				}; })(len, line);
+		this.background = true;
 	};
 
 	// move out of the current function
@@ -7039,22 +7060,12 @@ module.Interpreter = function(program)
 	{
 		if (this.background || this.status != "running") return;
 		let len = this.stack.length;
-		if (len == 0)
-		{
-			this.step();
-			return;
-		}
-		while (this.stack.length > 0)
-		{
-			this.step();
-			if (this.stack.length < len) break;
-			else
-			{
-				let frame = this.stack[this.stack.length - 1];
-				let pe = frame.pe[frame.pe.length - 1];
-				if (pe.petype == "breakpoint" && pe.active()) break;
-			}
-		}
+		if (len == 0) this.halt = function() { return true; };
+		else this.halt = (function(len) { return function()
+				{
+					return (this.stack.length < len);
+				}; })(len);
+		this.background = true;
 	};
 
 	// request to stop the background thread
