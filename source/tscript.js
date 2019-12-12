@@ -6832,7 +6832,7 @@ module.Interpreter = function(program)
 				"variables": []             // array, global variables
 			}];
 		this.status = "running";
-		if (this.service.statechanged) this.service.statechanged(true);
+		if (this.service.statechanged) this.service.statechanged(false);
 	};
 
 	// start or continue running the program in the background

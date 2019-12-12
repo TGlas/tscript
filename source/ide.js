@@ -761,7 +761,7 @@ module.prepare_run = function()
 		}
 	}
 
-	updateControls();
+//	updateControls();
 };
 
 let cmd_reset = function()
