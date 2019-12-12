@@ -394,8 +394,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 19,
-			day: 11,
+			patch: 20,
+			day: 12,
 			month: 12,
 			year: 2019,
 			full: function()
@@ -2139,10 +2139,10 @@ let lib_math = {
 						else this.error("/argument-mismatch/am-1", ["x", "math.sign", "numeric argument", module.displayname(arg.type)]);
 					},
 					"min": function(a, b) {
-						if (module.order(a, b) <= 0) return a; else return b;
+						if (module.order.call(this, a, b) <= 0) return a; else return b;
 					},
 					"max": function(a, b) {
-						if (module.order(a, b) >= 0) return a; else return b;
+						if (module.order.call(this, a, b) >= 0) return a; else return b;
 					},
 					"random": function() {
 						return {"type": this.program.types[module.typeid_real], "value": {"b": Math.random() }};
