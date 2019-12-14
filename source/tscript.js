@@ -6801,7 +6801,7 @@ module.Interpreter = function(program)
 			let start = (new Date()).getTime();
 			while (this.background && (new Date()).getTime() - start < 14 && this.status == "running")
 			{
-				this.step();
+				this.exec_step();
 
 				if (this.halt)
 				{
@@ -6936,7 +6936,7 @@ module.Interpreter = function(program)
 	// non-trivial command. All further steps execute one command and
 	// then move the instruction pointer to the next non-trivial
 	// command.
-	this.step = function()
+	this.exec_step = function()
 	{
 		if (this.status == "waiting")
 		{
@@ -6966,7 +6966,7 @@ module.Interpreter = function(program)
 			{
 				// execute the current program element, and demand that it "did something"
 				let done = pe.step.call(this);
-				module.assert(done, "[Interpreter.step] 'done' expected");
+				module.assert(done, "[Interpreter.exec_step] 'done' expected");
 
 				// progress the instruction pointer
 				this.stepcounter++;
@@ -6985,7 +6985,7 @@ module.Interpreter = function(program)
 
 				// execute the current program element
 				done = pe.step.call(this);
-				module.assert(! done, "[Interpreter.step] 'not done' expected");
+				module.assert(! done, "[Interpreter.exec_step] 'not done' expected");
 
 				// progress the instruction pointer
 				progress.call(this);
