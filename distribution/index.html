@@ -394,8 +394,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 21,
-			day: 12,
+			patch: 22,
+			day: 18,
 			month: 12,
 			year: 2019,
 			full: function()
@@ -1905,8 +1905,8 @@ let core = {
 				if (! module.isDerivedFrom(event.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["event", "setEventHandler", "string", module.displayname(event.type)]);
 				let name = event.value.b;
 				if (! this.service.documentation_mode && ! this.eventnames.hasOwnProperty(name)) this.error("/argument-mismatch/am-40", [name]);
-				if (handler.type.id != module.typeid_none && ! module.isDerivedFrom(handler.type, module.typeid_function)) this.error("/argument-mismatch/am-1", ["handler", "setEventHandler", "null or function", module.displayname(handler.type)]);
-				if (handler.value.b.func.params.length != 1) this.error("/argument-mismatch/am-41");
+				if (handler.type.id != module.typeid_null && ! module.isDerivedFrom(handler.type, module.typeid_function)) this.error("/argument-mismatch/am-1", ["handler", "setEventHandler", "Null or Function", module.displayname(handler.type)]);
+				if (handler.value.b && handler.value.b.func.params.length != 1) this.error("/argument-mismatch/am-41");
 				this.setEventHandler(name, handler);
 				return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 			},
@@ -1938,7 +1938,6 @@ let core = {
 								frame.ip[frame.ip.length - 1]--;   // infinite loop
 								frame.temporaries = [];            // discard return values (hack...)
 
-//console.log("eventqueue.length", this.eventqueue.length);
 								if (this.eventqueue.length == 0)
 								{
 									if (! this.service.documentation_mode) this.wait(10);
