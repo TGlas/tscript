@@ -106,6 +106,68 @@ let tests = [
 				"parsing failed"],
 	},
 
+	{
+		name: "event handling",
+		description: "test of event handling",
+		code: `
+			setEventHandler("canvas.mousedown", function(event) { quitEventMode("down"); });
+			setEventHandler("canvas.mouseup", null);
+			print(enterEventMode());
+			setEventHandler("canvas.mousedown", null);
+			setEventHandler("canvas.mouseup", function(event) { quitEventMode("up"); });
+			print(enterEventMode());
+		`,
+		events:
+		[
+			{
+				name: "canvas.mousedown",
+				type: "canvas.MouseButtonEvent",
+				attr: {
+					x: 50,
+					y: 25,
+					button: 0,
+					buttons: [true, false, false],
+					shift : false,
+					control: true,
+					alt: false,
+					meta: false,
+				},
+			},
+			{
+				name: "canvas.mousedown",
+				type: "canvas.MouseButtonEvent",
+				attr: {
+					x: 50,
+					y: 25,
+					button: 0,
+					buttons: [true, false, false],
+					shift : false,
+					control: true,
+					alt: false,
+					meta: false,
+				},
+			},
+			{
+				name: "canvas.mouseup",
+				type: "canvas.MouseButtonEvent",
+				attr: {
+					x: 50,
+					y: 25,
+					button: 0,
+					buttons: [true, false, false],
+					shift : false,
+					control: true,
+					alt: false,
+					meta: false,
+				},
+			},
+		],
+		expectation: [
+				{type: "print", message: "down"},
+				{type: "print", message: "up"},
+				"finished"],
+	},
+
 	// basic language constructs
 	{
 		name: "blocks, variables, scoping, and assignment",
