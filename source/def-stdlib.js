@@ -387,8 +387,7 @@ if (doc) doc.children.push({
 			turtle clockwise, where 360 <i>degrees</i> are one full rotation.
 		</td></tr>
 		<tr><th>color</th><td>
-			The <code class="code">function color(
-			, green, blue)</code>
+			The <code class="code">function color(red, green, blue)</code>
 			sets the color of the pen, defined by red, green and blue components.
 			All values are clipped to the range [0,&nbsp;1].
 		</td></tr>
