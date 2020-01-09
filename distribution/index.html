@@ -394,10 +394,10 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 22,
-			day: 18,
-			month: 12,
-			year: 2019,
+			patch: 23,
+			day: 9,
+			month: 1,
+			year: 2020,
 			full: function()
 					{
 						let s = "TScript version " + module.version.major
@@ -6949,12 +6949,12 @@ module.Interpreter = function(program)
 			return this.service.canvas.dom.height;
 		},
 		"setLineWidth": function(width) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.lineWidth = width;
 		},
 		"setLineColor": function(red, green, blue, alpha) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			let r = Math.min(1, Math.max(0, red));
 			let g = Math.min(1, Math.max(0, green));
@@ -6963,7 +6963,7 @@ module.Interpreter = function(program)
 			ctx.strokeStyle = "rgba(" + Math.round(255 * r) + "," + Math.round(255 * g) + "," + Math.round(255 * b) + "," + a + ")";
 		},
 		"setFillColor": function(red, green, blue, alpha) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			let r = Math.min(1, Math.max(0, red));
 			let g = Math.min(1, Math.max(0, green));
@@ -6972,24 +6972,24 @@ module.Interpreter = function(program)
 			ctx.fillStyle = "rgba(" + Math.round(255 * r) + "," + Math.round(255 * g) + "," + Math.round(255 * b) + "," + a + ")";
 		},
 		"setFont": function(fontface, fontsize) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.font = fontsize + "px " + fontface;
 			this.service.canvas.font_size = fontsize;
 		},
 		"setTextAlign": function(alignment) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.textAlign = alignment;
 		},
 		"clear": function() {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.setTransform(1, 0, 0, 1, 0, 0);
 			ctx.fillRect(0, 0, this.service.canvas.dom.width, this.service.canvas.dom.height);
 		},
 		"line": function(x1, y1, x2, y2) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			ctx.moveTo(x1, y1);
@@ -6997,19 +6997,19 @@ module.Interpreter = function(program)
 			ctx.stroke();
 		},
 		"rect": function(left, top, width, height) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			ctx.rect(left, top, width, height);
 			ctx.stroke();
 		},
 		"fillRect": function(left, top, width, height) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.fillRect(left, top, width, height);
 		},
 		"frameRect": function(left, top, width, height) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			ctx.rect(left, top, width, height);
@@ -7017,21 +7017,21 @@ module.Interpreter = function(program)
 			ctx.stroke();
 		},
 		"circle": function(x, y, radius) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
 			ctx.stroke();
 		},
 		"fillCircle": function(x, y, radius) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
 			ctx.fill();
 		},
 		"frameCircle": function(x, y, radius) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
@@ -7039,7 +7039,7 @@ module.Interpreter = function(program)
 			ctx.stroke();
 		},
 		"curve": function(points, closed) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			let n = points.length;
@@ -7057,7 +7057,7 @@ module.Interpreter = function(program)
 			ctx.stroke();
 		},
 		"fillArea": function(points) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			let n = points.length;
@@ -7075,7 +7075,7 @@ module.Interpreter = function(program)
 			ctx.fill();
 		},
 		"frameArea": function(points) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.beginPath();
 			let n = points.length;
@@ -7094,7 +7094,7 @@ module.Interpreter = function(program)
 			ctx.stroke();
 		},
 		"text": function(x, y, str) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.textBaseline = "top";
 			let lines = str.split('\n');
@@ -7105,27 +7105,27 @@ module.Interpreter = function(program)
 			}
 		},
 		"reset": function() {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.setTransform(1, 0, 0, 1, 0, 0);
 		},
 		"shift": function(dx, dy) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.translate(dx, dy);
 		},
 		"scale": function(factor) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.scale(factor, factor);
 		},
 		"rotate": function(angle) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.rotate(angle);
 		},
 		"transform": function(A, b) {
-			if (! this.service.canvas.dom) return;
+			if (! this.service.canvas.dom || ! this.service.canvas.dom.getContext) return;
 			let ctx = this.service.canvas.dom.getContext("2d");
 			ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
 		}
