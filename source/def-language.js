@@ -1406,9 +1406,15 @@ if (doc) doc.children.push({
 				<p>
 				Note that writing the else-case as
 				<code class="code">else return n * fac(n-1);</code> does not work
-				because <code class="fac</code> is a variable that cannot be used
-				until it is fully initialized, and the else-statement is part of
-				the initializer.
+				because <code class="code">fac</code> is a variable that cannot be
+				used until it is fully initialized, and the else-statement is part
+				of the initializer.
+				</p>
+				<p>
+				When invoking a lambda function, all closure variables are
+				<i>copied</i> into the local frame. Hence, any modification of a
+				closure variable is limited to the duration of the function
+				execution.
 				</p>
 			`,
 			"children": []},
