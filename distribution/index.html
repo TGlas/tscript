@@ -16134,7 +16134,7 @@ if (doc) doc.children.push({
 						assert(Type(day) == Integer, "invalid date");
 						assert(year >= 1970 and year < 2100, "invalid date");
 						assert(month >= 1 and month <= 12, "invalid date");
-						var leapyears = (year - 1968) // 4;
+						var leapyears = (year - 1 - 1968) // 4;
 						var leapyear = year % 4 == 0;
 						var mlen = month_start[month] - month_start[month - 1];
 						if month == 2 and leapyear then mlen += 1;
