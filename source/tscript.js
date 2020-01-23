@@ -6817,8 +6817,7 @@ module.Interpreter = function(program)
 			}
 			if (this.background && !this.timerEventEnqueued)
 			{
-				this.enqueueEvent("timer", {"type": this.program.types[module.typeid_null], "value": {"b": null}});
-				this.timerEventEnqueued = true;
+				this.timerEventEnqueued = this.enqueueEvent("timer", {"type": this.program.types[module.typeid_null], "value": {"b": null}});
 			}
 		}
 
@@ -7084,9 +7083,11 @@ module.Interpreter = function(program)
 	this.timerEventEnqueued = false;
 
 	// queue an event
+	// returns true when event got enqueued, false otherwise
 	this.enqueueEvent = function(type, event)
 	{
 		if (this.eventmode) this.eventqueue.push({"type": type, "event": event});
+		return this.eventmode;
 	};
 
 	// define an event handler - there can only be one :)
