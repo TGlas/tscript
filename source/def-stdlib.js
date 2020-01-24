@@ -165,6 +165,9 @@ if (doc) doc.children.push({
 			<code class="code">setEventHandler</code> with
 			<code class="code">handler = null</code> removes the handler for
 			the given event type.
+			
+			When events take more than 20 milliseconds to complete,
+			the &quot;timer&quot; event only gets called once for this timespan.
 		</td></tr>
 		<tr><th>enterEventMode</th><td>
 			The <code class="code">function enterEventMode()</code> puts the

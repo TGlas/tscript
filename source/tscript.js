@@ -1573,6 +1573,9 @@ let core = {
 									let t = this.eventqueue[0].type;
 									let e = this.eventqueue[0].event;
 									this.eventqueue.splice(0, 1);
+									// this allows another timer event to be enqueued,
+									// while the timer event is executed
+									if (t == "timer") this.timerEventEnqueued = false;
 									if (this.eventhandler.hasOwnProperty(t))
 									{
 										let handler = this.eventhandler[t];
@@ -6812,7 +6815,10 @@ module.Interpreter = function(program)
 					}
 				}
 			}
-			if (this.background) this.enqueueEvent("timer", {"type": this.program.types[module.typeid_null], "value": {"b": null}});
+			if (this.background && !this.timerEventEnqueued)
+			{
+				this.timerEventEnqueued = this.enqueueEvent("timer", {"type": this.program.types[module.typeid_null], "value": {"b": null}});
+			}
 		}
 
 		let context = this;
@@ -7072,11 +7078,16 @@ module.Interpreter = function(program)
 	{
 		this.stop = true;
 	};
+	
+	// event limits
+	this.timerEventEnqueued = false;
 
 	// queue an event
+	// returns true when event got enqueued, false otherwise
 	this.enqueueEvent = function(type, event)
 	{
 		if (this.eventmode) this.eventqueue.push({"type": type, "event": event});
+		return this.eventmode;
 	};
 
 	// define an event handler - there can only be one :)
