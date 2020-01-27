@@ -965,8 +965,12 @@ let core = {
 						else if (module.isDerivedFrom(arg.type, module.typeid_string))
 						{
 							let s = arg.value.b.trim();
+							let v = 1;
+							if (s.length == 0) this.error("/argument-mismatch/am-14");
+							if (s[0] == '-') { v = -1; s = s.substr(1); }
+							else if (s[0] == '+') { s = s.substr(1); }
 							if (s.length == 0 || "0123456789.".indexOf(s[0]) < 0) this.error("/argument-mismatch/am-14");
-							let v = Number(s);
+							v *= Number(s);
 							if (! Number.isFinite(v)) this.error("/argument-mismatch/am-13");
 							object.value.b = Math.floor(v) | 0;
 						}
