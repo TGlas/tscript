@@ -38,7 +38,7 @@ if (doc) doc.children.push({
 		"content": `
 			<p>
 			TScript source code consists of unicode characters from the
-			<a target="_blank" href="https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane">Basic Multilingual Plane</a>.
+			<a target="_blank" href="https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane">Basic Multilingual Plane</a> (BMP).
 			These characters have codes in the range U+0000 to U+FFFF.
 			In other words, each character (or "code point") can be
 			represented as an unsigned 16-bit integer.
@@ -61,6 +61,22 @@ if (doc) doc.children.push({
 			Inside comments and string literals, the full range U+0000
 			to U+FFFF is legal. Every character can be denoted in plain
 			ASCII by means of an escaping mechanism.
+			</p>
+			<p>
+			<b>Note:</b>
+			The TScript implementation is based directly on Javascript
+			(ECMAScript&nbsp;6). Javascript allows its implementations
+			to support the complete unicode range by composing
+			characters outside the BMP with the UTF16 encoding, but this
+			feature is not mandatory. In practice, Javascript engines do
+			support the mechanism, which amounts to representing the
+			unicode characters outside the BMP with two characters in
+			the range U+0000 to U+FFFF. This solution is error-prone.
+			For example, it is somewhat surprising if a string that
+			prints as a single character consists of two characters, as
+			revealed by the size method and when accessing the
+			characters, slicing the string, etc. It is therefore
+			recommended to restrict string contents to the BMP.
 			</p>
 		`,
 		"children": []},

@@ -103,7 +103,7 @@ if (doc) doc.children.push({
 		<p>
 		TScript is an imperative and object oriented language. In many
 		aspects it has similarities to "scripting" languages like Python
-		and Javascript: code is executes as it is encountered, so there
+		and Javascript: code is executed as it is encountered, so there
 		is no explicit entry point, variables are untyped, they
 		reference values instead of containing them, and memory is fully
 		managed.
