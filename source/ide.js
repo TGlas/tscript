@@ -1173,7 +1173,7 @@ let buttons = [
 						ctx.fill();
 					},
 			"tooltip": "run the current command, step into function calls",
-			"hotkey": "F11",
+			"hotkey": "shift-control-F11",
 		},
 		{
 			"click": cmd_step_over,
