@@ -771,8 +771,7 @@ let errors = {
 		"ne-23": "error in use directive; '$$' is not a namespace",
 		"ne-24": "use of identifier '$$' conflicts with previous declaration; double use of the same name",
 		"ne-25": "error in constructor call; the constructor of type '$$' is declared $$",
-		"ne-26": "variable $$ is used in its own initializer",
-		"ne-27": "error in super class declaration; class '$$' inherits itself",
+		"ne-26": "error in super class declaration; class '$$' inherits itself",
 	},
 	"logic": {
 		"le-1": "too much recursion",
@@ -5029,7 +5028,7 @@ function parse_class(state, parent)
 		cls.superclass = result.lookup;
 
 		if (cls.superclass.petype != "type") state.error("/name/ne-22", [result.name]);
-		if (cls == cls.superclass) state.error("/name/ne-27", [result.name]);
+		if (cls == cls.superclass) state.error("/name/ne-26", [result.name]);
 		cls.objectsize = cls.superclass.objectsize;
 
 		if (cls.superclass.class_constructor && cls.superclass.class_constructor.access == "private") state.error("/syntax/se-58");

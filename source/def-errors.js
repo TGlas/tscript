@@ -2178,14 +2178,6 @@ if (doc) doc.children.push({
 		{"id": "ne-26",
 		"content": `
 			<p>
-			It was attempted to use a variable during its own initialization.
-			That's not possible, since the variable does not yet have a value.
-			</p>
-		`,
-		"children": []},
-		{"id": "ne-27",
-		"content": `
-			<p>
 			It was attempted to use a class as its own super class.
 			That's not possible because inheritance chains must be cycle-free.
 			</p>

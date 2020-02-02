@@ -4214,6 +4214,16 @@ let tests = [
 				{type: "error", href: "#/errors/name/ne-25"},
 				"parsing failed"],
 	},
+	{
+		name: "ne-26",
+		description: "test of name resolution error ne-26",
+		code: `
+			class A : A { }
+		`,
+		expectation: [
+				{type: "error", href: "#/errors/name/ne-26"},
+				"parsing failed"],
+	},
 
 	// logic errors
 	{
