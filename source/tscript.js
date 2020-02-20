@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 24,
-			day: 2,
+			patch: 25,
+			day: 20,
 			month: 2,
 			year: 2020,
 			full: function()
@@ -565,7 +565,12 @@ module.previewValue = function (arg, depth)
 	else if (arg.type.id == module.typeid_function)
 	{
 		let s = "<Function ";
-		if (arg.value.b.hasOwnProperty("object")) s += module.displayname(arg.value.b.object.type) + ".";
+		if (arg.value.b.hasOwnProperty("object"))
+		{
+			console.log(arg);
+			module.assert(arg.value.b.func.parent.petype == "type", "[previewValue] invalid method object");
+			s += module.displayname(arg.value.b.func.parent) + ".";
+		}
 		if (arg.value.b.func.displayname) s += arg.value.b.func.displayname;
 		else if (arg.value.b.func.name) s += arg.value.b.func.name;
 		else
