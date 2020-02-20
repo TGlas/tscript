@@ -9691,24 +9691,43 @@ let buttons = [
 			"draw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
-						ctx.strokeStyle = "#741";
+						
+						ctx.strokeStyle = "#333";
+						ctx.fillStyle = "#fff";
 						ctx.lineWidth = 1;
 						ctx.beginPath();
-						ctx.moveTo( 8.5, 3);
-						ctx.lineTo(11.5, 10);
+						ctx.moveTo(4.5, 7.5);
+						ctx.lineTo(8.5, 3.5);
+						ctx.lineTo(14.5, 3.5);
+						ctx.lineTo(14.5, 16.5);
+						ctx.lineTo(4.5, 16.5);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+						
+						ctx.beginPath();
+						ctx.moveTo(4.5, 7.5);
+						ctx.lineTo(8.5, 7.5);
+						ctx.lineTo(8.5, 3.5);
+						ctx.stroke();
+						
+						ctx.strokeStyle = "#030";
+						ctx.fillStyle = "#0a0";
+						ctx.beginPath();
+						ctx.arc(14, 14, 4.75, 0, 2 * Math.PI, false);
+						ctx.fill();
+						ctx.stroke();
+						
+						ctx.strokeStyle = "#fff";
+						ctx.lineWidth = 2;
+						ctx.beginPath();
+						ctx.moveTo(14, 17);
+						ctx.lineTo(14, 11);
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.moveTo(11.5, 3);
-						ctx.lineTo( 8.5, 10);
+						ctx.moveTo(11, 14);
+						ctx.lineTo(17, 14);
 						ctx.stroke();
-						ctx.beginPath();
-						ctx.moveTo( 6.8, 6.5);
-						ctx.lineTo(13.2, 6.5);
-						ctx.stroke();
-						ctx.fillStyle = "#000";
-						ctx.fillRect(3, 13, 14, 4);
-						ctx.fillStyle = "#ccc";
-						ctx.fillRect(12, 14, 4, 2);
 					},
 			"tooltip": "new document",
 			"hotkey": "shift-control-n",
@@ -9718,22 +9737,32 @@ let buttons = [
 			"draw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#741";
-						ctx.strokeStyle = "#741";
+						
+						ctx.fillStyle = "#ec5";
+						ctx.strokeStyle = "#330";
 						ctx.lineWidth = 1;
 						ctx.beginPath();
-						ctx.moveTo(10, 12);
-						ctx.lineTo(10, 7);
-						ctx.stroke();
-						ctx.beginPath();
-						ctx.moveTo(6, 7);
-						ctx.lineTo(14, 7);
-						ctx.lineTo(10, 3);
+						ctx.moveTo(2.5, 4.5);
+						ctx.lineTo(7.5, 4.5);
+						ctx.lineTo(9.5, 6.5);
+						ctx.lineTo(15.5, 6.5);
+						ctx.lineTo(15.5, 15.5);
+						ctx.lineTo(2.5, 15.5);
+						ctx.closePath();
 						ctx.fill();
-						ctx.fillStyle = "#000";
-						ctx.fillRect(3, 13, 14, 4);
-						ctx.fillStyle = "#ccc";
-						ctx.fillRect(12, 14, 4, 2);
+						ctx.stroke();
+						
+						ctx.fillStyle = "#fd6";
+						ctx.strokeStyle = "#330";
+						ctx.lineWidth = 1;
+						ctx.beginPath();
+						ctx.moveTo(5.5, 8.5);
+						ctx.lineTo(17.5, 8.5);
+						ctx.lineTo(15.5, 15.5);
+						ctx.lineTo(3.5, 15.5);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
 					},
 			"tooltip": "open document",
 			"hotkey": "control-o",
@@ -9743,22 +9772,26 @@ let buttons = [
 			"draw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#741";
-						ctx.strokeStyle = "#741";
-						ctx.lineWidth = 1;
+						
+						ctx.fillStyle = "#36d";
+						ctx.strokeStyle = "#139";
 						ctx.beginPath();
-						ctx.moveTo(10, 3);
-						ctx.lineTo(10, 8);
-						ctx.stroke();
-						ctx.beginPath();
-						ctx.moveTo(6, 8);
-						ctx.lineTo(14, 8);
-						ctx.lineTo(10, 12);
+						ctx.moveTo(3.5, 3.5);
+						ctx.lineTo(16.5, 3.5);
+						ctx.lineTo(16.5, 16.5);
+						ctx.lineTo(5.5, 16.5);
+						ctx.lineTo(3.5, 14.5);
+						ctx.closePath();
 						ctx.fill();
-						ctx.fillStyle = "#000";
-						ctx.fillRect(3, 13, 14, 4);
-						ctx.fillStyle = "#ccc";
-						ctx.fillRect(12, 14, 4, 2);
+						ctx.stroke();
+						
+						ctx.fillStyle = "#eef";
+						ctx.fillRect(7, 11, 6, 5);
+						ctx.fillStyle = "#36d";
+						ctx.fillRect(8, 12, 2, 3);
+						
+						ctx.fillStyle = "#fff";
+						ctx.fillRect(6, 4, 8, 5);
 					},
 			"tooltip": "save document",
 			"hotkey": "control-s",
@@ -9768,23 +9801,69 @@ let buttons = [
 			"draw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#741";
-						ctx.strokeStyle = "#741";
-						ctx.lineWidth = 1;
+						
+						// code duplicate, first part the same as in cmd_save
+						ctx.fillStyle = "#36d";
+						ctx.strokeStyle = "#139";
 						ctx.beginPath();
-						ctx.moveTo(6, 3);
-						ctx.lineTo(10, 3);
-						ctx.lineTo(10, 8);
-						ctx.stroke();
-						ctx.beginPath();
-						ctx.moveTo(6, 8);
-						ctx.lineTo(14, 8);
-						ctx.lineTo(10, 12);
+						ctx.moveTo(3.5, 3.5);
+						ctx.lineTo(16.5, 3.5);
+						ctx.lineTo(16.5, 16.5);
+						ctx.lineTo(5.5, 16.5);
+						ctx.lineTo(3.5, 14.5);
+						ctx.closePath();
 						ctx.fill();
+						ctx.stroke();
+						
+						ctx.fillStyle = "#eef";
+						ctx.fillRect(7, 11, 6, 5);
+						ctx.fillStyle = "#36d";
+						ctx.fillRect(8, 12, 2, 3);
+						
+						ctx.fillStyle = "#fff";
+						ctx.fillRect(6, 4, 8, 5);
+						
+						
+						// draw pencil
+						// shadow
+						ctx.strokeStyle = "#0005";
+						ctx.lineWidth = 3;
+						ctx.beginPath();
+						ctx.moveTo(8, 8);
+						ctx.lineTo(8+10, 8+10);
+						ctx.stroke();
+						
 						ctx.fillStyle = "#000";
-						ctx.fillRect(3, 13, 14, 4);
-						ctx.fillStyle = "#ccc";
-						ctx.fillRect(12, 14, 4, 2);
+						ctx.beginPath();
+						ctx.moveTo(8, 6);
+						ctx.lineTo(10, 6);
+						ctx.lineTo(8, 8);
+						ctx.fill();
+						
+						// there is some empty space, that looks like the wooden part of the pencil
+						
+						ctx.strokeStyle = "#000";
+						ctx.lineWidth = 3;
+						ctx.beginPath();
+						ctx.moveTo(10, 8);
+						ctx.lineTo(18, 16);
+						ctx.stroke();
+						
+						ctx.strokeStyle = "#dd0";
+						ctx.lineWidth = 2;
+						ctx.beginPath();
+						ctx.moveTo(10, 8);
+						ctx.lineTo(18, 16);
+						ctx.stroke();
+						
+						ctx.fillStyle = "#000";
+						ctx.beginPath();
+						ctx.arc(18, 16, 1.5, 0, 2*Math.PI, false);
+						ctx.fill();
+						
+						ctx.fillStyle = "#f33";
+						ctx.fillRect(17, 14.5, 2, 2);
+						
 					},
 			"tooltip": "save document as ...",
 			"hotkey": "shift-control-s",
@@ -9920,7 +9999,7 @@ let buttons = [
 					{
 						let ctx = canvas.getContext("2d");
 						ctx.fillStyle = "#c00";
-						ctx.arc(9.5, 9.5, 4.0, 0, 2 * Math.PI, false);
+						ctx.arc(10, 10, 4.0, 0, 2 * Math.PI, false);
 						ctx.fill();
 					},
 			"tooltip": "toggle breakpoint",
