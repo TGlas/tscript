@@ -22,6 +22,7 @@ JSFILES := ../source/codemirror.js \
 	../source/def-language.js \
 	../source/def-stdlib.js \
 	../source/def-errors.js \
+	../source/def-cheatsheet.js \
 	../source/def-legal.js \
 
 CSSFILES := ../source/codemirror.css \

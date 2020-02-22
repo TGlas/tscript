@@ -193,7 +193,7 @@ if (doc) doc.children.push({
 			</p>
 			<ebnf>
 				operator = arithmetic_op | compare_op | assign-op ;
-				binary-op = "+" | "-" | "*" | "/" | "%" | "^" ;
+				binary-op = "+" | "-" | "*" | "/" | "//" | "%" | "^" ;
 				compare_op = "==" | "!=" | "<" | "<=" | ">" | ">=" ;
 				assign-op = "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ;
 				grouping = "(" | ")" | "[" | "]" | "{" | "}" ;
@@ -385,7 +385,7 @@ if (doc) doc.children.push({
 			            | "a" | "b" | "c" | "d" | "e" | "f" ;
 
 			operator = arithmetic_op | compare_op | assign-op ;
-			binary-op = "+" | "-" | "*" | "/" | "%" | "^" ;
+			binary-op = "+" | "-" | "*" | "/" | "//" | "%" | "^" ;
 			compare_op = "==" | "!=" | "<" | "<=" | ">" | ">=" ;
 			assign-op = "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ;
 			grouping = "(" | ")" | "[" | "]" | "{" | "}" ;
@@ -1446,8 +1446,8 @@ if (doc) doc.children.push({
 		`,
 		"children": [
 			{"id": "not",
-			"name": "Logical Negation",
-			"title": "Logical Negation",
+			"name": "Logical or Bitwise Negation",
+			"title": "Logical or Bitwise Negation",
 			"content": `
 				<p>
 				<code class="code">operator not</code> performs a logical or bitwise

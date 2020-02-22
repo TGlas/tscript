@@ -21,7 +21,7 @@
 {
 	margin: 10px 10px 10px 10px;
 	padding: 0 10px 0 10px;
-	width: 28vw;
+	width: 18vw;
 	height: 30px;
 	vertical-align: middle;
 	background: #eee;
@@ -41,18 +41,24 @@ input:focus
 
 #sidebar
 {
+	box-sizing: border-box;
 	position: fixed;
 	left: 0vw;
 	top: 0vh;
-	width: 30vw;
+	width: 20vw;
 	height: 100vh;
+	background: #ddd;
 }
 
 #version
 {
+	left: 0;
+	top: 0;
+	position: absolute;
+	box-sizing: border-box;
 	width: 100%;
-	height: 25px;
-	line-height: 25px;
+	height: 45px;
+	line-height: 150%;
 	color: #000;
 	background: #ddd;
 	padding: 2px;
@@ -63,6 +69,10 @@ input:focus
 
 #search
 {
+	left: 0;
+	top: 45px;
+	position: absolute;
+	box-sizing: border-box;
 	width: 100%;
 	height: 50px;
 	color: #fff;
@@ -71,19 +81,24 @@ input:focus
 
 #tree
 {
+	left: 0;
+	top: 95px;
+	position: absolute;
+	box-sizing: border-box;
 	width: 100%;
-	height: calc(100vh - 75px);
+	height: calc(100vh - 100px);
 	color: #000;
 	background: #ddd;
 }
 
 #content
 {
+	box-sizing: border-box;
 	display: block;
 	position: fixed;
-	left: 30vw;
+	left: 20vw;
 	top: 0vw;
-	width: 70vw;
+	width: 80vw;
 	height: 100vh;
 	padding: 3vh 5vw 3vh 5vw;
 	color: #000;
@@ -96,6 +111,7 @@ input:focus
 
 #content .pad
 {
+	box-sizing: border-box;
 	margin-bottom: 10vh;
 }
 
@@ -178,6 +194,7 @@ hr {
 	margin: 5px auto 5px auto;
 	border-collapse: collapse;
 	display: table;
+	margin: 10px;
 }
 
 .nicetable th
@@ -195,6 +212,24 @@ hr {
 	background: #aaf;
 	padding: 1ex;
 	text-align: center;
+}
+
+.nicetable th a
+{
+	color: #000;
+}
+
+.nicetable td a
+{
+	color: #000;
+}
+
+.flex
+{
+	display: flex;
+	flex-wrap: wrap;
+	flex-flow: space-evenly;
+	align-items: stretch;
 }
 
 .methods
