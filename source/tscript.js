@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 26,
-			day: 22,
+			patch: 27,
+			day: 26,
 			month: 2,
 			year: 2020,
 			full: function()
@@ -938,6 +938,7 @@ let core = {
 			function prompt(text) { }
 			function wait(milliseconds) { }
 			function time() { }
+			function localtime() { }
 			function setEventHandler(event, handler) { }
 			function enterEventMode() { }
 			function quitEventMode(result = null) { }
@@ -1462,6 +1463,10 @@ let core = {
 			},
 			"time": function() {
 				return {"type": this.program.types[module.typeid_real], "value": {"b": (new Date()).getTime()}};
+			},
+			"localtime": function() {
+				let d = new Date();
+				return {"type": this.program.types[module.typeid_real], "value": {"b": d.getTime() - 60000.0 * d.getTimezoneOffset()}};
 			},
 			"exists": function(key) {
 				if (! module.isDerivedFrom(key.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["key", "exists", "string", module.displayname(key.type)]);
