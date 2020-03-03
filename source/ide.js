@@ -1140,7 +1140,7 @@ let buttons = [
 		},
 		{
 			"click": cmd_load,
-			"draw": function draw_icon_load(canvas)
+			"draw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
 
