@@ -1989,16 +1989,25 @@ module.create = function()
 					// ctx.fillRect(4, 15, 12, 2);
 					
 					ctx.strokeStyle = "#222";
-					ctx.fillStyle = "#fff";
 					
-					// white background
+					// white top
+					ctx.fillStyle = "#fff";
 					ctx.beginPath();
-					ctx.moveTo( 4, 5.3);
-					ctx.lineTo( 4,14.5);
-					ctx.lineTo(10,  17.5);
-					ctx.lineTo(16,14.5);
-					ctx.lineTo(16, 5.3);
-					ctx.lineTo(10,   2.5);
+					ctx.moveTo( 4,  5.5);
+					ctx.lineTo(10,  8.5);
+					ctx.lineTo(16,  5.5);
+					ctx.lineTo(10,  2.5);
+					ctx.fill();
+					
+					// shaded lower pages
+					ctx.fillStyle = "#bbb";
+					ctx.beginPath();
+					ctx.moveTo( 4,  5.5);
+					ctx.lineTo( 4, 14.5);
+					ctx.lineTo(10, 17.5);
+					ctx.lineTo(16, 14.5);
+					ctx.lineTo(16,  5.5);
+					ctx.lineTo(10,  8.5);
 					ctx.fill();
 					
 					
@@ -2196,17 +2205,36 @@ module.create = function()
 				
 					ctx.fillStyle = "#333";
 					ctx.fillRect(3, 2, 14, 16);
+					ctx.fillStyle = "#ace";
+					ctx.fillRect(4, 3, 12, 7);
+					ctx.fillStyle = "#147";
+					ctx.fillRect(4, 10, 12, 7);
+					// sun
 					ctx.fillStyle = "#fff";
-					ctx.fillRect(4, 3, 12, 14);
-					ctx.fillStyle = "#00c";
-					ctx.fillRect(6, 6, 6, 6);
-					ctx.fillStyle = "#c00";
-					ctx.strokeStyle = "#800";
 					ctx.beginPath();
-					ctx.arc(11, 12, 2.5, 0, 2*Math.PI);
+					ctx.arc(10, 6, 2, 0, 2*Math.PI);
 					ctx.closePath();
 					ctx.fill();
-					ctx.stroke();
+					// sun reflection
+					ctx.fillStyle = "#369";
+					ctx.beginPath();
+					ctx.ellipse(10, 10, 2, 5, 0, 0, Math.PI, false);
+					ctx.closePath();
+					ctx.fill();
+					
+					
+					
+					// ctx.fillStyle = "#fff";
+					// ctx.fillRect(4, 3, 12, 14);
+					// ctx.fillStyle = "#00c";
+					// ctx.fillRect(5, 5, 8, 8);
+					// ctx.fillStyle = "#c00";
+					// ctx.strokeStyle = "#800";
+					// ctx.beginPath();
+					// ctx.arc(11, 12, 3.5, 0, 2*Math.PI);
+					// ctx.closePath();
+					// ctx.fill();
+					// ctx.stroke();
 				}
 		});
 	module.canvas = tgui.createElement({
