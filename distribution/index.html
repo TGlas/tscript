@@ -9691,30 +9691,14 @@ let cmd_save_as = function()
 }
 
 
-function make_icon(draw_func)
-{
-	let icon = {};
-	icon.draw_func = draw_func;
-	icon.draw = (function(canvas) { this(canvas.getContext("2d")); }).bind(draw_func);
-	return icon;
-}
 
-// compose two icons, bg and fg should be icons created
-// by make_icon or compose_icon
-function compose_icon(bg, fg)
-{
-	let icon = {};
-	icon.bg = bg;
-	icon.fg = fg;
-	icon.draw_func = (function(ctx) { this.bg(ctx); this.fg(ctx); }).bind(icon);
-	icon.draw = (function(canvas) { this(canvas.getContext("2d")); }).bind(icon.draw_func);
-	return icon;
-}
+// Toolbar icons
+// icon parts used several times are written as a function,
+// the 2d context of the canvas is passed as a parameter,
+// resulting in less code
 
-function draw_icon_paper(canvas)
+function draw_icon_paper(ctx)
 {
-	let ctx = canvas.getContext("2d");
-	
 	ctx.strokeStyle = "#333";
 	ctx.fillStyle = "#fff";
 	ctx.lineWidth = 1;
@@ -9727,7 +9711,7 @@ function draw_icon_paper(canvas)
 	ctx.closePath();
 	ctx.fill();
 	ctx.stroke();
-	
+
 	ctx.beginPath();
 	ctx.moveTo(4.5, 7.5);
 	ctx.lineTo(8.5, 7.5);
@@ -9735,68 +9719,8 @@ function draw_icon_paper(canvas)
 	ctx.stroke();
 }
 
-// Toolbar icons
-function draw_icon_new(canvas)
+function draw_icon_floppy_disk(ctx)
 {
-	draw_icon_paper(canvas);
-	
-	let ctx = canvas.getContext("2d");
-	
-	ctx.strokeStyle = "#030";
-	ctx.fillStyle = "#0a0";
-	ctx.beginPath();
-	ctx.arc(14, 14, 4.75, 0, 2 * Math.PI, false);
-	ctx.closePath();
-	ctx.fill();
-	ctx.stroke();
-	
-	ctx.strokeStyle = "#fff";
-	ctx.lineWidth = 2;
-	ctx.beginPath();
-	ctx.moveTo(14, 17);
-	ctx.lineTo(14, 11);
-	ctx.stroke();
-	ctx.beginPath();
-	ctx.moveTo(11, 14);
-	ctx.lineTo(17, 14);
-	ctx.stroke();
-}
-
-function draw_icon_load(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	
-	ctx.fillStyle = "#ec5";
-	ctx.strokeStyle = "#330";
-	ctx.lineWidth = 1;
-	ctx.beginPath();
-	ctx.moveTo(2.5, 4.5);
-	ctx.lineTo(7.5, 4.5);
-	ctx.lineTo(9.5, 6.5);
-	ctx.lineTo(15.5, 6.5);
-	ctx.lineTo(15.5, 15.5);
-	ctx.lineTo(2.5, 15.5);
-	ctx.closePath();
-	ctx.fill();
-	ctx.stroke();
-	
-	ctx.fillStyle = "#fd6";
-	ctx.strokeStyle = "#330";
-	ctx.lineWidth = 1;
-	ctx.beginPath();
-	ctx.moveTo(5.5, 8.5);
-	ctx.lineTo(17.5, 8.5);
-	ctx.lineTo(15.5, 15.5);
-	ctx.lineTo(3.5, 15.5);
-	ctx.closePath();
-	ctx.fill();
-	ctx.stroke();
-}
-
-function draw_icon_save(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	
 	ctx.fillStyle = "#36d";
 	ctx.strokeStyle = "#139";
 	ctx.beginPath();
@@ -9808,20 +9732,18 @@ function draw_icon_save(canvas)
 	ctx.closePath();
 	ctx.fill();
 	ctx.stroke();
-	
+
 	ctx.fillStyle = "#eef";
 	ctx.fillRect(7, 11, 6, 5);
 	ctx.fillStyle = "#36d";
 	ctx.fillRect(8, 12, 2, 3);
-	
+
 	ctx.fillStyle = "#fff";
 	ctx.fillRect(6, 4, 8, 5);
 }
 
-function draw_icon_pencil_overlay(canvas)
+function draw_icon_pencil_overlay(ctx)
 {
-	let ctx = canvas.getContext("2d");
-	
 	// draw pencil
 	// shadow
 	ctx.strokeStyle = "#0005";
@@ -9830,175 +9752,43 @@ function draw_icon_pencil_overlay(canvas)
 	ctx.moveTo(8, 8);
 	ctx.lineTo(8+10, 8+10);
 	ctx.stroke();
-	
-	
+
+
 	ctx.fillStyle = "#fc9";
 	ctx.beginPath();
 	ctx.moveTo(8, 6);
 	ctx.lineTo(12, 8);
 	ctx.lineTo(10, 10);
 	ctx.fill();
-	
+
 	ctx.fillStyle = "#000";
 	ctx.beginPath();
 	ctx.moveTo(8, 6);
 	ctx.lineTo(10, 6);
 	ctx.lineTo(8, 8);
 	ctx.fill();
-	
+
 	ctx.strokeStyle = "#000";
 	ctx.lineWidth = 3;
 	ctx.beginPath();
 	ctx.moveTo(10, 8);
 	ctx.lineTo(18, 16);
 	ctx.stroke();
-	
+
 	ctx.strokeStyle = "#dd0";
 	ctx.lineWidth = 2;
 	ctx.beginPath();
 	ctx.moveTo(10, 8);
 	ctx.lineTo(18, 16);
 	ctx.stroke();
-	
+
 	ctx.fillStyle = "#000";
 	ctx.beginPath();
 	ctx.arc(18, 16, 1.5, 0, 2*Math.PI, false);
 	ctx.fill();
-	
+
 	ctx.fillStyle = "#f33";
 	ctx.fillRect(17, 14.5, 2, 2);
-}
-
-function draw_icon_save_as(canvas)
-{
-	draw_icon_save(canvas);
-	draw_icon_pencil_overlay(canvas);
-}
-
-function draw_icon_run(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	ctx.fillStyle = "#080";
-	ctx.beginPath();
-	ctx.moveTo(5, 5);
-	ctx.lineTo(15, 10);
-	ctx.lineTo(5, 15);
-	ctx.fill();
-}
-
-function draw_icon_interrupt(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	ctx.fillStyle = "#c00";
-	ctx.fillRect(5, 5, 4, 10);
-	ctx.fillRect(11, 5, 4, 10);
-}
-
-function draw_icon_reset(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	ctx.fillStyle = "#c00";
-	ctx.fillRect(5, 5, 10, 10);
-}
-
-function draw_icon_step_into(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	ctx.fillStyle = "#000";
-	ctx.fillRect(10,  3, 7, 2);
-	ctx.fillRect(13,  6, 4, 2);
-	ctx.fillRect(13,  9, 4, 2);
-	ctx.fillRect(13, 12, 4, 2);
-	ctx.fillRect(10, 15, 7, 2);
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "#00f";
-	ctx.beginPath();
-	ctx.moveTo(8, 4);
-	ctx.lineTo(3, 4);
-	ctx.lineTo(3, 10);
-	ctx.lineTo(6, 10);
-	ctx.stroke();
-	ctx.fillStyle = "#00f";
-	ctx.beginPath();
-	ctx.moveTo(5, 7);
-	ctx.lineTo(5, 13);
-	ctx.lineTo(9.5, 10);
-	ctx.fill();
-}
-
-function draw_icon_step_over(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	ctx.fillStyle = "#000";
-	ctx.fillRect(10,  3, 7, 2);
-	ctx.fillRect(13,  6, 4, 2);
-	ctx.fillRect(13,  9, 4, 2);
-	ctx.fillRect(13, 12, 4, 2);
-	ctx.fillRect(10, 15, 7, 2);
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "#00f";
-	ctx.beginPath();
-	ctx.moveTo(8, 4);
-	ctx.lineTo(3, 4);
-	ctx.lineTo(3, 16);
-	ctx.lineTo(6, 16);
-	ctx.stroke();
-	ctx.fillStyle = "#00f";
-	ctx.beginPath();
-	ctx.moveTo(5, 13);
-	ctx.lineTo(5, 19);
-	ctx.lineTo(9.5, 16);
-	ctx.fill();
-}
-
-function draw_icon_step_out(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	ctx.fillStyle = "#000";
-	ctx.fillRect(10,  3, 7, 2);
-	ctx.fillRect(13,  6, 4, 2);
-	ctx.fillRect(13,  9, 4, 2);
-	ctx.fillRect(13, 12, 4, 2);
-	ctx.fillRect(10, 15, 7, 2);
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "#00f";
-	ctx.beginPath();
-	ctx.moveTo(11, 10);
-	ctx.lineTo(3, 10);
-	ctx.lineTo(3, 16);
-	ctx.lineTo(6, 16);
-	ctx.stroke();
-	ctx.fillStyle = "#00f";
-	ctx.beginPath();
-	ctx.moveTo(5, 13);
-	ctx.lineTo(5, 19);
-	ctx.lineTo(9.5, 16);
-	ctx.fill();
-}
-
-function draw_icon_toggle_breakpoint(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	ctx.fillStyle = "#c00";
-	ctx.arc(10, 10, 4.0, 0, 2 * Math.PI, false);
-	ctx.fill();
-}
-
-function draw_icon_export(canvas)
-{
-	let ctx = canvas.getContext("2d");
-	ctx.strokeStyle = "#080";
-	ctx.lineWidth = 1.5;
-	ctx.beginPath();
-	ctx.moveTo( 3,  7);
-	ctx.lineTo(10,  7);
-	ctx.lineTo(10,  3);
-	ctx.lineTo(17, 10);
-	ctx.lineTo(10, 17);
-	ctx.lineTo(10, 13);
-	ctx.lineTo( 3, 13);
-	ctx.closePath();
-	ctx.stroke();
 }
 
 
@@ -10006,73 +9796,247 @@ function draw_icon_export(canvas)
 let buttons = [
 		{
 			"click": cmd_new,
-			"draw": draw_icon_new,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+
+						draw_icon_paper(ctx);
+
+						ctx.strokeStyle = "#030";
+						ctx.fillStyle = "#0a0";
+						ctx.beginPath();
+						ctx.arc(14, 14, 4.75, 0, 2 * Math.PI, false);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+
+						ctx.strokeStyle = "#fff";
+						ctx.lineWidth = 2;
+						ctx.beginPath();
+						ctx.moveTo(14, 17);
+						ctx.lineTo(14, 11);
+						ctx.stroke();
+						ctx.beginPath();
+						ctx.moveTo(11, 14);
+						ctx.lineTo(17, 14);
+						ctx.stroke();
+					},
 			"tooltip": "new document",
 			"hotkey": "shift-control-n",
 		},
 		{
 			"click": cmd_load,
-			"draw": draw_icon_load,
+			"draw": function draw_icon_load(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+
+						ctx.fillStyle = "#ec5";
+						ctx.strokeStyle = "#330";
+						ctx.lineWidth = 1;
+						ctx.beginPath();
+						ctx.moveTo(2.5, 4.5);
+						ctx.lineTo(7.5, 4.5);
+						ctx.lineTo(9.5, 6.5);
+						ctx.lineTo(15.5, 6.5);
+						ctx.lineTo(15.5, 15.5);
+						ctx.lineTo(2.5, 15.5);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+
+						ctx.fillStyle = "#fd6";
+						ctx.strokeStyle = "#330";
+						ctx.lineWidth = 1;
+						ctx.beginPath();
+						ctx.moveTo(5.5, 8.5);
+						ctx.lineTo(17.5, 8.5);
+						ctx.lineTo(15.5, 15.5);
+						ctx.lineTo(3.5, 15.5);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+					},
 			"tooltip": "open document",
 			"hotkey": "control-o",
 		},
 		{
 			"click": cmd_save,
-			"draw": draw_icon_save,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+
+						draw_icon_floppy_disk(ctx);
+					},
 			"tooltip": "save document",
 			"hotkey": "control-s",
 		},
 		{
 			"click": cmd_save_as,
-			"draw": draw_icon_save_as,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+
+						draw_icon_floppy_disk(ctx);
+						draw_icon_pencil_overlay(ctx);
+					},
 			"tooltip": "save document as ...",
 			"hotkey": "shift-control-s",
 		},
 		{
 			"click": cmd_run,
-			"draw": draw_icon_run,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.fillStyle = "#080";
+						ctx.beginPath();
+						ctx.moveTo(5, 5);
+						ctx.lineTo(15, 10);
+						ctx.lineTo(5, 15);
+						ctx.fill();
+					},
 			"tooltip": "run the program, or continue running the program",
 			"hotkey": "F7",
 		},
 		{
 			"click": cmd_interrupt,
-			"draw": draw_icon_interrupt,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.fillStyle = "#c00";
+						ctx.fillRect(5, 5, 4, 10);
+						ctx.fillRect(11, 5, 4, 10);
+					},
 			"tooltip": "interrupt the program",
 			"hotkey": "shift-F7",
 		},
 		{
 			"click": cmd_reset,
-			"draw": draw_icon_reset,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.fillStyle = "#c00";
+						ctx.fillRect(5, 5, 10, 10);
+					},
 			"tooltip": "abort the program",
 			"hotkey": "F10",
 		},
 		{
 			"click": cmd_step_into,
-			"draw": draw_icon_step_into,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.fillStyle = "#000";
+						ctx.fillRect(10,  3, 7, 2);
+						ctx.fillRect(13,  6, 4, 2);
+						ctx.fillRect(13,  9, 4, 2);
+						ctx.fillRect(13, 12, 4, 2);
+						ctx.fillRect(10, 15, 7, 2);
+						ctx.lineWidth = 1;
+						ctx.strokeStyle = "#00f";
+						ctx.beginPath();
+						ctx.moveTo(8, 4);
+						ctx.lineTo(3, 4);
+						ctx.lineTo(3, 10);
+						ctx.lineTo(6, 10);
+						ctx.stroke();
+						ctx.fillStyle = "#00f";
+						ctx.beginPath();
+						ctx.moveTo(5, 7);
+						ctx.lineTo(5, 13);
+						ctx.lineTo(9.5, 10);
+						ctx.fill();
+					},
 			"tooltip": "run the current command, step into function calls",
 			"hotkey": "shift-control-F11",
 		},
 		{
 			"click": cmd_step_over,
-			"draw": draw_icon_step_over,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.fillStyle = "#000";
+						ctx.fillRect(10,  3, 7, 2);
+						ctx.fillRect(13,  6, 4, 2);
+						ctx.fillRect(13,  9, 4, 2);
+						ctx.fillRect(13, 12, 4, 2);
+						ctx.fillRect(10, 15, 7, 2);
+						ctx.lineWidth = 1;
+						ctx.strokeStyle = "#00f";
+						ctx.beginPath();
+						ctx.moveTo(8, 4);
+						ctx.lineTo(3, 4);
+						ctx.lineTo(3, 16);
+						ctx.lineTo(6, 16);
+						ctx.stroke();
+						ctx.fillStyle = "#00f";
+						ctx.beginPath();
+						ctx.moveTo(5, 13);
+						ctx.lineTo(5, 19);
+						ctx.lineTo(9.5, 16);
+						ctx.fill();
+					},
 			"tooltip": "run the current line of code, do no step into function calls",
 			"hotkey": "control-F11",
 		},
 		{
 			"click": cmd_step_out,
-			"draw": draw_icon_step_out,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.fillStyle = "#000";
+						ctx.fillRect(10,  3, 7, 2);
+						ctx.fillRect(13,  6, 4, 2);
+						ctx.fillRect(13,  9, 4, 2);
+						ctx.fillRect(13, 12, 4, 2);
+						ctx.fillRect(10, 15, 7, 2);
+						ctx.lineWidth = 1;
+						ctx.strokeStyle = "#00f";
+						ctx.beginPath();
+						ctx.moveTo(11, 10);
+						ctx.lineTo(3, 10);
+						ctx.lineTo(3, 16);
+						ctx.lineTo(6, 16);
+						ctx.stroke();
+						ctx.fillStyle = "#00f";
+						ctx.beginPath();
+						ctx.moveTo(5, 13);
+						ctx.lineTo(5, 19);
+						ctx.lineTo(9.5, 16);
+						ctx.fill();
+					},
 			"tooltip": "step out of the current function",
 			"hotkey": "shift-F11",
 		},
 		{
 			"click": cmd_toggle_breakpoint,
-			"draw": draw_icon_toggle_breakpoint,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.fillStyle = "#c00";
+						ctx.arc(10, 10, 4.0, 0, 2 * Math.PI, false);
+						ctx.fill();
+					},
 			"tooltip": "toggle breakpoint",
 			"hotkey": "F8",
 		},
 		{
 			"click": cmd_export,
-			"draw": draw_icon_export,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.strokeStyle = "#080";
+						ctx.lineWidth = 1.5;
+						ctx.beginPath();
+						ctx.moveTo( 3,  7);
+						ctx.lineTo(10,  7);
+						ctx.lineTo(10,  3);
+						ctx.lineTo(17, 10);
+						ctx.lineTo(10, 17);
+						ctx.lineTo(10, 13);
+						ctx.lineTo( 3, 13);
+						ctx.closePath();
+						ctx.stroke();
+					},
 			"tooltip": "export program as webpage",
 		},
 	];
@@ -10195,7 +10159,7 @@ function configDlg()
 	}
 
 	let checked = "";
-	
+
 	div = tgui.createElement({parent: dlg, type: "div"});
 	let h3 = tgui.createElement({parent: div, type: "h3", style: {"margin-top": "20px"}, text: "Coding Style"});
 	let p = tgui.createElement({parent: div, type: "p"});
@@ -10543,22 +10507,17 @@ module.create = function()
 			"dockedheight": 600,
 			"onArrange": function() { if (module.sourcecode) module.sourcecode.refresh(); },
 			"icondraw": function(canvas)
-				{
-					draw_icon_paper(canvas);
-					
-					let ctx = canvas.getContext("2d");
-					
-					ctx.fillStyle = "#777";
-					ctx.fillRect(10, 5, 3, 1);
-					ctx.fillRect(10, 7, 2, 1);
-					ctx.fillRect( 7, 9, 4, 1);
-					// ctx.fillRect( 9, 9, 4, 1);
-					ctx.fillRect( 6,11, 7, 1);
-					ctx.fillRect( 9,13, 4, 1);
-					// ctx.fillRect(7, 9, 5, 1);
-					// ctx.fillRect(7, 11, 3, 1);
-					// ctx.fillRect(7, 13, 4, 1);
-				}
+					{
+						let ctx = canvas.getContext("2d");
+						draw_icon_paper(ctx);
+
+						ctx.fillStyle = "#777";
+						ctx.fillRect(10, 5, 3, 1);
+						ctx.fillRect(10, 7, 2, 1);
+						ctx.fillRect( 7, 9, 4, 1);
+						ctx.fillRect( 6,11, 7, 1);
+						ctx.fillRect( 9,13, 4, 1);
+					}
 		});
 	panel_editor.textarea = tgui.createElement({"type": "textarea", "parent": panel_editor.content, "classname": "ide ide-sourcecode"});
 	module.sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
@@ -10613,48 +10572,24 @@ module.create = function()
 			"state": "left",
 			"dockedheight": 200,
 			"icondraw": function(canvas)
-				{
-					let ctx = canvas.getContext("2d");
-				
-					ctx.fillStyle = "#fff";
-					ctx.strokeStyle = "#222";
-					ctx.beginPath();
-					//ctx.arc(10, 10, 7, 0, 2 * Math.PI, false);
-					// ctx.ellipse(9.5, 8.5, 7, 6, 0, 0.45*Math.PI, 2.25*Math.PI, false);
-					ctx.ellipse(9.5, 8.5, 7, 6, 0, 0.73*Math.PI, 2.57*Math.PI, false);
-					// ctx.lineTo(14, 17);
-					ctx.lineTo(4.5, 17);
-					ctx.closePath();
-					ctx.fill();
-					ctx.stroke();
-					
-					ctx.fillStyle = "#777";
-					ctx.fillRect(8,  6, 3, 1);
-					ctx.fillRect(6,  8, 2, 1);
-					ctx.fillRect(9,  8, 5, 1);
-					ctx.fillRect(7, 10, 4, 1);
-					
-					// ctx.fillStyle = "#ff3";
-					// ctx.lineWidth = 1;
-					// ctx.strokeStyle = "#000";
-					// ctx.beginPath();
-					// ctx.moveTo( 9,  4);
-					// ctx.lineTo(10,  4);
-					// ctx.lineTo(16, 15);
-					// ctx.lineTo(15, 15.5);
-					// ctx.lineTo( 4, 15.5);
-					// ctx.lineTo( 3, 15);
-					// ctx.closePath();
-					// ctx.fill();
-					// ctx.stroke();
-					
-					// ctx.fillStyle = "#000";
-					// ctx.fillRect(9, 8, 1, 4);
-					// ctx.fillRect(9,13, 1, 1);
-					
-					//draw_icon_pencil_overlay(canvas);
-					
-				}
+					{
+						let ctx = canvas.getContext("2d");
+
+						ctx.fillStyle = "#fff";
+						ctx.strokeStyle = "#222";
+						ctx.beginPath();
+						ctx.ellipse(9.5, 8.5, 7, 6, 0, 0.73*Math.PI, 2.57*Math.PI, false);
+						ctx.lineTo(4.5, 17);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+
+						ctx.fillStyle = "#777";
+						ctx.fillRect(8,  6, 3, 1);
+						ctx.fillRect(6,  8, 2, 1);
+						ctx.fillRect(9,  8, 5, 1);
+						ctx.fillRect(7, 10, 4, 1);
+					}
 		});
 	module.messagecontainer = tgui.createElement({"type": "div", "parent": panel_messages.content, "classname": "ide ide-messages"});
 	module.messages = tgui.createElement({"type": "table", "parent": module.messagecontainer, "classname": "ide", "style": {"width": "100%"}});
@@ -10665,61 +10600,53 @@ module.create = function()
 			"state": "icon",
 			"fallbackState": "right",
 			"icondraw": function(canvas)
-				{
-					let ctx = canvas.getContext("2d");
-				
-					// ctx.fillRect(5,  3, 11, 2);
-					// ctx.fillRect(4,  6, 11, 2);
-					// ctx.fillRect(5,  9, 10, 2);
-					// ctx.fillRect(4, 12, 12, 2);
-					// ctx.fillRect(4, 15, 12, 2);
-					
-					ctx.strokeStyle = "#222";
-					ctx.fillStyle = "#fff";
-					
-					// white background
-					ctx.beginPath();
-					ctx.moveTo( 4, 5.3);
-					ctx.lineTo( 4,14.5);
-					ctx.lineTo(10,  17.5);
-					ctx.lineTo(16,14.5);
-					ctx.lineTo(16, 5.3);
-					ctx.lineTo(10,   2.5);
-					ctx.fill();
-					
-					
-					let i = 8;
-					for(; i < 17; i+=3)
 					{
+						let ctx = canvas.getContext("2d");
+
+						ctx.strokeStyle = "#222";
+
+						// white top
+						ctx.fillStyle = "#fff";
 						ctx.beginPath();
-						ctx.moveTo( 3, i + 0.5);
-						ctx.lineTo(10, i + 3.5);
-						ctx.lineTo(17, i + 0.5);
+						ctx.moveTo( 4,  5.5);
+						ctx.lineTo(10,  8.5);
+						ctx.lineTo(16,  5.5);
+						ctx.lineTo(10,  2.5);
+						ctx.fill();
+
+						// shaded lower pages
+						ctx.fillStyle = "#bbb";
+						ctx.beginPath();
+						ctx.moveTo( 4,  5.5);
+						ctx.lineTo( 4, 14.5);
+						ctx.lineTo(10, 17.5);
+						ctx.lineTo(16, 14.5);
+						ctx.lineTo(16,  5.5);
+						ctx.lineTo(10,  8.5);
+						ctx.fill();
+
+
+						let i = 8;
+						for(; i < 17; i+=3)
+						{
+							ctx.beginPath();
+							ctx.moveTo( 3, i + 0.5);
+							ctx.lineTo(10, i + 3.5);
+							ctx.lineTo(17, i + 0.5);
+							ctx.stroke();
+						}
+
+						// top frame
+						ctx.beginPath();
+						ctx.moveTo( 3.5, 5.3);
+						ctx.lineTo( 3.5, 5.7);
+						ctx.lineTo(10,   8.5);
+						ctx.lineTo(16.5, 5.7);
+						ctx.lineTo(16.5, 5.3);
+						ctx.lineTo(10,   2.5);
+						ctx.closePath();
 						ctx.stroke();
 					}
-					
-					// top frame
-					ctx.beginPath();
-					ctx.moveTo( 3.5, 5.3);
-					ctx.lineTo( 3.5, 5.7);
-					ctx.lineTo(10,   8.5);
-					ctx.lineTo(16.5, 5.7);
-					ctx.lineTo(16.5, 5.3);
-					ctx.lineTo(10,   2.5);
-					ctx.closePath();
-					ctx.stroke();
-					
-				
-					// ctx.fillStyle = "#000";
-					// ctx.fillRect(6,  3,  8, 4);
-					// ctx.fillRect(5,  8, 10, 4);
-					// ctx.fillRect(4, 13, 12, 4);
-					
-					// ctx.fillStyle = "#fff";
-					// ctx.fillRect(7,  4,  6, 2);
-					// ctx.fillRect(6,  9,  8, 2);
-					// ctx.fillRect(5, 14, 10, 2);
-				}
 		});
 	module.stacktree = tgui.createTreeControl({"parent": panel_stackview.content});
 
@@ -10729,16 +10656,16 @@ module.create = function()
 			"state": "icon",
 			"fallbackState": "right",
 			"icondraw": function(canvas)
-				{
-					let ctx = canvas.getContext("2d");
-				
-					ctx.fillStyle = "#000";
-					ctx.fillRect(4,  3,  8, 2);
-					ctx.fillRect(6,  6,  8, 2);
-					ctx.fillRect(8,  9,  8, 2);
-					ctx.fillRect(4, 12,  8, 2);
-					ctx.fillRect(6, 15,  8, 2);
-				}
+					{
+						let ctx = canvas.getContext("2d");
+
+						ctx.fillStyle = "#000";
+						ctx.fillRect(4,  3,  8, 2);
+						ctx.fillRect(6,  6,  8, 2);
+						ctx.fillRect(8,  9,  8, 2);
+						ctx.fillRect(4, 12,  8, 2);
+						ctx.fillRect(6, 15,  8, 2);
+					}
 		});
 	module.programtree = tgui.createTreeControl({
 			"parent": panel_programview.content,
@@ -10757,56 +10684,57 @@ module.create = function()
 			"state": "right",
 			"fallbackState": "float",
 			"icondraw": function(canvas)
-				{
-					// draws literally a turtle
-					let ctx = canvas.getContext("2d");
-				
-					ctx.fillStyle = "#4d5";
-					ctx.strokeStyle = "#050";
-					
-					// head
-					ctx.beginPath();
-					ctx.ellipse(9.5, 5, 2, 2.5, 0, 0*Math.PI, 2*Math.PI, false);
-					ctx.closePath();
-					ctx.fill();
-					ctx.stroke();
-					
-					// legs
-					ctx.lineWidth = 1.6;
-					
-					ctx.beginPath();
-					ctx.moveTo(3.5, 6);
-					ctx.lineTo(9.5, 11);
-					ctx.lineTo(15.5, 6);
-					ctx.stroke();
-					
-					ctx.beginPath();
-					ctx.moveTo(4.5, 17);
-					ctx.lineTo(9.5, 10);
-					ctx.lineTo(14.5, 17);
-					ctx.stroke();
-					
-					// tail
-					ctx.lineWidth = 1.3;
-					
-					ctx.beginPath();
-					ctx.moveTo(9.5, 17);
-					ctx.lineTo(8.5, 19);
-					ctx.stroke();
-					
-					// main body
-					ctx.lineWidth = 1;
-					ctx.beginPath();
-					ctx.ellipse(9.5, 11.5, 4, 5, 0, 0*Math.PI, 2*Math.PI, false);
-					ctx.closePath();
-					ctx.fill();
-					ctx.stroke();
-					
-					ctx.strokeStyle = "#0509";
-					ctx.beginPath();
-					ctx.ellipse(8.7, 10.7, 4, 5, 0, -0.3*Math.PI, 0.8*Math.PI, false);
-					ctx.stroke();
-				}
+					{
+						// draws literally a turtle
+						let ctx = canvas.getContext("2d");
+
+						//ctx.fillStyle = "#4d5";
+						ctx.fillStyle = "#2c3";
+						ctx.strokeStyle = "#050";
+
+						// head
+						ctx.beginPath();
+						ctx.ellipse(9.5, 5, 2, 2.5, 0, 0*Math.PI, 2*Math.PI, false);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+
+						// legs
+						ctx.lineWidth = 1.6;
+
+						ctx.beginPath();
+						ctx.moveTo(3.5, 6);
+						ctx.lineTo(9.5, 11);
+						ctx.lineTo(15.5, 6);
+						ctx.stroke();
+
+						ctx.beginPath();
+						ctx.moveTo(4.5, 17);
+						ctx.lineTo(9.5, 10);
+						ctx.lineTo(14.5, 17);
+						ctx.stroke();
+
+						// tail
+						ctx.lineWidth = 1.3;
+
+						ctx.beginPath();
+						ctx.moveTo(9.5, 17);
+						ctx.lineTo(8.5, 19);
+						ctx.stroke();
+
+						// main body
+						ctx.lineWidth = 1;
+						ctx.beginPath();
+						ctx.ellipse(9.5, 11.5, 4, 5, 0, 0*Math.PI, 2*Math.PI, false);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+
+						ctx.strokeStyle = "#0509";
+						ctx.beginPath();
+						ctx.ellipse(8.7, 10.7, 4, 5, 0, -0.3*Math.PI, 0.8*Math.PI, false);
+						ctx.stroke();
+					}
 		});
 	module.turtle = tgui.createElement({
 			"type": "canvas",
@@ -10876,23 +10804,27 @@ module.create = function()
 						}
 					},
 			"icondraw": function(canvas)
-				{
-					let ctx = canvas.getContext("2d");
-				
-					ctx.fillStyle = "#333";
-					ctx.fillRect(3, 2, 14, 16);
-					ctx.fillStyle = "#fff";
-					ctx.fillRect(4, 3, 12, 14);
-					ctx.fillStyle = "#00c";
-					ctx.fillRect(6, 6, 6, 6);
-					ctx.fillStyle = "#c00";
-					ctx.strokeStyle = "#800";
-					ctx.beginPath();
-					ctx.arc(11, 12, 2.5, 0, 2*Math.PI);
-					ctx.closePath();
-					ctx.fill();
-					ctx.stroke();
-				}
+					{
+						let ctx = canvas.getContext("2d");
+
+						ctx.fillStyle = "#333";
+						ctx.fillRect(3, 2, 14, 16);
+						ctx.fillStyle = "#fff";
+						ctx.fillRect(4, 3, 12, 14);
+						ctx.fillStyle = "#00c8";
+						ctx.strokeStyle = "#00cc";
+						ctx.beginPath();
+						ctx.rect(5.5, 5.5, 6, 6);
+						ctx.fill();
+						ctx.stroke();
+						ctx.fillStyle = "#c008";
+						ctx.strokeStyle = "#c00c";
+						ctx.beginPath();
+						ctx.arc(11, 11, 3.5, 0, 2*Math.PI);
+						ctx.closePath();
+						ctx.fill();
+						ctx.stroke();
+					}
 		});
 	module.canvas = tgui.createElement({
 			"type": "canvas",
@@ -19641,102 +19573,6 @@ if (doc) doc.children.push({
 		"children": []},
 	]},
 ]
-});
-"use strict"
-
-if (doc) doc.children.push({
-"id": "cheatsheet",
-"name": "Cheat Sheet",
-"title": "Cheat Sheet",
-"content": `
-	<div class="flex">
-	<table class="nicetable">
-	<tr><th><a href="#/language/expressions/literals">literals</a></th><th>example</th></tr>
-	<tr><td><a href="#/language/expressions/literals/integers">integer</a></td><td><code>42</code></td></tr>
-	<tr><td><a href="#/language/expressions/literals/reals">real</a></td><td><code>6.62607015e-34</code></td></tr>
-	<tr><td><a href="#/language/expressions/literals/strings">string</a></td><td><code>"This is a test.\\nNext line."</code></td></tr>
-	<tr><td>range</td><td><code>20:30</code></td></tr>
-	<tr><td><a href="#/language/expressions/literals/arrays">array</a></td><td><code>["foo", 42, false];</code></td></tr>
-	<tr><td><a href="#/language/expressions/literals/dictionaries">dictionary</a></td><td><code>{foo: 42, "bar-bar": false}</code></td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th><a href="#/language/statements">control structures</a></th><th>example / syntax</th></tr>
-	<tr><td><a href="#/language/statements/if-then-else">condition</a></td><td><code>if i == 0 then { ... } else { ... }</code></td></tr>
-	<tr><td><a href="#/language/statements/for-loops">for-loop</a></td><td><code>for var i in 0:n do { ... }</code></td></tr>
-	<tr><td><a href="#/language/statements/while-do-loops">while-do-loop</a></td><td><code>while not happy do { ... }</code></td></tr>
-	<tr><td><a href="#/language/statements/do-while-loops">do-while-loop</a></td><td><code>do { ... } while not happy;</code></td></tr>
-	<tr><td><a href="#/language/statements/try-catch">try-catch-block</a></td><td><code>try { ... } catch var ex do { ... }</code></td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th><a href="#/language/syntax/comments">comments</a></th><th>example</th></tr>
-	<tr><td>line comment</td><td><code># comment</code></td></tr>
-	<tr><td>range comment</td><td><code>#* comment *#</code></td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th><a href="#/language/declarations/variables">variables</a></th><th>example</th></tr>
-	<tr><td>declare variable(s)</td><td><code>var a, b;</code></td></tr>
-	<tr><td>declare and initialize</td><td><code>var c = 7;</code></td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th>functions</th><th>example / syntax</th></tr>
-	<tr><td><a href="#/language/declarations/functions">function</a> or <a href="#/language/declarations/classes">method</a></td><td><code>function myfunc (...) { ... }</code></td></tr>
-	<tr><td><a href="#/language/expressions/literals/anonymous-functions">lambda function</a></td><td><code>function (...) { ... }</code></td></tr>
-	<tr><td>enclosing <a href="#/language/expressions/literals/anonymous-functions">lambda function</a></td><td><code>function [...] (...) { ... }</code></td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th>namespaces</th><th>example / syntax</th></tr>
-	<tr><td>define <a href="#/language/declarations/namespaces">namespace</a></td><td><code>namespace myspace { ... }</code></td></tr>
-	<tr><td><a href="#/language/directives/use">import</a> specific name(s)</td><td><code>from myspace use foo, bar;</code></td></tr>
-	<tr><td><a href="#/language/directives/use">import</a> whole namespace</td><td><code>use namespace myspace;</code></td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th><a href="#/library">standard library</a></th><th>topic</th></tr>
-	<tr><td><a href="#/library/core">code functions</a></td><td>messages, time, errors, files, events</td></tr>
-	<tr><td><a href="#/library/math">math functions</a></td><td>e.g., sine and square root</td></tr>
-	<tr><td><a href="#/library/turtle">turtle graphics</a></td><td>simple graphics</td></tr>
-	<tr><td><a href="#/library/canvas">canvas graphics</a></td><td>powerful 2D graphics</td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th><a href="#/language/declarations/classes">classes</a></th><th>example / syntax</th></tr>
-	<tr><td>define class</td><td><code>class MyStuff { ... }</code></td></tr>
-	<tr><td>define subclass</td><td><code>class MyCoolStuff : MyStuff { ... }</code></td></tr>
-	<tr><td>constructor</td><td><code>constructor (...) { ... }</code></td></tr>
-	<tr><td>constructor calling super class</td><td><code>constructor (...) : super(...) { ... }</code></td></tr>
-	<tr><td>visibility sections</td><td><code>public:</code><br/><code>protected:</code><br/><code>private:</code></td></tr>
-	<tr><td>class-related keywords</td><td><code>static</code>, <code>this</code>, <code>super</code></td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th><a href="#/language/types">data type</a></th><th>values</th></tr>
-	<tr><td><a href="#/language/types/null"><code>Null</code></a></td><td><code>null</code></td></tr>
-	<tr><td><a href="#/language/types/boolean"><code>Boolean</code></a></td><td><code>true</code>, <code>false</code></td></tr>
-	<tr><td><a href="#/language/types/integer"><code>Integer</code></a></td><td>signed 32-bit integers</td></tr>
-	<tr><td><a href="#/language/types/real"><code>Real</code></a></td><td>floating point numbers</td></tr>
-	<tr><td><a href="#/language/types/string"><code>String</code></a></td><td>text</td></tr>
-	<tr><td><a href="#/language/types/array"><code>Array</code></a></td><td>ordered container with integer keys</td></tr>
-	<tr><td><a href="#/language/types/dictionary"><code>Dictionary</code></a></td><td>associative container with string keys</td></tr>
-	<tr><td><a href="#/language/types/function"><code>Function</code></a></td><td>function, lambda function, method</td></tr>
-	<tr><td><a href="#/language/types/range"><code>Range</code></a></td><td>range of integers, <code>from:to</code></td></tr>
-	<tr><td><a href="#/language/types/type"><code>Type</code></a></td><td>description of a type</td></tr>
-	</table>
-	<table class="nicetable">
-	<tr><th><a href="#/language/expressions/precedence">operator</a></th><th>meaning</th></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/addition"><code>+</code></a></td><td>addition</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/subtraction"><code>-</code></a></td><td>negation, subtraction</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/multiplication"><code>*</code></a></td><td>multiplication</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/real-division"><code>/</code></a></td><td>real division</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/integer-division"><code>//</code></a></td><td>integer division</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/modulo"><code>%</code></a></td><td>modulo</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/power"><code>^</code></a></td><td>power</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/equality"><code>==</code>, <code>!=</code></a></td><td>equality</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/order"><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code></a></td><td>order comparison</td></tr>
-	<tr><td><a href="#/language/expressions/unary-operators/not"><code>not</code></a></td><td>logical or bitwise not</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/and"><code>and</code></a></td><td>logical or bitwise and</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/or"><code>or</code></a></td><td>logical or bitwise or</td></tr>
-	<tr><td><a href="#/language/expressions/binary-operators/xor"><code>xor</code></a></td><td>logical or bitwise exclusive or</td></tr>
-	</table>
-	</div>
-`,
-"children": [],
 });
 "use strict"
 
