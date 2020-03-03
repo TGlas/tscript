@@ -89,6 +89,7 @@ if (doc) doc.children.push({
 	The following documents should be helpful for readers with some
 	programming experience to get an quick overview of tscript:
 	<ul>
+	<li><a href="#/cheatsheet">Cheat Sheet</a></li>
 	<li><a href="#/concepts/overview">The Language at a Glance</a></li>
 	<li><a href="#/concepts/design">Design Decisions</a></li>
 	<li><a href="#/concepts/arithmetics">Arithmetics</a></li>

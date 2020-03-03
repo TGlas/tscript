@@ -27,9 +27,11 @@ explorative learning style.
 <p>
 Being a reference documentation, this collection of documents is not
 designed for being read front to end, but rather as a resource for
-looking up information. However, the section
-<a href="#/concepts">core concepts</a> is a good starting point for
-programmers experienced with other programming languages.
+looking up information. For programmers experienced with other
+programming languages, the section
+<a href="#/concepts">core concepts</a> is a good starting point, and the
+<a href="#/cheatsheet">cheat sheet</a> provides the most
+important bits in compact form.
 </p>
 `
 };

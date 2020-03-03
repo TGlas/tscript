@@ -102,6 +102,12 @@ if (doc) doc.children.push({
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time">UTC</a>
 			as a real.
 		</td></tr>
+		<tr><th>localtime</th><td>
+			The <code class="code">function localtime()</code> returns the number
+			of milliseconds since midnight 01.01.1970
+			as a real. The value refers to local time, i.e., taking the
+			local time zone and daylight saving time into account.
+		</td></tr>
 		<tr><th>exists</th><td>
 			The <code class="code">function exists(key)</code> returns
 			<keyword>true</keyword> if a value was stored with the given
