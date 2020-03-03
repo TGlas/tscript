@@ -2205,36 +2205,21 @@ module.create = function()
 				
 					ctx.fillStyle = "#333";
 					ctx.fillRect(3, 2, 14, 16);
-					ctx.fillStyle = "#ace";
-					ctx.fillRect(4, 3, 12, 7);
-					ctx.fillStyle = "#147";
-					ctx.fillRect(4, 10, 12, 7);
-					// sun
 					ctx.fillStyle = "#fff";
+					ctx.fillRect(4, 3, 12, 14);
+					ctx.fillStyle = "#00c8";
+					ctx.strokeStyle = "#00cc";
 					ctx.beginPath();
-					ctx.arc(10, 6, 2, 0, 2*Math.PI);
+					ctx.rect(5.5, 5.5, 6, 6);
+					ctx.fill();
+					ctx.stroke();
+					ctx.fillStyle = "#c008";
+					ctx.strokeStyle = "#c00c";
+					ctx.beginPath();
+					ctx.arc(11, 11, 3.5, 0, 2*Math.PI);
 					ctx.closePath();
 					ctx.fill();
-					// sun reflection
-					ctx.fillStyle = "#369";
-					ctx.beginPath();
-					ctx.ellipse(10, 10, 2, 5, 0, 0, Math.PI, false);
-					ctx.closePath();
-					ctx.fill();
-					
-					
-					
-					// ctx.fillStyle = "#fff";
-					// ctx.fillRect(4, 3, 12, 14);
-					// ctx.fillStyle = "#00c";
-					// ctx.fillRect(5, 5, 8, 8);
-					// ctx.fillStyle = "#c00";
-					// ctx.strokeStyle = "#800";
-					// ctx.beginPath();
-					// ctx.arc(11, 12, 3.5, 0, 2*Math.PI);
-					// ctx.closePath();
-					// ctx.fill();
-					// ctx.stroke();
+					ctx.stroke();
 				}
 		});
 	module.canvas = tgui.createElement({
