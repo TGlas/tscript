@@ -9685,344 +9685,389 @@ let cmd_save_as = function()
 			});
 }
 
+
+function make_icon(draw_func)
+{
+	let icon = {};
+	icon.draw_func = draw_func;
+	icon.draw = (function(canvas) { this(canvas.getContext("2d")); }).bind(draw_func);
+	return icon;
+}
+
+// compose two icons, bg and fg should be icons created
+// by make_icon or compose_icon
+function compose_icon(bg, fg)
+{
+	let icon = {};
+	icon.bg = bg;
+	icon.fg = fg;
+	icon.draw_func = (function(ctx) { this.bg(ctx); this.fg(ctx); }).bind(icon);
+	icon.draw = (function(canvas) { this(canvas.getContext("2d")); }).bind(icon.draw_func);
+	return icon;
+}
+
+function draw_icon_paper(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	
+	ctx.strokeStyle = "#333";
+	ctx.fillStyle = "#fff";
+	ctx.lineWidth = 1;
+	ctx.beginPath();
+	ctx.moveTo(4.5, 7.5);
+	ctx.lineTo(8.5, 3.5);
+	ctx.lineTo(14.5, 3.5);
+	ctx.lineTo(14.5, 16.5);
+	ctx.lineTo(4.5, 16.5);
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(4.5, 7.5);
+	ctx.lineTo(8.5, 7.5);
+	ctx.lineTo(8.5, 3.5);
+	ctx.stroke();
+}
+
+// Toolbar icons
+function draw_icon_new(canvas)
+{
+	draw_icon_paper(canvas);
+	
+	let ctx = canvas.getContext("2d");
+	
+	ctx.strokeStyle = "#030";
+	ctx.fillStyle = "#0a0";
+	ctx.beginPath();
+	ctx.arc(14, 14, 4.75, 0, 2 * Math.PI, false);
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
+	
+	ctx.strokeStyle = "#fff";
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	ctx.moveTo(14, 17);
+	ctx.lineTo(14, 11);
+	ctx.stroke();
+	ctx.beginPath();
+	ctx.moveTo(11, 14);
+	ctx.lineTo(17, 14);
+	ctx.stroke();
+}
+
+function draw_icon_load(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	
+	ctx.fillStyle = "#ec5";
+	ctx.strokeStyle = "#330";
+	ctx.lineWidth = 1;
+	ctx.beginPath();
+	ctx.moveTo(2.5, 4.5);
+	ctx.lineTo(7.5, 4.5);
+	ctx.lineTo(9.5, 6.5);
+	ctx.lineTo(15.5, 6.5);
+	ctx.lineTo(15.5, 15.5);
+	ctx.lineTo(2.5, 15.5);
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
+	
+	ctx.fillStyle = "#fd6";
+	ctx.strokeStyle = "#330";
+	ctx.lineWidth = 1;
+	ctx.beginPath();
+	ctx.moveTo(5.5, 8.5);
+	ctx.lineTo(17.5, 8.5);
+	ctx.lineTo(15.5, 15.5);
+	ctx.lineTo(3.5, 15.5);
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
+}
+
+function draw_icon_save(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	
+	ctx.fillStyle = "#36d";
+	ctx.strokeStyle = "#139";
+	ctx.beginPath();
+	ctx.moveTo(3.5, 3.5);
+	ctx.lineTo(16.5, 3.5);
+	ctx.lineTo(16.5, 16.5);
+	ctx.lineTo(5.5, 16.5);
+	ctx.lineTo(3.5, 14.5);
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
+	
+	ctx.fillStyle = "#eef";
+	ctx.fillRect(7, 11, 6, 5);
+	ctx.fillStyle = "#36d";
+	ctx.fillRect(8, 12, 2, 3);
+	
+	ctx.fillStyle = "#fff";
+	ctx.fillRect(6, 4, 8, 5);
+}
+
+function draw_icon_pencil_overlay(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	
+	// draw pencil
+	// shadow
+	ctx.strokeStyle = "#0005";
+	ctx.lineWidth = 3;
+	ctx.beginPath();
+	ctx.moveTo(8, 8);
+	ctx.lineTo(8+10, 8+10);
+	ctx.stroke();
+	
+	
+	ctx.fillStyle = "#fc9";
+	ctx.beginPath();
+	ctx.moveTo(8, 6);
+	ctx.lineTo(12, 8);
+	ctx.lineTo(10, 10);
+	ctx.fill();
+	
+	ctx.fillStyle = "#000";
+	ctx.beginPath();
+	ctx.moveTo(8, 6);
+	ctx.lineTo(10, 6);
+	ctx.lineTo(8, 8);
+	ctx.fill();
+	
+	ctx.strokeStyle = "#000";
+	ctx.lineWidth = 3;
+	ctx.beginPath();
+	ctx.moveTo(10, 8);
+	ctx.lineTo(18, 16);
+	ctx.stroke();
+	
+	ctx.strokeStyle = "#dd0";
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	ctx.moveTo(10, 8);
+	ctx.lineTo(18, 16);
+	ctx.stroke();
+	
+	ctx.fillStyle = "#000";
+	ctx.beginPath();
+	ctx.arc(18, 16, 1.5, 0, 2*Math.PI, false);
+	ctx.fill();
+	
+	ctx.fillStyle = "#f33";
+	ctx.fillRect(17, 14.5, 2, 2);
+}
+
+function draw_icon_save_as(canvas)
+{
+	draw_icon_save(canvas);
+	draw_icon_pencil_overlay(canvas);
+}
+
+function draw_icon_run(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#080";
+	ctx.beginPath();
+	ctx.moveTo(5, 5);
+	ctx.lineTo(15, 10);
+	ctx.lineTo(5, 15);
+	ctx.fill();
+}
+
+function draw_icon_interrupt(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#c00";
+	ctx.fillRect(5, 5, 4, 10);
+	ctx.fillRect(11, 5, 4, 10);
+}
+
+function draw_icon_reset(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#c00";
+	ctx.fillRect(5, 5, 10, 10);
+}
+
+function draw_icon_step_into(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#000";
+	ctx.fillRect(10,  3, 7, 2);
+	ctx.fillRect(13,  6, 4, 2);
+	ctx.fillRect(13,  9, 4, 2);
+	ctx.fillRect(13, 12, 4, 2);
+	ctx.fillRect(10, 15, 7, 2);
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = "#00f";
+	ctx.beginPath();
+	ctx.moveTo(8, 4);
+	ctx.lineTo(3, 4);
+	ctx.lineTo(3, 10);
+	ctx.lineTo(6, 10);
+	ctx.stroke();
+	ctx.fillStyle = "#00f";
+	ctx.beginPath();
+	ctx.moveTo(5, 7);
+	ctx.lineTo(5, 13);
+	ctx.lineTo(9.5, 10);
+	ctx.fill();
+}
+
+function draw_icon_step_over(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#000";
+	ctx.fillRect(10,  3, 7, 2);
+	ctx.fillRect(13,  6, 4, 2);
+	ctx.fillRect(13,  9, 4, 2);
+	ctx.fillRect(13, 12, 4, 2);
+	ctx.fillRect(10, 15, 7, 2);
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = "#00f";
+	ctx.beginPath();
+	ctx.moveTo(8, 4);
+	ctx.lineTo(3, 4);
+	ctx.lineTo(3, 16);
+	ctx.lineTo(6, 16);
+	ctx.stroke();
+	ctx.fillStyle = "#00f";
+	ctx.beginPath();
+	ctx.moveTo(5, 13);
+	ctx.lineTo(5, 19);
+	ctx.lineTo(9.5, 16);
+	ctx.fill();
+}
+
+function draw_icon_step_out(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#000";
+	ctx.fillRect(10,  3, 7, 2);
+	ctx.fillRect(13,  6, 4, 2);
+	ctx.fillRect(13,  9, 4, 2);
+	ctx.fillRect(13, 12, 4, 2);
+	ctx.fillRect(10, 15, 7, 2);
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = "#00f";
+	ctx.beginPath();
+	ctx.moveTo(11, 10);
+	ctx.lineTo(3, 10);
+	ctx.lineTo(3, 16);
+	ctx.lineTo(6, 16);
+	ctx.stroke();
+	ctx.fillStyle = "#00f";
+	ctx.beginPath();
+	ctx.moveTo(5, 13);
+	ctx.lineTo(5, 19);
+	ctx.lineTo(9.5, 16);
+	ctx.fill();
+}
+
+function draw_icon_toggle_breakpoint(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#c00";
+	ctx.arc(10, 10, 4.0, 0, 2 * Math.PI, false);
+	ctx.fill();
+}
+
+function draw_icon_export(canvas)
+{
+	let ctx = canvas.getContext("2d");
+	ctx.strokeStyle = "#080";
+	ctx.lineWidth = 1.5;
+	ctx.beginPath();
+	ctx.moveTo( 3,  7);
+	ctx.lineTo(10,  7);
+	ctx.lineTo(10,  3);
+	ctx.lineTo(17, 10);
+	ctx.lineTo(10, 17);
+	ctx.lineTo(10, 13);
+	ctx.lineTo( 3, 13);
+	ctx.closePath();
+	ctx.stroke();
+}
+
+
+
 let buttons = [
 		{
 			"click": cmd_new,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						
-						ctx.strokeStyle = "#333";
-						ctx.fillStyle = "#fff";
-						ctx.lineWidth = 1;
-						ctx.beginPath();
-						ctx.moveTo(4.5, 7.5);
-						ctx.lineTo(8.5, 3.5);
-						ctx.lineTo(14.5, 3.5);
-						ctx.lineTo(14.5, 16.5);
-						ctx.lineTo(4.5, 16.5);
-						ctx.closePath();
-						ctx.fill();
-						ctx.stroke();
-						
-						ctx.beginPath();
-						ctx.moveTo(4.5, 7.5);
-						ctx.lineTo(8.5, 7.5);
-						ctx.lineTo(8.5, 3.5);
-						ctx.stroke();
-						
-						ctx.strokeStyle = "#030";
-						ctx.fillStyle = "#0a0";
-						ctx.beginPath();
-						ctx.arc(14, 14, 4.75, 0, 2 * Math.PI, false);
-						ctx.fill();
-						ctx.stroke();
-						
-						ctx.strokeStyle = "#fff";
-						ctx.lineWidth = 2;
-						ctx.beginPath();
-						ctx.moveTo(14, 17);
-						ctx.lineTo(14, 11);
-						ctx.stroke();
-						ctx.beginPath();
-						ctx.moveTo(11, 14);
-						ctx.lineTo(17, 14);
-						ctx.stroke();
-					},
+			"draw": draw_icon_new,
 			"tooltip": "new document",
 			"hotkey": "shift-control-n",
 		},
 		{
 			"click": cmd_load,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						
-						ctx.fillStyle = "#ec5";
-						ctx.strokeStyle = "#330";
-						ctx.lineWidth = 1;
-						ctx.beginPath();
-						ctx.moveTo(2.5, 4.5);
-						ctx.lineTo(7.5, 4.5);
-						ctx.lineTo(9.5, 6.5);
-						ctx.lineTo(15.5, 6.5);
-						ctx.lineTo(15.5, 15.5);
-						ctx.lineTo(2.5, 15.5);
-						ctx.closePath();
-						ctx.fill();
-						ctx.stroke();
-						
-						ctx.fillStyle = "#fd6";
-						ctx.strokeStyle = "#330";
-						ctx.lineWidth = 1;
-						ctx.beginPath();
-						ctx.moveTo(5.5, 8.5);
-						ctx.lineTo(17.5, 8.5);
-						ctx.lineTo(15.5, 15.5);
-						ctx.lineTo(3.5, 15.5);
-						ctx.closePath();
-						ctx.fill();
-						ctx.stroke();
-					},
+			"draw": draw_icon_load,
 			"tooltip": "open document",
 			"hotkey": "control-o",
 		},
 		{
 			"click": cmd_save,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						
-						ctx.fillStyle = "#36d";
-						ctx.strokeStyle = "#139";
-						ctx.beginPath();
-						ctx.moveTo(3.5, 3.5);
-						ctx.lineTo(16.5, 3.5);
-						ctx.lineTo(16.5, 16.5);
-						ctx.lineTo(5.5, 16.5);
-						ctx.lineTo(3.5, 14.5);
-						ctx.closePath();
-						ctx.fill();
-						ctx.stroke();
-						
-						ctx.fillStyle = "#eef";
-						ctx.fillRect(7, 11, 6, 5);
-						ctx.fillStyle = "#36d";
-						ctx.fillRect(8, 12, 2, 3);
-						
-						ctx.fillStyle = "#fff";
-						ctx.fillRect(6, 4, 8, 5);
-					},
+			"draw": draw_icon_save,
 			"tooltip": "save document",
 			"hotkey": "control-s",
 		},
 		{
 			"click": cmd_save_as,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						
-						// code duplicate, first part the same as in cmd_save
-						ctx.fillStyle = "#36d";
-						ctx.strokeStyle = "#139";
-						ctx.beginPath();
-						ctx.moveTo(3.5, 3.5);
-						ctx.lineTo(16.5, 3.5);
-						ctx.lineTo(16.5, 16.5);
-						ctx.lineTo(5.5, 16.5);
-						ctx.lineTo(3.5, 14.5);
-						ctx.closePath();
-						ctx.fill();
-						ctx.stroke();
-						
-						ctx.fillStyle = "#eef";
-						ctx.fillRect(7, 11, 6, 5);
-						ctx.fillStyle = "#36d";
-						ctx.fillRect(8, 12, 2, 3);
-						
-						ctx.fillStyle = "#fff";
-						ctx.fillRect(6, 4, 8, 5);
-						
-						
-						// draw pencil
-						// shadow
-						ctx.strokeStyle = "#0005";
-						ctx.lineWidth = 3;
-						ctx.beginPath();
-						ctx.moveTo(8, 8);
-						ctx.lineTo(8+10, 8+10);
-						ctx.stroke();
-						
-						ctx.fillStyle = "#000";
-						ctx.beginPath();
-						ctx.moveTo(8, 6);
-						ctx.lineTo(10, 6);
-						ctx.lineTo(8, 8);
-						ctx.fill();
-						
-						// there is some empty space, that looks like the wooden part of the pencil
-						
-						ctx.strokeStyle = "#000";
-						ctx.lineWidth = 3;
-						ctx.beginPath();
-						ctx.moveTo(10, 8);
-						ctx.lineTo(18, 16);
-						ctx.stroke();
-						
-						ctx.strokeStyle = "#dd0";
-						ctx.lineWidth = 2;
-						ctx.beginPath();
-						ctx.moveTo(10, 8);
-						ctx.lineTo(18, 16);
-						ctx.stroke();
-						
-						ctx.fillStyle = "#000";
-						ctx.beginPath();
-						ctx.arc(18, 16, 1.5, 0, 2*Math.PI, false);
-						ctx.fill();
-						
-						ctx.fillStyle = "#f33";
-						ctx.fillRect(17, 14.5, 2, 2);
-						
-					},
+			"draw": draw_icon_save_as,
 			"tooltip": "save document as ...",
 			"hotkey": "shift-control-s",
 		},
 		{
 			"click": cmd_run,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#080";
-						ctx.beginPath();
-						ctx.moveTo(5, 5);
-						ctx.lineTo(15, 10);
-						ctx.lineTo(5, 15);
-						ctx.fill();
-					},
+			"draw": draw_icon_run,
 			"tooltip": "run the program, or continue running the program",
 			"hotkey": "F7",
 		},
 		{
 			"click": cmd_interrupt,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#c00";
-						ctx.fillRect(5, 5, 4, 10);
-						ctx.fillRect(11, 5, 4, 10);
-					},
+			"draw": draw_icon_interrupt,
 			"tooltip": "interrupt the program",
 			"hotkey": "shift-F7",
 		},
 		{
 			"click": cmd_reset,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#c00";
-						ctx.fillRect(5, 5, 10, 10);
-					},
+			"draw": draw_icon_reset,
 			"tooltip": "abort the program",
 			"hotkey": "F10",
 		},
 		{
 			"click": cmd_step_into,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#000";
-						ctx.fillRect(10,  3, 7, 2);
-						ctx.fillRect(13,  6, 4, 2);
-						ctx.fillRect(13,  9, 4, 2);
-						ctx.fillRect(13, 12, 4, 2);
-						ctx.fillRect(10, 15, 7, 2);
-						ctx.lineWidth = 1;
-						ctx.strokeStyle = "#00f";
-						ctx.beginPath();
-						ctx.moveTo(8, 4);
-						ctx.lineTo(3, 4);
-						ctx.lineTo(3, 10);
-						ctx.lineTo(6, 10);
-						ctx.stroke();
-						ctx.fillStyle = "#00f";
-						ctx.beginPath();
-						ctx.moveTo(5, 7);
-						ctx.lineTo(5, 13);
-						ctx.lineTo(9.5, 10);
-						ctx.fill();
-					},
+			"draw": draw_icon_step_into,
 			"tooltip": "run the current command, step into function calls",
 			"hotkey": "shift-control-F11",
 		},
 		{
 			"click": cmd_step_over,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#000";
-						ctx.fillRect(10,  3, 7, 2);
-						ctx.fillRect(13,  6, 4, 2);
-						ctx.fillRect(13,  9, 4, 2);
-						ctx.fillRect(13, 12, 4, 2);
-						ctx.fillRect(10, 15, 7, 2);
-						ctx.lineWidth = 1;
-						ctx.strokeStyle = "#00f";
-						ctx.beginPath();
-						ctx.moveTo(8, 4);
-						ctx.lineTo(3, 4);
-						ctx.lineTo(3, 16);
-						ctx.lineTo(6, 16);
-						ctx.stroke();
-						ctx.fillStyle = "#00f";
-						ctx.beginPath();
-						ctx.moveTo(5, 13);
-						ctx.lineTo(5, 19);
-						ctx.lineTo(9.5, 16);
-						ctx.fill();
-					},
+			"draw": draw_icon_step_over,
 			"tooltip": "run the current line of code, do no step into function calls",
 			"hotkey": "control-F11",
 		},
 		{
 			"click": cmd_step_out,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#000";
-						ctx.fillRect(10,  3, 7, 2);
-						ctx.fillRect(13,  6, 4, 2);
-						ctx.fillRect(13,  9, 4, 2);
-						ctx.fillRect(13, 12, 4, 2);
-						ctx.fillRect(10, 15, 7, 2);
-						ctx.lineWidth = 1;
-						ctx.strokeStyle = "#00f";
-						ctx.beginPath();
-						ctx.moveTo(11, 10);
-						ctx.lineTo(3, 10);
-						ctx.lineTo(3, 16);
-						ctx.lineTo(6, 16);
-						ctx.stroke();
-						ctx.fillStyle = "#00f";
-						ctx.beginPath();
-						ctx.moveTo(5, 13);
-						ctx.lineTo(5, 19);
-						ctx.lineTo(9.5, 16);
-						ctx.fill();
-					},
+			"draw": draw_icon_step_out,
 			"tooltip": "step out of the current function",
 			"hotkey": "shift-F11",
 		},
 		{
 			"click": cmd_toggle_breakpoint,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.fillStyle = "#c00";
-						ctx.arc(10, 10, 4.0, 0, 2 * Math.PI, false);
-						ctx.fill();
-					},
+			"draw": draw_icon_toggle_breakpoint,
 			"tooltip": "toggle breakpoint",
 			"hotkey": "F8",
 		},
 		{
 			"click": cmd_export,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.strokeStyle = "#080";
-						ctx.lineWidth = 1.5;
-						ctx.beginPath();
-						ctx.moveTo( 3,  7);
-						ctx.lineTo(10,  7);
-						ctx.lineTo(10,  3);
-						ctx.lineTo(17, 10);
-						ctx.lineTo(10, 17);
-						ctx.lineTo(10, 13);
-						ctx.lineTo( 3, 13);
-						ctx.closePath();
-						ctx.stroke();
-					},
+			"draw": draw_icon_export,
 			"tooltip": "export program as webpage",
 		},
 	];
@@ -10383,6 +10428,7 @@ module.create = function()
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
 						ctx.arc(9.5, 9.5, 5.7, 0, 2 * Math.PI, false);
+						ctx.closePath();
 						ctx.stroke();
 						ctx.lineWidth = 2;
 						ctx.beginPath();
@@ -10491,6 +10537,23 @@ module.create = function()
 			"fallbackState": "float",
 			"dockedheight": 600,
 			"onArrange": function() { if (module.sourcecode) module.sourcecode.refresh(); },
+			"icondraw": function(canvas)
+				{
+					draw_icon_paper(canvas);
+					
+					let ctx = canvas.getContext("2d");
+					
+					ctx.fillStyle = "#777";
+					ctx.fillRect(10, 5, 3, 1);
+					ctx.fillRect(10, 7, 2, 1);
+					ctx.fillRect( 7, 9, 4, 1);
+					// ctx.fillRect( 9, 9, 4, 1);
+					ctx.fillRect( 6,11, 7, 1);
+					ctx.fillRect( 9,13, 4, 1);
+					// ctx.fillRect(7, 9, 5, 1);
+					// ctx.fillRect(7, 11, 3, 1);
+					// ctx.fillRect(7, 13, 4, 1);
+				}
 		});
 	panel_editor.textarea = tgui.createElement({"type": "textarea", "parent": panel_editor.content, "classname": "ide ide-sourcecode"});
 	module.sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
@@ -10544,6 +10607,49 @@ module.create = function()
 			"title": "messages",
 			"state": "left",
 			"dockedheight": 200,
+			"icondraw": function(canvas)
+				{
+					let ctx = canvas.getContext("2d");
+				
+					ctx.fillStyle = "#fff";
+					ctx.strokeStyle = "#222";
+					ctx.beginPath();
+					//ctx.arc(10, 10, 7, 0, 2 * Math.PI, false);
+					// ctx.ellipse(9.5, 8.5, 7, 6, 0, 0.45*Math.PI, 2.25*Math.PI, false);
+					ctx.ellipse(9.5, 8.5, 7, 6, 0, 0.73*Math.PI, 2.57*Math.PI, false);
+					// ctx.lineTo(14, 17);
+					ctx.lineTo(4.5, 17);
+					ctx.closePath();
+					ctx.fill();
+					ctx.stroke();
+					
+					ctx.fillStyle = "#777";
+					ctx.fillRect(8,  6, 3, 1);
+					ctx.fillRect(6,  8, 2, 1);
+					ctx.fillRect(9,  8, 5, 1);
+					ctx.fillRect(7, 10, 4, 1);
+					
+					// ctx.fillStyle = "#ff3";
+					// ctx.lineWidth = 1;
+					// ctx.strokeStyle = "#000";
+					// ctx.beginPath();
+					// ctx.moveTo( 9,  4);
+					// ctx.lineTo(10,  4);
+					// ctx.lineTo(16, 15);
+					// ctx.lineTo(15, 15.5);
+					// ctx.lineTo( 4, 15.5);
+					// ctx.lineTo( 3, 15);
+					// ctx.closePath();
+					// ctx.fill();
+					// ctx.stroke();
+					
+					// ctx.fillStyle = "#000";
+					// ctx.fillRect(9, 8, 1, 4);
+					// ctx.fillRect(9,13, 1, 1);
+					
+					//draw_icon_pencil_overlay(canvas);
+					
+				}
 		});
 	module.messagecontainer = tgui.createElement({"type": "div", "parent": panel_messages.content, "classname": "ide ide-messages"});
 	module.messages = tgui.createElement({"type": "table", "parent": module.messagecontainer, "classname": "ide", "style": {"width": "100%"}});
@@ -10553,6 +10659,62 @@ module.create = function()
 			"title": "stack",
 			"state": "icon",
 			"fallbackState": "right",
+			"icondraw": function(canvas)
+				{
+					let ctx = canvas.getContext("2d");
+				
+					// ctx.fillRect(5,  3, 11, 2);
+					// ctx.fillRect(4,  6, 11, 2);
+					// ctx.fillRect(5,  9, 10, 2);
+					// ctx.fillRect(4, 12, 12, 2);
+					// ctx.fillRect(4, 15, 12, 2);
+					
+					ctx.strokeStyle = "#222";
+					ctx.fillStyle = "#fff";
+					
+					// white background
+					ctx.beginPath();
+					ctx.moveTo( 4, 5.3);
+					ctx.lineTo( 4,14.5);
+					ctx.lineTo(10,  17.5);
+					ctx.lineTo(16,14.5);
+					ctx.lineTo(16, 5.3);
+					ctx.lineTo(10,   2.5);
+					ctx.fill();
+					
+					
+					let i = 8;
+					for(; i < 17; i+=3)
+					{
+						ctx.beginPath();
+						ctx.moveTo( 3, i + 0.5);
+						ctx.lineTo(10, i + 3.5);
+						ctx.lineTo(17, i + 0.5);
+						ctx.stroke();
+					}
+					
+					// top frame
+					ctx.beginPath();
+					ctx.moveTo( 3.5, 5.3);
+					ctx.lineTo( 3.5, 5.7);
+					ctx.lineTo(10,   8.5);
+					ctx.lineTo(16.5, 5.7);
+					ctx.lineTo(16.5, 5.3);
+					ctx.lineTo(10,   2.5);
+					ctx.closePath();
+					ctx.stroke();
+					
+				
+					// ctx.fillStyle = "#000";
+					// ctx.fillRect(6,  3,  8, 4);
+					// ctx.fillRect(5,  8, 10, 4);
+					// ctx.fillRect(4, 13, 12, 4);
+					
+					// ctx.fillStyle = "#fff";
+					// ctx.fillRect(7,  4,  6, 2);
+					// ctx.fillRect(6,  9,  8, 2);
+					// ctx.fillRect(5, 14, 10, 2);
+				}
 		});
 	module.stacktree = tgui.createTreeControl({"parent": panel_stackview.content});
 
@@ -10561,6 +10723,17 @@ module.create = function()
 			"title": "program",
 			"state": "icon",
 			"fallbackState": "right",
+			"icondraw": function(canvas)
+				{
+					let ctx = canvas.getContext("2d");
+				
+					ctx.fillStyle = "#000";
+					ctx.fillRect(4,  3,  8, 2);
+					ctx.fillRect(6,  6,  8, 2);
+					ctx.fillRect(8,  9,  8, 2);
+					ctx.fillRect(4, 12,  8, 2);
+					ctx.fillRect(6, 15,  8, 2);
+				}
 		});
 	module.programtree = tgui.createTreeControl({
 			"parent": panel_programview.content,
@@ -10578,6 +10751,57 @@ module.create = function()
 			"title": "turtle",
 			"state": "right",
 			"fallbackState": "float",
+			"icondraw": function(canvas)
+				{
+					// draws literally a turtle
+					let ctx = canvas.getContext("2d");
+				
+					ctx.fillStyle = "#4d5";
+					ctx.strokeStyle = "#050";
+					
+					// head
+					ctx.beginPath();
+					ctx.ellipse(9.5, 5, 2, 2.5, 0, 0*Math.PI, 2*Math.PI, false);
+					ctx.closePath();
+					ctx.fill();
+					ctx.stroke();
+					
+					// legs
+					ctx.lineWidth = 1.6;
+					
+					ctx.beginPath();
+					ctx.moveTo(3.5, 6);
+					ctx.lineTo(9.5, 11);
+					ctx.lineTo(15.5, 6);
+					ctx.stroke();
+					
+					ctx.beginPath();
+					ctx.moveTo(4.5, 17);
+					ctx.lineTo(9.5, 10);
+					ctx.lineTo(14.5, 17);
+					ctx.stroke();
+					
+					// tail
+					ctx.lineWidth = 1.3;
+					
+					ctx.beginPath();
+					ctx.moveTo(9.5, 17);
+					ctx.lineTo(8.5, 19);
+					ctx.stroke();
+					
+					// main body
+					ctx.lineWidth = 1;
+					ctx.beginPath();
+					ctx.ellipse(9.5, 11.5, 4, 5, 0, 0*Math.PI, 2*Math.PI, false);
+					ctx.closePath();
+					ctx.fill();
+					ctx.stroke();
+					
+					ctx.strokeStyle = "#0509";
+					ctx.beginPath();
+					ctx.ellipse(8.7, 10.7, 4, 5, 0, -0.3*Math.PI, 0.8*Math.PI, false);
+					ctx.stroke();
+				}
 		});
 	module.turtle = tgui.createElement({
 			"type": "canvas",
@@ -10646,6 +10870,24 @@ module.create = function()
 							module.interpreter.enqueueEvent("canvas.resize", e);
 						}
 					},
+			"icondraw": function(canvas)
+				{
+					let ctx = canvas.getContext("2d");
+				
+					ctx.fillStyle = "#333";
+					ctx.fillRect(3, 2, 14, 16);
+					ctx.fillStyle = "#fff";
+					ctx.fillRect(4, 3, 12, 14);
+					ctx.fillStyle = "#00c";
+					ctx.fillRect(6, 6, 6, 6);
+					ctx.fillStyle = "#c00";
+					ctx.strokeStyle = "#800";
+					ctx.beginPath();
+					ctx.arc(11, 12, 2.5, 0, 2*Math.PI);
+					ctx.closePath();
+					ctx.fill();
+					ctx.stroke();
+				}
 		});
 	module.canvas = tgui.createElement({
 			"type": "canvas",
