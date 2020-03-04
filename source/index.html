@@ -16,7 +16,6 @@
 	<script src="tscript.js"></script>
 	<script src="tgui.js"></script>
 	<script src="interact.min.js"></script>
-	<script src="ide.js"></script>
 	<script src="search.js" ></script>
 	<script src="doc.js" ></script>
 	<script src="def-concepts.js" ></script>
@@ -26,11 +25,21 @@
 	<script src="def-errors.js" ></script>
 	<script src="def-cheatsheet.js" ></script>
 	<script src="def-legal.js" ></script>
+	<script src="ide.js"></script>
+	<script>
+		window.addEventListener("load", function(event)
+		{
+			let container = document.getElementById("ide-container");
+			if (window.location.search == "?doc") doc.create(container);
+			else ide.create(container);
+		}, false);
+	</script>
 	<link rel="stylesheet" href="codemirror.css">
 	<link rel="stylesheet" href="tgui.css">
 	<link rel="stylesheet" href="ide.css">
 	<link rel="stylesheet" href="documentation.css">
 </head>
 <body>
+<div id="ide-container" style="position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;"></div>
 </body>
 </html>

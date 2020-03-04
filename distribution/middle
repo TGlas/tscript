@@ -1,2 +1,9 @@
+window.addEventListener("load", function(event)
+{
+	let container = document.getElementById("ide-container");
+	if (window.location.search == "?doc") doc.create(container);
+	else ide.create(container);
+}, false);
+"export key"
 </script>
 <style>

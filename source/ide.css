@@ -45,13 +45,8 @@ button {
 }
 
 .ide-main {
-	position: fixed;
-	left: 0;
-	top: 0;
-	width: 100vw;
-	height: 100vh;
-	min-width: 40vw;
-	min-height: 40vh;
+	min-width: 400px;
+	min-height: 300px;
 	color: #000;
 	background: #f00;
 	overflow: hidden;

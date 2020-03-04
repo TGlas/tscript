@@ -35,17 +35,28 @@ function relpos(element, x, y)
 	return {"x": x, "y": y};
 }
 
-// manage documentation window
+// manage documentation container or window
+module.documentationContainer = null;
 module.documentationWindow = null;
-function showdoc(path = "")
+function showdoc(path)
 {
-	if (module.documentationWindow)
+	if (! path) path = "";
+	if (module.documentationContainer)
 	{
-		module.documentationWindow.close();
-		module.documentationWindow = null;
+		// show documentation page in a DOM container
+		doc.setpath(path);
 	}
-	let fn = location.pathname.substring(location.pathname.lastIndexOf("/") + 1);
-	module.documentationWindow = window.open(fn + "?doc" + path, 'TScript documentation');
+	else
+	{
+		// open documentation in a new window; this enables proper browser navigation
+		if (module.documentationWindow)
+		{
+			module.documentationWindow.close();
+			module.documentationWindow = null;
+		}
+		let fn = location.pathname.substring(location.pathname.lastIndexOf("/") + 1);
+		module.documentationWindow = window.open(fn + "?doc" + path, 'TScript documentation');
+	}
 }
 
 
@@ -892,9 +903,11 @@ let cmd_export = function()
 			{
 				let page = xhr.responseText;
 
-				let key = 'if (ide) window.addEventListener("load", ide.create, false);';
+				let key = '"export key"';
 				let pos = page.indexOf(key);
-				pos = page.indexOf(key, pos+1) + key.length + 1;
+				pos = page.indexOf(key, pos+1);
+				if (pos < 0) { alert("internal error during export"); return; }
+				pos += key.length + 1;
 				let title1 = page.indexOf("<title>") + 7;
 				let title2 = page.indexOf("</title>");
 
@@ -903,8 +916,8 @@ let cmd_export = function()
 				let s3 = page.substr(pos);
 
 				let s_init = "ide.sourcecode.setValue('" + source + "');\nide.prepare_run();\nide.interpreter.run();\n";
-				let turtle = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.removeChild(ide.main);\nide.turtle.parentNode.removeChild(ide.turtle);\ndocument.body.appendChild(ide.turtle);\nide.turtle.style.width="100vh";\nide.turtle.style.height="100vh";\n' + s_init + '}, false);\n';
-				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.removeChild(ide.main);\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\ncv.style.top="0px";\nlet init = function() {\nif (cv.offsetWidth == 0 || cv.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
+				let turtle = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nide.turtle.parentNode.removeChild(ide.turtle);\ndocument.body.appendChild(ide.turtle);\nide.turtle.style.width="100vh";\nide.turtle.style.height="100vh";\n' + s_init + '}, false);\n';
+				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\ncv.style.top="0px";\nlet init = function() {\nif (cv.offsetWidth == 0 || cv.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
 
 				status.innerHTML = "status: ready for download";
 				download_turtle.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + turtle + s3);
@@ -1333,26 +1346,6 @@ let buttons = [
 			"tooltip": "toggle breakpoint",
 			"hotkey": "F8",
 		},
-		{
-			"click": cmd_export,
-			"draw": function(canvas)
-					{
-						let ctx = canvas.getContext("2d");
-						ctx.strokeStyle = "#080";
-						ctx.lineWidth = 1.5;
-						ctx.beginPath();
-						ctx.moveTo( 3,  7);
-						ctx.lineTo(10,  7);
-						ctx.lineTo(10,  3);
-						ctx.lineTo(17, 10);
-						ctx.lineTo(10, 17);
-						ctx.lineTo(10, 13);
-						ctx.lineTo( 3, 13);
-						ctx.closePath();
-						ctx.stroke();
-					},
-			"tooltip": "export program as webpage",
-		},
 	];
 
 // load hotkeys
@@ -1655,12 +1648,41 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	return dlg;
 }
 
-module.create = function()
+module.create = function(container, options)
 {
+	if (! options) options = {"export-button": true, "documentation-button": true};
+
 	// create HTML elements of the GUI
-	module.main = tgui.createElement({"type": "div", "parent": document.body, "classname": "ide ide-main"});
+	module.main = tgui.createElement({"type": "div", "parent": container, "classname": "ide ide-main"});
 
 	module.toolbar = tgui.createElement({"type": "div", "parent": module.main, "classname": "ide ide-toolbar"});
+
+	// add the export button on demand
+	if (options["export-button"])
+	{
+		buttons.push(
+			{
+				"click": cmd_export,
+				"draw": function(canvas)
+						{
+							let ctx = canvas.getContext("2d");
+							ctx.strokeStyle = "#080";
+							ctx.lineWidth = 1.5;
+							ctx.beginPath();
+							ctx.moveTo( 3,  7);
+							ctx.lineTo(10,  7);
+							ctx.lineTo(10,  3);
+							ctx.lineTo(17, 10);
+							ctx.lineTo(10, 17);
+							ctx.lineTo(10, 13);
+							ctx.lineTo( 3, 13);
+							ctx.closePath();
+							ctx.stroke();
+						},
+				"tooltip": "export program as webpage",
+			},
+		);
+	}
 
 	// prepare menu bar
 	let sep = [false, false, false, true, false, false, true, false, false, false, true, true];
@@ -1797,16 +1819,19 @@ module.create = function()
 					},
 				});
 
-	tgui.createButton({
-			"click": function ()
-					{
-						showdoc();
-						return false;
-					},
-			"text": "documentation",
-			"parent": module.toolbar,
-			"style": {"float": "right"},
-		});
+	if (options["documentation-button"])
+	{
+		tgui.createButton({
+				"click": function ()
+						{
+							showdoc();
+							return false;
+						},
+				"text": "documentation",
+				"parent": module.toolbar,
+				"style": {"float": "right"},
+			});
+	}
 
 	// area containing all panels
 	let area = tgui.createElement({"type": "div", "parent": module.main, "classname": "ide ide-panel-area"});
@@ -2249,8 +2274,6 @@ module.create = function()
 
 return module;
 }());
-
-if (ide) window.addEventListener("load", ide.create, false);
 
 window.onbeforeunload = function(event){
 if (String(document.title).startsWith("TScript IDE")) { event.preventDefault(); event.returnValue = ''; }

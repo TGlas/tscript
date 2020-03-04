@@ -1,0 +1,1147 @@
+/* BASICS */
+
+.CodeMirror {
+  /* Set height, width, borders, and global font properties here */
+  width: 100%;
+  height: 100%;
+  font-family: monospace;
+  color: black;
+  direction: ltr;
+}
+
+/* PADDING */
+
+.CodeMirror-lines {
+  padding: 4px 0; /* Vertical padding around content */
+}
+.CodeMirror pre {
+  padding: 0 4px; /* Horizontal padding of content */
+}
+
+.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+  background-color: white; /* The little square between H and V scrollbars */
+}
+
+/* GUTTER */
+
+.CodeMirror-gutters {
+  border-right: 1px solid #ddd;
+  background-color: #f7f7f7;
+  white-space: nowrap;
+}
+.CodeMirror-linenumbers {}
+.CodeMirror-linenumber {
+  padding: 0 3px 0 5px;
+  min-width: 20px;
+  text-align: right;
+  color: #999;
+  white-space: nowrap;
+}
+
+.breakpoints {
+	width: 10px;
+	background: #f0f0f0;
+}
+
+.CodeMirror-guttermarker { color: black; }
+.CodeMirror-guttermarker-subtle { color: #999; }
+
+/* CURSOR */
+
+.CodeMirror-cursor {
+  border-left: 1px solid black;
+  border-right: none;
+  width: 0;
+}
+/* Shown when moving in bi-directional text */
+.CodeMirror div.CodeMirror-secondarycursor {
+  border-left: 1px solid silver;
+}
+.cm-fat-cursor .CodeMirror-cursor {
+  width: auto;
+  border: 0 !important;
+  background: #7e7;
+}
+.cm-fat-cursor div.CodeMirror-cursors {
+  z-index: 1;
+}
+.cm-fat-cursor-mark {
+  background-color: rgba(20, 255, 20, 0.5);
+  -webkit-animation: blink 1.06s steps(1) infinite;
+  -moz-animation: blink 1.06s steps(1) infinite;
+  animation: blink 1.06s steps(1) infinite;
+}
+.cm-animate-fat-cursor {
+  width: auto;
+  border: 0;
+  -webkit-animation: blink 1.06s steps(1) infinite;
+  -moz-animation: blink 1.06s steps(1) infinite;
+  animation: blink 1.06s steps(1) infinite;
+  background-color: #7e7;
+}
+@-moz-keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+@-webkit-keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+@keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+
+/* Can style cursor different in overwrite (non-insert) mode */
+.CodeMirror-overwrite .CodeMirror-cursor {}
+
+.cm-tab { display: inline-block; text-decoration: inherit; }
+
+.CodeMirror-rulers {
+  position: absolute;
+  left: 0; right: 0; top: -50px; bottom: -20px;
+  overflow: hidden;
+}
+.CodeMirror-ruler {
+  border-left: 1px solid #ccc;
+  top: 0; bottom: 0;
+  position: absolute;
+}
+
+/* DEFAULT THEME */
+
+.cm-s-default .cm-header {color: blue;}
+.cm-s-default .cm-quote {color: #090;}
+.cm-negative {color: #d44;}
+.cm-positive {color: #292;}
+.cm-header, .cm-strong {font-weight: bold;}
+.cm-em {font-style: italic;}
+.cm-link {text-decoration: underline;}
+.cm-strikethrough {text-decoration: line-through;}
+
+.cm-s-default .cm-keyword {color: #00c;}
+.cm-s-default .cm-atom {color: #088;}
+.cm-s-default .cm-number {color: #480;}
+.cm-s-default .cm-def {color: #00f;}
+.cm-s-default .cm-variable {color: #000;}
+.cm-s-default .cm-punctuation {color: #000;}
+.cm-s-default .cm-property {color: #000;}
+.cm-s-default .cm-operator {color: #000;}
+.cm-s-default .cm-variable-2 {color: #05a;}
+.cm-s-default .cm-variable-3, .cm-s-default .cm-type {color: #085;}
+.cm-s-default .cm-comment {color: #888;}
+.cm-s-default .cm-string {color: #800;}
+.cm-s-default .cm-string-2 {color: #f50;}
+.cm-s-default .cm-meta {color: #555;}
+.cm-s-default .cm-qualifier {color: #555;}
+.cm-s-default .cm-builtin {color: #808;}
+.cm-s-default .cm-bracket {color: #080;}
+.cm-s-default .cm-tag {color: #170;}
+.cm-s-default .cm-attribute {color: #00c;}
+.cm-s-default .cm-hr {color: #999;}
+.cm-s-default .cm-link {color: #00c;}
+
+.cm-s-default .cm-error {text-decoration: underline;}
+.cm-invalidchar {color: #f00;}
+
+.CodeMirror-composing { border-bottom: 2px solid; }
+
+/* Default styles for common addons */
+
+div.CodeMirror span.CodeMirror-matchingbracket {color: #0b0;}
+div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
+.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }
+.CodeMirror-activeline-background {background: #cdf;}
+
+/* STOP */
+
+/* The rest of this file contains styles related to the mechanics of
+   the editor. You probably shouldn't touch them. */
+
+.CodeMirror {
+  position: relative;
+  overflow: hidden;
+  background: white;
+}
+
+.CodeMirror-scroll {
+  overflow: scroll !important; /* Things will break if this is overridden */
+  /* 30px is the magic margin used to hide the element's real scrollbars */
+  /* See overflow: hidden in .CodeMirror */
+  margin-bottom: -30px; margin-right: -30px;
+  padding-bottom: 30px;
+  height: 100%;
+  outline: none; /* Prevent dragging from highlighting the element */
+  position: relative;
+}
+.CodeMirror-sizer {
+  position: relative;
+  border-right: 30px solid transparent;
+}
+
+/* The fake, visible scrollbars. Used to force redraw during scrolling
+   before actual scrolling happens, thus preventing shaking and
+   flickering artifacts. */
+.CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+  position: absolute;
+  z-index: 6;
+  display: none;
+}
+.CodeMirror-vscrollbar {
+  right: 0; top: 0;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+.CodeMirror-hscrollbar {
+  bottom: 0; left: 0;
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
+.CodeMirror-scrollbar-filler {
+  right: 0; bottom: 0;
+}
+.CodeMirror-gutter-filler {
+  left: 0; bottom: 0;
+}
+
+.CodeMirror-gutters {
+  position: absolute; left: 0; top: 0;
+  min-height: 100%;
+  z-index: 3;
+}
+.CodeMirror-gutter {
+  white-space: normal;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: -30px;
+}
+.CodeMirror-gutter-wrapper {
+  position: absolute;
+  z-index: 4;
+  background: none !important;
+  border: none !important;
+}
+.CodeMirror-gutter-background {
+  position: absolute;
+  top: 0; bottom: 0;
+  z-index: 4;
+}
+.CodeMirror-gutter-elt {
+  position: absolute;
+  cursor: default;
+  z-index: 4;
+}
+.CodeMirror-gutter-wrapper ::selection { background-color: transparent }
+.CodeMirror-gutter-wrapper ::-moz-selection { background-color: transparent }
+
+.CodeMirror-lines {
+  cursor: text;
+  min-height: 1px; /* prevents collapsing before first draw */
+}
+.CodeMirror pre {
+  /* Reset some styles that the rest of the page might have set */
+  -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
+  border-width: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  margin: 0;
+  white-space: pre;
+  word-wrap: normal;
+  line-height: inherit;
+  color: inherit;
+  z-index: 2;
+  position: relative;
+  overflow: visible;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-variant-ligatures: contextual;
+  font-variant-ligatures: contextual;
+}
+.CodeMirror-wrap pre {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: normal;
+}
+
+.CodeMirror-linebackground {
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  z-index: 0;
+}
+
+.CodeMirror-linewidget {
+  position: relative;
+  z-index: 2;
+  padding: 0.1px; /* Force widget margins to stay inside of the container */
+}
+
+.CodeMirror-widget {}
+
+.CodeMirror-rtl pre { direction: rtl; }
+
+.CodeMirror-code {
+  outline: none;
+}
+
+/* Force content-box sizing for the elements where we expect it */
+.CodeMirror-scroll,
+.CodeMirror-sizer,
+.CodeMirror-gutter,
+.CodeMirror-gutters,
+.CodeMirror-linenumber {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+.CodeMirror-measure {
+  position: absolute;
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.CodeMirror-cursor {
+  position: absolute;
+  pointer-events: none;
+}
+.CodeMirror-measure pre { position: static; }
+
+div.CodeMirror-cursors {
+  visibility: hidden;
+  position: relative;
+  z-index: 3;
+}
+div.CodeMirror-dragcursors {
+  visibility: visible;
+}
+
+.CodeMirror-focused div.CodeMirror-cursors {
+  visibility: visible;
+}
+
+.CodeMirror-selected { background: #d9d9d9; }
+.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }
+.CodeMirror-crosshair { cursor: crosshair; }
+.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }
+.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }
+
+.cm-searching {
+  background-color: #ffa;
+  background-color: rgba(255, 255, 0, .4);
+}
+
+/* Used to force a border model for a node */
+.cm-force-border { padding-right: .1px; }
+
+@media print {
+  /* Hide the cursor when printing */
+  .CodeMirror div.CodeMirror-cursors {
+    visibility: hidden;
+  }
+}
+
+/* See issue #2901 */
+.cm-tab-wrap-hack:after { content: ''; }
+
+/* Help users use markselection to safely style text background */
+span.CodeMirror-selectedtext { background: none; }
+
+
+.CodeMirror-dialog {
+  position: absolute;
+  left: 30%; right: 105px;
+  background: #ddf;
+  z-index: 15;
+  padding: .1em .8em;
+  overflow: hidden;
+  color: inherit;
+}
+
+.CodeMirror-dialog-top {
+  border-bottom: 1px solid #eee;
+  top: 0;
+}
+
+.CodeMirror-dialog-bottom {
+  border-top: 1px solid #eee;
+  bottom: 0;
+}
+
+.CodeMirror-dialog input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 20em;
+  color: inherit;
+  font-family: monospace;
+}
+
+.CodeMirror-dialog button {
+  font-size: 70%;
+}
+
+.tgui
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+
+.tgui-control
+{
+	font-family: sans-serif;
+	font-size: 10pt;
+	color: #000;
+	border: none;
+	margin: 3px;
+	position: relative;
+}
+
+.tgui-hidden
+{
+	display: none;
+}
+
+.tgui-tooltip
+{
+	display: none;
+	background-color: #eec;
+	color: #000;
+	font-family: sans-serif;
+	font-size: 9pt;
+	transition: opacity 0.5s;
+	padding: 2px;
+	border: 1px solid #000;
+	border-radius: 3px;
+	white-space: nowrap;
+	z-index: 10;
+}
+
+.tgui-tooltip-left
+{
+	position: absolute;
+	left: 1px;
+	top: 25px;
+}
+
+.tgui-tooltip-right
+{
+	position: absolute;
+	right: 1px;
+	top: 25px;
+}
+
+.tgui-control:hover .tgui-tooltip
+{
+	display: block;
+}
+
+.tgui-label
+{
+	background: #ddd;
+
+	border-width: 1px;
+	border-style: solid;
+	border-color: #fff #555 #555 #fff;
+
+	text-align: center;
+	padding: 3px 10px 3px 10px;
+}
+
+.tgui-button-text
+{
+	cursor: pointer;
+
+	background: #ddd;
+
+	border-width: 1px;
+	border-style: solid;
+	border-color: #fff #555 #555 #fff;
+
+	text-align: center;
+	padding: 3px 10px 3px 10px;
+}
+
+.tgui-button-text:hover
+{
+	background: #bbb;
+}
+
+.tgui-button-canvas
+{
+	cursor: pointer;
+
+	background: #ddd;
+
+	border-width: 1px;
+	border-style: solid;
+	border-color: #fff #555 #555 #fff;
+}
+
+.tgui-button-canvas:hover
+{
+	background: #bbb;
+}
+
+.tgui-tree
+{
+	width: 100%;
+	height: 100%;
+	font-family: monospace;
+	font-size: 9pt;
+	line-height: 13px;
+	overflow: scroll;
+}
+
+.tgui-tree-main
+{
+	border-collapse: collapse;
+}
+
+.tgui-tree-cell-toggle
+{
+	display: block;
+	width: 15px;
+}
+
+.tgui-tree-cell-content
+{
+	width: calc(100% - 15px);
+	white-space: nowrap;
+}
+
+.tgui-tree-toggle
+{
+	vertical-align: middle;
+	padding-right: 3px;
+	color: #999;
+	transition: color 0.5s;
+}
+
+.tgui-tree-toggle:hover
+{
+	color: #000;
+}
+
+.tgui-tree-element
+{
+}
+
+.tgui-tree-element:hover
+{
+	background: #cdf;
+}
+
+.tgui-separator
+{
+	display: block;
+	position: fixed;
+	left: 0vw;
+	top: 0vh;
+	width: 100vw;
+	height: 100vh;
+	z-index: 99;
+	background: rgba(64, 64, 64, 0.8);
+}
+
+.tgui-modal
+{
+	position: fixed;
+	box-sizing: border-box;
+	background: #fff;
+	color: #000;
+	font-family: sans-serif;
+	font-size: 12pt;
+	padding: 10px;
+	border: 5px solid #888;
+	overflow-y: scroll;
+}
+
+.tgui-panel-container {
+	overflow: hidden;
+	touch-action: none;
+	box-sizing: border-box;
+}
+
+.tgui-panel-titlebar {
+	position: absolute;
+	width: 100%;
+	height: 22px;
+	line-height: 22px;
+	padding: 0 1px 0 10px;
+	left: 0;
+	top: 0;
+	background: #00c;
+	color: #fff;
+	font-family: sans;
+	font-size: 12pt;
+
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.tgui-panel-dockbutton {
+	float: right;
+	margin: 0;
+	padding: 0;
+	width: 20px;
+	height: 20px;
+	margin: 1px 0;
+}
+
+.tgui-panel-content {
+	position: absolute;
+	width: 100%;
+	height: calc(100% - 22px);
+	left: 0;
+	top: 22px;
+	background: #ffe;
+	color: #000;
+	overflow: hidden;
+}
+.ide {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+a:link,
+a:visited,
+a:active,
+a:hover
+{
+	color: #44c;
+	text-decoration: underline;
+}
+
+li {
+	margin-left: 3ex;
+}
+
+h1 {
+	font-size: 24pt;
+	margin-top: 20pt;
+}
+
+h2 {
+	font-size: 16pt;
+	margin-top: 20pt;
+}
+
+p {
+	margin: 10px 0 10px 0;
+}
+
+button {
+	border: black 1px solid;
+}
+
+.ide-main {
+	min-width: 400px;
+	min-height: 300px;
+	color: #000;
+	background: #f00;
+	overflow: hidden;
+	font-family: monospace;
+	font-size: 10pt;
+}
+
+.ide-panel-area {
+	position: absolute;
+	left: 0;
+	top: 30px;
+	width: 100vw;
+	height: calc(100vh - 30px);
+	min-width: 650px;
+	min-height: 300px;
+	background: #aaa;
+	overflow: hidden;
+}
+
+.ide-toolbar {
+	width: 100vw;
+	height: 30px;
+	background: #ccc;
+	color: #000;
+	border-bottom: #888 solid 2px;
+	box-sizing: border-box;
+}
+
+.ide-sourcecode {
+	/* overridden in file codemirror.css, class .CodeMirror */
+	resize: none;
+	width: 60vw;
+	height: calc(100vh - 200px);
+	background: #fff;
+	color: #000;
+	overflow: scroll;
+}
+
+.ide-stackview {
+	background: #ffe;
+	color: #000;
+	border-left: #888 solid 2px;
+	border-bottom: #888 solid 2px;
+	overflow: hidden;
+}
+
+.ide-programview {
+	background: #ffe;
+	color: #000;
+	overflow: hidden;
+	border-left: #888 solid 2px;
+}
+
+.ide-messages {
+	width: 100%;
+	height: 100%;
+	background: #eee;
+	color: #000;
+	overflow: scroll;
+	padding: 0 5px 0 0;
+	box-sizing: border-box;
+}
+
+.ide-message
+{
+	width: 100%;
+	white-space: pre;
+}
+
+.ide-message:hover
+{
+	background: #cdf;
+}
+
+.ide-errormessage
+{
+	cursor: pointer;
+	color: #f00;
+	text-decoration: underline;
+}
+
+.ide-errormessage:hover
+{
+	font-weight: bold;
+}
+
+.ide-program-ancestor
+{
+	background: #fc8;
+}
+
+.ide-program-current
+{
+	background: #fa4;
+	font-weight: bold;
+}
+
+.ide-turtle
+{
+	background: #eee;
+	width: 100%;
+	height: 100%;
+}
+
+.ide-index { color: #00f; }
+
+.ide-integer { color: #088; }
+.ide-real { color: #480; }
+.ide-string { color: #c00; }
+.ide-collection { color: #c60; }
+.ide-keyword { color: #00c; }
+.ide-builtin { color: #808; }
+.ide-userclass { color: #000; }
+
+/* general page styles */
+
+*
+{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+
+#doc-main
+{
+	font-family: sans-serif;
+	font-size: 12pt;
+	line-height: 140%;
+	color: #000;
+}
+
+#searchtext
+{
+	margin: 10px 10px 10px 10px;
+	padding: 0 10px 0 10px;
+	width: 18vw;
+	height: 30px;
+	vertical-align: middle;
+	background: #eee;
+	color: #444;
+	border: 1px solid #888;
+	border-radius: 4px;
+	font-size: 10pt;
+	line-height: 130%;
+}
+
+input:focus
+{
+	background: #fff;
+	color: #000;
+	border: 1px solid #000;
+}
+
+#sidebar
+{
+	box-sizing: border-box;
+	position: absolute;
+	left: 0vw;
+	top: 0vh;
+	width: 20vw;
+	height: 100vh;
+	background: #ddd;
+}
+
+#version
+{
+	left: 0;
+	top: 0;
+	position: absolute;
+	box-sizing: border-box;
+	width: 100%;
+	height: 45px;
+	line-height: 150%;
+	color: #000;
+	background: #ddd;
+	padding: 2px;
+	text-align: center;
+	font-size: 7pt;
+	cursor: pointer;
+}
+
+#search
+{
+	left: 0;
+	top: 45px;
+	position: absolute;
+	box-sizing: border-box;
+	width: 100%;
+	height: 50px;
+	color: #fff;
+	background: #44c;
+}
+
+#tree
+{
+	left: 0;
+	top: 95px;
+	position: absolute;
+	box-sizing: border-box;
+	width: 100%;
+	height: calc(100vh - 100px);
+	color: #000;
+	background: #ddd;
+}
+
+#content
+{
+	box-sizing: border-box;
+	display: block;
+	position: absolute;
+	left: 20vw;
+	top: 0vw;
+	width: 80vw;
+	height: 100vh;
+	padding: 3vh 5vw 3vh 5vw;
+	color: #000;
+	background: #fff;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	border-left: solid 5px #88c;
+	border-right: solid 5px #88c;
+}
+
+#content .pad
+{
+	box-sizing: border-box;
+	margin-bottom: 10vh;
+}
+
+.related
+{
+	margin-top: 10vh;
+	transform: scale(0.9);
+	padding: 10px;
+	background: #f4f4fc;
+	border: 2px solid #44c;
+	border-radius: 10px;
+}
+
+
+/* styles for the content */
+
+a:link,
+a:visited
+{
+	color: #44c;
+	text-decoration: underline;
+}
+
+a:active,
+a:hover
+{
+	color: #c44;
+	text-decoration: underline;
+}
+
+h1 {
+	font-size: 20pt;
+	line-height: 130%;
+	margin: 10pt 0 10pt 0;
+}
+
+h2 {
+	font-size: 18pt;
+	line-height: 130%;
+	margin: 9pt 0 9pt 0;
+}
+
+h3 {
+	font-size: 16pt;
+	line-height: 130%;
+	margin: 8pt 0 8pt 0;
+}
+
+p, ul, ol {
+	margin: 8pt 0 8pt 0;
+}
+
+li {
+	margin: 3pt 0 3pt 3ex;
+}
+
+pre {
+	width: 100%;
+	overflow-x: auto;
+	padding: 5pt;
+	margin: 3pt 0 3pt 0;
+}
+
+div.code {
+	cursor: copy;
+}
+
+code {
+	font-family: monospace;
+}
+
+hr {
+	margin: 5vh 0 5vh 0;
+	height: 1px;
+	background: #888;
+}
+
+.nicetable
+{
+	margin: 5px auto 5px auto;
+	border-collapse: collapse;
+	display: table;
+	margin: 10px;
+}
+
+.nicetable th
+{
+	border: 2px solid #854;
+	background: #fa8;
+	font-weight: bold;
+	padding: 1ex;
+	text-align: center;
+}
+
+.nicetable td
+{
+	border: 2px solid #558;
+	background: #aaf;
+	padding: 1ex;
+	text-align: center;
+}
+
+.nicetable th a
+{
+	color: #000;
+}
+
+.nicetable td a
+{
+	color: #000;
+}
+
+.flex
+{
+	display: flex;
+	flex-wrap: wrap;
+	flex-flow: space-evenly;
+	align-items: stretch;
+}
+
+.methods
+{
+	margin: 5px auto 5px 0px;
+	border-collapse: collapse;
+	display: table;
+}
+
+.methods th
+{
+	border: 1px solid #888;
+	background: #fed;
+	font-weight: bold;
+	padding: 1ex;
+	text-align: left;
+	vertical-align: top;
+}
+
+.methods td
+{
+	border: 1px solid #888;
+	padding: 1ex;
+	text-align: left;
+}
+
+.searchresults
+{
+	font-size: 70%;
+	margin-left: 5ex;
+	color: #666;
+}
+
+/* styles for the tree view */
+
+.entry
+{
+	padding: 4px 4px 2px 4px;
+}
+
+.current
+{
+	background: #fa4;
+}
+
+.tgui-tree
+{
+	font-family: sans-serif;
+	font-size: 10pt;
+	line-height: 150%;
+	color: #000;
+	border: none;
+	padding: 3px;
+	position: relative;
+
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+.tgui-tree-main
+{
+	border-collapse: collapse;
+}
+
+.tgui-tree-cell-toggle
+{
+	display: block;
+	width: 15px;
+}
+
+.tgui-tree-cell-content
+{
+	width: calc(100% - 15px);
+	white-space: nowrap;
+}
+
+.tgui-tree-toggle
+{
+	vertical-align: middle;
+	padding-right: 3px;
+	color: #999;
+	transition: color 0.5s;
+}
+
+.tgui-tree-toggle:hover
+{
+	color: #000;
+}
+
+.tgui-tree-element
+{
+}
+
+.tgui-tree-element:hover
+{
+	background: #cdf;
+}
+
+.tgui-hidden
+{
+	display: none;
+}
+
+
+/* highlighting */
+
+.example {
+	margin: 10px 0 10px 0;
+	padding: 10px;
+	border: 2px solid #c66;
+	border-radius: 10px;
+}
+
+.warning {
+	margin: 10px 0 10px 0;
+	padding: 10px;
+	border: 4px solid #c66;
+	background: #fcc;
+	border-radius: 10px;
+}
+
+.keyword { font-family: monospace; background: #dde; border: 1px solid #dde; border-radius: 2px; font-weight: bold; }
+
+.code { background: #ddd; }
+.code-keyword { color: #00c; }
+.code-identifier { color: #000; }
+.code-integer { color: #088; }
+.code-real { color: #480; }
+.code-string { color: #800; }
+.code-operator { color: #000; }
+.code-grouping { color: #080; }
+.code-delimiter { color: #000; }
+.code-comment { color: #888; }
+
+.ebnf { background: #dee; }
+.ebnf-identifier { color: #c00; }
+.ebnf-literal { color: #080; }
+.ebnf-special { color: #808; font-style: italic; }
+.ebnf-operator { color: #000; }
+.ebnf-grouping { color: #c80; }
+.ebnf-delimiter { color: #888; }

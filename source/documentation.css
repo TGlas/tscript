@@ -42,7 +42,7 @@ input:focus
 #sidebar
 {
 	box-sizing: border-box;
-	position: fixed;
+	position: absolute;
 	left: 0vw;
 	top: 0vh;
 	width: 20vw;
@@ -95,7 +95,7 @@ input:focus
 {
 	box-sizing: border-box;
 	display: block;
-	position: fixed;
+	position: absolute;
 	left: 20vw;
 	top: 0vw;
 	width: 80vw;

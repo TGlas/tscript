@@ -1,5 +1,5 @@
 
-all: singlefile
+all: singlefile multifile
 
 JSFILES := ../source/codemirror.js \
 	../source/codemirror-activeline.js \
@@ -14,7 +14,6 @@ JSFILES := ../source/codemirror.js \
 	../source/tscript.js \
 	../source/tgui.js \
 	../source/interact.min.js \
-	../source/ide.js \
 	../source/search.js \
 	../source/doc.js \
 	../source/def-concepts.js \
@@ -24,6 +23,7 @@ JSFILES := ../source/codemirror.js \
 	../source/def-errors.js \
 	../source/def-cheatsheet.js \
 	../source/def-legal.js \
+	../source/ide.js \
 
 CSSFILES := ../source/codemirror.css \
 	../source/tgui.css \
@@ -36,7 +36,14 @@ singlefile:
 	cat start ${JSFILES} middle ${CSSFILES} end > index.html
 	zip index.html.zip index.html
 
+multifile:
+	rm -f tscript.css
+	rm -f tscript.js
+	cat ${CSSFILES} > tscript.css
+	cat ${JSFILES} > tscript.js
+
 clean:
 	rm -f index.html
 	rm -f index.html.zip
-	rm -f *.min.js
+	rm -f tscript.css
+	rm -f tscript.js

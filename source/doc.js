@@ -5,9 +5,6 @@
 //
 
 let doc = (function() {
-if (window.location.search != "?doc") return null;
-
-document.title = "TScript Documentation";
 
 // define the central documentation data object, to be extended in other files
 let module = { "id": "", "name": "TScript Documentation", "title": "TScript Documentation", "children": [], "content":
@@ -544,7 +541,7 @@ function getnode(path)
 	return [node, parent, parentpath, index];
 }
 
-function setpath(path)
+module.setpath = function(path)
 {
 	if (path.substr(0, 7) == "search/")
 	{
@@ -588,9 +585,8 @@ function setpath(path)
 		}
 
 		// display the page
-		let content = document.getElementById("content");
-		content.innerHTML = html;
-		content.scrollTop = 0;
+		module.dom_content.innerHTML = html;
+		module.dom_content.scrollTop = 0;
 		docpath = "";
 		doctree.update(docinfo);
 	}
@@ -632,10 +628,9 @@ function setpath(path)
 				html += "</div>\n";
 			}
 			html += "<div class=\"pad\"></div>\n";
-			let content = document.getElementById("content");
 
-			content.innerHTML = prepare(html);
-			content.scrollTop = 0;
+			module.dom_content.innerHTML = prepare(html);
+			module.dom_content.scrollTop = 0;
 			docpath = path;
 			doctree.update(docinfo);
 
@@ -698,31 +693,56 @@ function checklinks(node, path)
 	for (let i=0; i<node.children.length; i++) checklinks(node.children[i], path + "/" + node.children[i].id);
 }
 
-window.addEventListener("load", function()
-{
-	// create the framing html elements
-	document.body.innerHTML =
-		`
-			<div id="doc-main">
-			<div id="sidebar">
-				<div id="version"></div>
-				<div id="search"><input id="searchtext" type="text" placeholder="search" /></div>
-				<div id="tree"></div>
-			</div>
+module.dom_container = null;
+module.dom_main = null;
+module.dom_sidebar = null;
+module.dom_version = null;
+module.dom_search = null;
+module.dom_searchtext = null;
+module.dom_tree = null;
+module.dom_content = null;
 
-			<div id="content"></div>
-			</div>
-		`;
+module.create = function(container, options)
+{
+	if (! options) options = {
+			ownwindow: true,
+		};
+
+	if (options.ownwindow) document.title = "TScript Documentation";
+
+	// create the framing html elements
+	module.dom_container = container;
+	module.dom_main = tgui.createElement({type: "div", parent: container, id: "doc-main"});
+	module.dom_sidebar = tgui.createElement({type: "div", parent: container, id: "sidebar"});
+		module.dom_version = tgui.createElement({type: "div", parent: module.dom_sidebar, id: "version"});
+		module.dom_search = tgui.createElement({type: "div", parent: module.dom_sidebar, id: "search"});
+		module.dom_searchtext = tgui.createElement({type: "input", parent: module.dom_search, id: "searchtext", properties: {type:"text", placeholder:"search"}});
+		module.dom_tree = tgui.createElement({type: "div", parent: module.dom_sidebar, id: "tree"});
+	module.dom_content = tgui.createElement({type: "div", parent: container, id: "content"});
+//	container.innerHTML =
+//		`
+//			<div id="doc-main">
+//			<div id="sidebar">
+//				<div id="version"></div>
+//				<div id="search"><input id="searchtext" type="text" placeholder="search" /></div>
+//				<div id="tree"></div>
+//			</div>
+//
+//			<div id="content"></div>
+//			</div>
+//		`;
 
 	// display the version
-	let version = document.getElementById("version");
-	version.innerHTML = TScript.version.full();
-	version.addEventListener("click", function(event)
-			{
-				let base = window.location.href.split("#")[0];
-				window.location.href = base + "#/legal";
-				setpath("/legal");
- 			});
+	window.setTimeout(function(event)
+	{
+		module.dom_version.innerHTML = TScript.version.full();
+		module.dom_version.addEventListener("click", function(event)
+				{
+					let base = window.location.href.split("#")[0];
+					window.location.href = base + "#/legal";
+					module.setpath("/legal");
+	 			});
+	}, 100);
 
 	// prepare the error sub-tree of the documentation tree
 	let rec = function(entry, path = "")
@@ -748,24 +768,23 @@ window.addEventListener("load", function()
 
 	// prepare the tree control
 	doctree = tgui.createTreeControl({
-			"parent": document.getElementById("tree"),
+			"parent": module.dom_tree,
 			"info": docinfo,
 			"nodeclick": function(event, value, id)
 					{
 						let base = window.location.href.split("#")[0];
 						window.location.href = base + "#" + id;
-						setpath(id);
+						module.setpath(id);
 					},
 		});
 
 	// make the search field functional
 	initsearch("", doc);   // index the docs
-	let searchfield = document.getElementById("searchtext");
-	searchfield.addEventListener("keypress", function(event)
+	module.dom_searchtext.addEventListener("keypress", function(event)
 	{
 		if (event.key != "Enter") return;
 
-		let keys = searchengine.tokenize(searchfield.value);
+		let keys = searchengine.tokenize(module.dom_searchtext.value);
 		let h = "#search";
 		for (let i=0; i<keys.length; i++) h += "/" + keys[i];
 		window.location.hash = h;
@@ -775,16 +794,20 @@ window.addEventListener("load", function()
 	checklinks(doc, "#");
 
 	// process the "anchor" part of the URL
-	window.addEventListener("hashchange", function()
+	if (options.ownwindow)
 	{
+		window.addEventListener("hashchange", function()
+		{
+			let path = window.location.hash;
+			if (path.length > 0) path = path.substr(1);
+			module.setpath(path);
+		});
 		let path = window.location.hash;
 		if (path.length > 0) path = path.substr(1);
-		setpath(path);
-	});
-	let path = window.location.hash;
-	if (path.length > 0) path = path.substr(1);
-	setpath(path);
-});
+		module.setpath(path);
+	}
+	else module.setpath("");
+};
 
 return module;
 }());

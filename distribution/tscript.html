@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>TScript IDE</title>
+	<script src="tscript.js" ></script>
+	<script>
+		window.addEventListener("load", function(event)
+		{
+			let container = document.getElementById("ide-container");
+			if (window.location.search == "?doc") doc.create(container);
+			else ide.create(container);
+		}, false);
+		"export key"
+	</script>
+	<link rel="stylesheet" href="tscript.css">
+</head>
+<body>
+<div id="ide-container" style="position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;"></div>
+</body>
+</html>
