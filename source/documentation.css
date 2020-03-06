@@ -21,7 +21,7 @@
 {
 	margin: 10px 10px 10px 10px;
 	padding: 0 10px 0 10px;
-	width: 18vw;
+	width: 18%;
 	height: 30px;
 	vertical-align: middle;
 	background: #eee;
@@ -43,10 +43,10 @@ input:focus
 {
 	box-sizing: border-box;
 	position: absolute;
-	left: 0vw;
-	top: 0vh;
-	width: 20vw;
-	height: 100vh;
+	left: 0;
+	top: 0;
+	width: 20%;
+	height: 100%;
 	background: #ddd;
 }
 
@@ -86,7 +86,7 @@ input:focus
 	position: absolute;
 	box-sizing: border-box;
 	width: 100%;
-	height: calc(100vh - 100px);
+	height: calc(100% - 100px);
 	color: #000;
 	background: #ddd;
 }
@@ -96,11 +96,11 @@ input:focus
 	box-sizing: border-box;
 	display: block;
 	position: absolute;
-	left: 20vw;
-	top: 0vw;
-	width: 80vw;
-	height: 100vh;
-	padding: 3vh 5vw 3vh 5vw;
+	left: 20%;
+	top: 0;
+	width: 80%;
+	height: 100%;
+	padding: 3% 5% 3% 5%;
 	color: #000;
 	background: #fff;
 	overflow-x: hidden;
@@ -112,12 +112,12 @@ input:focus
 #content .pad
 {
 	box-sizing: border-box;
-	margin-bottom: 10vh;
+	margin-bottom: 10%;
 }
 
 .related
 {
-	margin-top: 10vh;
+	margin-top: 10%;
 	transform: scale(0.9);
 	padding: 10px;
 	background: #f4f4fc;
@@ -184,7 +184,7 @@ code {
 }
 
 hr {
-	margin: 5vh 0 5vh 0;
+	margin: 5% 0;
 	height: 1px;
 	background: #888;
 }

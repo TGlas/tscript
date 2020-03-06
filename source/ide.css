@@ -58,8 +58,8 @@ button {
 	position: absolute;
 	left: 0;
 	top: 30px;
-	width: 100vw;
-	height: calc(100vh - 30px);
+	width: 100%;
+	height: calc(100% - 30px);
 	min-width: 650px;
 	min-height: 300px;
 	background: #aaa;
@@ -67,7 +67,7 @@ button {
 }
 
 .ide-toolbar {
-	width: 100vw;
+	width: 100%;
 	height: 30px;
 	background: #ccc;
 	color: #000;
@@ -78,8 +78,8 @@ button {
 .ide-sourcecode {
 	/* overridden in file codemirror.css, class .CodeMirror */
 	resize: none;
-	width: 60vw;
-	height: calc(100vh - 200px);
+	width: 60%;
+	height: calc(100% - 200px);
 	background: #fff;
 	color: #000;
 	overflow: scroll;
