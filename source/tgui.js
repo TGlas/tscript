@@ -11,6 +11,7 @@ let module = {};
 
 // global mapping of hotkeys to handlers
 let hotkeys = {};
+let hotkeyElement = null;
 
 // normalize the hotkey to lowercase
 module.normalizeHotkey = function(hotkey)
@@ -46,6 +47,10 @@ module.releaseHotkey = function(hotkey)
 // remove all hotkeys
 module.releaseAllHotkeys = function()
 { hotkeys = {}; }
+
+// enable hotkeys only if the given element is visible
+module.setHotkeyElement = function(element)
+{ hotkeyElement = element; }
 
 module.setTooltip = function(element, tooltip = "", direction="left")
 {
@@ -1074,6 +1079,14 @@ module.stopModal = function()
 	else modal[modal.length - 1].style.zIndex = 100;
 }
 
+// check whether an element is currently visible to the user
+// https://stackoverflow.com/a/7557433
+function isElementInViewport(element)
+{
+	var rect = element.getBoundingClientRect();
+	return (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth));
+}
+
 // register a global key listener for hotkey events
 document.addEventListener("keydown", function(event)
 {
@@ -1089,6 +1102,8 @@ document.addEventListener("keydown", function(event)
 	}
 	else
 	{
+		if (hotkeyElement && ! isElementInViewport(hotkeyElement)) return true;
+
 		// compose the key code string
 		let key = event.key;
 		if (event.altKey) key = "alt-" + key;

@@ -1654,6 +1654,7 @@ module.create = function(container, options)
 
 	// create HTML elements of the GUI
 	module.main = tgui.createElement({"type": "div", "parent": container, "classname": "ide ide-main"});
+	tgui.setHotkeyElement(module.main);
 
 	module.toolbar = tgui.createElement({"type": "div", "parent": module.main, "classname": "ide ide-toolbar"});
 
