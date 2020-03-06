@@ -8143,12 +8143,17 @@ function arrangeDocked(list, left, width, height)
 	}
 };
 
+// keep track of the current size
+let currentW = 0, currentH = 0;
+
 // arrange all panels so that they fit
 function arrange()
 {
 	if (! module.panelcontainer) return;
 	let w = module.panelcontainer.clientWidth;
 	let h = module.panelcontainer.clientHeight;
+	currentW = w;
+	currentH = h;
 	let w60 = Math.round(0.6 * w);
 	let w40 = w - w60;
 
@@ -8217,8 +8222,28 @@ module.arrangePanels = function()
 			}, delta);
 }
 
-// monitor size changes and propagate them to the panels
+// Monitor size changes and propagate them to the panels.
+// We use two mechanisms: window size changes and container
+// size changes. The latter are polled in a 5Hz loop.
 window.addEventListener("resize", module.arrangePanels);
+function poll()
+{
+	if (module.panelcontainer)
+	{
+		let w = module.panelcontainer.clientWidth;
+		let h = module.panelcontainer.clientHeight;
+		if (w != 0 && h != 0)
+		{
+			if (w != currentW || h != currentH)
+			{
+				module.arrangePanels();
+			}
+		}
+	}
+	window.setTimeout(poll, 200);
+}
+window.setTimeout(poll, 1000);   // start with a short delay
+
 
 // Create a panel.
 // The description object has the following fields:
@@ -20596,7 +20621,7 @@ button {
 {
 	margin: 10px 10px 10px 10px;
 	padding: 0 10px 0 10px;
-	width: 18%;
+	width: calc(100% - 20px);
 	height: 30px;
 	vertical-align: middle;
 	background: #eee;
