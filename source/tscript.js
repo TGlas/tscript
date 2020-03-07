@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 28,
-			day: 4,
+			patch: 29,
+			day: 7,
 			month: 3,
 			year: 2020,
 			full: function()
@@ -3125,6 +3125,7 @@ function parse_name(state, parent, errorname, allow_namespace)
 	let token = module.get_token(state);
 
 	// handle "super"
+	let isSuper = false;
 	if (token.type == "keyword" && token.value == "super")
 	{
 		// check for a super class
@@ -3138,6 +3139,8 @@ function parse_name(state, parent, errorname, allow_namespace)
 		if (token.type != "delimiter" || token.value != '.') state.error("/syntax/se-8");
 		token = module.get_token(state);
 		if (token.type != "identifier") state.error("/syntax/se-9");
+
+		isSuper = true;
 	}
 	else if (token.type != "identifier") state.error("/syntax/se-10", [errorname]);
 
@@ -3145,6 +3148,7 @@ function parse_name(state, parent, errorname, allow_namespace)
 	let name = token.value;
 	let pe = resolve_name(state, token.value, ref, errorname);
 	let lookup = pe.names[token.value];
+	if (isSuper && lookup.hasOwnProperty("access") && lookup.access == "private") state.error("/name/ne-8", ["name lookup", name, module.displayname(pe)]);
 
 	// handle namespace names
 	while (lookup.petype == "namespace")
