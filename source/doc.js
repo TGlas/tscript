@@ -657,6 +657,7 @@ module.setpath = function(path)
 function initsearch(path, node)
 {
 	let s = plaintext("<h1>" + node.title + "</h1>\n" + node.content);
+	searchengine.clear();
 	searchengine.add(path, s);
 	for (let i=0; i<node.children.length; i++)
 	{

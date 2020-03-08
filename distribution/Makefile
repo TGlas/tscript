@@ -40,7 +40,7 @@ multifile:
 	rm -f tscript.css
 	rm -f tscript.js
 	cat ${CSSFILES} > tscript.css
-	cat ${JSFILES} > tscript.js
+	cat strict ${JSFILES} > tscript.js
 
 clean:
 	rm -f index.html

@@ -1652,6 +1652,8 @@ module.create = function(container, options)
 {
 	if (! options) options = {"export-button": true, "documentation-button": true};
 
+	tgui.releaseAllHotkeys();
+
 	// create HTML elements of the GUI
 	module.main = tgui.createElement({"type": "div", "parent": container, "classname": "ide ide-main"});
 	tgui.setHotkeyElement(module.main);

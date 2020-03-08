@@ -8810,6 +8810,13 @@ function score(length, distance, count, docs)
 }
 
 
+// Reset the search engine, i.e., make it forget all calls to "add".
+module.clear = function()
+{
+	module.doclength = {};
+	module.dictionary = {};
+}
+
 // Add a new document with given content to the data base. The document
 // is identified by a string ID, which is returned in search results.
 // Adding the same document ID twice results in an error.
@@ -9541,6 +9548,7 @@ module.setpath = function(path)
 function initsearch(path, node)
 {
 	let s = plaintext("<h1>" + node.title + "</h1>\n" + node.content);
+	searchengine.clear();
 	searchengine.add(path, s);
 	for (let i=0; i<node.children.length; i++)
 	{
@@ -19192,6 +19200,8 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 module.create = function(container, options)
 {
 	if (! options) options = {"export-button": true, "documentation-button": true};
+
+	tgui.releaseAllHotkeys();
 
 	// create HTML elements of the GUI
 	module.main = tgui.createElement({"type": "div", "parent": container, "classname": "ide ide-main"});

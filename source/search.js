@@ -80,6 +80,13 @@ function score(length, distance, count, docs)
 }
 
 
+// Reset the search engine, i.e., make it forget all calls to "add".
+module.clear = function()
+{
+	module.doclength = {};
+	module.dictionary = {};
+}
+
 // Add a new document with given content to the data base. The document
 // is identified by a string ID, which is returned in search results.
 // Adding the same document ID twice results in an error.
