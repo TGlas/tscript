@@ -543,6 +543,9 @@ function getnode(path)
 
 module.setpath = function(path)
 {
+	if (! path) path = "";
+	if (path.length > 0 && path[0] == "#") path = path.substr(1);
+
 	if (path.substr(0, 7) == "search/")
 	{
 		// prepare the search results page
@@ -701,14 +704,16 @@ module.dom_search = null;
 module.dom_searchtext = null;
 module.dom_tree = null;
 module.dom_content = null;
+module.embedded = false;
 
 module.create = function(container, options)
 {
 	if (! options) options = {
-			ownwindow: true,
+			embedded: false,
 		};
 
-	if (options.ownwindow) document.title = "TScript Documentation";
+	module.embedded = options.embedded;
+	if (! options.embedded) document.title = "TScript Documentation";
 
 	// create the framing html elements
 	module.dom_container = container;
@@ -719,18 +724,6 @@ module.create = function(container, options)
 		module.dom_searchtext = tgui.createElement({type: "input", parent: module.dom_search, id: "searchtext", properties: {type:"text", placeholder:"search"}});
 		module.dom_tree = tgui.createElement({type: "div", parent: module.dom_sidebar, id: "tree"});
 	module.dom_content = tgui.createElement({type: "div", parent: container, id: "content"});
-//	container.innerHTML =
-//		`
-//			<div id="doc-main">
-//			<div id="sidebar">
-//				<div id="version"></div>
-//				<div id="search"><input id="searchtext" type="text" placeholder="search" /></div>
-//				<div id="tree"></div>
-//			</div>
-//
-//			<div id="content"></div>
-//			</div>
-//		`;
 
 	// display the version
 	window.setTimeout(function(event)
@@ -772,8 +765,11 @@ module.create = function(container, options)
 			"info": docinfo,
 			"nodeclick": function(event, value, id)
 					{
-						let base = window.location.href.split("#")[0];
-						window.location.href = base + "#" + id;
+						if (! module.embedded)
+						{
+							let base = window.location.href.split("#")[0];
+							window.location.href = base + "#" + id;
+						}
 						module.setpath(id);
 					},
 		});
@@ -788,26 +784,54 @@ module.create = function(container, options)
 		let keys = searchengine.tokenize(module.dom_searchtext.value);
 		let h = "#search";
 		for (let i=0; i<keys.length; i++) h += "/" + keys[i];
-		window.location.hash = h;
+		if (module.embedded)
+		{
+			sessionStorage.setItem("docpath", h);
+			module.setpath(h);
+		}
+		else window.location.hash = h;
 	});
 
 	// check all internal links
 	checklinks(doc, "#");
 
-	// process the "anchor" part of the URL
-	if (options.ownwindow)
+	if (options.embedded)
 	{
+		let path = sessionStorage.getItem("docpath");
+		if (! path) path = "#";
+		module.setpath(path);
+	}
+	else
+	{
+		// process the "anchor" part of the URL
 		window.addEventListener("hashchange", function()
 		{
 			let path = window.location.hash;
-			if (path.length > 0) path = path.substr(1);
 			module.setpath(path);
 		});
 		let path = window.location.hash;
-		if (path.length > 0) path = path.substr(1);
 		module.setpath(path);
 	}
-	else module.setpath("");
+
+	if (module.embedded)
+	{
+		document.addEventListener("click", function(event)
+		{
+			let target = event.target || event.srcElement;
+			if (target.tagName === 'A')
+			{
+				let href = target.getAttribute("href");
+				if (href.length == 0) return true;
+				if (href[0] != "#") return true;
+				sessionStorage.setItem("docpath", href);
+				module.setpath(href);
+				event.preventDefault();
+				event.stopPropagation();
+				event.stopImmediatePropagation();
+				return false;
+			}
+		});
+	}
 };
 
 return module;

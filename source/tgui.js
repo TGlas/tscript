@@ -1109,7 +1109,12 @@ module.stopModal = function()
 function isElementInViewport(element)
 {
 	var rect = element.getBoundingClientRect();
-	return (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth));
+	if (rect.width == 0 || rect.height == 0) return false;
+	if (rect.top >= (window.innerHeight || document.documentElement.clientHeight)) return false;
+	if (rect.bottom < 0) return false;
+	if (rect.left >= (window.innerWidth || document.documentElement.clientWidth)) return false;
+	if (rect.right < 0) return false;
+	return true;
 }
 
 // register a global key listener for hotkey events

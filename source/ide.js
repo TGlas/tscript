@@ -36,15 +36,15 @@ function relpos(element, x, y)
 }
 
 // manage documentation container or window
-module.documentationContainer = null;
+module.onDocumentationClick = null;
 module.documentationWindow = null;
 function showdoc(path)
 {
 	if (! path) path = "";
-	if (module.documentationContainer)
+	if (module.onDocumentationClick)
 	{
-		// show documentation page in a DOM container
-		doc.setpath(path);
+		// notify a surrounding application of a doc link click
+		module.onDocumentationClick(path);
 	}
 	else
 	{
