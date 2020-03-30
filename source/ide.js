@@ -1874,6 +1874,8 @@ module.create = function(container, options)
 			extraKeys: {
 					"Ctrl-D": "toggleComment",
 					"Cmd-D": "toggleComment",
+					"F3": "findNext",
+					"Shift-F3": "findPrev",
 					"Ctrl-Up": "scrollUp",
 					"Ctrl-Down": "scrollDown",
 					"Shift-Tab": "unindent",
