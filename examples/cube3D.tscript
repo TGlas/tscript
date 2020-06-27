@@ -107,5 +107,6 @@ function onMouseMove(event)
 	draw(width() / 2 - event.x / 100, event.y / 100 - height() / 2);
 }
 
+alert("Move the mouse over the canvas!");
 setEventHandler("canvas.mousemove", onMouseMove);
 enterEventMode();

@@ -779,6 +779,7 @@ button {
 	margin: 0;
 	padding: 0;
 	border: 0;
+	line-height: 1.3em;
 	box-sizing: border-box;
 }
 

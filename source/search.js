@@ -8,7 +8,7 @@
 //
 
 
-let searchengine = (function() {
+let createSearchEngine = function() {
 let module = {};
 
 
@@ -158,4 +158,6 @@ module.find = function(keys, n = 10)
 
 
 return module;
-})();
+};
+
+let searchengine = createSearchEngine();   // default instance

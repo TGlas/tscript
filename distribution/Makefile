@@ -20,6 +20,7 @@ JSFILES := ../source/codemirror.js \
 	../source/def-ide.js \
 	../source/def-language.js \
 	../source/def-stdlib.js \
+	../source/def-examples.js \
 	../source/def-errors.js \
 	../source/def-cheatsheet.js \
 	../source/def-legal.js \

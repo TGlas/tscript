@@ -81,7 +81,8 @@ if (doc) doc.children.push({
 		prepare the programmer for work with other languages designed
 		for more serious use. There are some exception to the above
 		rule, i.e., TScript does not come with a switch-case construct,
-		and it does not allow for operator overloading.
+		it does not have a ternary operator, and it does not allow for
+		operator overloading.
 	</li>
 	</ul>
 	</p>
@@ -205,8 +206,21 @@ if (doc) doc.children.push({
 		<a href="#/language/declarations/namespaces">namespaces</a> and
 		corresponding <a href="#/language/directives/use">use directives</a>,
 		as well as <a href="#/language/statements/throw">exceptions</a>.
-		For a more complete and more formal overview of the language we
+		For a more complete and more formal overview of the language please
 		refer to the <a href="#/language">reference documentation</a>.
+		</p>
+		<p>
+		An important aspect of TScript as a teaching language is the closed
+		and rather limited universe it lives in. The language is not designed
+		as a general purpose tool, capable of interacting with arbitrary
+		operating systems and libraries. Instead, its scope is limited to a
+		very specific and highly standardized working environment. It comes
+		with easily accessible <a href="#/library/turtle">turtle graphics</a>
+		and <a href="#/library/canvas">canvas graphics</a> modules. While the
+		former is ideal for visual demonstrations of programming concepts
+		like loops and recursion, the latter allows for the creating of all
+		kinds of (classic) games. Check the <a href="#/examples">examples</a>
+		for demonstrations.
 		</p>
 	`,
 	"children": []},

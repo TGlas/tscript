@@ -26,9 +26,10 @@ Being a reference documentation, this collection of documents is not
 designed for being read front to end, but rather as a resource for
 looking up information. For programmers experienced with other
 programming languages, the section
-<a href="#/concepts">core concepts</a> is a good starting point, and the
+<a href="#/concepts">core concepts</a> is a good starting point, the
 <a href="#/cheatsheet">cheat sheet</a> provides the most
-important bits in compact form.
+important bits in compact form, and for the impatient there are a few
+<a href="#/examples">examples</a>.
 </p>
 `
 };
@@ -412,6 +413,15 @@ function prepare(content)
 			let code = content.substr(start, end - start);
 			start = end + 10;
 			checkCode(code);
+			ret += processCode(code, "code", get_token_code);
+		}
+		else if (search.substr(start, 20) == "<tscript do-not-run>")
+		{
+			start += 20;
+			let end = search.indexOf("</tscript>", start);
+			if (end < 0) throw "[doc] <tscript> tag not closed";
+			let code = content.substr(start, end - start);
+			start = end + 10;
 			ret += processCode(code, "code", get_token_code);
 		}
 		else if (search.substr(start, 9) == "<keyword>")
