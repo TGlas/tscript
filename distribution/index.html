@@ -394,9 +394,9 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 30,
-			day: 27,
-			month: 6,
+			patch: 31,
+			day: 22,
+			month: 7,
 			year: 2020,
 			full: function()
 					{
@@ -6910,6 +6910,7 @@ module.Interpreter = function(program)
 	this.service = { };       // external services, mostly for communication with the IDE
 	this.eventnames = { };    // registry of event types
 	this.eventmode = false;   // is the program in event handling mode?
+	this.hook = null;         // function to be called before each step with the interpreter as this argument
 
 	this.service.turtle = {
 		"x": 0.0,
@@ -7354,6 +7355,18 @@ module.Interpreter = function(program)
 			this.status = "finished";
 			if (this.service.statechanged) this.service.statechanged(true);
 			return;
+		}
+
+		if (this.hook)
+		{
+			try
+			{
+				this.hook.call(this);
+			}
+			catch (ex)
+			{
+				console.log("[Interpreter] ignoring exception thrown by the hook");
+			}
 		}
 
 		try
