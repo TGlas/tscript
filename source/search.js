@@ -33,13 +33,13 @@ module.dictionary = {};
 // Tokenize an input string into words, discard white space and rubbish.
 module.tokenize = function(s)
 {
-	let words = s.toLowerCase().match(/\b\w+/g);
+	let words = s.toLowerCase().match(/[a-z0-9äöüß-]+\w+/g);
 	let ret = [];
 	for (let i=0; i<words.length; i++)
 	{
 		let w = words[i];
 		if (w.length < module.config.minwordlength) continue;
-		if (/[a-z]/.test(w)) ret.push(w);
+		ret.push(w);
 	}
 	return ret;
 }
