@@ -113,7 +113,7 @@ module.add = function(id, content)
 // result objects with fields id, score, and matches.
 module.find = function(keys, n = 10)
 {
-	if (typeof keys == "string") keys = module.tokenize(key);
+	if (typeof keys == "string") keys = module.tokenize(keys);
 	if (keys.length == 0) return [];
 
 	// compute a document score based on fuzzy matches of keywords
