@@ -891,7 +891,7 @@ let cmd_export = function()
 
 	tgui.startModal(dlg);
 
-	let source = ide.sourcecode.getValue().replace(/\n/g, "\\n").replace(/'/g, "\\'");
+	let source = ide.sourcecode.getValue().replace(/\\n/g, "\\\\n").replace(/\n/g, "\\n").replace(/'/g, "\\'");
 
 	{
 		var xhr = new XMLHttpRequest();
@@ -915,7 +915,7 @@ let cmd_export = function()
 				let s2 = page.substr(title2, pos - title2);
 				let s3 = page.substr(pos);
 
-				let s_init = "ide.sourcecode.setValue('" + source + "');\nide.prepare_run();\nide.interpreter.run();\n";
+				let s_init = "ide.sourcecode.setValue('" + source + "');\nide.prepare_run();\nif (ide.interpreter) ide.interpreter.run(); else { cv.innerHTML = ''; cv.appendChild(ide.messagecontainer); };\n";
 				let turtle = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nide.turtle.parentNode.removeChild(ide.turtle);\ndocument.body.appendChild(ide.turtle);\nide.turtle.style.width="100vh";\nide.turtle.style.height="100vh";\n' + s_init + '}, false);\n';
 				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\ncv.style.top="0px";\nlet init = function() {\nif (cv.offsetWidth == 0 || cv.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
 
