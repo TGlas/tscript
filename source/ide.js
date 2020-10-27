@@ -1530,9 +1530,10 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 		});
 	let list = tgui.createElement({
 			"parent": dlg,
-			"type": "select",
+			"type": files.length > 0 ? "select" : "text",
 			"properties": {"size": Math.max(2, files.length)},
 			"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "calc(70vh - 80px)", "top": "30px", "background": "#fff", "overflow": "scroll"},
+			"text": files.length > 0 ? "" : "No documents saved.",
 		});
 	let buttons = tgui.createElement({
 			"parent": dlg,
@@ -1547,6 +1548,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 				"type": "input",
 				"style": {"width": "calc(46vw - 240px)", "height": "20px", "background": "#fff"},
 				"text": filename,
+				"properties": {type:"text", placeholder:"Filename"}
 			});
 	}
 	let okay = tgui.createElement({
