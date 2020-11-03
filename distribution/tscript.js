@@ -388,9 +388,9 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 33,
-			day: 15,
-			month: 9,
+			patch: 34,
+			day: 3,
+			month: 11,
 			year: 2020,
 			full: function()
 					{
@@ -2819,7 +2819,7 @@ const binary_operator_impl = {
 				},
 		'*': function(lhs, rhs)
 				{
-					if (module.isDerivedFrom(lhs.type, module.typeid_integer) && module.isDerivedFrom(rhs.type, module.typeid_integer)) return {"type": this.program.types[module.typeid_integer], "value": {"b": (lhs.value.b * rhs.value.b) | 0} };
+					if (module.isDerivedFrom(lhs.type, module.typeid_integer) && module.isDerivedFrom(rhs.type, module.typeid_integer)) return {"type": this.program.types[module.typeid_integer], "value": {"b": module.mul32(lhs.value.b, rhs.value.b)} };
 					else if (module.isNumeric(lhs.type) && module.isNumeric(rhs.type)) return {"type": this.program.types[module.typeid_real], "value": {"b": lhs.value.b * rhs.value.b} };
 					else this.error("/argument-mismatch/am-7", [module.displayname(lhs.type), module.displayname(rhs.type)]);
 				},
