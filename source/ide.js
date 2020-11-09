@@ -1821,7 +1821,7 @@ module.create = function(container, options)
 						ctx.fillStyle = "#ffe";
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.rect(5.5, 6.5, 14, 9);
+						ctx.rect(5.5, 6.5, 12, 9);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
@@ -1829,7 +1829,7 @@ module.create = function(container, options)
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(8.5, 2.5, 9, 5);
+						ctx.rect(8.5, 2.5, 7, 5);
 						ctx.fill();
 						ctx.stroke();
 					},
