@@ -388,8 +388,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 34,
-			day: 3,
+			patch: 35,
+			day: 9,
 			month: 11,
 			year: 2020,
 			full: function()
@@ -19662,6 +19662,59 @@ module.create = function(container, options)
 	module.programstate.stepping = function() { this.setText("program is in stepping mode").setBackground("#8ee"); }
 	module.programstate.finished = function() { this.setText("program has finished").setBackground("#88e"); }
 	module.programstate.unchecked();
+
+	tgui.createElement({
+				"type": "div",
+				"parent": module.toolbar,
+				"classname": "tgui tgui-control",
+				"style": {
+						"float": "left",
+						"width": "1px",
+						"height": "22px",
+						"background": "#666",
+						"margin": "3px 10px 3px 10px"
+					},
+				});
+
+	tgui.createButton({
+			"click": function ()
+					{
+						for (let i=0; i<tgui.panels.length; i++)
+						{
+							let p = tgui.panels[i];
+							if (p.title == "editor" || p.title == "messages")
+								p.dock("left");
+							else
+								p.dock("right");
+						}
+						savePanelData();
+						return false;
+					},
+			"width": 20,
+			"height": 20,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.lineWidth = 1;
+						ctx.fillStyle = "#ffe";
+						ctx.strokeStyle = "#000";
+						ctx.beginPath();
+						ctx.rect(5.5, 6.5, 14, 9);
+						ctx.fill();
+						ctx.stroke();
+						ctx.beginPath();
+						ctx.rect(2.5, 5.5, 10, 6);
+						ctx.fill();
+						ctx.stroke();
+						ctx.beginPath();
+						ctx.rect(8.5, 2.5, 9, 5);
+						ctx.fill();
+						ctx.stroke();
+					},
+			"parent": module.toolbar,
+			"style": {"float": "left"},
+			"tooltip": "restore panels",
+		});
 
 	tgui.createElement({
 				"type": "div",

@@ -1798,6 +1798,59 @@ module.create = function(container, options)
 					},
 				});
 
+	tgui.createButton({
+			"click": function ()
+					{
+						for (let i=0; i<tgui.panels.length; i++)
+						{
+							let p = tgui.panels[i];
+							if (p.title == "editor" || p.title == "messages")
+								p.dock("left");
+							else
+								p.dock("right");
+						}
+						savePanelData();
+						return false;
+					},
+			"width": 20,
+			"height": 20,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.lineWidth = 1;
+						ctx.fillStyle = "#ffe";
+						ctx.strokeStyle = "#000";
+						ctx.beginPath();
+						ctx.rect(5.5, 6.5, 14, 9);
+						ctx.fill();
+						ctx.stroke();
+						ctx.beginPath();
+						ctx.rect(2.5, 5.5, 10, 6);
+						ctx.fill();
+						ctx.stroke();
+						ctx.beginPath();
+						ctx.rect(8.5, 2.5, 9, 5);
+						ctx.fill();
+						ctx.stroke();
+					},
+			"parent": module.toolbar,
+			"style": {"float": "left"},
+			"tooltip": "restore panels",
+		});
+
+	tgui.createElement({
+				"type": "div",
+				"parent": module.toolbar,
+				"classname": "tgui tgui-control",
+				"style": {
+						"float": "left",
+						"width": "1px",
+						"height": "22px",
+						"background": "#666",
+						"margin": "3px 10px 3px 10px"
+					},
+				});
+
 	module.iconlist = tgui.createElement({
 			"type": "div",
 			"parent": module.toolbar,
