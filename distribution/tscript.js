@@ -19422,12 +19422,13 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	if (allowNewFilename)
 	{
 		name = tgui.createElement({
-				"parent": buttons,
+				"parent": dlg,
 				"type": "input",
-				"style": {"width": "calc(46vw - 240px)", "height": "20px", "background": "#fff"},
+				"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "25px", "bottom": "40px"},
 				"text": filename,
 				"properties": {type:"text", placeholder:"Filename"}
 			});
+		list.style.height = "calc(70vh - 110px)";
 	}
 	let okay = tgui.createElement({
 			"parent": buttons,
@@ -19440,6 +19441,13 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"type": "button",
 			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
 			"text": "Cancel",
+		});
+	let deleteBtn = tgui.createElement({
+			"parent": buttons,
+			"type": "button",
+			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"text": "Delete file",
+			"click": () => deleteFile(name.value),
 		});
 
 	// populate options
@@ -19460,17 +19468,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 				{
 					event.preventDefault();
 					event.stopPropagation();
-					let fn = name.value;
-					let index = files.indexOf(fn);
-					if (index >= 0)
-					{
-						if (confirm("Delete file \"" + fn + "\"\nAre you sure?"))
-						{
-							delete localStorage.removeItem("tscript.code." + fn);
-							files.splice(index, 1);
-							list.remove(index);
-						}
-					}
+					deleteFile(name.value);
 					return false;
 				}
 			});
@@ -19526,6 +19524,20 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	tgui.startModal(dlg);
 	(allowNewFilename ? name : list).focus();
 	return dlg;
+
+	function deleteFile(filename)
+	{
+		let index = files.indexOf(filename);
+		if (index >= 0)
+		{
+			if (confirm("Delete file \"" + filename + "\"\nAre you sure?"))
+			{
+				localStorage.removeItem("tscript.code." + filename);
+				files.splice(index, 1);
+				list.remove(index);
+			}
+		}
+	}
 }
 
 module.create = function(container, options)
