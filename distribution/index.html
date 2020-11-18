@@ -394,8 +394,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 35,
-			day: 9,
+			patch: 36,
+			day: 18,
 			month: 11,
 			year: 2020,
 			full: function()
@@ -1057,7 +1057,7 @@ let errors = {
 		"se-68": "syntax error in use directive; comma ',' or semicolon ';' expected",
 		"se-69": "syntax error in conditional statement: 'then' expected",
 		"se-70": "syntax error in for-loop: identifier expected as the loop variable",
-		"se-71": "syntax error in for-loop: keyword 'in' expected",
+		"se-71": "syntax error in for-loop: 'in' expected",
 		"se-72": "syntax error in for-loop: keyword 'do' expected",
 		"se-73": "syntax error in for-loop; 'in' or 'do' expected",
 		"se-74": "syntax error in do-while-loop: 'while' expected",
@@ -3194,7 +3194,7 @@ function callstep()
 					{
 						if (c.variables[i].hasOwnProperty("initializer"))
 						{
-							f_obj.value.a[c.variables[i].id] = c.variables[i].initializer.typedvalue;
+							f_obj.value.a[c.variables[i].id] = copyconstant.call(this, c.variables[i].initializer.typedvalue);
 						}
 					}
 					c = c.superclass;
