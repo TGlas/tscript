@@ -1572,6 +1572,13 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => deleteFile(name.value),
 		});
 
+	let exportBtn = tgui.createElement({
+			"parent": buttons,
+			"type": "button",
+			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"text": "Export",
+			"click": () => exportFile(name.value)
+		});
 	// populate options
 	for (let i=0; i<files.length; i++)
 	{
@@ -1659,6 +1666,24 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 				list.remove(index);
 			}
 		}
+	}
+
+	function download(filename, text) {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		element.setAttribute('download', filename);
+	  
+		element.style.display = 'none';
+		document.body.appendChild(element);
+	  
+		element.click();
+	  
+		document.body.removeChild(element);
+	}
+
+	function exportFile(filename){
+		let data = localStorage.getItem("tscript.code." + filename);
+		download(filename + ".tscript", data);
 	}
 }
 
