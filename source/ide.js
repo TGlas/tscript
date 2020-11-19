@@ -1579,6 +1579,14 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"text": "Export",
 			"click": () => exportFile(name.value)
 		});
+	
+	let importBtn = tgui.createElement({
+			"parent": buttons,
+			"type": "button",
+			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"text": "Import",
+			"click": () => importFile()
+		});
 	// populate options
 	for (let i=0; i<files.length; i++)
 	{
@@ -1684,6 +1692,10 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	function exportFile(filename){
 		let data = localStorage.getItem("tscript.code." + filename);
 		download(filename + ".tscript", data);
+	}
+
+	function importFile(){
+		//TODO: Implement File Import
 	}
 }
 
