@@ -19306,14 +19306,13 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	}
 
 	function importFile(){
-		// <input id="file-import" type="file" style="display: none;" accept=".tscript">
 		let fileImport = document.getElementById('file-import');
 		fileImport.addEventListener('change', async (event) => {
 			if(event.target.files){
 				var file = event.target.files[0];
 				var filename = file.name.split('.tscript')[0];
 				var data = await file.text();
-				localStorage.setItem("tscript.code."+filename, data);
+				localStorage.setItem("tscript.code." + filename, data);
 				files.push(filename);
 				var option = document.createElement('option');
 				option.text = filename;
