@@ -1696,24 +1696,21 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 
 	function importFile(){
 		// <input id="file-import" type="file" style="display: none;" accept=".tscript">
-		let fileImport = document.createElement("input", {
-			"id": "file-import",
-			"type": "file",
-			"style": "display: none;",
-			"accept": ".tscript"
-		});
-		console.log(fileImport);
+		let fileImport = document.getElementById('file-import');
 		fileImport.addEventListener('change', async (event) => {
 			if(event.target.files){
 				var file = event.target.files[0];
 				var filename = file.name.split('.tscript')[0];
 				var data = await file.text();
-				localStorage.addItem("tscrip.code."+filename, data);
-				files.append(filename);
+				localStorage.setItem("tscript.code."+filename, data);
+				files.push(filename);
+				var option = document.createElement('option');
+				option.text = filename;
+				list.add(option);
 			}
 		});
 
-		fileImport.click()
+		fileImport.click();
 	}
 }
 
