@@ -19456,6 +19456,21 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => deleteFile(name.value),
 		});
 
+	let exportBtn = tgui.createElement({
+			"parent": buttons,
+			"type": "button",
+			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"text": "Export",
+			"click": () => exportFile(name.value)
+		});
+	
+	let importBtn = tgui.createElement({
+			"parent": buttons,
+			"type": "button",
+			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"text": "Import",
+			"click": () => importFile()
+		});
 	// populate options
 	for (let i=0; i<files.length; i++)
 	{
@@ -19543,6 +19558,46 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 				list.remove(index);
 			}
 		}
+	}
+
+	function download(filename, text) {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		element.setAttribute('download', filename);
+	  
+		element.style.display = 'none';
+		document.body.appendChild(element);
+	  
+		element.click();
+	  
+		document.body.removeChild(element);
+	}
+
+	function exportFile(filename){
+		let data = localStorage.getItem("tscript.code." + filename);
+		download(filename + ".tscript", data);
+	}
+
+	function importFile(){
+		let fileImport = document.createElement('input');
+		fileImport.type = "file";
+		fileImport.style.display = "none";
+		fileImport.accept = ".tscript";
+
+		fileImport.addEventListener('change', async (event) => {
+			if(event.target.files){
+				var file = event.target.files[0];
+				var filename = file.name.split('.tscript')[0];
+				var data = await file.text();
+				localStorage.setItem("tscript.code." + filename, data);
+				files.push(filename);
+				var option = document.createElement('option');
+				option.text = filename;
+				tgui.stopModal();
+			}
+		});
+
+		fileImport.click();
 	}
 }
 
