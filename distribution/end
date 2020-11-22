@@ -1,7 +1,6 @@
 </style>
 </head>
 <body>
-<input id="file-import" type="file" style="display: none;" accept=".tscript">
 <div id="ide-container" style="position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;"></div>
 </body>
 </html>

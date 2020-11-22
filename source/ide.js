@@ -1695,7 +1695,11 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	}
 
 	function importFile(){
-		let fileImport = document.getElementById('file-import');
+		let fileImport = document.createElement('input');
+		fileImport.type = "file";
+		fileImport.style.display = "none";
+		fileImport.accept = ".tscript";
+
 		fileImport.addEventListener('change', async (event) => {
 			if(event.target.files){
 				var file = event.target.files[0];
@@ -1705,7 +1709,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 				files.push(filename);
 				var option = document.createElement('option');
 				option.text = filename;
-				list.add(option);
+				tgui.stopModal();
 			}
 		});
 
