@@ -143,6 +143,7 @@ function stackinfo(value, node_id)
 			}
 			for (let i=0; i<value.frame.variables.length; i++)
 			{
+				if (! value.frame.variables[i]) continue;
 				ret.children.push({
 						"nodetype": "typedvalue",
 						"index": TScript.displayname(func.variables[i]),
@@ -164,6 +165,7 @@ function stackinfo(value, node_id)
 		{
 			ret.opened = false;
 			ret.element = document.createElement("span");
+
 			let s = ret.opened ? value.typedvalue.type.name : TScript.previewValue(value.typedvalue);
 			if (value.typedvalue.type.id == TScript.typeid_array)
 			{

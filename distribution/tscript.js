@@ -388,8 +388,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 36,
-			day: 18,
+			patch: 37,
+			day: 25,
 			month: 11,
 			year: 2020,
 			full: function()
@@ -18021,6 +18021,7 @@ function stackinfo(value, node_id)
 			}
 			for (let i=0; i<value.frame.variables.length; i++)
 			{
+				if (! value.frame.variables[i]) continue;
 				ret.children.push({
 						"nodetype": "typedvalue",
 						"index": TScript.displayname(func.variables[i]),
@@ -18042,6 +18043,7 @@ function stackinfo(value, node_id)
 		{
 			ret.opened = false;
 			ret.element = document.createElement("span");
+
 			let s = ret.opened ? value.typedvalue.type.name : TScript.previewValue(value.typedvalue);
 			if (value.typedvalue.type.id == TScript.typeid_array)
 			{
