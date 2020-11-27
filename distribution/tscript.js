@@ -388,7 +388,7 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 38,
+			patch: 39,
 			day: 27,
 			month: 11,
 			year: 2020,
@@ -4713,6 +4713,13 @@ function parse_lhs(state, parent)
 						{
 							// binary operator corresponding to compound assignment
 							let binop = op.substring(0, op.length - 1);
+
+							// in this specific case the key must exist
+							if (module.isDerivedFrom(container.type, module.typeid_dictionary))
+							{
+								if (! container.value.b.hasOwnProperty(key)) this.error("/argument-mismatch/am-27", [index.value.b]);
+							}
+
 							rhs = binary_operator_impl[binop].call(this, container.value.b[key], rhs);
 						}
 
