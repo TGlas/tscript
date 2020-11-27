@@ -394,8 +394,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 37,
-			day: 25,
+			patch: 38,
+			day: 27,
 			month: 11,
 			year: 2020,
 			full: function()
@@ -3554,7 +3554,7 @@ function parse_name(state, parent, errorname, allow_namespace)
 
 		// check for an enclosing non-static method
 		let fn = get_function(parent);
-		if (fn.petype != "method") state.error("/syntax/se-13", [errorname, lookup.petype, name]);
+		if (fn && fn.petype != "method") state.error("/syntax/se-13", [errorname, lookup.petype, name]);
 	}
 
 	return { "name": name, "pe": pe, "lookup": lookup };
