@@ -20302,6 +20302,7 @@ if (String(document.title).startsWith("TScript IDE")) { event.preventDefault(); 
 window.addEventListener("load", function(event)
 {
 	let container = document.getElementById("ide-container");
+	container.innerHTML = "";
 	if (window.location.search == "?doc") doc.create(container);
 	else ide.create(container);
 }, false);
