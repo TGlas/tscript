@@ -837,12 +837,7 @@ let cmd_export = function()
 			"type": "div",
 			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
 		});
-	let titlebar = tgui.createElement({
-			"parent": dlg,
-			"type": "div",
-			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "22px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
-			"text": "export",
-		});
+	let titlebar = createTitleBar(dlg, "export");
 	let status = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -869,6 +864,7 @@ let cmd_export = function()
 			"type": "button",
 			"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
 			"text": "Close",
+			"classname": "tgui-dialog-button"
 		});
 	close.addEventListener("click", function(event)
 			{
@@ -1385,18 +1381,83 @@ function saveConfig()
 	localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 }
 
-function configDlg()
+function handleDialogCloseWith(onClose)
 {
-	let dlg = tgui.createElement({
-			"type": "div",
-			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
-		});
+	return function(event)
+	{
+		if(onClose!=null) onClose();
+		tgui.stopModal();
+		if(event)
+		{
+			event.preventDefault();
+			event.stopPropagation();
+		}
+		return false;
+	}
+}
+
+function createTitleBar(dlg, title, onClose)
+{
 	let titlebar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "25px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
-			"text": "configuration",
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 2px 2px 10px"},
+			"text": title,
 		});
+		
+	let close = tgui.createButton({
+			"click": function ()
+					{
+						return handleDialogCloseWith(onClose)(null);
+					},
+			"width": 20,
+			"height": 20,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.lineWidth = 2.5;
+						ctx.strokeStyle = "#000";
+						ctx.beginPath();
+						ctx.moveTo( 3,  3);
+						ctx.lineTo(15, 15);
+						ctx.stroke();
+						ctx.beginPath();
+						ctx.moveTo( 3, 15);
+						ctx.lineTo(15,  3);
+						ctx.stroke();
+					},
+			"parent": titlebar,
+			"classname": "tgui-panel-dockbutton",
+			"tooltip-right": "close",
+		});
+		
+	return titlebar;
+}
+
+function createDialog(title, size, onClose)
+{
+	let dlg = tgui.createElement({
+			"type": "div",
+			// file   "position": "fixed", "width": "50vw", "left": "25vw", "height": "70vh", "top": "15vh", "background": "#eee", "overflow": "hidden"
+			// conf  {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
+			"style": {"position": "center", "width": size["width"], "left": "calc((100vw - "+size["width"]+")/2)", "height": size["height"], "top": "calc((100vh - "+size["height"]+")/2)", "background": "#eee", "overflow": "hidden"},
+		});
+	let titlebar = createTitleBar(dlg, title, onClose);
+	
+	dlg.onKeyDown = function(event)
+		{
+			if (event.key == "Escape")
+			{
+				return handleDialogCloseWith(onClose)(event);
+			}
+		};
+	
+	return dlg;
+}
+
+function configDlg()
+{
+	let dlg = createDialog("configuration", {"width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh"}, saveConfig);
 	let content = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -1486,32 +1547,15 @@ function configDlg()
 			"text": "Close",
 			"classname": "tgui-dialog-button"
 		});
-	close.addEventListener("click", function(event)
-			{
-				saveConfig();
-				tgui.stopModal();
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			});
-
-	dlg.onKeyDown = function(event)
-			{
-				if (event.key == "Escape")
-				{
-					saveConfig();
-					tgui.stopModal();
-					event.preventDefault();
-					event.stopPropagation();
-					return false;
-				}
-			};
+	close.addEventListener("click", handleDialogCloseWith(saveConfig));
 
 	tgui.startModal(dlg);
 }
 
 function fileDlg(title, filename, allowNewFilename, onOkay)
 {
+	// 10px horizontal spacing
+	//  7px vertical spacing
 	// populate array of existing files
 	let files = [];
 	for (let key in localStorage)
@@ -1521,22 +1565,13 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	files.sort();
 
 	// create controls
-	let dlg = tgui.createElement({
-			"type": "div",
-			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "70vh", "top": "15vh", "background": "#eee", "overflow": "hidden"},
-		});
-	let titlebar = tgui.createElement({
-			"parent": dlg,
-			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
-			"text": title,
-		});
+	let dlg = createDialog(title, {"width": "50vw", "left": "25vw", "height": "70vh", "top": "15vh"});
 	let toolbar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "30px"},
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "32px"},
 		});
-		
+	// Toolbar contents
 	let deleteBtn = tgui.createElement({
 			"parent": toolbar,
 			"type": "button",
@@ -1563,25 +1598,26 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => importFile(),
 			"classname": "tgui-dialog-button"
 		});
-	let statusBar = tgui.createElement({
+	let status = tgui.createElement({
 			"parent": toolbar,
 			"type": "label",
 			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
 			"text": (files.length > 0 ? files.length : "No") + " document"+(files.length == 1?"":"s"),
 			"classname": "tgui-status-box"
 		});
+	// end Toolbar contents
 	
 	let list = tgui.createElement({
 			"parent": dlg,
 			"type": files.length > 0 ? "select" : "text",
 			"properties": {"size": Math.max(2, files.length)},
-			"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "calc(100% - 25px - 50px - 25px)", "top": "60px", "background": "#fff", "overflow": "scroll"},
+			"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "calc(100% - 25px - 4*7px - 2*25px)", "top": "calc(25px + 2*7px + 1*25px)", "background": "#fff", "overflow": "scroll"},
 			//"text": files.length > 0 ? "" : "No documents saved.",
 		});
 	let buttons = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "bottom": "10px", "display": "flex", "justify-content": "flex-end"},
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "bottom": "7px", "display": "flex", "justify-content": "flex-end"},
 		});
 	let name = {value: filename};
 	if (allowNewFilename)
@@ -1648,13 +1684,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			};
 	list.addEventListener("dblclick", handleFileConfirmation);
 	okay.addEventListener("click", handleFileConfirmation);
-	cancel.addEventListener("click", function(event)
-			{
-				tgui.stopModal();
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			});
+	cancel.addEventListener("click", handleDialogCloseWith(null));
 
 	dlg.onKeyDown = function(event)
 			{
@@ -1920,7 +1950,7 @@ module.create = function(container, options)
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(8.5, 2.5, 7, 5);
+						ctx.rect(7.5, 2.5, 7, 5);
 						ctx.fill();
 						ctx.stroke();
 					},

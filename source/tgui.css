@@ -120,10 +120,10 @@
 .tgui-dialog-button
 {
 	cursor: pointer;
-
+	
 	background: #eee;
-
 	border-width: 1px;
+	box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
 }
 .tgui-dialog-button:focus
 {
@@ -135,12 +135,14 @@
 {
 	background: #fff;
 	border-width: 2px;
+	box-shadow: 0px 0px 0px rgba(0,0,0,0.2);
 }
 
 .tgui-dialog-button:active
 {
 	background: #bbb;
 	border-width: 2px;
+	box-shadow: inset 0px 0px 3px rgba(0,0,0,0.4);
 }
 
 .tgui-status-box
