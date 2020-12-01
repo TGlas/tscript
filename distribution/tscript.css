@@ -473,6 +473,12 @@ span.CodeMirror-selectedtext { background: none; }
 	background: #bbb;
 }
 
+.tgui-button-text:active
+{
+	background: #bbb;
+	border-color: #222 #777 #777 #222;
+}
+
 .tgui-button-canvas
 {
 	cursor: pointer;
@@ -488,6 +494,54 @@ span.CodeMirror-selectedtext { background: none; }
 {
 	background: #bbb;
 }
+
+.tgui-button-canvas:active
+{
+	background: #bbb;
+	border-color: #222 #777 #777 #222;
+}
+
+
+
+.tgui-dialog-button
+{
+	cursor: pointer;
+
+	background: #eee;
+
+	border-width: 1px;
+}
+.tgui-dialog-button:focus
+{
+	background: #eee;
+	border-width: 2px;
+}
+
+.tgui-dialog-button:hover
+{
+	background: #fff;
+	border-width: 2px;
+}
+
+.tgui-dialog-button:active
+{
+	background: #bbb;
+	border-width: 2px;
+}
+
+.tgui-status-box
+{
+	background: #eee;
+	
+	font-size: 10pt;
+	
+	/*border-width: 1px;
+	border-style: solid;
+	border-color: #555 #fff #fff #555;*/
+	
+	padding: 4px
+}
+
 
 .tgui-tree
 {

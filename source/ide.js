@@ -1394,7 +1394,7 @@ function configDlg()
 	let titlebar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "22px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
+			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "25px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
 			"text": "configuration",
 		});
 	let content = tgui.createElement({
@@ -1484,6 +1484,7 @@ function configDlg()
 			"type": "button",
 			"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
 			"text": "Close",
+			"classname": "tgui-dialog-button"
 		});
 	close.addEventListener("click", function(event)
 			{
@@ -1527,20 +1528,60 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	let titlebar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "20px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
 			"text": title,
 		});
+	let toolbar = tgui.createElement({
+			"parent": dlg,
+			"type": "div",
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "30px"},
+		});
+		
+	let deleteBtn = tgui.createElement({
+			"parent": toolbar,
+			"type": "button",
+			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
+			"text": "Delete file",
+			"click": () => deleteFile(name.value),
+			"classname": "tgui-dialog-button"
+		});
+
+	let exportBtn = tgui.createElement({
+			"parent": toolbar,
+			"type": "button",
+			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
+			"text": "Export",
+			"click": () => exportFile(name.value),
+			"classname": "tgui-dialog-button"
+		});
+	
+	let importBtn = tgui.createElement({
+			"parent": toolbar,
+			"type": "button",
+			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
+			"text": "Import",
+			"click": () => importFile(),
+			"classname": "tgui-dialog-button"
+		});
+	let statusBar = tgui.createElement({
+			"parent": toolbar,
+			"type": "label",
+			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
+			"text": (files.length > 0 ? files.length : "No") + " document"+(files.length == 1?"":"s"),
+			"classname": "tgui-status-box"
+		});
+	
 	let list = tgui.createElement({
 			"parent": dlg,
 			"type": files.length > 0 ? "select" : "text",
 			"properties": {"size": Math.max(2, files.length)},
-			"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "calc(70vh - 80px)", "top": "30px", "background": "#fff", "overflow": "scroll"},
-			"text": files.length > 0 ? "" : "No documents saved.",
+			"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "calc(100% - 25px - 50px - 25px)", "top": "60px", "background": "#fff", "overflow": "scroll"},
+			//"text": files.length > 0 ? "" : "No documents saved.",
 		});
 	let buttons = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "25px", "bottom": "10px"},
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "bottom": "10px", "display": "flex", "justify-content": "flex-end"},
 		});
 	let name = {value: filename};
 	if (allowNewFilename)
@@ -1548,46 +1589,25 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 		name = tgui.createElement({
 				"parent": dlg,
 				"type": "input",
-				"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "25px", "bottom": "40px"},
+				"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "25px", "bottom": "40px"},
 				"text": filename,
 				"properties": {type:"text", placeholder:"Filename"}
 			});
-		list.style.height = "calc(70vh - 110px)";
+		list.style.height = "calc(100% - 25px - 50px - 25px - 30px)";
 	}
 	let okay = tgui.createElement({
 			"parent": buttons,
 			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
 			"text": "Okay",
+			"classname": "tgui-dialog-button"
 		});
 	let cancel = tgui.createElement({
 			"parent": buttons,
 			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
 			"text": "Cancel",
-		});
-	let deleteBtn = tgui.createElement({
-			"parent": buttons,
-			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
-			"text": "Delete file",
-			"click": () => deleteFile(name.value),
-		});
-
-	let exportBtn = tgui.createElement({
-			"parent": buttons,
-			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
-			"text": "Export",
-			"click": () => exportFile(name.value)
-		});
-	
-	let importBtn = tgui.createElement({
-			"parent": buttons,
-			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
-			"text": "Import",
-			"click": () => importFile()
+			"classname": "tgui-dialog-button"
 		});
 	// populate options
 	for (let i=0; i<files.length; i++)
@@ -1610,8 +1630,8 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 					deleteFile(name.value);
 					return false;
 				}
-			});
-	okay.addEventListener("click", function(event)
+			})
+	let handleFileConfirmation = function(event)
 			{
 				event.preventDefault();
 				event.stopPropagation();
@@ -1625,7 +1645,9 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 					}
 				}
 				return false;
-			});
+			};
+	list.addEventListener("dblclick", handleFileConfirmation);
+	okay.addEventListener("click", handleFileConfirmation);
 	cancel.addEventListener("click", function(event)
 			{
 				tgui.stopModal();
