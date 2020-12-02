@@ -8324,13 +8324,12 @@ module.createPanel = function(description)
 				"type": "div",
 				"parent": panel,
 				"classname": "tgui tgui-panel-titlebar",
-				"text": control.title,
 		});
-	/*control.titlebar = tgui.createElement({
+	control.titlebar = tgui.createElement({
 				"type": "span",
 				"parent": control.titlebar_container,
 				"text": control.title,
-		});*/
+		});
 
 	control.button_icon = tgui.createButton({
 				"click": function (event) { control.dock("icon"); return false; },
@@ -8472,7 +8471,7 @@ module.createPanel = function(description)
 				"draw": control.icondraw,
 				"tooltip": control.title,
 				"style": {
-						"margin": 0,
+						"margin": "0 0 0 1px", // 1 px as a separator between multiple icons
 						"padding": 0,
 						"width": "22px",
 						"height": "22px",
@@ -19503,6 +19502,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"parent": dlg,
 			"type": files.length > 0 ? "select" : "text",
 			"properties": {"size": Math.max(2, files.length)},
+			"classname": "tgui-list-box",
 			"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "calc(100% - 25px - 4*7px - 2*25px)", "top": "calc(25px + 2*7px + 1*25px)", "background": "#fff", "overflow": "scroll"},
 			//"text": files.length > 0 ? "" : "No documents saved.",
 		});
@@ -19518,10 +19518,11 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 				"parent": dlg,
 				"type": "input",
 				"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "25px", "bottom": "40px"},
+				"classname": "tgui-text-box",
 				"text": filename,
 				"properties": {type:"text", placeholder:"Filename"}
 			});
-		list.style.height = "calc(100% - 25px - 50px - 25px - 30px)";
+		list.style.height = "calc(100% - 25px - 5*7px - 3*25px)";
 	}
 	let okay = tgui.createElement({
 			"parent": buttons,
@@ -19719,16 +19720,8 @@ module.create = function(container, options)
 			tgui.createElement({
 						"type": "div",
 						"parent": module.toolbar,
-						"classname":
-						"tgui tgui-control",
-						"style": {
-							"float": "left",
-							"width": "1px",
-							"height": "22px",
-							"background": "#666",
-							"margin": "3px 10px 3px 10px"
-							}
-						});
+						"classname": "tgui tgui-control tgui-toolbar-separator"
+					});
 		}
 	}
 
@@ -19771,15 +19764,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	module.programstate = tgui.createLabel({
 				"parent": module.toolbar,
@@ -19801,15 +19787,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	tgui.createButton({
 			"click": function ()
@@ -19854,15 +19833,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	module.iconlist = tgui.createElement({
 			"type": "div",
@@ -19880,15 +19852,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	if (options["documentation-button"])
 	{
@@ -20804,16 +20769,31 @@ span.CodeMirror-selectedtext { background: none; }
 	display: block;
 }
 
+.tgui-toolbar-separator
+{
+	float: left;
+	width: 1px;
+	height: 22px;
+	background: #999;
+	margin: 3px 10px 3px 10px;
+	
+	box-shadow: 0px 1px 2px #ffffff80;
+}
+
 .tgui-label
 {
 	background: #ddd;
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
+	border-color: #999;
 
+	box-shadow: inset 0px  1px 2px #00000040,
+				inset 0px -1px 0px #ffffff50;
+	
 	text-align: center;
-	padding: 3px 10px 3px 10px;
+	padding: 2px 10px 2px 10px;
+	border-radius: 2px;
 }
 
 .tgui-button-text
@@ -20824,21 +20804,26 @@ span.CodeMirror-selectedtext { background: none; }
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
+	
+	border-color: #eee;
+	box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+	border-radius: 1.5px;
 
 	text-align: center;
-	padding: 3px 10px 3px 10px;
+	padding: 2px 10px 2px 10px;
 }
 
 .tgui-button-text:hover
 {
-	background: #bbb;
+	background: #eee;
+	border-color: #fff;
 }
 
 .tgui-button-text:active
 {
-	background: #bbb;
-	border-color: #222 #777 #777 #222;
+	background: #bbb;	
+	border-color: #888;
+	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.2);
 }
 
 .tgui-button-canvas
@@ -20849,36 +20834,21 @@ span.CodeMirror-selectedtext { background: none; }
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
 	
 	border-color: #eee;
-	box-shadow: 0px 1px 2px rgba(0.9,0.9,0.9,0.2);
-	border-radius: 1px;
-	
-	/*border-color: #ddd #bbb #bbb #ccc;
-	box-shadow: inset 0px  1px 0px #ffffff80,
-	            inset 0px -1px 0px rgba(0,0,0,0.1);*/
+	box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+	border-radius: 1.5px;
 }
 
 .tgui-button-canvas:hover
 {
-	background: #bbb;
-	
-	
-	/*border-color: #ddd;*/
-	/*box-shadow: 0px 0px 2px #fff;*/
-	/*background: #fff;*/
-	
 	background: #eee;
 	border-color: #fff;
 }
 
 .tgui-button-canvas:active
 {
-	background: #bbb;
-	/*border-color: #222 #777 #777 #222;*/
-	
-	
+	background: #bbb;	
 	border-color: #888;
 	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.2);
 }
@@ -20928,6 +20898,27 @@ span.CodeMirror-selectedtext { background: none; }
 	padding: 4px
 }
 
+
+.tgui-list-box
+{
+	box-shadow: 0px 0px 2px #00000030;
+	border-radius: 2px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ccc;
+	padding: 3px;
+}
+
+
+.tgui-text-box
+{
+	box-shadow: 0px 0px 2px #00000030;
+	border-radius: 2px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ccc;
+	padding: 0 0 0 3px;
+}
 
 .tgui-tree
 {
@@ -21127,7 +21118,8 @@ button {
 	height: 30px;
 	background: #ccc;
 	color: #000;
-	border-bottom: #888 solid 2px;
+	border-bottom: #888 solid 1px;
+	box-shadow: inset 0px -1px 0px #aaa;
 	box-sizing: border-box;
 }
 
