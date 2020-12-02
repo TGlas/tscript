@@ -20,7 +20,7 @@ function makeMarker()
 {
 	let marker = document.createElement("span");
 	marker.style.color = "#a00";
-	marker.innerHTML = "\u25CF";
+	marker.innerText = "\u25CF";
 	return marker;
 };
 
@@ -921,7 +921,7 @@ let cmd_export = function()
 				let turtle = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nide.turtle.parentNode.removeChild(ide.turtle);\ndocument.body.appendChild(ide.turtle);\nide.turtle.style.width="100vh";\nide.turtle.style.height="100vh";\n' + s_init + '}, false);\n';
 				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\ncv.style.top="0px";\nlet init = function() {\nif (cv.offsetWidth == 0 || cv.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
 
-				status.innerHTML = "status: ready for download";
+				status.innerText = "status: ready for download";
 				download_turtle.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + turtle + s3);
 				download_turtle.style.display = "block";
 				download_canvas.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + canvas + s3);
@@ -963,7 +963,7 @@ let cmd_new = function()
 
 	clear();
 
-	module.editor_title.innerHTML = "editor";
+	module.editor_title.innerText = "editor";
 	module.document.filename = "";
 	module.sourcecode.setValue("");
 	module.sourcecode.getDoc().clearHistory();
@@ -984,7 +984,7 @@ let cmd_load = function()
 			{
 				clear();
 
-				module.editor_title.innerHTML = "editor &mdash; " + filename;
+				module.editor_title.innerText = "editor &mdash; " + filename;
 				module.document.filename = filename;
 				module.sourcecode.setValue(localStorage.getItem("tscript.code." + filename));
 				module.sourcecode.getDoc().setCursor({line: 0, ch: 0}, );
@@ -1012,7 +1012,7 @@ let cmd_save_as = function()
 {
 	let dlg = fileDlg("save file as ...", module.document.filename, true, function(filename)
 			{
-				module.editor_title.innerHTML = "editor &mdash; " + filename;
+				module.editor_title.innerText = "editor &mdash; " + filename;
 				module.document.filename = filename;
 				cmd_save();
 				module.sourcecode.focus();
