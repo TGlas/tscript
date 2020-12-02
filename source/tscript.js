@@ -19,8 +19,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 40,
-			day: 1,
+			patch: 41,
+			day: 2,
 			month: 12,
 			year: 2020,
 			full: function()
@@ -567,7 +567,6 @@ module.previewValue = function (arg, depth)
 		let s = "<Function ";
 		if (arg.value.b.hasOwnProperty("object"))
 		{
-			console.log(arg);
 			module.assert(arg.value.b.func.parent.petype == "type", "[previewValue] invalid method object");
 			s += module.displayname(arg.value.b.func.parent) + ".";
 		}
@@ -3920,7 +3919,13 @@ function parse_expression(state, parent, lhs)
 											// static variable
 											frame.temporaries.push(this.stack[0].variables[m.id]);
 										}
+										else if (m.petype == "type")
+										{
+											// nested class
+											frame.temporaries.push({"type": this.program.types[module.typeid_type], "value": {"b": m}});
+										}
 										else module.assert(false, "[member access] internal error; unknown member type " + m.petype);
+
 										frame.pe.pop();
 										frame.ip.pop();
 										return true;
@@ -4455,6 +4460,11 @@ function parse_lhs(state, parent)
 							// static variable
 							container = this.stack[0].variables;
 							index = m.id;
+						}
+						else if (m.petype == "type")
+						{
+							// nested class
+							this.error("/argument-mismatch/am-32", ["a class"]);
 						}
 						else module.assert(false, "[member access] internal error; unknown member type " + m.petype);
 
@@ -5018,12 +5028,17 @@ function parse_class(state, parent)
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
 
-						// initialize static variables
-						if (ip < pe.staticvariables.length)
+						// initialize static variables and nested classes
+						let keys = Object.keys(pe.staticmembers);
+						if (ip < keys.length)
 						{
-							frame.pe.push(pe.staticvariables[ip]);
-							frame.ip.push(-1);
-							return false;
+							let sub = pe.staticmembers[keys[ip]];
+							if (sub.petype == "type" || sub.petype == "variable")
+							{
+								frame.pe.push(sub);
+								frame.ip.push(-1);
+								return false;
+							}
 						}
 						else
 						{
