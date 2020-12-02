@@ -394,9 +394,9 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 39,
-			day: 27,
-			month: 11,
+			patch: 40,
+			day: 1,
+			month: 12,
 			year: 2020,
 			full: function()
 					{
@@ -1783,6 +1783,7 @@ let core = {
 				if (! module.isDerivedFrom(condition.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["condition", "assert", "boolean", module.displayname(condition.type)]);
 				if (! module.isDerivedFrom(message.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["message", "assert", "string", module.displayname(message.type)]);
 				if (! condition.value.b) this.error("/user/ue-1", [message.value.b]);
+				return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 			},
 			"error": function(message) {
 				if (! module.isDerivedFrom(message.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["message", "error", "string", module.displayname(message.type)]);
@@ -20301,6 +20302,7 @@ if (String(document.title).startsWith("TScript IDE")) { event.preventDefault(); 
 window.addEventListener("load", function(event)
 {
 	let container = document.getElementById("ide-container");
+	container.innerHTML = "";
 	if (window.location.search == "?doc") doc.create(container);
 	else ide.create(container);
 }, false);
