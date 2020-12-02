@@ -8324,12 +8324,13 @@ module.createPanel = function(description)
 				"type": "div",
 				"parent": panel,
 				"classname": "tgui tgui-panel-titlebar",
+				"text": control.title,
 		});
-	control.titlebar = tgui.createElement({
+	/*control.titlebar = tgui.createElement({
 				"type": "span",
 				"parent": control.titlebar_container,
 				"text": control.title,
-		});
+		});*/
 
 	control.button_icon = tgui.createButton({
 				"click": function (event) { control.dock("icon"); return false; },
@@ -19292,7 +19293,7 @@ function createTitleBar(dlg, title, onClose)
 	let titlebar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 2px 2px 10px"},
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0", "background": "#008", "color": "#fff", "padding": "1px 2px 1px 10px"},
 			"text": title,
 		});
 		
@@ -19306,15 +19307,15 @@ function createTitleBar(dlg, title, onClose)
 			"draw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
-						ctx.lineWidth = 2.5;
+						ctx.lineWidth = 2;
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.moveTo( 3,  3);
-						ctx.lineTo(15, 15);
+						ctx.moveTo( 4,  4);
+						ctx.lineTo(14, 14);
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.moveTo( 3, 15);
-						ctx.lineTo(15,  3);
+						ctx.moveTo( 4, 14);
+						ctx.lineTo(14,  4);
 						ctx.stroke();
 					},
 			"parent": titlebar,
@@ -20849,17 +20850,37 @@ span.CodeMirror-selectedtext { background: none; }
 	border-width: 1px;
 	border-style: solid;
 	border-color: #fff #555 #555 #fff;
+	
+	border-color: #eee;
+	box-shadow: 0px 1px 2px rgba(0.9,0.9,0.9,0.2);
+	border-radius: 1px;
+	
+	/*border-color: #ddd #bbb #bbb #ccc;
+	box-shadow: inset 0px  1px 0px #ffffff80,
+	            inset 0px -1px 0px rgba(0,0,0,0.1);*/
 }
 
 .tgui-button-canvas:hover
 {
 	background: #bbb;
+	
+	
+	/*border-color: #ddd;*/
+	/*box-shadow: 0px 0px 2px #fff;*/
+	/*background: #fff;*/
+	
+	background: #eee;
+	border-color: #fff;
 }
 
 .tgui-button-canvas:active
 {
 	background: #bbb;
-	border-color: #222 #777 #777 #222;
+	/*border-color: #222 #777 #777 #222;*/
+	
+	
+	border-color: #888;
+	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.2);
 }
 
 
@@ -20871,6 +20892,8 @@ span.CodeMirror-selectedtext { background: none; }
 	background: #eee;
 	border-width: 1px;
 	box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
+	
+	border-radius: 2px;
 }
 .tgui-dialog-button:focus
 {
@@ -20882,7 +20905,7 @@ span.CodeMirror-selectedtext { background: none; }
 {
 	background: #fff;
 	border-width: 2px;
-	box-shadow: 0px 0px 0px rgba(0,0,0,0.2);
+	/*box-shadow: 0px 0px 0px rgba(0,0,0,0.2);*/
 }
 
 .tgui-dialog-button:active
@@ -20986,6 +21009,11 @@ span.CodeMirror-selectedtext { background: none; }
 	box-sizing: border-box;
 }
 
+/* TODO: use this class on only floating panels */
+.tgui-panel-float {
+	box-shadow: 0px 1px 8px rgba(0,0,0,0.2);
+}
+
 .tgui-panel-titlebar {
 	position: absolute;
 	width: 100%;
@@ -20996,7 +21024,8 @@ span.CodeMirror-selectedtext { background: none; }
 	top: 0;
 	background: #00c;
 	color: #fff;
-	font-family: sans;
+	font-family: sans-serif;
+	/*old style on browsers like firefox: font-family: serif; -- "sans" does not work and leads to "serif"*/
 	font-size: 12pt;
 
 	-webkit-touch-callout: none;
@@ -21009,11 +21038,10 @@ span.CodeMirror-selectedtext { background: none; }
 
 .tgui-panel-dockbutton {
 	float: right;
-	margin: 0;
 	padding: 0;
 	width: 20px;
 	height: 20px;
-	margin: 1px 0;
+	margin: 1px 0 1px 1px;
 }
 
 .tgui-panel-content {

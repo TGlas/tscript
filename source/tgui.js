@@ -728,12 +728,13 @@ module.createPanel = function(description)
 				"type": "div",
 				"parent": panel,
 				"classname": "tgui tgui-panel-titlebar",
+				"text": control.title,
 		});
-	control.titlebar = tgui.createElement({
+	/*control.titlebar = tgui.createElement({
 				"type": "span",
 				"parent": control.titlebar_container,
 				"text": control.title,
-		});
+		});*/
 
 	control.button_icon = tgui.createButton({
 				"click": function (event) { control.dock("icon"); return false; },

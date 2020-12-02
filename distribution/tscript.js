@@ -8318,12 +8318,13 @@ module.createPanel = function(description)
 				"type": "div",
 				"parent": panel,
 				"classname": "tgui tgui-panel-titlebar",
+				"text": control.title,
 		});
-	control.titlebar = tgui.createElement({
+	/*control.titlebar = tgui.createElement({
 				"type": "span",
 				"parent": control.titlebar_container,
 				"text": control.title,
-		});
+		});*/
 
 	control.button_icon = tgui.createButton({
 				"click": function (event) { control.dock("icon"); return false; },
@@ -19286,7 +19287,7 @@ function createTitleBar(dlg, title, onClose)
 	let titlebar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 2px 2px 10px"},
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0", "background": "#008", "color": "#fff", "padding": "1px 2px 1px 10px"},
 			"text": title,
 		});
 		
@@ -19300,15 +19301,15 @@ function createTitleBar(dlg, title, onClose)
 			"draw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
-						ctx.lineWidth = 2.5;
+						ctx.lineWidth = 2;
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.moveTo( 3,  3);
-						ctx.lineTo(15, 15);
+						ctx.moveTo( 4,  4);
+						ctx.lineTo(14, 14);
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.moveTo( 3, 15);
-						ctx.lineTo(15,  3);
+						ctx.moveTo( 4, 14);
+						ctx.lineTo(14,  4);
 						ctx.stroke();
 					},
 			"parent": titlebar,
