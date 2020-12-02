@@ -56,16 +56,31 @@
 	display: block;
 }
 
+.tgui-toolbar-separator
+{
+	float: left;
+	width: 1px;
+	height: 22px;
+	background: #999;
+	margin: 3px 10px 3px 10px;
+	
+	box-shadow: 0px 1px 2px #ffffff80;
+}
+
 .tgui-label
 {
 	background: #ddd;
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
+	border-color: #999;
 
+	box-shadow: inset 0px  1px 2px #00000040,
+				inset 0px -1px 0px #ffffff50;
+	
 	text-align: center;
-	padding: 3px 10px 3px 10px;
+	padding: 2px 10px 2px 10px;
+	border-radius: 2px;
 }
 
 .tgui-button-text
@@ -76,21 +91,26 @@
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
+	
+	border-color: #eee;
+	box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+	border-radius: 1.5px;
 
 	text-align: center;
-	padding: 3px 10px 3px 10px;
+	padding: 2px 10px 2px 10px;
 }
 
 .tgui-button-text:hover
 {
-	background: #bbb;
+	background: #eee;
+	border-color: #fff;
 }
 
 .tgui-button-text:active
 {
-	background: #bbb;
-	border-color: #222 #777 #777 #222;
+	background: #bbb;	
+	border-color: #888;
+	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.2);
 }
 
 .tgui-button-canvas
@@ -101,36 +121,21 @@
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
 	
 	border-color: #eee;
-	box-shadow: 0px 1px 2px rgba(0.9,0.9,0.9,0.2);
-	border-radius: 1px;
-	
-	/*border-color: #ddd #bbb #bbb #ccc;
-	box-shadow: inset 0px  1px 0px #ffffff80,
-	            inset 0px -1px 0px rgba(0,0,0,0.1);*/
+	box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+	border-radius: 1.5px;
 }
 
 .tgui-button-canvas:hover
 {
-	background: #bbb;
-	
-	
-	/*border-color: #ddd;*/
-	/*box-shadow: 0px 0px 2px #fff;*/
-	/*background: #fff;*/
-	
 	background: #eee;
 	border-color: #fff;
 }
 
 .tgui-button-canvas:active
 {
-	background: #bbb;
-	/*border-color: #222 #777 #777 #222;*/
-	
-	
+	background: #bbb;	
 	border-color: #888;
 	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.2);
 }
@@ -180,6 +185,27 @@
 	padding: 4px
 }
 
+
+.tgui-list-box
+{
+	box-shadow: 0px 0px 2px #00000030;
+	border-radius: 2px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ccc;
+	padding: 3px;
+}
+
+
+.tgui-text-box
+{
+	box-shadow: 0px 0px 2px #00000030;
+	border-radius: 2px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ccc;
+	padding: 0 0 0 3px;
+}
 
 .tgui-tree
 {

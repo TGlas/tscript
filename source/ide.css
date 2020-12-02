@@ -71,7 +71,8 @@ button {
 	height: 30px;
 	background: #ccc;
 	color: #000;
-	border-bottom: #888 solid 2px;
+	border-bottom: #888 solid 1px;
+	box-shadow: inset 0px -1px 0px #aaa;
 	box-sizing: border-box;
 }
 

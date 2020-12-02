@@ -1611,6 +1611,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"parent": dlg,
 			"type": files.length > 0 ? "select" : "text",
 			"properties": {"size": Math.max(2, files.length)},
+			"classname": "tgui-list-box",
 			"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "calc(100% - 25px - 4*7px - 2*25px)", "top": "calc(25px + 2*7px + 1*25px)", "background": "#fff", "overflow": "scroll"},
 			//"text": files.length > 0 ? "" : "No documents saved.",
 		});
@@ -1626,10 +1627,11 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 				"parent": dlg,
 				"type": "input",
 				"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "25px", "bottom": "40px"},
+				"classname": "tgui-text-box",
 				"text": filename,
 				"properties": {type:"text", placeholder:"Filename"}
 			});
-		list.style.height = "calc(100% - 25px - 50px - 25px - 30px)";
+		list.style.height = "calc(100% - 25px - 5*7px - 3*25px)";
 	}
 	let okay = tgui.createElement({
 			"parent": buttons,
@@ -1827,16 +1829,8 @@ module.create = function(container, options)
 			tgui.createElement({
 						"type": "div",
 						"parent": module.toolbar,
-						"classname":
-						"tgui tgui-control",
-						"style": {
-							"float": "left",
-							"width": "1px",
-							"height": "22px",
-							"background": "#666",
-							"margin": "3px 10px 3px 10px"
-							}
-						});
+						"classname": "tgui tgui-control tgui-toolbar-separator"
+					});
 		}
 	}
 
@@ -1879,15 +1873,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	module.programstate = tgui.createLabel({
 				"parent": module.toolbar,
@@ -1909,15 +1896,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	tgui.createButton({
 			"click": function ()
@@ -1962,15 +1942,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	module.iconlist = tgui.createElement({
 			"type": "div",
@@ -1988,15 +1961,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	if (options["documentation-button"])
 	{

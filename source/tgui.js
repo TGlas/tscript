@@ -728,13 +728,12 @@ module.createPanel = function(description)
 				"type": "div",
 				"parent": panel,
 				"classname": "tgui tgui-panel-titlebar",
-				"text": control.title,
 		});
-	/*control.titlebar = tgui.createElement({
+	control.titlebar = tgui.createElement({
 				"type": "span",
 				"parent": control.titlebar_container,
 				"text": control.title,
-		});*/
+		});
 
 	control.button_icon = tgui.createButton({
 				"click": function (event) { control.dock("icon"); return false; },
@@ -876,7 +875,7 @@ module.createPanel = function(description)
 				"draw": control.icondraw,
 				"tooltip": control.title,
 				"style": {
-						"margin": 0,
+						"margin": "0 0 0 1px", // 1 px as a separator between multiple icons
 						"padding": 0,
 						"width": "22px",
 						"height": "22px",
