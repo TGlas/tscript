@@ -259,6 +259,7 @@ function stackinfo(value, node_id)
 			let j = 0;
 			for (let i=0; i<value.frame.temporaries.length; i++)
 			{
+	if (! value.frame.temporaries[i]) continue;
 				if (value.frame.temporaries[i].hasOwnProperty("type") && value.frame.temporaries[i].hasOwnProperty("value"))
 				{
 					ret.children.push({
