@@ -1457,7 +1457,7 @@ function createDialog(title, size, onClose)
 
 function configDlg()
 {
-	let dlg = createDialog("configuration", {"width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh"}, saveConfig);
+	let dlg = createDialog("configuration", {"width": "calc(max(370px, 50vw))", "left": "25vw", "height": "calc(max(270px, 50vh))", "top": "25vh"}, saveConfig);
 	let content = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -1478,7 +1478,7 @@ function configDlg()
 			let btn = i;
 			description.click = function()
 					{
-						let dlg = createDialog("set hotkey", {"width": "30vw", "height": "30vh"});						
+						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(180px, 30vh))"});						
 						let icon = tgui.createElement({
 							"type": "canvas",
 							"parent": dlg,
@@ -1491,19 +1491,19 @@ function configDlg()
 							parent: dlg, 
 							type: "label", 
 							"text":buttons[btn].tooltip, 
-							"style":{"position": "absolute", "left": "50px", "top": "40px", "text-align": "center"}
+							"style":{"position": "absolute", "left": "50px", "top": "40px"}
 						});
 						tgui.createElement({
 							parent: dlg, 
 							type: "label", 
 							"text": "current hotkey: " + (buttons[btn].hotkey ? buttons[btn].hotkey : "<None>"),
-							"style":{"position": "absolute", "left": "50px", "top": "70px", "text-align": "center"}
+							"style":{"position": "absolute", "left": "50px", "top": "70px"}
 						});
 						tgui.createElement({
 							parent: dlg, 
 							type: "label", 
 							"text":"press the hotkey to assign, or press escape to remove the current hotkey", 
-							"style":{"position": "absolute", "left": "15px", "top": "130px", "text-align": "center"}
+							"style":{"position": "absolute", "left": "15px", "top": "130px"}
 						});
 						dlg.onKeyDown = function(event)
 								{
@@ -1587,7 +1587,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	files.sort();
 
 	// create controls
-	let dlg = createDialog(title, {"width": "50vw", "left": "25vw", "height": "70vh", "top": "15vh"});
+	let dlg = createDialog(title, {"width": "calc(max(440px, 50vw))", "left": "25vw", "height": "calc(max(260px, 70vh))", "top": "15vh"});
 	let toolbar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
