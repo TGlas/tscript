@@ -1902,7 +1902,14 @@ module.create = function(container, options)
 				"parent": module.toolbar,
 				"style": {
 					"float": "left",
-					"width": "250px",
+					"width": "calc(min(250px, max(20px, 20vw - 100px)))",
+					"height": "23px",
+					// clipping
+					"white-space": "nowrap",
+					"overflow": "hidden",
+					"direction": "rtl",
+					"text-overflow": "ellipsis clip",
+					
 					"text-align": "center",
 					"background": "#fff"
 					}
@@ -1996,7 +2003,7 @@ module.create = function(container, options)
 						},
 				"text": "documentation",
 				"parent": module.toolbar,
-				"style": {"float": "right"},
+				"style": {"position": "absolute", "right": "0px"},
 			});
 	}
 
