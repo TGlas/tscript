@@ -19104,7 +19104,7 @@ let buttons = [
 						ctx.lineTo(5, 15);
 						ctx.fill();
 					},
-			"tooltip": "run the program, or continue running the program",
+			"tooltip": "run/continue program",
 			"hotkey": "F7",
 		},
 		{
@@ -19116,7 +19116,7 @@ let buttons = [
 						ctx.fillRect(5, 5, 4, 10);
 						ctx.fillRect(11, 5, 4, 10);
 					},
-			"tooltip": "interrupt the program",
+			"tooltip": "interrupt program",
 			"hotkey": "shift-F7",
 		},
 		{
@@ -19127,7 +19127,7 @@ let buttons = [
 						ctx.fillStyle = "#c00";
 						ctx.fillRect(5, 5, 10, 10);
 					},
-			"tooltip": "abort the program",
+			"tooltip": "abort program",
 			"hotkey": "F10",
 		},
 		{
@@ -19156,7 +19156,7 @@ let buttons = [
 						ctx.lineTo(9.5, 10);
 						ctx.fill();
 					},
-			"tooltip": "run the current command, step into function calls",
+			"tooltip": "run current command, step into function calls",
 			"hotkey": "shift-control-F11",
 		},
 		{
@@ -19185,7 +19185,7 @@ let buttons = [
 						ctx.lineTo(9.5, 16);
 						ctx.fill();
 					},
-			"tooltip": "run the current line of code, do no step into function calls",
+			"tooltip": "run current line of code, do no step into function calls",
 			"hotkey": "control-F11",
 		},
 		{
@@ -19214,7 +19214,7 @@ let buttons = [
 						ctx.lineTo(9.5, 16);
 						ctx.fill();
 					},
-			"tooltip": "step out of the current function",
+			"tooltip": "step out of current function",
 			"hotkey": "shift-F11",
 		},
 		{
@@ -19363,11 +19363,33 @@ function configDlg()
 			let btn = i;
 			description.click = function()
 					{
-						let dlg = tgui.createElement({
-								"type": "div",
-								"style": {"position": "fixed", "width": "30vw", "left": "35vw", "height": "30vh", "top": "35vh", "background": "#eee"},
-								"html": "<p>press the hotkey to assign, or press escape to remove the current hotkey</p>",
-							});
+						let dlg = createDialog("set hotkey", {"width": "30vw", "height": "30vh"});						
+						let icon = tgui.createElement({
+							"type": "canvas",
+							"parent": dlg,
+							"properties": {"width": 22, "height": 22},
+							"style": {"position": "absolute", "left": "15px", "top": "40px", "width": "22px", "height": "22px"},
+						});
+						buttons[btn].draw(icon);
+						
+						tgui.createElement({
+							parent: dlg, 
+							type: "label", 
+							"text":buttons[btn].tooltip, 
+							"style":{"position": "absolute", "left": "50px", "top": "40px", "text-align": "center"}
+						});
+						tgui.createElement({
+							parent: dlg, 
+							type: "label", 
+							"text": "current hotkey: " + (buttons[btn].hotkey ? buttons[btn].hotkey : "<None>"),
+							"style":{"position": "absolute", "left": "50px", "top": "70px", "text-align": "center"}
+						});
+						tgui.createElement({
+							parent: dlg, 
+							type: "label", 
+							"text":"press the hotkey to assign, or press escape to remove the current hotkey", 
+							"style":{"position": "absolute", "left": "15px", "top": "130px", "text-align": "center"}
+						});
 						dlg.onKeyDown = function(event)
 								{
 									event.preventDefault();
