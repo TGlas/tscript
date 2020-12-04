@@ -1098,7 +1098,7 @@ let errors = {
 		"am-21": "string index '$$' out of range; index must not be negative",
 		"am-22": "string index '$$' out of range; must be less than the string size of $$",
 		"am-23": "array index '$$' out of range; index must not be negative",
-		"am-24": "array index '$$' out of range; must be and less than array size of $$",
+		"am-24": "array index '$$' out of range; must be less than array size of $$",
 		"am-25": "invalid array index '$$' of type '$$', 'integer' expected",
 		"am-26": "invalid array index '$$' of type '$$', 'integer' or 'range' expected",
 		"am-27": "dictionary index '$$' is not a key of the dictionary",
