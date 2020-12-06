@@ -2020,6 +2020,7 @@ module.create = function(container, options)
 								href = "#search/"+words.join("/");
 							}
 							showdoc(href);
+							return false;
 						},
 				"text": "documentation",
 				"parent": module.toolbar,

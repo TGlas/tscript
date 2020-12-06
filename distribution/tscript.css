@@ -401,6 +401,7 @@ span.CodeMirror-selectedtext { background: none; }
 	border: none;
 	margin: 3px;
 	position: relative;
+	margin: 3px calc(min(3px, max(0.5px, calc(0.5vw - 3px)))); /* TODO: only for toolbar items */
 }
 
 .tgui-hidden
@@ -448,11 +449,12 @@ span.CodeMirror-selectedtext { background: none; }
 	width: 1px;
 	height: 22px;
 	background: #999;
-	margin: 3px 10px 3px 10px;
+	margin: 3px calc(min(10px, max(1.5px, calc(1vw - 3px)))); /* TODO: only for toolbar items */
 	
 	box-shadow: 0px 1px 2px #ffffff80;
 }
 
+/* used for program status on the toolbar */
 .tgui-label
 {
 	background: #ddd;

@@ -19348,7 +19348,7 @@ function createDialog(title, size, onClose)
 
 function configDlg()
 {
-	let dlg = createDialog("configuration", {"width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh"}, saveConfig);
+	let dlg = createDialog("configuration", {"width": "calc(max(370px, 50vw))", "left": "25vw", "height": "calc(max(270px, 50vh))", "top": "25vh"}, saveConfig);
 	let content = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -19369,7 +19369,7 @@ function configDlg()
 			let btn = i;
 			description.click = function()
 					{
-						let dlg = createDialog("set hotkey", {"width": "30vw", "height": "30vh"});						
+						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(220px, 30vh))"});						
 						let icon = tgui.createElement({
 							"type": "canvas",
 							"parent": dlg,
@@ -19382,19 +19382,19 @@ function configDlg()
 							parent: dlg, 
 							type: "label", 
 							"text":buttons[btn].tooltip, 
-							"style":{"position": "absolute", "left": "50px", "top": "40px", "text-align": "center"}
+							"style":{"position": "absolute", "left": "50px", "top": "40px"}
 						});
 						tgui.createElement({
 							parent: dlg, 
 							type: "label", 
 							"text": "current hotkey: " + (buttons[btn].hotkey ? buttons[btn].hotkey : "<None>"),
-							"style":{"position": "absolute", "left": "50px", "top": "70px", "text-align": "center"}
+							"style":{"position": "absolute", "left": "50px", "top": "70px"}
 						});
 						tgui.createElement({
 							parent: dlg, 
 							type: "label", 
 							"text":"press the hotkey to assign, or press escape to remove the current hotkey", 
-							"style":{"position": "absolute", "left": "15px", "top": "130px", "text-align": "center"}
+							"style":{"position": "absolute", "left": "15px", "top": "130px"}
 						});
 						dlg.onKeyDown = function(event)
 								{
@@ -19435,6 +19435,15 @@ function configDlg()
 									}
 									return false;
 								};
+							
+						let close = tgui.createElement({
+								"parent": dlg,
+								"type": "button",
+								"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
+								"text": "Close",
+								"classname": "tgui-dialog-button"
+							});
+						close.addEventListener("click", handleDialogCloseWith(saveConfig));
 						tgui.startModal(dlg);
 					};
 		}
@@ -19478,7 +19487,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	files.sort();
 
 	// create controls
-	let dlg = createDialog(title, {"width": "50vw", "left": "25vw", "height": "70vh", "top": "15vh"});
+	let dlg = createDialog(title, {"width": "calc(max(440px, 50vw))", "left": "25vw", "height": "calc(max(260px, 70vh))", "top": "15vh"});
 	let toolbar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -19793,17 +19802,25 @@ module.create = function(container, options)
 				"parent": module.toolbar,
 				"style": {
 					"float": "left",
-					"width": "250px",
+					"width": "calc(min(250px, max(20px, 40vw - 200px)))",
+					"height": "23px",
+					// clipping
+					"white-space": "nowrap",
+					"overflow": "hidden",
+					"direction": "rtl",
+					"text-overflow": "ellipsis clip",
+					
 					"text-align": "center",
 					"background": "#fff"
 					}
 		});
+	// TODO set tooltip text to the content text
 	module.programstate.unchecked = function() { this.setText("program has not been checked").setBackground("#ee8"); }
-	module.programstate.error = function() { this.setText("an error has occurred").setBackground("#f44"); }
-	module.programstate.running = function() { this.setText("program is running").setBackground("#8e8"); }
-	module.programstate.waiting = function() { this.setText("program is waiting").setBackground("#aca"); }
-	module.programstate.stepping = function() { this.setText("program is in stepping mode").setBackground("#8ee"); }
-	module.programstate.finished = function() { this.setText("program has finished").setBackground("#88e"); }
+	module.programstate.error     = function() { this.setText("an error has occurred").setBackground("#f44"); }
+	module.programstate.running   = function() { this.setText("program is running").setBackground("#8e8"); }
+	module.programstate.waiting   = function() { this.setText("program is waiting").setBackground("#aca"); }
+	module.programstate.stepping  = function() { this.setText("program is in stepping mode").setBackground("#8ee"); }
+	module.programstate.finished  = function() { this.setText("program has finished").setBackground("#88e"); }
 	module.programstate.unchecked();
 
 	tgui.createElement({
@@ -19882,12 +19899,23 @@ module.create = function(container, options)
 		tgui.createButton({
 				"click": function ()
 						{
-							showdoc();
+							let selection = module.sourcecode.getSelection();
+							// maximum limit of 30 characters
+							// so that there is no problem, when accedentially everything
+							// in a file is selected
+							selection = selection.substr(0, 30);
+							let words = selection.match(/[a-z]+/gi); // global case insensitive
+							let href = "";
+							if(words)
+							{
+								href = "#search/"+words.join("/");
+							}
+							showdoc(href);
 							return false;
 						},
 				"text": "documentation",
 				"parent": module.toolbar,
-				"style": {"float": "right"},
+				"style": {"position": "absolute", "right": "0px"},
 			});
 	}
 
@@ -19926,6 +19954,7 @@ module.create = function(container, options)
 			indentUnit: 4,
 			tabSize: 4,
 			indentWithTabs: true,
+			// TODO: Setting: lineWrapping: false,
 			extraKeys: {
 					"Ctrl-D": "toggleComment",
 					"Cmd-D": "toggleComment",
@@ -20750,6 +20779,7 @@ span.CodeMirror-selectedtext { background: none; }
 	border: none;
 	margin: 3px;
 	position: relative;
+	margin: 3px calc(min(3px, max(0.5px, calc(0.5vw - 3px)))); /* TODO: only for toolbar items */
 }
 
 .tgui-hidden
@@ -20797,11 +20827,12 @@ span.CodeMirror-selectedtext { background: none; }
 	width: 1px;
 	height: 22px;
 	background: #999;
-	margin: 3px 10px 3px 10px;
+	margin: 3px calc(min(10px, max(1.5px, calc(1vw - 3px)))); /* TODO: only for toolbar items */
 	
 	box-shadow: 0px 1px 2px #ffffff80;
 }
 
+/* used for program status on the toolbar */
 .tgui-label
 {
 	background: #ddd;
