@@ -1478,7 +1478,7 @@ function configDlg()
 			let btn = i;
 			description.click = function()
 					{
-						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(180px, 30vh))"});						
+						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(220px, 30vh))"});						
 						let icon = tgui.createElement({
 							"type": "canvas",
 							"parent": dlg,
@@ -1544,6 +1544,15 @@ function configDlg()
 									}
 									return false;
 								};
+							
+						let close = tgui.createElement({
+								"parent": dlg,
+								"type": "button",
+								"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
+								"text": "Close",
+								"classname": "tgui-dialog-button"
+							});
+						close.addEventListener("click", handleDialogCloseWith(saveConfig));
 						tgui.startModal(dlg);
 					};
 		}
@@ -1902,7 +1911,7 @@ module.create = function(container, options)
 				"parent": module.toolbar,
 				"style": {
 					"float": "left",
-					"width": "calc(min(250px, max(20px, 20vw - 100px)))",
+					"width": "calc(min(250px, max(20px, 40vw - 200px)))",
 					"height": "23px",
 					// clipping
 					"white-space": "nowrap",
@@ -1914,12 +1923,13 @@ module.create = function(container, options)
 					"background": "#fff"
 					}
 		});
+	// TODO set tooltip text to the content text
 	module.programstate.unchecked = function() { this.setText("program has not been checked").setBackground("#ee8"); }
-	module.programstate.error = function() { this.setText("an error has occurred").setBackground("#f44"); }
-	module.programstate.running = function() { this.setText("program is running").setBackground("#8e8"); }
-	module.programstate.waiting = function() { this.setText("program is waiting").setBackground("#aca"); }
-	module.programstate.stepping = function() { this.setText("program is in stepping mode").setBackground("#8ee"); }
-	module.programstate.finished = function() { this.setText("program has finished").setBackground("#88e"); }
+	module.programstate.error     = function() { this.setText("an error has occurred").setBackground("#f44"); }
+	module.programstate.running   = function() { this.setText("program is running").setBackground("#8e8"); }
+	module.programstate.waiting   = function() { this.setText("program is waiting").setBackground("#aca"); }
+	module.programstate.stepping  = function() { this.setText("program is in stepping mode").setBackground("#8ee"); }
+	module.programstate.finished  = function() { this.setText("program has finished").setBackground("#88e"); }
 	module.programstate.unchecked();
 
 	tgui.createElement({
@@ -1998,8 +2008,18 @@ module.create = function(container, options)
 		tgui.createButton({
 				"click": function ()
 						{
-							showdoc();
-							return false;
+							let selection = module.sourcecode.getSelection();
+							// maximum limit of 30 characters
+							// so that there is no problem, when accedentially everything
+							// in a file is selected
+							selection = selection.substr(0, 30);
+							let words = selection.match(/[a-z]+/gi); // global case insensitive
+							let href = "";
+							if(words)
+							{
+								href = "#search/"+words.join("/");
+							}
+							showdoc(href);
 						},
 				"text": "documentation",
 				"parent": module.toolbar,
@@ -2042,6 +2062,7 @@ module.create = function(container, options)
 			indentUnit: 4,
 			tabSize: 4,
 			indentWithTabs: true,
+			// TODO: Setting: lineWrapping: false,
 			extraKeys: {
 					"Ctrl-D": "toggleComment",
 					"Cmd-D": "toggleComment",
