@@ -886,6 +886,21 @@ module.createPanel = function(description)
 	if (! control.hasOwnProperty("onResize")) control.onResize = function(w, h) { };
 	if (! control.hasOwnProperty("onArrange")) control.onArrange = function() { };
 
+
+	
+	// when a floating panel is clicked on, then the panel should move to the top of the panel stack
+	var mousedown_focus = function(e) {
+		if(control.state == "float")
+		{
+			// bring panel to the front
+			// appendChild moves controls to their new position,
+			// by also removing them from their old position
+			module.panelcontainer.appendChild(panel);
+		}
+	};
+	panel.addEventListener("mousedown", mousedown_focus);
+	
+
 	// dock function for changing docking state
 	control.dock = function(state, create = false)
 			{
@@ -894,7 +909,7 @@ module.createPanel = function(description)
 					if (state == this.state) return;
 
 					// disable
-					interact(panel).draggable(false).resizable(false);
+					interact(panel).unset(); // remove all event listeners set by interact
 					panel.style.zIndex = 0;
 					if (icon.parentNode) icon.parentNode.removeChild(icon);
 					if (panel.parentNode) panel.parentNode.removeChild(panel);
@@ -902,6 +917,8 @@ module.createPanel = function(description)
 					if (this.state == "right") module.panels_right.splice(module.panels_right.indexOf(this), 1);
 					if (this.state == "float") module.panels_float.splice(module.panels_float.indexOf(this), 1);
 					if (module.panel_max == this) module.panel_max = null;
+					
+					panel.classList.remove("tgui-panel-float");
 				}
 
 				// enable again
@@ -989,8 +1006,25 @@ module.createPanel = function(description)
 					panel.style.zIndex = 1;
 					this.fallbackState = state;
 					module.panels_float.push(this);
+					
+					panel.classList.add("tgui-panel-float");
+					
+					
+					var onmove = function(event)
+					{
+						if (control.state == "float") 
+						{
+							let x = control.pos[0] + event.dx;
+							let y = control.pos[1] + event.dy;
+							panel.style.left = x + "px";
+							panel.style.top = y + "px";
+							control.pos = [x, y];
+							control.floatingpos = [x, y];
+						}
+					};
+	
 					interact(panel).draggable({
-							"inertia": true,
+							"inertia": false,
 							"allowFrom": ".tgui-panel-titlebar",
 							"restrict": {
 									"restriction": "parent",
@@ -998,22 +1032,8 @@ module.createPanel = function(description)
 									"elementRect": { top: 0, left: 0, bottom: 1, right: 1 }
 								},
 							"autoScroll": false,
-							"onmove": function (event)
-									{
-										let x = control.pos[0] + event.pageX - event.x0;
-										let y = control.pos[1] + event.pageY - event.y0;
-										panel.style.left = x + "px";
-										panel.style.top = y + "px";
-									},
-							"onend": function (event)
-									{
-										let x = control.pos[0] + event.pageX - event.x0;
-										let y = control.pos[1] + event.pageY - event.y0;
-										panel.style.left = x + "px";
-										panel.style.top = y + "px";
-										control.pos = [x, y];
-										if (control.state == "float") control.floatingpos = [x, y];
-									},
+							"onmove":onmove,
+							"onend":onmove,
 						}).resizable({
 							"edges": { right: true, bottom: true },
 							"restrictEdges": { "outer": "parent", "endOnly": false },

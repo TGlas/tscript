@@ -1545,14 +1545,14 @@ function configDlg()
 									return false;
 								};
 							
-						let close = tgui.createElement({
+						let cancel = tgui.createElement({
 								"parent": dlg,
 								"type": "button",
 								"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
-								"text": "Close",
+								"text": "Cancel",
 								"classname": "tgui-dialog-button"
 							});
-						close.addEventListener("click", handleDialogCloseWith(saveConfig));
+						cancel.addEventListener("click", handleDialogCloseWith(saveConfig));
 						tgui.startModal(dlg);
 					};
 		}

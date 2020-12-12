@@ -150,6 +150,7 @@
 	
 	background: #eee;
 	border-width: 1px;
+	border-color: #000;
 	box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
 	
 	border-radius: 2px;
@@ -174,6 +175,7 @@
 	box-shadow: inset 0px 0px 3px rgba(0,0,0,0.4);
 }
 
+/* used in file dialog */
 .tgui-status-box
 {
 	background: #eee;
@@ -289,9 +291,9 @@
 	box-sizing: border-box;
 }
 
-/* TODO: use this class on only floating panels */
+/* this class is additionaly used for floating panels */
 .tgui-panel-float {
-	box-shadow: 0px 1px 8px rgba(0,0,0,0.2);
+	box-shadow: 0px 1px 8px #00000030;
 }
 
 .tgui-panel-titlebar {
