@@ -394,8 +394,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 41,
-			day: 2,
+			patch: 42,
+			day: 12,
 			month: 12,
 			year: 2020,
 			full: function()
@@ -18622,7 +18622,6 @@ module.prepare_run = function()
 
 	if (program)
 	{
-//console.log(program);
 		module.interpreter = new TScript.Interpreter(program);
 		module.interpreter.service.documentation_mode = false;
 		module.interpreter.service.print = (function(msg) { module.addMessage("print", msg); });
@@ -18681,8 +18680,6 @@ module.prepare_run = function()
 			alert("Note: breakpoints were moved to valid locations");
 		}
 	}
-
-//	updateControls();
 };
 
 let cmd_reset = function()
@@ -18696,7 +18693,6 @@ let cmd_run = function()
 	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
 	if (! module.interpreter) return;
 	module.interpreter.run();
-//	updateControls();
 	module.canvas.parentElement.focus();
 };
 
@@ -18704,7 +18700,6 @@ let cmd_interrupt = function()
 {
 	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) return;
 	module.interpreter.interrupt();
-//	updateControls();
 };
 
 let cmd_step_into = function()
@@ -18713,7 +18708,6 @@ let cmd_step_into = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_into();
-//	updateControls();
 };
 
 let cmd_step_over = function()
@@ -18722,7 +18716,6 @@ let cmd_step_over = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_over();
-//	updateControls();
 };
 
 let cmd_step_out = function()
@@ -18731,16 +18724,40 @@ let cmd_step_out = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_out();
-//	updateControls();
 };
 
 let cmd_export = function()
 {
+	// don't interrupt a running program
+	if (module.interpreter)
+	{
+		if (module.interpreter.status == "running" || module.interpreter.status == "waiting") return;
+	}
+
+	// check that the code at least compiles
+	let source = ide.sourcecode.getValue();
+	clear();
+	let result = TScript.parse(source);
+	let program = result.program;
+	let errors = result.errors;
+	if (errors && errors.length > 0)
+	{
+		for (let i=0; i<errors.length; i++)
+		{
+			let err = errors[i];
+			module.addMessage(err.type, err.type + " in line " + err.line + ": " + err.message, err.line, err.ch, err.href);
+		}
+		return;
+	}
+	if (! program) { alert("internal error during export"); return; }
+
+	// create a filename for the file download from the title
 	let title = module.document.filename;
 	if (! title || title == "") title = "tscript-export";
 	let fn = title;
 	if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
 
+	// export dialog
 	let dlg = tgui.createElement({
 			"type": "div",
 			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
@@ -18801,8 +18818,10 @@ let cmd_export = function()
 
 	tgui.startModal(dlg);
 
-	let source = ide.sourcecode.getValue().replace(/\\n/g, "\\\\n").replace(/\n/g, "\\n").replace(/'/g, "\\'");
+	// escape the TScript source code; prepare it to reside inside a single-quoted string
+	source = source.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/'/g, "\\'");
 
+	// obtain the page itself as a string
 	{
 		var xhr = new XMLHttpRequest();
 		xhr.open("GET", window.location, true);
@@ -18811,6 +18830,7 @@ let cmd_export = function()
 		{
 			if (xhr.readyState == 4)
 			{
+				// hide the IDE and let canvas or turtle run in full screen
 				let page = xhr.responseText;
 
 				let key = '"export key"';
@@ -18830,9 +18850,9 @@ let cmd_export = function()
 				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\ncv.style.top="0px";\nlet init = function() {\nif (cv.offsetWidth == 0 || cv.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
 
 				status.innerHTML = "status: ready for download";
-				download_turtle.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + turtle + s3);
+				download_turtle.href="data:text/html," + encodeURIComponent(s1 + title + s2 + turtle + s3);
 				download_turtle.style.display = "block";
-				download_canvas.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + canvas + s3);
+				download_canvas.href="data:text/html," + encodeURIComponent(s1 + title + s2 + canvas + s3);
 				download_canvas.style.display = "block";
 			}
 		}
@@ -19588,31 +19608,36 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 		}
 	}
 
-	function download(filename, text) {
+	function download(filename, text, mime = "text/plain")
+	{
+console.log(mime);
 		var element = document.createElement('a');
-		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		element.setAttribute('href', 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(text));
 		element.setAttribute('download', filename);
-	  
+
 		element.style.display = 'none';
 		document.body.appendChild(element);
-	  
+
 		element.click();
-	  
+
 		document.body.removeChild(element);
 	}
 
-	function exportFile(filename){
+	function exportFile(filename)
+	{
 		let data = localStorage.getItem("tscript.code." + filename);
 		download(filename + ".tscript", data);
 	}
 
-	function importFile(){
+	function importFile()
+	{
 		let fileImport = document.createElement('input');
 		fileImport.type = "file";
 		fileImport.style.display = "none";
 		fileImport.accept = ".tscript";
 
-		fileImport.addEventListener('change', async (event) => {
+		fileImport.addEventListener('change', async (event) =>
+		{
 			if(event.target.files){
 				var file = event.target.files[0];
 				var filename = file.name.split('.tscript')[0];
