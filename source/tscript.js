@@ -66,9 +66,9 @@ let module = {
 
 module.ex2string = function(ex)
 {
-	if (ex === undefined) return "undefined";
+	if (typeof ex === 'undefined') return "undefined";
 	if (ex === null) return "null";
-	if (typeof ex == "object")
+	if (typeof ex === "object")
 	{
 		if (ex.hasOwnProperty("message")) return ex.message;
 		if (ex.hasOwnProperty("name")) return ex.name;
@@ -82,7 +82,7 @@ AssertionError.prototype = new Error();
 
 module.assert = function(condition, message)
 {
-	if (message === undefined) message = "TScript internal assertion failed";
+	if (typeof message === 'undefined') message = "TScript internal assertion failed";
 	else message = "TScript internal assertion failed; " + message;
 	if (! condition) throw new AssertionError(message);
 }
@@ -98,19 +98,19 @@ module.displayname = function(arg)
 // check whether type equals or is derived from super
 module.isDerivedFrom = function(type, super_id)
 {
-	if (typeof super_id == "number")
+	if (typeof super_id === "number")
 	{
 		while (type)
 		{
-			if (type.id == super_id) return true;
+			if (type.id === super_id) return true;
 			type = type.superclass;
 		}
 	}
-	else if (typeof super_id == "string")
+	else if (typeof super_id === "string")
 	{
 		while (type)
 		{
-			if (module.displayname(type) == super_id) return true;
+			if (module.displayname(type) === super_id) return true;
 			type = type.superclass;
 		}
 	}
@@ -137,7 +137,7 @@ function recApply(value, operation, compose)
 {
 	function doit(v, k)
 	{
-		if (v.type.id == module.typeid_array)
+		if (v.type.id === module.typeid_array)
 		{
 			if (k.has(v)) throw "recursive data structure";
 			let known = new Set(k)
@@ -150,7 +150,7 @@ function recApply(value, operation, compose)
 			}
 			return compose.call(this, b);
 		}
-		else if (v.type.id == module.typeid_dictionary)
+		else if (v.type.id === module.typeid_dictionary)
 		{
 			if (k.has(v)) throw "recursive data structure";
 			let known = new Set(k)
@@ -211,7 +211,7 @@ module.toString = function (arg)
 						s += "]";
 						return s;
 					}
-					else if (typeof value == "object" && value.constructor == Object)
+					else if (typeof value === "object" && value.constructor === Object)
 					{
 						let s = "{";
 						let first = true;
@@ -230,7 +230,7 @@ module.toString = function (arg)
 	}
 	catch (ex)
 	{
-		if (ex == "recursive data structure") this.error("/argument-mismatch/am-43");
+		if (ex === "recursive data structure") this.error("/argument-mismatch/am-43");
 		else throw ex;
 	}
 }
@@ -249,7 +249,7 @@ module.mul32 = function(lhs, rhs)
 
 module.mod = function(lhs, rhs)
 {
-	if (rhs == 0) this.error("/argument-mismatch/am-15");
+	if (rhs === 0) this.error("/argument-mismatch/am-15");
 	else return (rhs > 0)
 			? lhs - rhs * Math.floor(lhs / rhs)
 			: rhs * Math.floor(lhs / rhs) - lhs;
@@ -263,16 +263,16 @@ module.json2typed = function(arg)
 	{
 		return {"type": this.program.types[module.typeid_null], "value": {"b": arg}};
 	}
-	else if (t == "boolean")
+	else if (t === "boolean")
 	{
 		return {"type": this.program.types[module.typeid_boolean], "value": {"b": arg}};
 	}
-	else if (t == "number")
+	else if (t === "number")
 	{
 		if (module.isInt32(arg)) return {"type": this.program.types[module.typeid_integer], "value": {"b": arg}};
 		else return {"type": this.program.types[module.typeid_real], "value": {"b": arg}};
 	}
-	else if (t == "string")
+	else if (t === "string")
 	{
 		return {"type": this.program.types[module.typeid_string], "value": {"b": arg}};
 	}
@@ -282,7 +282,7 @@ module.json2typed = function(arg)
 		for (let i=0; i<arg.length; i++) ret.push(module.json2typed.call(this, arg[i]));
 		return {"type": this.program.types[module.typeid_array], "value": {"b": ret}};
 	}
-	else if (t == "object" && arg.constructor == Object)
+	else if (t === "object" && arg.constructor === Object)
 	{
 		let ret = {};
 		for (let key in arg)
@@ -337,7 +337,7 @@ module.equal = function(lhs, rhs)
 	let rec = function(lhs, rhs, k)
 	{
 		if (lhs === rhs) return true;
-		else if (lhs.type === rhs.type && lhs.value == rhs.value) return true;
+		else if (lhs.type === rhs.type && lhs.value === rhs.value) return true;
 		else if (module.isDerivedFrom(lhs.type, module.typeid_null) && module.isDerivedFrom(rhs.type, module.typeid_null))
 		{
 			// null values are always equal
@@ -346,22 +346,22 @@ module.equal = function(lhs, rhs)
 		else if (module.isDerivedFrom(lhs.type, module.typeid_boolean) && module.isDerivedFrom(rhs.type, module.typeid_boolean))
 		{
 			// compare booleans
-			return (lhs.value.b == rhs.value.b);
+			return (lhs.value.b === rhs.value.b);
 		}
 		else if (module.isNumeric(lhs.type) && module.isNumeric(rhs.type))
 		{
 			// compare numbers
-			return ((isNaN(lhs.value.b) && isNaN(rhs.value.b)) || (lhs.value.b == rhs.value.b));
+			return ((isNaN(lhs.value.b) && isNaN(rhs.value.b)) || (lhs.value.b === rhs.value.b));
 		}
 		else if (module.isDerivedFrom(lhs.type, module.typeid_string) && module.isDerivedFrom(rhs.type, module.typeid_string))
 		{
 			// compare strings
-			return (lhs.value.b == rhs.value.b);
+			return (lhs.value.b === rhs.value.b);
 		}
 		else if (module.isDerivedFrom(lhs.type, module.typeid_array) && module.isDerivedFrom(rhs.type, module.typeid_array))
 		{
 			// compare arrays lexicographically by items
-			if (lhs.value.b.length != rhs.value.b.length) return false;
+			if (lhs.value.b.length !== rhs.value.b.length) return false;
 			if (k.has(lhs)) throw "recursive data structure";
 			if (k.has(rhs)) throw "recursive data structure";
 			let known = new Set(k)
@@ -397,13 +397,13 @@ module.equal = function(lhs, rhs)
 		else if (module.isDerivedFrom(lhs.type, module.typeid_function) && module.isDerivedFrom(rhs.type, module.typeid_function))
 		{
 			// compare functions by function pointer
-			if (lhs.value.b.func != rhs.value.b.func) return false;
+			if (lhs.value.b.func !== rhs.value.b.func) return false;
 			// now both sides are the same, either function or method or closure
 
 			// check for methods
 			if (lhs.value.b.hasOwnProperty("object"))
 			{
-				if (lhs.value.b.object != rhs.value.b.object) return false;
+				if (lhs.value.b.object !== rhs.value.b.object) return false;
 			}
 
 			// check for closures
@@ -428,12 +428,12 @@ module.equal = function(lhs, rhs)
 		else if (module.isDerivedFrom(lhs.type, module.typeid_range) && module.isDerivedFrom(rhs.type, module.typeid_range))
 		{
 			// compare range by begin and end
-			return (lhs.value.b.begin == rhs.value.b.begin && lhs.value.b.end == rhs.value.b.end);
+			return (lhs.value.b.begin === rhs.value.b.begin && lhs.value.b.end === rhs.value.b.end);
 		}
 		else if (module.isDerivedFrom(lhs.type, module.typeid_type) && module.isDerivedFrom(rhs.type, module.typeid_type))
 		{
 			// compare types by ID
-			return (lhs.value.b.id == rhs.value.b.id);
+			return (lhs.value.b.id === rhs.value.b.id);
 		}
 		else
 		{
@@ -448,7 +448,7 @@ module.equal = function(lhs, rhs)
 	}
 	catch (ex)
 	{
-		if (ex == "recursive data structure") this.error("/argument-mismatch/am-43");
+		if (ex === "recursive data structure") this.error("/argument-mismatch/am-43");
 		else throw ex;
 	}
 }
@@ -487,7 +487,7 @@ module.order = function(lhs, rhs)
 			for (let i=0; i<m; i++)
 			{
 				let tmp = rec.call(this, lhs.value.b[i], rhs.value.b[i], known);
-				if (tmp != 0) return tmp;
+				if (tmp !== 0) return tmp;
 			}
 			if (lhs.value.b.length > m) return 1;
 			else if (rhs.value.b.length > m) return -1;
@@ -495,7 +495,7 @@ module.order = function(lhs, rhs)
 		}
 
 		// report an error
-		if (lhs.type.id == rhs.type.id) this.error("/argument-mismatch/am-16", [module.displayname(lhs.type)]);
+		if (lhs.type.id === rhs.type.id) this.error("/argument-mismatch/am-16", [module.displayname(lhs.type)]);
 		else this.error("/argument-mismatch/am-16b", [module.displayname(lhs.type), module.displayname(rhs.type)]);
 	}
 
@@ -505,7 +505,7 @@ module.order = function(lhs, rhs)
 	}
 	catch (ex)
 	{
-		if (ex == "recursive data structure") this.error("/argument-mismatch/am-43");
+		if (ex === "recursive data structure") this.error("/argument-mismatch/am-43");
 		else throw ex;
 	}
 }
@@ -515,22 +515,22 @@ module.order = function(lhs, rhs)
 // however, it makes an effort to make its type recognizable.
 module.previewValue = function (arg, depth)
 {
-	if (depth === undefined) depth = 1;
+	if (typeof depth === 'undefined') depth = 1;
 	if (! arg.hasOwnProperty("type") || ! arg.hasOwnProperty("value")) throw "[module.previewValue] invalid argument";
 
-	if (arg.type.id == module.typeid_null) return "null";
-	else if (arg.type.id == module.typeid_boolean) return arg.value.b ? "true" : "false";
-	else if (arg.type.id == module.typeid_integer) return arg.value.b.toString();
-	else if (arg.type.id == module.typeid_real)
+	if (arg.type.id === module.typeid_null) return "null";
+	else if (arg.type.id === module.typeid_boolean) return arg.value.b ? "true" : "false";
+	else if (arg.type.id === module.typeid_integer) return arg.value.b.toString();
+	else if (arg.type.id === module.typeid_real)
 	{
 		let ret = arg.value.b.toString();
 		if (ret.indexOf('.') < 0 && ret.indexOf('e') < 0 && ret.indexOf('E') < 0) ret += ".0";
 		return ret;
 	}
-	else if (arg.type.id == module.typeid_string) return '\"' + arg.value.b + '\"';
-	else if (arg.type.id == module.typeid_array)
+	else if (arg.type.id === module.typeid_string) return '\"' + arg.value.b + '\"';
+	else if (arg.type.id === module.typeid_array)
 	{
-		if (depth == 0) return "[\u2026]";
+		if (depth === 0) return "[\u2026]";
 		let s = "[";
 		let n = Math.min(arg.value.b.length, 3);
 		for (let i=0; i<n; i++)
@@ -542,15 +542,15 @@ module.previewValue = function (arg, depth)
 		s += "]";
 		return s;
 	}
-	else if (arg.type.id == module.typeid_dictionary)
+	else if (arg.type.id === module.typeid_dictionary)
 	{
-		if (depth == 0) return "{\u2026}";
+		if (depth === 0) return "{\u2026}";
 		let s = "{";
 		let n = 0;
 		for (let key in arg.value.b)
 		{
 			if (! arg.value.b.hasOwnProperty(key)) continue;
-			if (n == 3)
+			if (n === 3)
 			{
 				s += ",\u2026";
 				break;
@@ -562,12 +562,12 @@ module.previewValue = function (arg, depth)
 		s += "}";
 		return s;
 	}
-	else if (arg.type.id == module.typeid_function)
+	else if (arg.type.id === module.typeid_function)
 	{
 		let s = "<Function ";
 		if (arg.value.b.hasOwnProperty("object"))
 		{
-			module.assert(arg.value.b.func.parent.petype == "type", "[previewValue] invalid method object");
+			module.assert(arg.value.b.func.parent.petype === "type", "[previewValue] invalid method object");
 			s += module.displayname(arg.value.b.func.parent) + ".";
 		}
 		if (arg.value.b.func.displayname) s += arg.value.b.func.displayname;
@@ -580,19 +580,19 @@ module.previewValue = function (arg, depth)
 		s += ">";
 		return s;
 	}
-	else if (arg.type.id == module.typeid_range) return arg.value.b.begin.toString() + ":" + arg.value.b.end.toString();
-	else if (arg.type.id == module.typeid_type) return "<Type " + module.displayname(arg.value.b) + ">";
+	else if (arg.type.id === module.typeid_range) return arg.value.b.begin.toString() + ":" + arg.value.b.end.toString();
+	else if (arg.type.id === module.typeid_type) return "<Type " + module.displayname(arg.value.b) + ">";
 	else
 	{
 		let s = "<" + module.displayname(arg.type);
-		if (depth == 0) return s + ">";
+		if (depth === 0) return s + ">";
 		let n = 0;
 		let c = arg.type;
 		while (c && c.variables)
 		{
 			for (let i=0; i<c.variables.length; i++)
 			{
-				if (n == 3)
+				if (n === 3)
 				{
 					s += " \u2026";
 					break;
@@ -803,7 +803,7 @@ let errors = {
 module.errorTemplate = function(path)
 {
 	let tokens = path.split("/");
-	module.assert(tokens[0] == "", "[getError] invalid path: " + path);
+	module.assert(tokens[0] === "", "[getError] invalid path: " + path);
 	let ret = errors;
 	for (let i=1; i<tokens.length; i++)
 	{
@@ -818,7 +818,7 @@ module.composeError = function(path, args)
 {
 	let err = module.errorTemplate(path);
 	let tokens = err.split("$$");
-	module.assert(tokens.length == args.length + 1);
+	module.assert(tokens.length === args.length + 1);
 	let ret = tokens[0];
 	for (let i=0; i<args.length; i++) ret += args[i] + tokens[i+1];
 	return ret;
@@ -971,10 +971,10 @@ let core = {
 						{
 							let s = arg.value.b.trim();
 							let v = 1;
-							if (s.length == 0) this.error("/argument-mismatch/am-14");
-							if (s[0] == '-') { v = -1; s = s.substr(1); }
-							else if (s[0] == '+') { s = s.substr(1); }
-							if (s.length == 0 || "0123456789.".indexOf(s[0]) < 0) this.error("/argument-mismatch/am-14");
+							if (s.length === 0) this.error("/argument-mismatch/am-14");
+							if (s[0] === '-') { v = -1; s = s.substr(1); }
+							else if (s[0] === '+') { s = s.substr(1); }
+							if (s.length === 0 || "0123456789.".indexOf(s[0]) < 0) this.error("/argument-mismatch/am-14");
 							v *= Number(s);
 							if (! Number.isFinite(v)) this.error("/argument-mismatch/am-13");
 							object.value.b = Math.floor(v) | 0;
@@ -993,7 +993,7 @@ let core = {
 						return {"type": this.program.types[module.typeid_boolean], "value": {"b": Number.isFinite(object.value.b)}};
 					},
 					"isInfinite": function(object) {
-						return {"type": this.program.types[module.typeid_boolean], "value": {"b": object.value.b == Number.POSITIVE_INFINITY || object.value.b == Number.NEGATIVE_INFINITY}};
+						return {"type": this.program.types[module.typeid_boolean], "value": {"b": object.value.b === Number.POSITIVE_INFINITY || object.value.b === Number.NEGATIVE_INFINITY}};
 					},
 					"isNan": function(object) {
 						return {"type": this.program.types[module.typeid_boolean], "value": {"b": Number.isNaN(object.value.b)}};
@@ -1019,7 +1019,7 @@ let core = {
 						let pos;
 						if (backward.value.b) pos = object.value.b.lastIndexOf(searchterm.value.b, start.value.b);
 						else pos = object.value.b.indexOf(searchterm.value.b, start.value.b);
-						if (pos == -1) return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
+						if (pos === -1) return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 						else return {"type": this.program.types[module.typeid_integer], "value": {"b": pos}};
 					},
 					"split": function(object, separator) {
@@ -1079,7 +1079,7 @@ let core = {
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
 					"pop": function(object) {
-						if (object.value.b.length == 0) this.error("/argument-mismatch/am-18b");
+						if (object.value.b.length === 0) this.error("/argument-mismatch/am-18b");
 						return object.value.b.pop();
 					},
 					"insert": function(object, position, item) {
@@ -1113,7 +1113,7 @@ let core = {
 							let frame = this.stack[this.stack.length - 1];
 							let pe = frame.pe[frame.pe.length - 1];
 							let ip = frame.ip[frame.ip.length - 1];
-							if (ip == 0)
+							if (ip === 0)
 							{
 								if (frame.object.value.b.length <= 1)
 								{
@@ -1136,7 +1136,7 @@ let core = {
 									this.stack[this.stack.length - 1].temporaries.push({"type": this.program.types[module.typeid_null], "value": {"b": null}});
 									return false;
 								}
-								else if (module.isDerivedFrom(frame.variables[0].type, module.typeid_function) && frame.variables[0].value.b.func.params.length == 2)
+								else if (module.isDerivedFrom(frame.variables[0].type, module.typeid_function) && frame.variables[0].value.b.func.params.length === 2)
 								{
 									// prepare the merge sort state data structure
 									let state = {
@@ -1151,7 +1151,7 @@ let core = {
 								}
 								else this.error("/argument-mismatch/am-1", ["comparator", "Array.sort", "function of two arguments", module.displayname(frame.variables[0].type)]);
 							}
-							else if (ip == 1)
+							else if (ip === 1)
 							{
 								// push the next comparison onto the stack
 								let state = frame.temporaries[frame.temporaries.length - 1];
@@ -1170,7 +1170,7 @@ let core = {
 								if (this.stack.length >= module.maxstacksize) this.error("/logic/le-1");
 								return false;
 							}
-							else if (ip == 2)
+							else if (ip === 2)
 							{
 								// evaluate the comparison
 								let result = frame.temporaries.pop();
@@ -1183,7 +1183,7 @@ let core = {
 								{
 									state.dst.push(state.src[state.lb]);
 									state.lb++;
-									if (state.lb == state.le)
+									if (state.lb === state.le)
 									{
 										while (state.rb < state.re)
 										{
@@ -1196,7 +1196,7 @@ let core = {
 								{
 									state.dst.push(state.src[state.rb]);
 									state.rb++;
-									if (state.rb == state.re)
+									if (state.rb === state.re)
 									{
 										while (state.lb < state.le)
 										{
@@ -1206,7 +1206,7 @@ let core = {
 									}
 								}
 
-								if (state.lb == state.le)
+								if (state.lb === state.le)
 								{
 									// merging the current chunks is complete
 									if (state.src.length - state.re <= state.chunksize)
@@ -1252,7 +1252,7 @@ let core = {
 								frame.temporaries.pop();
 
 								// return null
-								module.assert(frame.temporaries.length == 0, "non-empty temporaries stack in return from Array.sort");
+								module.assert(frame.temporaries.length === 0, "non-empty temporaries stack in return from Array.sort");
 								this.stack.pop();
 								this.stack[this.stack.length - 1].temporaries.push({"type": this.program.types[module.typeid_null], "value": {"b": null}});
 								return false;
@@ -1377,7 +1377,7 @@ let core = {
 					let sup = type.value.b;
 					while (true)
 					{
-						if (sub == sup) { ret = true; break; }
+						if (sub === sup) { ret = true; break; }
 						if (sub.hasOwnProperty("superclass")) sub = sub.superclass;
 						else break;
 					}
@@ -1391,7 +1391,7 @@ let core = {
 					let sup = superclass.value.b;
 					while (true)
 					{
-						if (sub == sup) { ret = true; break; }
+						if (sub === sup) { ret = true; break; }
 						if (sub.hasOwnProperty("superclass")) sub = sub.superclass;
 						else break;
 					}
@@ -1500,7 +1500,7 @@ let core = {
 					function copy(v, k)
 					{
 						if (v.type.id < module.typeid_array) return v;
-						else if (v.type.id == module.typeid_array)
+						else if (v.type.id === module.typeid_array)
 						{
 							if (k.has(v)) throw "recursive data structure";
 							let known = new Set(k)
@@ -1513,7 +1513,7 @@ let core = {
 							}
 							return {"type": this.program.types[module.typeid_array], "value": {"b": b}};
 						}
-						else if (v.type.id == module.typeid_dictionary)
+						else if (v.type.id === module.typeid_dictionary)
 						{
 							if (k.has(v)) throw "recursive data structure";
 							let known = new Set(k)
@@ -1527,9 +1527,9 @@ let core = {
 							}
 							return {"type": this.program.types[module.typeid_dictionary], "value": {"b": b}};
 						}
-						else if (v.type.id == module.typeid_function) throw "a function in the data structure";
-						else if (v.type.id == module.typeid_range) return v;
-						else if (v.type.id == module.typeid_type) return v;
+						else if (v.type.id === module.typeid_function) throw "a function in the data structure";
+						else if (v.type.id === module.typeid_range) return v;
+						else if (v.type.id === module.typeid_type) return v;
 						else throw "an object in the data structure";
 					}
 
@@ -1544,8 +1544,8 @@ let core = {
 				if (! module.isDerivedFrom(event.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["event", "setEventHandler", "string", module.displayname(event.type)]);
 				let name = event.value.b;
 				if (! this.service.documentation_mode && ! this.eventnames.hasOwnProperty(name)) this.error("/argument-mismatch/am-40", [name]);
-				if (handler.type.id != module.typeid_null && ! module.isDerivedFrom(handler.type, module.typeid_function)) this.error("/argument-mismatch/am-1", ["handler", "setEventHandler", "Null or Function", module.displayname(handler.type)]);
-				if (handler.value.b && handler.value.b.func.params.length != 1) this.error("/argument-mismatch/am-41");
+				if (handler.type.id !== module.typeid_null && ! module.isDerivedFrom(handler.type, module.typeid_function)) this.error("/argument-mismatch/am-1", ["handler", "setEventHandler", "Null or Function", module.displayname(handler.type)]);
+				if (handler.value.b && handler.value.b.func.params.length !== 1) this.error("/argument-mismatch/am-41");
 				this.setEventHandler(name, handler);
 				return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 			},
@@ -1577,7 +1577,7 @@ let core = {
 								frame.ip[frame.ip.length - 1]--;   // infinite loop
 								frame.temporaries = [];            // discard return values (hack...)
 
-								if (this.eventqueue.length == 0)
+								if (this.eventqueue.length === 0)
 								{
 									if (! this.service.documentation_mode) this.wait(10);
 								}
@@ -1589,7 +1589,7 @@ let core = {
 									this.eventqueue.splice(0, 1);
 									// this allows another timer event to be enqueued,
 									// while the timer event is executed
-									if (t == "timer") this.timerEventEnqueued = false;
+									if (t === "timer") this.timerEventEnqueued = false;
 									if (this.eventhandler.hasOwnProperty(t))
 									{
 										let handler = this.eventhandler[t];
@@ -1949,7 +1949,7 @@ let lib_canvas = {
 					"setTextAlign": function(alignment) {
 						if (! module.isDerivedFrom(alignment.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["alignment", "canvas.setTextAlign", "string", module.displayname(alignment.type)]);
 						let a = alignment.value.b;
-						if (a != "left" && a != "center" && a != "right") this.error("/user/ue-2", ["error in canvas.setTextAlign; invalid alignment value"]);
+						if (a !== "left" && a !== "center" && a !== "right") this.error("/user/ue-2", ["error in canvas.setTextAlign; invalid alignment value"]);
 						this.service.canvas.setTextAlign.call(this, alignment.value.b);
 						return {"type": this.program.types[module.typeid_null], "value": {"b": null}};
 					},
@@ -2018,7 +2018,7 @@ let lib_canvas = {
 						{
 							let p = points.value.b[i];
 							if (! module.isDerivedFrom(points.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["points[" + i + "]", "canvas.curve", "array", module.displayname(p.type)]);
-							if (p.value.b.length != 2) this.error("/user/ue-2", ["error in canvas.curve; point[" + i + "] must be an array of size two."]);
+							if (p.value.b.length !== 2) this.error("/user/ue-2", ["error in canvas.curve; point[" + i + "] must be an array of size two."]);
 							let x = p.value.b[0];
 							let y = p.value.b[1];
 							if (! module.isNumeric(x.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][0]", "canvas.curve", "numeric argument", module.displayname(x.type)]);
@@ -2035,7 +2035,7 @@ let lib_canvas = {
 						{
 							let p = points.value.b[i];
 							if (! module.isDerivedFrom(points.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["points[" + i + "]", "canvas.fillArea", "array", module.displayname(p.type)]);
-							if (p.value.b.length != 2) this.error("/user/ue-2", ["error in canvas.fillArea; point[" + i + "] must be an array of size two."]);
+							if (p.value.b.length !== 2) this.error("/user/ue-2", ["error in canvas.fillArea; point[" + i + "] must be an array of size two."]);
 							let x = p.value.b[0];
 							let y = p.value.b[1];
 							if (! module.isNumeric(x.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][0]", "canvas.fillArea", "numeric argument", module.displayname(x.type)]);
@@ -2052,7 +2052,7 @@ let lib_canvas = {
 						{
 							let p = points.value.b[i];
 							if (! module.isDerivedFrom(points.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["points[" + i + "]", "canvas.frameArea", "array", module.displayname(p.type)]);
-							if (p.value.b.length != 2) this.error("/user/ue-2", ["error in canvas.frameArea; point[" + i + "] must be an array of size two."]);
+							if (p.value.b.length !== 2) this.error("/user/ue-2", ["error in canvas.frameArea; point[" + i + "] must be an array of size two."]);
 							let x = p.value.b[0];
 							let y = p.value.b[1];
 							if (! module.isNumeric(x.type)) this.error("/argument-mismatch/am-1", ["points[" + i + "][0]", "canvas.frameArea", "numeric argument", module.displayname(x.type)]);
@@ -2091,14 +2091,14 @@ let lib_canvas = {
 					"transform": function(A, b) {
 						if (! module.isDerivedFrom(A.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["A", "canvas.transform", "array", module.displayname(A.type)]);
 						if (! module.isDerivedFrom(b.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["b", "canvas.transform", "array", module.displayname(b.type)]);
-						if (A.value.b.length != 2) this.error("/user/ue-2", ["error in canvas.transform; A must be an array of size two."]);
-						if (A.value.b[0].value.b.length != 2) this.error("/user/ue-2", ["error in canvas.transform; A[0] must be an array of size two."]);
-						if (A.value.b[1].value.b.length != 2) this.error("/user/ue-2", ["error in canvas.transform; A[1] must be an array of size two."]);
+						if (A.value.b.length !== 2) this.error("/user/ue-2", ["error in canvas.transform; A must be an array of size two."]);
+						if (A.value.b[0].value.b.length !== 2) this.error("/user/ue-2", ["error in canvas.transform; A[0] must be an array of size two."]);
+						if (A.value.b[1].value.b.length !== 2) this.error("/user/ue-2", ["error in canvas.transform; A[1] must be an array of size two."]);
 						if (! module.isNumeric(A.value.b[0].value.b[0].type)) this.error("/argument-mismatch/am-1", ["A[0][0]", "canvas.transform", "numeric argument", module.displayname(A.value.b[0].value.b[0].type)]);
 						if (! module.isNumeric(A.value.b[0].value.b[1].type)) this.error("/argument-mismatch/am-1", ["A[0][1]", "canvas.transform", "numeric argument", module.displayname(A.value.b[0].value.b[1].type)]);
 						if (! module.isNumeric(A.value.b[1].value.b[0].type)) this.error("/argument-mismatch/am-1", ["A[1][0]", "canvas.transform", "numeric argument", module.displayname(A.value.b[1].value.b[0].type)]);
 						if (! module.isNumeric(A.value.b[1].value.b[1].type)) this.error("/argument-mismatch/am-1", ["A[1][1]", "canvas.transform", "numeric argument", module.displayname(A.value.b[1].value.b[1].type)]);
-						if (b.value.b.length != 2) this.error("/user/ue-2", ["error in canvas.transform; b must be an array of size two."]);
+						if (b.value.b.length !== 2) this.error("/user/ue-2", ["error in canvas.transform; b must be an array of size two."]);
 						if (! module.isNumeric(b.value.b[0].type)) this.error("/argument-mismatch/am-1", ["b[0]", "canvas.transform", "numeric argument", module.displayname(b.value.b[0].type)]);
 						if (! module.isNumeric(b.value.b[1].type)) this.error("/argument-mismatch/am-1", ["b[1]", "canvas.transform", "numeric argument", module.displayname(b.value.b[1].type)]);
 						this.service.canvas.transform.call(this,
@@ -2180,7 +2180,7 @@ module.delimiters = ",;.";
 // always be tested for its type first, and then for a certain value.
 module.get_token = function (state, peek)
 {
-	peek = (peek !== undefined) ? peek : false;
+	peek = (typeof peek !== 'undefined') ? peek : false;
 	let where = (peek) ? state.get() : false;
 	state.skip();
 	let line = state.line;
@@ -2190,7 +2190,7 @@ module.get_token = function (state, peek)
 	let tok = null;
 
 	let c = state.current();
-	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')
+	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c === '_')
 	{
 		// parse an identifier or a keyword
 		let start = state.pos;
@@ -2198,7 +2198,7 @@ module.get_token = function (state, peek)
 		while (state.good())
 		{
 			let c = state.current();
-			if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') state.advance();
+			if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c === '_') state.advance();
 			else break;
 		}
 		let value = state.source.substring(start, state.pos);
@@ -2214,7 +2214,7 @@ module.get_token = function (state, peek)
 		while (! state.eof() && digits.indexOf(state.current()) >= 0) state.advance();
 		if (! state.eof())
 		{
-			if (state.current() == '.')
+			if (state.current() === '.')
 			{
 				// parse fractional part
 				type = "real";
@@ -2222,12 +2222,12 @@ module.get_token = function (state, peek)
 				if (state.eof() || (state.current() < '0' || state.current() > '9')) state.error("/syntax/se-1");
 				while (! state.eof() && (state.current() >= '0' && state.current() <= '9')) state.advance();
 			}
-			if (state.current() == 'e' || state.current() == 'E')
+			if (state.current() === 'e' || state.current() === 'E')
 			{
 				// parse exponent
 				type = "real";
 				state.advance();
-				if (state.current() == '+' || state.current() == '-') state.advance();
+				if (state.current() === '+' || state.current() === '-') state.advance();
 				if (state.current() < '0' || state.current() > '9') state.error("/syntax/se-1");
 				while (! state.eof() && (state.current() >= '0' && state.current() <= '9')) state.advance();
 			}
@@ -2237,7 +2237,7 @@ module.get_token = function (state, peek)
 		if (where) state.set(where); else state.skip();
 		tok = {"type": type, "value": n, "code": value, "line": line};
 	}
-	else if (c == '\"')
+	else if (c === '\"')
 	{
 		// parse string token
 		let start = state.pos;
@@ -2248,20 +2248,20 @@ module.get_token = function (state, peek)
 		{
 			if (! state.good()) state.error("/syntax/se-2");
 			let c = state.current();
-			if (c == '\\')
+			if (c === '\\')
 			{
 				state.advance();
 				let c = state.current();
 				state.advance();
-				if (c == '\\') c = '\\';
-				else if (c == '\"') c = '\"';
-				else if (c == 'r') c = '\r';
-				else if (c == 'n') c = '\n';
-				else if (c == 't') c = '\t';
-				else if (c == 'f') c = '\f';
-				else if (c == 'b') c = '\b';
-				else if (c == '/') c = '/';
-				else if (c == 'u')
+				if (c === '\\') c = '\\';
+				else if (c === '\"') c = '\"';
+				else if (c === 'r') c = '\r';
+				else if (c === 'n') c = '\n';
+				else if (c === 't') c = '\t';
+				else if (c === 'f') c = '\f';
+				else if (c === 'b') c = '\b';
+				else if (c === '/') c = '/';
+				else if (c === 'u')
 				{
 					const digits = "0123456789abcdefABCDEF";
 					let code = "";
@@ -2276,8 +2276,8 @@ module.get_token = function (state, peek)
 				else state.error("/syntax/se-4", [c]);
 				value += c;
 			}
-			else if (c == '\r' || c == '\n') state.error("/syntax/se-2");
-			else if (c == '\"')
+			else if (c === '\r' || c === '\n') state.error("/syntax/se-2");
+			else if (c === '\"')
 			{
 				state.advance();
 				code = state.source.substring(start, state.pos);
@@ -2299,9 +2299,9 @@ module.get_token = function (state, peek)
 		if (module.operators.indexOf(c) >= 0)
 		{
 			let op = c;
-			if (state.current() == '/' && c == '/') { state.advance(); op += '/'; }
-			if (state.current() == '=' && c != ':') { state.advance(); op += '='; }
-			if (op != "!")
+			if (state.current() === '/' && c === '/') { state.advance(); op += '/'; }
+			if (state.current() === '=' && c !== ':') { state.advance(); op += '='; }
+			if (op !== "!")
 			{
 				if (where) state.set(where); else state.skip();
 				tok = {"type": "operator", "value": op, "code": op, "line": line};
@@ -2321,19 +2321,19 @@ module.get_token = function (state, peek)
 	if (module.options.checkstyle && ! state.builtin())
 	{
 		// check for indentation problems
-		if (tok.type == "keyword" && (tok.value == "public" || tok.value == "protected" || tok.value == "private"))
+		if (tok.type === "keyword" && (tok.value === "public" || tok.value === "protected" || tok.value === "private"))
 		{ }
-		else if (tok.type == "operator" && tok.value == ":")
+		else if (tok.type === "operator" && tok.value === ":")
 		{ }
 		else
 		{
 			let topmost = state.indent[state.indent.length - 1];
-			if (topmost < 0 && line != -1-topmost)
+			if (topmost < 0 && line !== -1-topmost)
 			{
 				if (indent <= state.indent[state.indent.length - 2]) state.error("/style/ste-1");
 				state.indent[state.indent.length - 1] = indent;
 			}
-			else if (indent < topmost && state.current() != '}') state.error("/style/ste-1");
+			else if (indent < topmost && state.current() !== '}') state.error("/style/ste-1");
 		}
 	}
 
@@ -2468,7 +2468,7 @@ const binary_operator_impl = {
 					{
 						if (module.isDerivedFrom(lhs.type, module.typeid_integer) && module.isDerivedFrom(rhs.type, module.typeid_integer))
 						{
-							if (rhs.value.b == 0) this.error("/argument-mismatch/am-15");
+							if (rhs.value.b === 0) this.error("/argument-mismatch/am-15");
 							return {"type": this.program.types[module.typeid_integer], "value": {"b": Math.floor(lhs.value.b / rhs.value.b) | 0} };
 						}
 						else
@@ -2568,7 +2568,7 @@ const binary_operator_impl = {
 				{
 					if (module.isDerivedFrom(lhs.type, module.typeid_boolean) && module.isDerivedFrom(rhs.type, module.typeid_boolean))
 					{
-						return {"type": this.program.types[module.typeid_boolean], "value": {"b": lhs.value.b != rhs.value.b} };
+						return {"type": this.program.types[module.typeid_boolean], "value": {"b": lhs.value.b !== rhs.value.b} };
 					}
 					else if (module.isDerivedFrom(lhs.type, module.typeid_integer) && module.isDerivedFrom(rhs.type, module.typeid_integer))
 					{
@@ -2588,7 +2588,7 @@ function peek_keyword(state)
 	if (state.eof()) return "";
 
 	let c = state.current();
-	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')
+	if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c === '_')
 	{
 		// parse an identifier or a keyword
 		let start = state.pos;
@@ -2596,7 +2596,7 @@ function peek_keyword(state)
 		while (state.good())
 		{
 			let c = state.current();
-			if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') state.advance();
+			if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c === '_') state.advance();
 			else break;
 		}
 		let value = state.source.substring(start, state.pos);
@@ -2626,7 +2626,7 @@ function peek_keyword(state)
 // deep copy of a JSON-like data structure
 function deepcopy(value, excludekeys)
 {
-	if (excludekeys === undefined) excludekeys = {};
+	if (typeof excludekeys === 'undefined') excludekeys = {};
 
 	if (Array.isArray(value))
 	{
@@ -2651,13 +2651,13 @@ function deepcopy(value, excludekeys)
 // deep copy of a boxed constant
 function copyconstant(constant)
 {
-	if (constant.type.id == module.typeid_array)
+	if (constant.type.id === module.typeid_array)
 	{
 		let value = [];
 		for (let i=0; i<constant.value.b.length; i++) value.push(copyconstant.call(this, constant.value.b[i]));
 		return {"type": this.program.types[module.typeid_array], "value": {"b": value}};
 	}
-	else if (constant.type.id == module.typeid_dictionary)
+	else if (constant.type.id === module.typeid_dictionary)
 	{
 		let value = {};
 		for (let key in constant.value.b)
@@ -2705,14 +2705,14 @@ function scopestep()
 	{
 		frame.pe.pop();
 		frame.ip.pop();
-		if (pe.petype == "function")
+		if (pe.petype === "function")
 		{
 			this.stack.pop();
 			let frame = this.stack[this.stack.length - 1];
 			frame.temporaries.push({"type": this.program.types[module.typeid_null], "value": {"b": null}});
 			return false;
 		}
-		else if (pe.petype == "global scope")
+		else if (pe.petype === "global scope")
 		{
 			// the program has finished
 			this.stack.pop();
@@ -2728,7 +2728,7 @@ function constructorstep()
 	let frame = this.stack[this.stack.length - 1];
 	let pe = frame.pe[frame.pe.length - 1];
 	let ip = frame.ip[frame.ip.length - 1];
-	if (ip == 0)
+	if (ip === 0)
 	{
 		// call the super class constructor
 		if (pe.hasOwnProperty("supercall"))
@@ -2765,7 +2765,7 @@ function callstep()
 	let pe = frame.pe[frame.pe.length - 1];
 	let ip = frame.ip[frame.ip.length - 1];
 	let n = pe.arguments.length;
-	if (ip == 0)
+	if (ip === 0)
 	{
 		// evaluate base
 		frame.pe.push(pe.base);
@@ -2779,7 +2779,7 @@ function callstep()
 		frame.ip.push(-1);
 		return false;
 	}
-	else if (ip == n+1)
+	else if (ip === n+1)
 	{
 		// load the accumulated temporaries
 		let args = new Array(n);
@@ -2798,12 +2798,12 @@ function callstep()
 		{
 			module.assert(f.value.b.hasOwnProperty("class_constructor"), "[callstep] internal error; type does not have a constructor");
 			f_pe = f.value.b.class_constructor;
-			if (pe.petype == "super call") f_obj = frame.object;
+			if (pe.petype === "super call") f_obj = frame.object;
 			else
 			{
 				// prepare the object for the constructor chain
 				let cls = f.value.b;
-				module.assert(cls.petype == "type", "[callstep] cannot find class of constructor");
+				module.assert(cls.petype === "type", "[callstep] cannot find class of constructor");
 				f_obj = { "type": cls, "value": { } };
 				if (cls.objectsize > 0)
 				{
@@ -2838,16 +2838,16 @@ function callstep()
 		// handle positional and named arguments
 		for (let i=0; i<n; i++)
 		{
-			if (pe.arguments[i].petype == "named argument")
+			if (pe.arguments[i].petype === "named argument")
 			{
 				// parameter name lookup
 				let name = pe.arguments[i].name;
 				let found = false;
 				for (let j=0; j<m; j++)
 				{
-					if (f_pe.params[j].hasOwnProperty("name") && f_pe.params[j].name == name)
+					if (f_pe.params[j].hasOwnProperty("name") && f_pe.params[j].name === name)
 					{
-						if (params[j] !== undefined) this.error("/name/ne-1", [name, module.displayname(f_pe)]);
+						if (typeof params[j] !== 'undefined') this.error("/name/ne-1", [name, module.displayname(f_pe)]);
 						params[j] = args[i];
 						found = true;
 						break;
@@ -2865,7 +2865,7 @@ function callstep()
 		// handle default values
 		for (let j=0; j<m; j++)
 		{
-			if (params[j] === undefined)
+			if (typeof params[j] === 'undefined')
 			{
 				if (f_pe.params[j].hasOwnProperty("defaultvalue")) params[j] = f_pe.params[j].defaultvalue;
 				else this.error("/name/ne-4", [(j+1), module.displayname(f_pe)]);
@@ -2905,7 +2905,7 @@ function callsim()
 	let pe = frame.pe[frame.pe.length - 1];
 	let ip = frame.ip[frame.ip.length - 1];
 	let n = pe.arguments.length;
-	return (ip == n + 1);
+	return (ip === n + 1);
 }
 
 // Create a program element of type breakpoint.
@@ -2929,7 +2929,7 @@ function create_breakpoint(parent, state)
 			"step": function()
 					{
 						let frame = this.stack[this.stack.length - 1];
-						if (active && frame.ip[frame.ip.length-1] == 0)
+						if (active && frame.ip[frame.ip.length-1] === 0)
 						{
 							frame.ip[frame.ip.length-1]++;
 							this.interrupt();
@@ -2943,7 +2943,7 @@ function create_breakpoint(parent, state)
 			"sim": function()
 					{
 						let frame = this.stack[this.stack.length - 1];
-						return active && frame.ip[frame.ip.length-1] == 0;
+						return active && frame.ip[frame.ip.length-1] === 0;
 					},
 			};
 }
@@ -2958,8 +2958,8 @@ function get_function(pe)
 {
 	while (true)
 	{
-		if (pe.petype == "function" || pe.petype == "method") return pe;
-		if (pe.petype == "type") return null;
+		if (pe.petype === "function" || pe.petype === "method") return pe;
+		if (pe.petype === "type") return null;
 		if (! pe.parent) return pe;
 		pe = pe.parent;
 	}
@@ -2969,7 +2969,7 @@ function get_type(pe)
 {
 	while (pe)
 	{
-		if (pe.petype == "type") return pe;
+		if (pe.petype === "type") return pe;
 		pe = pe.parent;
 	}
 	return null;
@@ -2979,7 +2979,7 @@ function get_context(pe)
 {
 	while (true)
 	{
-		if (pe.petype == "function" || pe.petype == "method" || pe.petype == "type" || ! pe.parent) return pe;
+		if (pe.petype === "function" || pe.petype === "method" || pe.petype === "type" || ! pe.parent) return pe;
 		pe = pe.parent;
 	}
 }
@@ -2988,11 +2988,11 @@ function get_context(pe)
 // Otherwise return null.
 function asConstant(pe, state)
 {
-	if (pe.petype == "constant")
+	if (pe.petype === "constant")
 	{
 		return pe;
 	}
-	else if (pe.petype == "array")
+	else if (pe.petype === "array")
 	{
 		let value = [];
 		for (let i=0; i<pe.elements.length; i++)
@@ -3003,7 +3003,7 @@ function asConstant(pe, state)
 		}
 		return { "petype": "constant", "where": pe.where, "typedvalue": {"type": get_program(pe).types[module.typeid_array], "value": {"b": value}}, "step": constantstep, "sim": simfalse };
 	}
-	else if (pe.petype == "dictionary")
+	else if (pe.petype === "dictionary")
 	{
 		let value = {};
 		for (let i=0; i<pe.keys.length; i++)
@@ -3014,14 +3014,14 @@ function asConstant(pe, state)
 		}
 		return { "petype": "constant", "where": pe.where, "typedvalue": {"type": get_program(pe).types[module.typeid_dictionary], "value": {"b": value}}, "step": constantstep, "sim": simfalse };
 	}
-	else if (pe.petype.substring(0, 20) == "left-unary operator ")
+	else if (pe.petype.substring(0, 20) === "left-unary operator ")
 	{
 		let sub = asConstant(pe.argument, state);
 		if (sub === null) return null;
 		let symbol = pe.petype.substring(20);
 		return { "petype": "constant", "where": pe.where, "typedvalue": left_unary_operator_impl[symbol].call(state, sub.typedvalue), "step": constantstep, "sim": simfalse };
 	}
-	else if (pe.petype.substring(0, 16) == "binary operator ")
+	else if (pe.petype.substring(0, 16) === "binary operator ")
 	{
 		let lhs = asConstant(pe.lhs, state);
 		if (lhs === null) return null;
@@ -3051,32 +3051,32 @@ function resolve_name(state, name, parent, errorname)
 			let n = pe.names[name];
 
 			// check whether a variable or function is accessible
-			if (n.petype == "variable" || n.petype == "function" || n.petype == "attribute" || n.petype == "method")
+			if (n.petype === "variable" || n.petype === "function" || n.petype === "attribute" || n.petype === "method")
 			{
 				// find the context
 				let context = get_context(pe);
-				if (context.petype == "global scope")
+				if (context.petype === "global scope")
 				{
 					// global scope is always okay
-					module.assert(n.petype == "variable" || n.petype == "function");
+					module.assert(n.petype === "variable" || n.petype === "function");
 				}
-				else if (context.petype == "type")
+				else if (context.petype === "type")
 				{
 					// non-static members must live in the same class
-					if (n.petype == "attribute" || n.petype == "method")
+					if (n.petype === "attribute" || n.petype === "method")
 					{
 						let cl = get_type(parent);
-						if (cl != context) state.error("/name/ne-6", [errorname, name]);
+						if (cl !== context) state.error("/name/ne-6", [errorname, name]);
 					}
 				}
 				else
 				{
 					// local variables must live in the same function
-					module.assert(n.petype == "variable" || n.petype == "function");
-					if (n.petype == "variable")
+					module.assert(n.petype === "variable" || n.petype === "function");
+					if (n.petype === "variable")
 					{
 						let fn = get_function(parent);
-						if (fn != context) state.error("/name/ne-7", [errorname, name]);
+						if (fn !== context) state.error("/name/ne-7", [errorname, name]);
 					}
 				}
 			}
@@ -3084,14 +3084,14 @@ function resolve_name(state, name, parent, errorname)
 		}
 
 		// check the superclass chain
-		if (pe.petype == "type")
+		if (pe.petype === "type")
 		{
 			let sup = pe.superclass;
 			while (sup)
 			{
 				if (sup.names.hasOwnProperty(name))
 				{
-					if (sup.names[name].access == "private")
+					if (sup.names[name].access === "private")
 					{
 						// prepare the error, don't raise it yet!
 						error = "/name/ne-8";
@@ -3119,14 +3119,14 @@ function resolve_name(state, name, parent, errorname)
 // non-static member for which "this" is not available.
 function parse_name(state, parent, errorname, allow_namespace)
 {
-	if (allow_namespace === undefined) allow_namespace = false;
+	if (typeof allow_namespace === 'undefined') allow_namespace = false;
 
 	let ref = parent;
 	let token = module.get_token(state);
 
 	// handle "super"
 	let isSuper = false;
-	if (token.type == "keyword" && token.value == "super")
+	if (token.type === "keyword" && token.value === "super")
 	{
 		// check for a super class
 		let cls = get_type(parent);
@@ -3136,32 +3136,32 @@ function parse_name(state, parent, errorname, allow_namespace)
 
 		// parser super.identifier
 		token = module.get_token(state);
-		if (token.type != "delimiter" || token.value != '.') state.error("/syntax/se-8");
+		if (token.type !== "delimiter" || token.value !== '.') state.error("/syntax/se-8");
 		token = module.get_token(state);
-		if (token.type != "identifier") state.error("/syntax/se-9");
+		if (token.type !== "identifier") state.error("/syntax/se-9");
 
 		isSuper = true;
 	}
-	else if (token.type != "identifier") state.error("/syntax/se-10", [errorname]);
+	else if (token.type !== "identifier") state.error("/syntax/se-10", [errorname]);
 
 	// look up the name
 	let name = token.value;
 	let pe = resolve_name(state, token.value, ref, errorname);
 	let lookup = pe.names[token.value];
-	if (isSuper && lookup.hasOwnProperty("access") && lookup.access == "private") state.error("/name/ne-8", ["name lookup", name, module.displayname(pe)]);
+	if (isSuper && lookup.hasOwnProperty("access") && lookup.access === "private") state.error("/name/ne-8", ["name lookup", name, module.displayname(pe)]);
 
 	// handle namespace names
-	while (lookup.petype == "namespace")
+	while (lookup.petype === "namespace")
 	{
 		token = module.get_token(state, true);
-		if (token.type != "delimiter" || token.value != '.')
+		if (token.type !== "delimiter" || token.value !== '.')
 		{
 			if (allow_namespace) break;
 			else state.error("/name/ne-11");
 		}
 		module.get_token(state);
 		token = module.get_token(state);
-		if (token.type != "identifier") state.error("/syntax/se-11");
+		if (token.type !== "identifier") state.error("/syntax/se-11");
 
 		if (! lookup.names.hasOwnProperty(token.value)) state.error("/name/ne-9", [token.value, name]);
 		name += "." + token.value;
@@ -3170,7 +3170,7 @@ function parse_name(state, parent, errorname, allow_namespace)
 	}
 
 	// check whether "this" is available
-	if (lookup.petype == "attribute" || lookup.petype == "method")
+	if (lookup.petype === "attribute" || lookup.petype === "method")
 	{
 		// check for the enclosing type
 		let sub_cl = get_type(parent);
@@ -3179,7 +3179,7 @@ function parse_name(state, parent, errorname, allow_namespace)
 
 		// check for an enclosing non-static method
 		let fn = get_function(parent);
-		if (fn && fn.petype != "method") state.error("/syntax/se-13", [errorname, lookup.petype, name]);
+		if (fn && fn.petype !== "method") state.error("/syntax/se-13", [errorname, lookup.petype, name]);
 	}
 
 	return { "name": name, "pe": pe, "lookup": lookup };
@@ -3192,12 +3192,12 @@ function parse_call(state, parent, base)
 	// parse the opening parenthesis, which is assumed to be already detected
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.value == '(', "[parse_call] internal error");
+	module.assert(token.value === '(', "[parse_call] internal error");
 
 	// parse comma-separated list of possibly named expressions
 	let args = [];
 	token = module.get_token(state, true);
-	if (token.type == "grouping" && token.value == ')') module.get_token(state);
+	if (token.type === "grouping" && token.value === ')') module.get_token(state);
 	else
 	{
 		let forcenamed = false;
@@ -3207,10 +3207,10 @@ function parse_call(state, parent, base)
 			let where = state.get();
 			let named = false;
 			let name = module.get_token(state);
-			if (name.type == "identifier")
+			if (name.type === "identifier")
 			{
 				let token = module.get_token(state);
-				if (token.type == "operator" && token.value == '=') named = true;
+				if (token.type === "operator" && token.value === '=') named = true;
 				else state.set(where);
 			}
 			else state.set(where);
@@ -3227,7 +3227,7 @@ function parse_call(state, parent, base)
 									let frame = this.stack[this.stack.length - 1];
 									let pe = frame.pe[frame.pe.length - 1];
 									let ip = frame.ip[frame.ip.length - 1];
-									if (ip == 0)
+									if (ip === 0)
 									{
 										frame.pe.push(pe.argument);
 										frame.ip.push(-1);
@@ -3248,13 +3248,13 @@ function parse_call(state, parent, base)
 
 			// delimiter or end
 			token = module.get_token(state);
-			if (token.type == "grouping" && token.value == ')') break;
-			else if (token.value != ',') state.error("/syntax/se-15");
+			if (token.type === "grouping" && token.value === ')') break;
+			else if (token.value !== ',') state.error("/syntax/se-15");
 		}
 	}
 
 	// check arguments at parse time if possible (which is the case most of the time)
-	if (base.petype == "constant")
+	if (base.petype === "constant")
 	{
 		// check base type
 		let f = null;
@@ -3262,16 +3262,16 @@ function parse_call(state, parent, base)
 		else if (module.isDerivedFrom(base.typedvalue.type, module.typeid_type))
 		{
 			let cls = base.typedvalue.value.b;
-			if (cls.class_constructor.access != "public")
+			if (cls.class_constructor.access !== "public")
 			{
 				// check whether the constructor is accessible from the current context
 				let sub_cl = get_type(parent);
 				let error = false;
-				if (cls.class_constructor.access == "private")
+				if (cls.class_constructor.access === "private")
 				{
-					if (sub_cl === null || sub_cl != cls.id) error = true;
+					if (sub_cl === null || sub_cl !== cls.id) error = true;
 				}
-				else if (cls.class_constructor.access == "protected")
+				else if (cls.class_constructor.access === "protected")
 				{
 					if (sub_cl === null || ! module.isDerivedFrom(sub_cl, cls.id)) error = true;
 				}
@@ -3290,14 +3290,14 @@ function parse_call(state, parent, base)
 		// handle positional and named arguments
 		for (let i=0; i<n; i++)
 		{
-			if (args[i].petype == "named argument")
+			if (args[i].petype === "named argument")
 			{
 				// parameter name lookup
 				let name = args[i].name;
 				let found = false;
 				for (let j=0; j<m; j++)
 				{
-					if (f.params[j].hasOwnProperty("name") && f.params[j].name == name)
+					if (f.params[j].hasOwnProperty("name") && f.params[j].name === name)
 					{
 						if (params[j]) state.error("/name/ne-1", [name, module.displayname(f)]);
 						params[j] = true;
@@ -3327,7 +3327,7 @@ function parse_call(state, parent, base)
 
 function parse_expression(state, parent, lhs)
 {
-	if (lhs === undefined) lhs = false;
+	if (typeof lhs === 'undefined') lhs = false;
 
 	// stack of expressions and operators
 	let stack = [];
@@ -3339,7 +3339,7 @@ function parse_expression(state, parent, lhs)
 		let token = module.get_token(state);
 
 		// left-unary operators, parse now but handle later
-		while ((token.type == "operator" || token.type == "keyword") && left_unary_operator_impl.hasOwnProperty(token.value))
+		while ((token.type === "operator" || token.type === "keyword") && left_unary_operator_impl.hasOwnProperty(token.value))
 		{
 			if (lhs) state.error("/syntax/se-21");
 			stack.push({"operator": token.value, "unary": true, "precedence": left_unary_operator_precedence[token.value], "where": where});
@@ -3349,18 +3349,18 @@ function parse_expression(state, parent, lhs)
 
 		// actual core expression
 		let ex = { "parent": parent, "where": where };
-		if (token.type == "grouping" && token.value == '(')
+		if (token.type === "grouping" && token.value === '(')
 		{
 			ex.petype = "group";
 			ex.sub = parse_expression(state, parent);
 			let token = module.get_token(state);
-			if (token.type != "grouping" || token.value != ')') state.error("/syntax/se-22");
+			if (token.type !== "grouping" || token.value !== ')') state.error("/syntax/se-22");
 			ex.step = function()
 					{
 						let frame = this.stack[this.stack.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
 						let pe = frame.pe[frame.pe.length - 1];
-						if (ip == 0)
+						if (ip === 0)
 						{
 							frame.pe.push(pe.sub);
 							frame.ip.push(-1);
@@ -3375,7 +3375,7 @@ function parse_expression(state, parent, lhs)
 					};
 			ex.sim = simfalse;
 		}
-		else if (token.type == "keyword" && token.value == "null")
+		else if (token.type === "keyword" && token.value === "null")
 		{
 			// constant
 			ex.petype = "constant";
@@ -3383,15 +3383,15 @@ function parse_expression(state, parent, lhs)
 			ex.step = constantstep;
 			ex.sim = simfalse;
 		}
-		else if (token.type == "keyword" && (token.value == "true" || token.value == "false"))
+		else if (token.type === "keyword" && (token.value === "true" || token.value === "false"))
 		{
 			// constant
 			ex.petype = "constant";
-			ex.typedvalue = {"type": get_program(parent).types[module.typeid_boolean], "value": {"b": (token.value == "true")}};
+			ex.typedvalue = {"type": get_program(parent).types[module.typeid_boolean], "value": {"b": (token.value === "true")}};
 			ex.step = constantstep;
 			ex.sim = simfalse;
 		}
-		else if (token.type == "integer")
+		else if (token.type === "integer")
 		{
 			// constant
 			let v = parseFloat(token.value);
@@ -3402,7 +3402,7 @@ function parse_expression(state, parent, lhs)
 			ex.step = constantstep;
 			ex.sim = simfalse;
 		}
-		else if (token.type == "real")
+		else if (token.type === "real")
 		{
 			// constant
 			let v = parseFloat(token.value);
@@ -3411,14 +3411,14 @@ function parse_expression(state, parent, lhs)
 			ex.step = constantstep;
 			ex.sim = simfalse;
 		}
-		else if (token.type == "string")
+		else if (token.type === "string")
 		{
 			// constant
 			let v = token.value;
 			while (true)
 			{
 				token = module.get_token(state, true);
-				if (token.type != "string") break;
+				if (token.type !== "string") break;
 				token = module.get_token(state);
 				v += token.value;
 			}
@@ -3427,7 +3427,7 @@ function parse_expression(state, parent, lhs)
 			ex.step = constantstep;
 			ex.sim = simfalse;
 		}
-		else if (token.value == '[')
+		else if (token.value === '[')
 		{
 			// create an array
 			ex.petype = "array";
@@ -3471,14 +3471,14 @@ function parse_expression(state, parent, lhs)
 			while (! state.eof())
 			{
 				let token = module.get_token(state, true);
-				if (token.type == "grouping" && token.value == ']') { module.get_token(state); break; }
+				if (token.type === "grouping" && token.value === ']') { module.get_token(state); break; }
 				if (first) first = false;
 				else
 				{
-					if (token.type != "delimiter" || token.value != ',') state.error("/syntax/se-24");
+					if (token.type !== "delimiter" || token.value !== ',') state.error("/syntax/se-24");
 					module.get_token(state);
 					token = module.get_token(state, true);
-					if (token.type == "grouping" && token.value == ']') { module.get_token(state); break; }
+					if (token.type === "grouping" && token.value === ']') { module.get_token(state); break; }
 				}
 				ex.elements.push(parse_expression(state, parent));
 			}
@@ -3488,7 +3488,7 @@ function parse_expression(state, parent, lhs)
 			let c = asConstant(ex, state);
 			if (c !== null) ex = c;
 		}
-		else if (token.value == '{')
+		else if (token.value === '{')
 		{
 			// create a dictionary
 			ex.petype = "dictionary";
@@ -3540,22 +3540,22 @@ function parse_expression(state, parent, lhs)
 			while (! state.eof())
 			{
 				let token = module.get_token(state, true);
-				if (token.type == "grouping" && token.value == '}') { module.get_token(state); break; }
+				if (token.type === "grouping" && token.value === '}') { module.get_token(state); break; }
 				if (first) first = false;
 				else
 				{
-					if (token.type == "delimiter" && token.value != ',') state.error("/syntax/se-27");
+					if (token.type === "delimiter" && token.value !== ',') state.error("/syntax/se-27");
 					module.get_token(state);
 					token = module.get_token(state, true);
-					if (token.type == "grouping" && token.value == '}') { module.get_token(state); break; }
+					if (token.type === "grouping" && token.value === '}') { module.get_token(state); break; }
 				}
 				token = module.get_token(state);
-				if (token.type != "string" && token.type != "identifier") state.error("/syntax/se-28");
+				if (token.type !== "string" && token.type !== "identifier") state.error("/syntax/se-28");
 				if (keys.hasOwnProperty('#' + token.value)) state.error("/syntax/se-26", [token.value]);
 				keys['#' + token.value] = true;
 				ex.keys.push(token.value);
 				token = module.get_token(state);
-				if (token.type != "operator" || token.value != ':') state.error("/syntax/se-29");
+				if (token.type !== "operator" || token.value !== ':') state.error("/syntax/se-29");
 				ex.values.push(parse_expression(state, parent));
 			}
 			if (state.eof()) state.error("/syntax/se-30");
@@ -3564,7 +3564,7 @@ function parse_expression(state, parent, lhs)
 			let c = asConstant(ex, state);
 			if (c !== null) ex = c;
 		}
-		else if (token.type == "identifier" || (token.type == "keyword" && token.value == "super"))
+		else if (token.type === "identifier" || (token.type === "keyword" && token.value === "super"))
 		{
 			state.set(where);
 			let result = parse_name(state, parent, "expression");
@@ -3575,7 +3575,7 @@ function parse_expression(state, parent, lhs)
 			ex.petype = "name";
 			ex.name = name;
 			ex.reference = lookup;
-			if (lookup.petype == "variable" || lookup.petype == "attribute")
+			if (lookup.petype === "variable" || lookup.petype === "attribute")
 			{
 				ex.scope = lookup.scope;
 				ex.id = lookup.id;
@@ -3584,11 +3584,11 @@ function parse_expression(state, parent, lhs)
 							let frame = this.stack[this.stack.length - 1];
 							let pe = frame.pe[frame.pe.length - 1];
 							let ip = frame.ip[frame.ip.length - 1];
-							if (pe.scope == "global")
+							if (pe.scope === "global")
 								frame.temporaries.push(this.stack[0].variables[pe.id]);
-							else if (pe.scope == "local")
+							else if (pe.scope === "local")
 								frame.temporaries.push(frame.variables[pe.id]);
-							else if (pe.scope == "object")
+							else if (pe.scope === "object")
 								frame.temporaries.push(frame.object.value.a[pe.id]);
 							else module.assert(false, "unknown scope: " + pe.scope);
 							frame.pe.pop();
@@ -3597,14 +3597,14 @@ function parse_expression(state, parent, lhs)
 						};
 				ex.sim = simfalse;
 			}
-			else if (lookup.petype == "function")
+			else if (lookup.petype === "function")
 			{
 				ex.petype = "constant";
 				ex.typedvalue = {"type": get_program(parent).types[module.typeid_function], "value": {"b": {"func": lookup}}};
 				ex.step = constantstep;
 				ex.sim = simfalse;
 			}
-			else if (lookup.petype == "method")
+			else if (lookup.petype === "method")
 			{
 				ex.scope = lookup.scope;
 				ex.id = lookup.id;
@@ -3624,7 +3624,7 @@ function parse_expression(state, parent, lhs)
 						};
 				ex.sim = simfalse;
 			}
-			else if (lookup.petype == "type")
+			else if (lookup.petype === "type")
 			{
 				ex.petype = "constant";
 				ex.typedvalue = {"type": get_program(parent).types[module.typeid_type], "value": {"b": lookup}};
@@ -3633,14 +3633,14 @@ function parse_expression(state, parent, lhs)
 			}
 			else module.assert(false, "If this assertion fails then error ne-10 must be re-activated.");
 		}
-		else if (token.type == "keyword" && token.value == "this")
+		else if (token.type === "keyword" && token.value === "this")
 		{
 			// check for a method or an anonymous function
 			let fn = get_function(parent);
-			if (fn.petype == "method")
+			if (fn.petype === "method")
 			{
 				let cls = fn.parent;
-				module.assert(cls.petype == "type", "cannot find class around this");
+				module.assert(cls.petype === "type", "cannot find class around this");
 
 				// create the "this" object
 				ex.petype = "this";
@@ -3654,7 +3654,7 @@ function parse_expression(state, parent, lhs)
 						};
 				ex.sim = simfalse;
 			}
-			else if (fn.petype == "function" && ! fn.hasOwnProperty("name") && fn.displayname == "(anonymous)")
+			else if (fn.petype === "function" && ! fn.hasOwnProperty("name") && fn.displayname === "(anonymous)")
 			{
 				// create the "this" object
 				ex.petype = "this";
@@ -3672,30 +3672,30 @@ function parse_expression(state, parent, lhs)
 			}
 			else state.error("/syntax/se-47");
 		}
-		else if (token.type == "keyword" && token.value == "function")
+		else if (token.type === "keyword" && token.value === "function")
 		{
 			// create the anonymous function
 			let func = {"petype": "function", "parent": parent, "where": where, "displayname": "(anonymous)", "commands": [], "variables": [], "names": {}, "closureparams": [], "params": [], "step": scopestep, "sim": simfalse};
 
 			// parse the closure parameters
 			token = module.get_token(state);
-			if (token.type == "grouping" && token.value == '[')
+			if (token.type === "grouping" && token.value === '[')
 			{
 				while (true)
 				{
 					// parse ] or ,
 					let where = state.get();
 					let token = module.get_token(state);
-					if (token.type == "grouping" && token.value == ']') break;
-					if (func.closureparams.length != 0)
+					if (token.type === "grouping" && token.value === ']') break;
+					if (func.closureparams.length !== 0)
 					{
-						if (token.type != "delimiter" || token.value != ',') state.error("/syntax/se-31");
+						if (token.type !== "delimiter" || token.value !== ',') state.error("/syntax/se-31");
 						where = state.get();
 						token = module.get_token(state);
 					}
 
 					// parse the parameter name
-					if (token.type != "identifier") state.error("/syntax/se-32");
+					if (token.type !== "identifier") state.error("/syntax/se-32");
 					let name = token.value; 
 					if (func.names.hasOwnProperty(name)) state.error("/name/ne-17", [name]);
 					let id = func.variables.length;
@@ -3703,15 +3703,15 @@ function parse_expression(state, parent, lhs)
 
 					// parse the initializer
 					token = module.get_token(state, true);
-					if (token.type == "operator" && token.value == '=')
+					if (token.type === "operator" && token.value === '=')
 					{
 						// explicit initializer, consume the "=" token
 						module.get_token(state);
 					}
 					else
 					{
-						if (token.type == "delimiter" && token.value == ",") { }
-						else if (token.type == "grouping" && token.value == "]") { }
+						if (token.type === "delimiter" && token.value === ",") { }
+						else if (token.type === "grouping" && token.value === "]") { }
 						else state.error("/syntax/se-31");
 
 						// parse the identifier again, but this time as its own initializer
@@ -3729,29 +3729,29 @@ function parse_expression(state, parent, lhs)
 				// prepare the opening parenthesis
 				token = module.get_token(state);
 			}
-			else if (token.type != "grouping" || token.value != '(') state.error("/syntax/se-35");
+			else if (token.type !== "grouping" || token.value !== '(') state.error("/syntax/se-35");
 
 			// parse the parameters
-			if (token.type != "grouping" || token.value != '(') state.error("/syntax/se-36", ["anonymous function"]);
+			if (token.type !== "grouping" || token.value !== '(') state.error("/syntax/se-36", ["anonymous function"]);
 			while (true)
 			{
 				// parse ) or ,
 				let token = module.get_token(state, true);
-				if (token.type == "grouping" && token.value == ')')
+				if (token.type === "grouping" && token.value === ')')
 				{
 					module.get_token(state);
 					break;
 				}
-				if (func.params.length != 0)
+				if (func.params.length !== 0)
 				{
-					if (token.type != "delimiter" || token.value != ',') state.error("/syntax/se-37");
+					if (token.type !== "delimiter" || token.value !== ',') state.error("/syntax/se-37");
 					module.get_token(state);
 				}
 
 				// parse the parameter name
 				let where = state.get();
 				token = module.get_token(state);
-				if (token.type != "identifier") state.error("/syntax/se-33");
+				if (token.type !== "identifier") state.error("/syntax/se-33");
 				let name = token.value; 
 				let id = func.variables.length;
 				let variable = { "petype": "variable", "where": where, "parent": func, "name": name, "id": id, "scope": "local" };
@@ -3759,11 +3759,11 @@ function parse_expression(state, parent, lhs)
 
 				// check for a default value
 				token = module.get_token(state, true);
-				if (token.type == "operator" && token.value == '=')
+				if (token.type === "operator" && token.value === '=')
 				{
 					module.get_token(state);
 					let defaultvalue = parse_expression(state, parent);
-					if (defaultvalue.petype != "constant") state.error("/syntax/se-38");
+					if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 					param.defaultvalue = defaultvalue.typedvalue;
 				}
 
@@ -3776,12 +3776,12 @@ function parse_expression(state, parent, lhs)
 
 			// parse the function body
 			token = module.get_token(state);
-			if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["anonymous function"]);
+			if (token.type !== "grouping" || token.value !== '{') state.error("/syntax/se-40", ["anonymous function"]);
 			state.indent.push(-1 - token.line);
 			while (true)
 			{
 				token = module.get_token(state, true);
-				if (token.type == "grouping" && token.value == '}')
+				if (token.type === "grouping" && token.value === '}')
 				{
 					state.indent.pop();
 					if (module.options.checkstyle && ! state.builtin())
@@ -3826,7 +3826,7 @@ function parse_expression(state, parent, lhs)
 					};
 			ex.sim = simfalse;
 		}
-		else if (token.type == "keyword") state.error("/syntax/se-41", [token.value]);
+		else if (token.type === "keyword") state.error("/syntax/se-41", [token.value]);
 		else state.error("/syntax/se-42", [token.value]);
 
 		// right-unary operators: dot, access, and call
@@ -3834,19 +3834,19 @@ function parse_expression(state, parent, lhs)
 		{
 			let where = state.get();
 			token = module.get_token(state, true);
-			if (token.type == "delimiter" && token.value == '.')
+			if (token.type === "delimiter" && token.value === '.')
 			{
 				// public member access operator
 				module.get_token(state);
 				let token = module.get_token(state);
-				if (token.type != "identifier") state.error("/syntax/se-43");
+				if (token.type !== "identifier") state.error("/syntax/se-43");
 				let op = { "petype": "access of member " + token.value, "where": where, "parent": parent, "object": ex, "member": token.value,
 						"step": function()
 								{
 									let frame = this.stack[this.stack.length - 1];
 									let pe = frame.pe[frame.pe.length - 1];
 									let ip = frame.ip[frame.ip.length - 1];
-									if (ip == 0)
+									if (ip === 0)
 									{
 										// evaluate the object
 										frame.pe.push(pe.object);
@@ -3867,7 +3867,7 @@ function parse_expression(state, parent, lhs)
 											let sup = type;
 											while (sup)
 											{
-												if (sup.staticmembers.hasOwnProperty(pe.member) && sup.staticmembers[pe.member].access == "public")
+												if (sup.staticmembers.hasOwnProperty(pe.member) && sup.staticmembers[pe.member].access === "public")
 												{
 													m = sup.staticmembers[pe.member];
 													break;
@@ -3883,12 +3883,12 @@ function parse_expression(state, parent, lhs)
 											let sup = type;
 											while (sup)
 											{
-												if (sup.members.hasOwnProperty(pe.member) && sup.members[pe.member].access == "public")
+												if (sup.members.hasOwnProperty(pe.member) && sup.members[pe.member].access === "public")
 												{
 													m = sup.members[pe.member];
 													break;
 												}
-												else if (sup.staticmembers.hasOwnProperty(pe.member) && sup.staticmembers[pe.member].access == "public")
+												else if (sup.staticmembers.hasOwnProperty(pe.member) && sup.staticmembers[pe.member].access === "public")
 												{
 													m = sup.staticmembers[pe.member];
 													break;
@@ -3899,27 +3899,27 @@ function parse_expression(state, parent, lhs)
 										}
 
 										// return the appropriate access object
-										if (m.petype == "method")
+										if (m.petype === "method")
 										{
 											// non-static method
 											frame.temporaries.push({"type": this.program.types[module.typeid_function], "value": {"b": {"func": m, "object": object}}});
 										}
-										else if (m.petype == "attribute")
+										else if (m.petype === "attribute")
 										{
 											// non-static attribute
 											frame.temporaries.push(object.value.a[m.id]);
 										}
-										else if (m.petype == "function")
+										else if (m.petype === "function")
 										{
 											// static function
 											frame.temporaries.push({"type": this.program.types[module.typeid_function], "value": {"b": {"func": m}}});
 										}
-										else if (m.petype == "variable")
+										else if (m.petype === "variable")
 										{
 											// static variable
 											frame.temporaries.push(this.stack[0].variables[m.id]);
 										}
-										else if (m.petype == "type")
+										else if (m.petype === "type")
 										{
 											// nested class
 											frame.temporaries.push({"type": this.program.types[module.typeid_type], "value": {"b": m}});
@@ -3935,46 +3935,46 @@ function parse_expression(state, parent, lhs)
 								{
 									let frame = this.stack[this.stack.length - 1];
 									let ip = frame.ip[frame.ip.length - 1];
-									return (ip != 0);
+									return (ip !== 0);
 								},
 					};
 				ex.parent = op;
 				ex = op;
 			}
-			else if (token.type == "grouping" && token.value == '(')
+			else if (token.type === "grouping" && token.value === '(')
 			{
 				let op = parse_call(state, parent, ex);
 				ex.parent = op;
 				ex = op;
 			}
-			else if (token.type == "grouping" && token.value == '[')
+			else if (token.type === "grouping" && token.value === '[')
 			{
 				// parse a single argument, no argument list
 				module.get_token(state);
 				let arg = parse_expression(state, parent);
 				let token = module.get_token(state);
-				if (token.type != "grouping" || token.value != ']') state.error("/syntax/se-44");
+				if (token.type !== "grouping" || token.value !== ']') state.error("/syntax/se-44");
 				let op = { "petype": "item access", "where": where, "parent": parent, "base": ex, "argument": arg,
 						"step": function()
 								{
 									let frame = this.stack[this.stack.length - 1];
 									let pe = frame.pe[frame.pe.length - 1];
 									let ip = frame.ip[frame.ip.length - 1];
-									if (ip == 0)
+									if (ip === 0)
 									{
 										// evaluate base
 										frame.pe.push(pe.base);
 										frame.ip.push(-1);
 										return false;
 									}
-									else if (ip == 1)
+									else if (ip === 1)
 									{
 										// evaluate the argument
 										frame.pe.push(pe.argument);
 										frame.ip.push(-1);
 										return false;
 									}
-									else if (ip == 2)
+									else if (ip === 2)
 									{
 										// the actual access
 										let index = frame.temporaries.pop();
@@ -4066,7 +4066,7 @@ function parse_expression(state, parent, lhs)
 								{
 									let frame = this.stack[this.stack.length - 1];
 									let ip = frame.ip[frame.ip.length - 1];
-									return (ip == 2);
+									return (ip === 2);
 								},
 					};
 				ex.parent = op;
@@ -4080,7 +4080,7 @@ function parse_expression(state, parent, lhs)
 
 		// check for a binary operator
 		token = module.get_token(state, true);
-		if ((token.type == "operator" || token.type == "keyword") && binary_operator_impl.hasOwnProperty(token.value))
+		if ((token.type === "operator" || token.type === "keyword") && binary_operator_impl.hasOwnProperty(token.value))
 		{
 			if (lhs) state.error("/syntax/se-21");
 			stack.push({"operator": token.value, "unary": false, "precedence": binary_operator_precedence[token.value], "where": where});
@@ -4104,7 +4104,7 @@ function parse_expression(state, parent, lhs)
 									let frame = this.stack[this.stack.length - 1];
 									let pe = frame.pe[frame.pe.length - 1];
 									let ip = frame.ip[frame.ip.length - 1];
-									if (ip == 0)
+									if (ip === 0)
 									{
 										frame.pe.push(pe.argument);
 										frame.ip.push(-1);
@@ -4125,7 +4125,7 @@ function parse_expression(state, parent, lhs)
 								{
 									let frame = this.stack[this.stack.length - 1];
 									let ip = frame.ip[frame.ip.length - 1];
-									return (ip != 0);
+									return (ip !== 0);
 								},
 					};
 
@@ -4154,13 +4154,13 @@ function parse_expression(state, parent, lhs)
 							let frame = this.stack[this.stack.length - 1];
 							let pe = frame.pe[frame.pe.length - 1];
 							let ip = frame.ip[frame.ip.length - 1];
-							if (ip == 0)
+							if (ip === 0)
 							{
 								frame.pe.push(pe.lhs);
 								frame.ip.push(-1);
 								return false;
 							}
-							else if (ip == 1)
+							else if (ip === 1)
 							{
 								frame.pe.push(pe.rhs);
 								frame.ip.push(-1);
@@ -4239,14 +4239,14 @@ function parse_expression(state, parent, lhs)
 
 	// reduce the whole stack
 	reduce(0, 10);
-	module.assert(stack.length == 1, "[parse_expression] stack was not reduced");
+	module.assert(stack.length === 1, "[parse_expression] stack was not reduced");
 
 	if (lhs)
 	{
-		if (stack[0].petype == "group") state.error("/argument-mismatch/am-32", ["expression in parentheses"]);
-		if (stack[0].petype == "constant") state.error("/argument-mismatch/am-32", ["a constant"]);
-		if (stack[0].petype == "function") state.error("/argument-mismatch/am-32", ["a function"]);
-		if (stack[0].petype == "function call") state.error("/argument-mismatch/am-32", ["the result of a function call"]);
+		if (stack[0].petype === "group") state.error("/argument-mismatch/am-32", ["expression in parentheses"]);
+		if (stack[0].petype === "constant") state.error("/argument-mismatch/am-32", ["a constant"]);
+		if (stack[0].petype === "function") state.error("/argument-mismatch/am-32", ["a function"]);
+		if (stack[0].petype === "function call") state.error("/argument-mismatch/am-32", ["the result of a function call"]);
 	}
 
 	// return the resulting expression
@@ -4259,9 +4259,9 @@ function parse_lhs(state, parent)
 	let ex = parse_expression(state, parent, true);
 
 	// replace the topmost step function
-	if (ex.petype == "name")
+	if (ex.petype === "name")
 	{
-		if (ex.reference.petype != "variable" && ex.reference.petype != "attribute") state.error("/argument-mismatch/am-32", ["name of type '" + ex.reference.petype + "'"]);
+		if (ex.reference.petype !== "variable" && ex.reference.petype !== "attribute") state.error("/argument-mismatch/am-32", ["name of type '" + ex.reference.petype + "'"]);
 		ex.step = function()
 				{
 					let frame = this.stack[this.stack.length - 1];
@@ -4271,13 +4271,13 @@ function parse_lhs(state, parent)
 					let op = frame.temporaries.pop();
 					let rhs = frame.temporaries.pop();
 					let base = null;
-					if (pe.scope == "global") base = this.stack[0].variables;
-					else if (pe.scope == "local") base = frame.variables;
-					else if (pe.scope == "object") base = frame.object.value.a;
+					if (pe.scope === "global") base = this.stack[0].variables;
+					else if (pe.scope === "local") base = frame.variables;
+					else if (pe.scope === "object") base = frame.object.value.a;
 					else module.assert(false, "unknown scope type " + pe.scope);
 					let index = pe.id;
 
-					if (op != '=')
+					if (op !== '=')
 					{
 						// binary operator corresponding to compound assignment
 						let binop = op.substring(0, op.length - 1);
@@ -4293,7 +4293,7 @@ function parse_lhs(state, parent)
 				};
 		ex.sim = simtrue;
 	}
-	else if (ex.petype == "item access")
+	else if (ex.petype === "item access")
 	{
 		ex.step = function()
 				{
@@ -4301,14 +4301,14 @@ function parse_lhs(state, parent)
 					let pe = frame.pe[frame.pe.length - 1];
 					let ip = frame.ip[frame.ip.length - 1];
 
-					if (ip == 0)
+					if (ip === 0)
 					{
 						// evaluate the container
 						frame.pe.push(pe.base);
 						frame.ip.push(-1);
 						return false;
 					}
-					else if (ip == 1)
+					else if (ip === 1)
 					{
 						// evaluate the index
 						frame.pe.push(pe.argument);
@@ -4346,7 +4346,7 @@ function parse_lhs(state, parent)
 						}
 						else this.error("/argument-mismatch/am-31b", [container.type]);
 
-						if (op != '=')
+						if (op !== '=')
 						{
 							// binary operator corresponding to compound assignment
 							let binop = op.substring(0, op.length - 1);
@@ -4375,14 +4375,14 @@ function parse_lhs(state, parent)
 					return (ip > 1);
 				};
 	}
-	else if (ex.petype.substring(0, 17) == "access of member ")
+	else if (ex.petype.substring(0, 17) === "access of member ")
 	{
 		ex.step = function()
 				{
 					let frame = this.stack[this.stack.length - 1];
 					let pe = frame.pe[frame.pe.length - 1];
 					let ip = frame.ip[frame.ip.length - 1];
-					if (ip == 0)
+					if (ip === 0)
 					{
 						// evaluate the object
 						frame.pe.push(pe.object);
@@ -4405,7 +4405,7 @@ function parse_lhs(state, parent)
 							let sup = type;
 							while (sup)
 							{
-								if (sup.staticmembers.hasOwnProperty(pe.member) && sup.staticmembers[pe.member].access == "public")
+								if (sup.staticmembers.hasOwnProperty(pe.member) && sup.staticmembers[pe.member].access === "public")
 								{
 									m = sup.staticmembers[pe.member];
 									break;
@@ -4421,12 +4421,12 @@ function parse_lhs(state, parent)
 							let sup = type;
 							while (sup)
 							{
-								if (sup.members.hasOwnProperty(pe.member) && sup.members[pe.member].access == "public")
+								if (sup.members.hasOwnProperty(pe.member) && sup.members[pe.member].access === "public")
 								{
 									m = sup.members[pe.member];
 									break;
 								}
-								else if (sup.staticmembers.hasOwnProperty(pe.member) && sup.staticmembers[pe.member].access == "public")
+								else if (sup.staticmembers.hasOwnProperty(pe.member) && sup.staticmembers[pe.member].access === "public")
 								{
 									m = sup.staticmembers[pe.member];
 									break;
@@ -4439,36 +4439,36 @@ function parse_lhs(state, parent)
 						// obtain container and index
 						let container = null;
 						let index = null;
-						if (m.petype == "method")
+						if (m.petype === "method")
 						{
 							// non-static method
 							this.error("/argument-mismatch/am-32", ["a method"]);
 						}
-						else if (m.petype == "attribute")
+						else if (m.petype === "attribute")
 						{
 							// non-static attribute
 							container = object.value.a;
 							index = m.id;
 						}
-						else if (m.petype == "function")
+						else if (m.petype === "function")
 						{
 							// static function
 							this.error("/argument-mismatch/am-32", ["a static method"]);
 						}
-						else if (m.petype == "variable")
+						else if (m.petype === "variable")
 						{
 							// static variable
 							container = this.stack[0].variables;
 							index = m.id;
 						}
-						else if (m.petype == "type")
+						else if (m.petype === "type")
 						{
 							// nested class
 							this.error("/argument-mismatch/am-32", ["a class"]);
 						}
 						else module.assert(false, "[member access] internal error; unknown member type " + m.petype);
 
-						if (op != '=')
+						if (op !== '=')
 						{
 							// binary operator corresponding to compound assignment
 							let binop = op.substring(0, op.length - 1);
@@ -4487,7 +4487,7 @@ function parse_lhs(state, parent)
 				{
 					let frame = this.stack[this.stack.length - 1];
 					let ip = frame.ip[frame.ip.length - 1];
-					return (ip != 0);
+					return (ip !== 0);
 				};
 	}
 	else state.error("/argument-mismatch/am-32", [ex.petype]);
@@ -4501,7 +4501,7 @@ function parse_assignment_or_expression(state, parent)
 	let where = state.get();
 	let ex = parse_expression(state, parent);
 	let token = module.get_token(state);
-	if (token.type == "operator" && assignments.hasOwnProperty(token.value))
+	if (token.type === "operator" && assignments.hasOwnProperty(token.value))
 	{
 		// retry as an assignment
 		state.set(where);
@@ -4510,7 +4510,7 @@ function parse_assignment_or_expression(state, parent)
 		let op = module.get_token(state);
 		let rhs = parse_expression(state, parent);
 		token = module.get_token(state);
-		if (token.type != "delimiter" || token.value != ';') state.error("/syntax/se-48");
+		if (token.type !== "delimiter" || token.value !== ';') state.error("/syntax/se-48");
 
 		return { "petype": "assignment " + op.value, "where": where, "parent": parent, "operator": op.value, "lhs": lhs, "rhs": rhs,
 				"step": function()
@@ -4518,14 +4518,14 @@ function parse_assignment_or_expression(state, parent)
 							let frame = this.stack[this.stack.length - 1];
 							let pe = frame.pe[frame.pe.length - 1];
 							let ip = frame.ip[frame.ip.length - 1];
-							if (ip == 0)
+							if (ip === 0)
 							{
 								// evaluate the rhs
 								frame.pe.push(pe.rhs);
 								frame.ip.push(-1);
 								return false;
 							}
-							else if (ip == 1)
+							else if (ip === 1)
 							{
 								// push the operator
 								frame.temporaries.push(pe.operator);
@@ -4545,7 +4545,7 @@ function parse_assignment_or_expression(state, parent)
 				"sim": simfalse,
 			};
 	}
-	else if (token.type == "delimiter" && token.value == ';')
+	else if (token.type === "delimiter" && token.value === ';')
 	{
 		return { "petype": "expression", "where": where, "parent": parent, "sub": ex,
 				"step": function()
@@ -4553,7 +4553,7 @@ function parse_assignment_or_expression(state, parent)
 							let frame = this.stack[this.stack.length - 1];
 							let pe = frame.pe[frame.pe.length - 1];
 							let ip = frame.ip[frame.ip.length - 1];
-							if (ip == 0)
+							if (ip === 0)
 							{
 								// run the expression as a statement
 								frame.pe.push(pe.sub);
@@ -4584,12 +4584,12 @@ function parse_assignment_or_expression(state, parent)
 // which defaults to the enclosing function or global scope.
 function parse_var(state, parent, container)
 {
-	container = (container !== undefined) ? container : get_function(parent);
+	container = (typeof container !== 'undefined') ? container : get_function(parent);
 
 	// handle "var" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "var", "[parse_var] internal error");
+	module.assert(token.type === "keyword" && token.value === "var", "[parse_var] internal error");
 
 	// prepare "group of variable declarations" object
 	let ret = { "petype": "variable declaration", "where": where, "parent": parent, "vars": [],
@@ -4621,7 +4621,7 @@ function parse_var(state, parent, container)
 		// obtain variable name
 		let where = state.get();
 		token = module.get_token(state);
-		if (token.type != "identifier") state.error("/syntax/se-50");
+		if (token.type !== "identifier") state.error("/syntax/se-50");
 		if (parent.names.hasOwnProperty(token.value)) state.error("/name/ne-14", [token.value]);
 
 		// check variable name
@@ -4631,14 +4631,14 @@ function parse_var(state, parent, container)
 		}
 
 		// create the variable
-		let id = (container.petype == "type") ? container.objectsize : container.variables.length;
+		let id = (container.petype === "type") ? container.objectsize : container.variables.length;
 		let pe = { "petype": "variable", "where": where, "parent": parent, "name": token.value, "id": id,
 				"step": function()
 						{
 							let frame = this.stack[this.stack.length - 1];
 							let pe = frame.pe[frame.pe.length - 1];
 							let ip = frame.ip[frame.ip.length - 1];
-							if (ip == 0)
+							if (ip === 0)
 							{
 								// push the value onto the stack
 								if (pe.hasOwnProperty("initializer"))
@@ -4653,7 +4653,7 @@ function parse_var(state, parent, container)
 									return true;
 								}
 							}
-							else if (ip == 1)
+							else if (ip === 1)
 							{
 								// assign the value to the variable
 								frame.variables[pe.id] = frame.temporaries.pop();
@@ -4670,7 +4670,7 @@ function parse_var(state, parent, container)
 						{
 							let frame = this.stack[this.stack.length - 1];
 							let ip = frame.ip[frame.ip.length - 1];
-							if (ip == 0)
+							if (ip === 0)
 							{
 								let pe = frame.pe[frame.pe.length - 1];
 								return (! pe.hasOwnProperty("initializer"));
@@ -4680,14 +4680,14 @@ function parse_var(state, parent, container)
 			};
 
 		// remember the scope to which the variable's id refers
-		if (container.petype == "global scope") pe.scope = "global";
-		else if (container.petype == "function" || container.petype == "method") pe.scope = "local";
-		else if (container.petype == "type") pe.scope = "object";
+		if (container.petype === "global scope") pe.scope = "global";
+		else if (container.petype === "function" || container.petype === "method") pe.scope = "local";
+		else if (container.petype === "type") pe.scope = "object";
 		else module.assert(false, "unknown variable scope");
 
 		// parse the initializer
 		token = module.get_token(state);
-		if (token.type == "operator" && token.value == '=')
+		if (token.type === "operator" && token.value === '=')
 		{
 			pe.initializer = parse_expression(state, parent);
 			token = module.get_token(state);
@@ -4697,11 +4697,11 @@ function parse_var(state, parent, container)
 		container.variables.push(pe);
 		parent.names[pe.name] = pe;
 		ret.vars.push(pe);
-		if (container.petype == "type") parent.objectsize++;
+		if (container.petype === "type") parent.objectsize++;
 
 		// parse the delimiter
-		if (token.type == "delimiter" && token.value == ';') break;
-		else if (token.type != "delimiter" || token.value != ',') state.error(pe.initializer ? "/syntax/se-51b" : "/syntax/se-51");
+		if (token.type === "delimiter" && token.value === ';') break;
+		else if (token.type !== "delimiter" || token.value !== ',') state.error(pe.initializer ? "/syntax/se-51b" : "/syntax/se-51");
 	}
 	return ret;
 }
@@ -4709,16 +4709,16 @@ function parse_var(state, parent, container)
 // Parse a function declaration.
 function parse_function(state, parent, petype)
 {
-	if (petype === undefined) petype = "function";
+	if (typeof petype === 'undefined') petype = "function";
 
 	// handle "function" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "function", "[parse_function] internal error");
+	module.assert(token.type === "keyword" && token.value === "function", "[parse_function] internal error");
 
 	// obtain function name
 	token = module.get_token(state);
-	if (token.type != "identifier") state.error("/syntax/se-52");
+	if (token.type !== "identifier") state.error("/syntax/se-52");
 	let fname = token.value;
 	if (parent.names.hasOwnProperty(fname)) state.error("/name/ne-15", [fname]);
 
@@ -4734,26 +4734,26 @@ function parse_function(state, parent, petype)
 
 	// parse the parameters
 	token = module.get_token(state);
-	if (token.type != "grouping" || token.value != '(') state.error("/syntax/se-36", ["function declaration"]);
+	if (token.type !== "grouping" || token.value !== '(') state.error("/syntax/se-36", ["function declaration"]);
 	while (true)
 	{
 		// parse ) or ,
 		let token = module.get_token(state, true);
-		if (token.type == "grouping" && token.value == ')')
+		if (token.type === "grouping" && token.value === ')')
 		{
 			module.get_token(state);
 			break;
 		}
-		if (func.params.length != 0)
+		if (func.params.length !== 0)
 		{
-			if (token.type != "delimiter" || token.value != ',') state.error("/syntax/se-37");
+			if (token.type !== "delimiter" || token.value !== ',') state.error("/syntax/se-37");
 			module.get_token(state);
 		}
 
 		// parse the parameter name
 		let where = state.get();
 		token = module.get_token(state);
-		if (token.type != "identifier") state.error("/syntax/se-33");
+		if (token.type !== "identifier") state.error("/syntax/se-33");
 		let name = token.value; 
 		let id = func.variables.length;
 		let variable = { "petype": "variable", "where": where, "parent": func, "name": name, "id": id, "scope": "local" };
@@ -4761,11 +4761,11 @@ function parse_function(state, parent, petype)
 
 		// check for a default value
 		token = module.get_token(state, true);
-		if (token.type == "operator" && token.value == '=')
+		if (token.type === "operator" && token.value === '=')
 		{
 			module.get_token(state);
 			let defaultvalue = parse_expression(state, parent);
-			if (defaultvalue.petype != "constant") state.error("/syntax/se-38");
+			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 			param.defaultvalue = defaultvalue.typedvalue;
 		}
 
@@ -4778,19 +4778,19 @@ function parse_function(state, parent, petype)
 
 	// parse the function body
 	token = module.get_token(state);
-	if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["function declaration"]);
+	if (token.type !== "grouping" || token.value !== '{') state.error("/syntax/se-40", ["function declaration"]);
 	state.indent.push(-1 - token.line);
 	while (true)
 	{
 		token = module.get_token(state, true);
-		if (token.type == "grouping" && token.value == '}')
+		if (token.type === "grouping" && token.value === '}')
 		{
 			state.indent.pop();
 			if (module.options.checkstyle && ! state.builtin())
 			{
 				let indent = state.indentation();
 				let topmost = state.indent[state.indent.length - 1];
-				if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+				if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
 			}
 			module.get_token(state);
 			break;
@@ -4800,7 +4800,7 @@ function parse_function(state, parent, petype)
 	}
 
 	// replace the function body with built-in functionality
-	if (func.commands.length == 0)
+	if (func.commands.length === 0)
 	{
 		let fullname = [];
 		let p = func;
@@ -4817,7 +4817,7 @@ function parse_function(state, parent, petype)
 		}
 		if (d)
 		{
-			if (typeof d == "function")
+			if (typeof d === "function")
 			{
 				func.step = function()
 						{
@@ -4826,7 +4826,7 @@ function parse_function(state, parent, petype)
 							let params = frame.variables;
 							if (frame.object) params.unshift(frame.object);
 							let ret = pe.body.apply(this, params);
-							if (this.stack.length == 0) return false;
+							if (this.stack.length === 0) return false;
 							this.stack.pop();
 							frame = this.stack[this.stack.length - 1];
 							frame.temporaries.push(ret);
@@ -4851,38 +4851,38 @@ function parse_function(state, parent, petype)
 function parse_constructor(state, parent)
 {
 	// check that the parent is indeed a type
-	module.assert(parent.petype == "type", "[parse_constructor] internal error; parent is expected to be a type");
+	module.assert(parent.petype === "type", "[parse_constructor] internal error; parent is expected to be a type");
 
 	// handle "constructor" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "constructor", "[parse_constructor] internal error");
+	module.assert(token.type === "keyword" && token.value === "constructor", "[parse_constructor] internal error");
 
 	// create the function
 	let func = { "petype": "method", "where": where, "declaration": true, "parent": parent, "commands": [], "variables": [], "name": "constructor", "names": {}, "params": [], "step": constructorstep, "sim": simfalse };
 
 	// parse the parameters
 	token = module.get_token(state);
-	if (token.type != "grouping" || token.value != '(') state.error("/syntax/se-36", ["constructor declaration"]);
+	if (token.type !== "grouping" || token.value !== '(') state.error("/syntax/se-36", ["constructor declaration"]);
 	while (true)
 	{
 		// parse ) or ,
 		let token = module.get_token(state, true);
-		if (token.type == "grouping" && token.value == ')')
+		if (token.type === "grouping" && token.value === ')')
 		{
 			module.get_token(state);
 			break;
 		}
-		if (func.params.length != 0)
+		if (func.params.length !== 0)
 		{
-			if (token.type != "delimiter" || token.value != ',') state.error("/syntax/se-37");
+			if (token.type !== "delimiter" || token.value !== ',') state.error("/syntax/se-37");
 			module.get_token(state);
 		}
 
 		// parse the parameter name
 		let where = state.get();
 		token = module.get_token(state);
-		if (token.type != "identifier") state.error("/syntax/se-33");
+		if (token.type !== "identifier") state.error("/syntax/se-33");
 		let name = token.value;
 		let id = func.variables.length;
 		let variable = { "petype": "variable", "where": where, "parent": func, "name": name, "id": id, "scope": "local" };
@@ -4890,11 +4890,11 @@ function parse_constructor(state, parent)
 
 		// check for a default value
 		token = module.get_token(state, true);
-		if (token.type == "operator" && token.value == '=')
+		if (token.type === "operator" && token.value === '=')
 		{
 			module.get_token(state);
 			let defaultvalue = parse_expression(state, parent);
-			if (defaultvalue.petype != "constant") state.error("/syntax/se-38");
+			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 			param.defaultvalue = defaultvalue.typedvalue;
 		}
 
@@ -4914,11 +4914,11 @@ function parse_constructor(state, parent)
 		            "typedvalue": {"type": get_program(parent).types[module.typeid_type], "value": {"b": parent.superclass}},
 		            "step": constantstep, "sim": simfalse};
 
-		if (token.type == "operator" && token.value == ':')
+		if (token.type === "operator" && token.value === ':')
 		{
 			// parse explicit super class constructor call
 			token = module.get_token(state);
-			if (token.type != "keyword" || token.value != "super") state.error("/syntax/se-53");
+			if (token.type !== "keyword" || token.value !== "super") state.error("/syntax/se-53");
 			func.supercall = parse_call(state, func, base);
 			func.supercall.petype = "super call";
 
@@ -4931,22 +4931,22 @@ function parse_constructor(state, parent)
 			func.supercall = { "petype": "super call", "where": where, "parent": func, "base": base, "arguments": [], "step": callstep, "sim": callsim };
 		}
 	}
-	else if (token.type == "operator" && token.value == ':') state.error("/name/ne-21");
+	else if (token.type === "operator" && token.value === ':') state.error("/name/ne-21");
 
 	// parse the constructor body
-	if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["constructor declaration"]);
+	if (token.type !== "grouping" || token.value !== '{') state.error("/syntax/se-40", ["constructor declaration"]);
 	state.indent.push(-1 - token.line);
 	while (true)
 	{
 		token = module.get_token(state, true);
-		if (token.type == "grouping" && token.value == '}')
+		if (token.type === "grouping" && token.value === '}')
 		{
 			state.indent.pop();
 			if (module.options.checkstyle && ! state.builtin())
 			{
 				let indent = state.indentation();
 				let topmost = state.indent[state.indent.length - 1];
-				if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+				if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
 			}
 			module.get_token(state);
 			break;
@@ -4956,7 +4956,7 @@ function parse_constructor(state, parent)
 	}
 
 	// replace the function body with built-in functionality
-	if (func.commands.length == 0)
+	if (func.commands.length === 0)
 	{
 		let fullname = [];
 		let p = func;
@@ -4973,7 +4973,7 @@ function parse_constructor(state, parent)
 		}
 		if (d)
 		{
-			if (typeof d == "function")
+			if (typeof d === "function")
 			{
 				func.step = function()
 						{
@@ -5006,11 +5006,11 @@ function parse_class(state, parent)
 	// handle the "class" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "class", "[parse_class] internal error");
+	module.assert(token.type === "keyword" && token.value === "class", "[parse_class] internal error");
 
 	// obtain the class name
 	token = module.get_token(state);
-	if (token.type != "identifier") state.error("/syntax/se-54");
+	if (token.type !== "identifier") state.error("/syntax/se-54");
 	let cname = token.value;
 	if (parent.names.hasOwnProperty(cname)) state.error("/name/ne-18", [cname]);
 
@@ -5033,7 +5033,7 @@ function parse_class(state, parent)
 						if (ip < keys.length)
 						{
 							let sub = pe.staticmembers[keys[ip]];
-							if (sub.petype == "type" || sub.petype == "variable")
+							if (sub.petype === "type" || sub.petype === "variable")
 							{
 								frame.pe.push(sub);
 								frame.ip.push(-1);
@@ -5059,21 +5059,21 @@ function parse_class(state, parent)
 
 	// parse the optional super class
 	token = module.get_token(state);
-	if (token.type == "operator" && token.value == ':')
+	if (token.type === "operator" && token.value === ':')
 	{
 		let result = parse_name(state, parent, "super class declaration");
 		cls.superclass = result.lookup;
 
-		if (cls.superclass.petype != "type") state.error("/name/ne-22", [result.name]);
-		if (cls == cls.superclass) state.error("/name/ne-26", [result.name]);
+		if (cls.superclass.petype !== "type") state.error("/name/ne-22", [result.name]);
+		if (cls === cls.superclass) state.error("/name/ne-26", [result.name]);
 		cls.objectsize = cls.superclass.objectsize;
 
-		if (cls.superclass.class_constructor && cls.superclass.class_constructor.access == "private") state.error("/syntax/se-58");
+		if (cls.superclass.class_constructor && cls.superclass.class_constructor.access === "private") state.error("/syntax/se-58");
 
 		// parse the next token to check for '{'
 		token = module.get_token(state);
 	}
-	if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["class declaration"]);
+	if (token.type !== "grouping" || token.value !== '{') state.error("/syntax/se-40", ["class declaration"]);
 	state.indent.push(-1 - token.line);
 
 	// parse the class body
@@ -5082,32 +5082,32 @@ function parse_class(state, parent)
 	{
 		// check for end-of-class-body
 		token = module.get_token(state, true);
-		if (token.type == "grouping" && token.value == '}')
+		if (token.type === "grouping" && token.value === '}')
 		{
 			state.indent.pop();
 			if (module.options.checkstyle && ! state.builtin())
 			{
 				let indent = state.indentation();
 				let topmost = state.indent[state.indent.length - 1];
-				if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+				if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
 			}
 			module.get_token(state);
 			break;
 		}
 
 		// parse access modifiers
-		if (token.type == "keyword" && (token.value == "public" || token.value == "protected" || token.value == "private"))
+		if (token.type === "keyword" && (token.value === "public" || token.value === "protected" || token.value === "private"))
 		{
 			access = token.value;
 			module.get_token(state);
 			token = module.get_token(state);
-			if (token.type != "operator" || token.value != ':') state.error("/syntax/se-55", [access]);
+			if (token.type !== "operator" || token.value !== ':') state.error("/syntax/se-55", [access]);
 			continue;
 		}
 
 		// parse static modifier
 		let stat = false;
-		if (token.type == "keyword" && token.value == "static")
+		if (token.type === "keyword" && token.value === "static")
 		{
 			stat = true;
 			module.get_token(state);
@@ -5115,7 +5115,7 @@ function parse_class(state, parent)
 		}
 
 		// parse the actual member
-		if (token.type == "keyword" && token.value == "var")
+		if (token.type === "keyword" && token.value === "var")
 		{
 			if (access === null) state.error("/syntax/se-56");
 
@@ -5123,7 +5123,7 @@ function parse_class(state, parent)
 			for (let i=0; i<group.vars.length; i++)
 			{
 				let pe = group.vars[i];
-				if (pe.hasOwnProperty("initializer") && pe.initializer.petype != "constant") state.error("/syntax/se-57");
+				if (pe.hasOwnProperty("initializer") && pe.initializer.petype !== "constant") state.error("/syntax/se-57");
 
 				pe.access = access;
 				if (! stat)
@@ -5139,7 +5139,7 @@ function parse_class(state, parent)
 				}
 			}
 		}
-		else if (token.type == "keyword" && token.value == "function")
+		else if (token.type === "keyword" && token.value === "function")
 		{
 			if (access === null) state.error("/syntax/se-56");
 
@@ -5149,7 +5149,7 @@ function parse_class(state, parent)
 			if (stat) cls.staticmembers[pe.name] = pe;
 			else cls.members[pe.name] = pe;
 		}
-		else if (token.type == "keyword" && token.value == "constructor")
+		else if (token.type === "keyword" && token.value === "constructor")
 		{
 			if (cls.hasOwnProperty("class_constructor")) state.error("/syntax/se-59b");
 			if (access === null) state.error("/syntax/se-56");
@@ -5159,7 +5159,7 @@ function parse_class(state, parent)
 			pe.access = access;
 			cls.class_constructor = pe;
 		}
-		else if (token.type == "keyword" && token.value == "class")
+		else if (token.type === "keyword" && token.value === "class")
 		{
 			if (access === null) state.error("/syntax/se-56");
 			if (stat) state.error("/syntax/se-60");
@@ -5169,7 +5169,7 @@ function parse_class(state, parent)
 			pe.access = access;
 			cls.staticmembers[pe.name] = pe;
 		}
-		else if (token.type == "keyword" && (token.value == "use" || token.value == "from"))
+		else if (token.type === "keyword" && (token.value === "use" || token.value === "from"))
 		{
 			if (stat) state.error("/syntax/se-61");
 			parse_use(state, cls);
@@ -5201,16 +5201,16 @@ function parse_namespace(state, parent)
 	// handle "namespace" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "namespace", "[parse_namespace] internal error");
+	module.assert(token.type === "keyword" && token.value === "namespace", "[parse_namespace] internal error");
 
 	// check the parent
-	if (parent.petype != "global scope" && parent.petype != "namespace") state.error("/syntax/se-63");
+	if (parent.petype !== "global scope" && parent.petype !== "namespace") state.error("/syntax/se-63");
 
 	// display name prefix
 	let prefix = "";
 	{
 		let p = parent;
-		while (p.petype == "namespace")
+		while (p.petype === "namespace")
 		{
 			prefix = p.name + "." + prefix;
 			p = p.parent;
@@ -5219,7 +5219,7 @@ function parse_namespace(state, parent)
 
 	// obtain namespace name
 	token = module.get_token(state);
-	if (token.type != "identifier") state.error("/syntax/se-64");
+	if (token.type !== "identifier") state.error("/syntax/se-64");
 	let nname = token.value;
 
 	// check namespace name
@@ -5234,7 +5234,7 @@ function parse_namespace(state, parent)
 	{
 		// extend the existing namespace
 		global_nspace = parent.names[nname];
-		if (global_nspace.petype != "namespace") state.error("/name/ne-19", [nname]);
+		if (global_nspace.petype !== "namespace") state.error("/name/ne-19", [nname]);
 	}
 	else
 	{
@@ -5248,20 +5248,20 @@ function parse_namespace(state, parent)
 
 	// parse the namespace body
 	token = module.get_token(state);
-	if (token.type != "grouping" || token.value != '{') state.error("/syntax/se-40", ["namespace declaration"]);
+	if (token.type !== "grouping" || token.value !== '{') state.error("/syntax/se-40", ["namespace declaration"]);
 	state.indent.push(-1 - token.line);
 	while (true)
 	{
 		// check for end-of-body
 		token = module.get_token(state, true);
-		if (token.type == "grouping" && token.value == '}')
+		if (token.type === "grouping" && token.value === '}')
 		{
 			state.indent.pop();
 			if (module.options.checkstyle && ! state.builtin())
 			{
 				let indent = state.indentation();
 				let topmost = state.indent[state.indent.length - 1];
-				if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+				if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
 			}
 			module.get_token(state);
 			break;
@@ -5282,22 +5282,22 @@ function parse_use(state, parent)
 	// handle "use" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && (token.value == "use" || token.value == "from"), "[parse_use] internal error");
+	module.assert(token.type === "keyword" && (token.value === "use" || token.value === "from"), "[parse_use] internal error");
 
 	// create the use directive
 	let use = { "petype": "use", "where": where, "parent": parent, "declaration": true };
 
 	// handle the optional "from" part
 	let from = parent;
-	if (token.value == "from")
+	if (token.value === "from")
 	{
 		let result = parse_name(state, parent, "use directive", true);
 		from = result.lookup;
 		use.from = from;
-		if (from.petype != "namespace") state.error("/name/ne-23", [result.name]);
+		if (from.petype !== "namespace") state.error("/name/ne-23", [result.name]);
 
 		token = module.get_token(state);
-		if (token.type != "keyword" || token.value != "use") state.error("/syntax/se-65");
+		if (token.type !== "keyword" || token.value !== "use") state.error("/syntax/se-65");
 	}
 
 	// parse names with optional identifiers
@@ -5305,7 +5305,7 @@ function parse_use(state, parent)
 	{
 		// check for namespace keyword
 		let kw = peek_keyword(state);
-		if (kw == "namespace") module.get_token(state);
+		if (kw === "namespace") module.get_token(state);
 
 		// parse a name
 		let result = parse_name(state, from, "use directive", true);
@@ -5313,27 +5313,27 @@ function parse_use(state, parent)
 
 		// parse optional "as" part
 		token = module.get_token(state);
-		if (token.type == "identifier" && token.value == "as")
+		if (token.type === "identifier" && token.value === "as")
 		{
-			if (kw == "namespace") state.error("/syntax/se-66");
+			if (kw === "namespace") state.error("/syntax/se-66");
 			token = module.get_token(state);
-			if (token.type != "identifier") state.error("/syntax/se-67");
+			if (token.type !== "identifier") state.error("/syntax/se-67");
 			identifier = token.value;
 			token = module.get_token(state);
 		}
 
 		// actual name import
-		if (kw == "namespace")
+		if (kw === "namespace")
 		{
 			// import all names from the namespace
-			if (result.lookup.petype != "namespace") state.error("/name/ne-23", [result.name]);
+			if (result.lookup.petype !== "namespace") state.error("/name/ne-23", [result.name]);
 			for (let key in result.lookup.names)
 			{
 				if (! result.lookup.names.hasOwnProperty(key)) continue;
 				if (parent.names.hasOwnProperty(key))
 				{
 					// tolerate double import of the same entity, otherwise report an error
-					if (parent.names[key] != result.lookup.names[key]) state.error("/name/ne-24", [key]);
+					if (parent.names[key] !== result.lookup.names[key]) state.error("/name/ne-24", [key]);
 				}
 				else
 				{
@@ -5348,7 +5348,7 @@ function parse_use(state, parent)
 			if (parent.names.hasOwnProperty(identifier))
 			{
 				// tolerate double import of the same entity, otherwise report an error
-				if (parent.names[identifier] != result.lookup) state.error("/name/ne-24", [identifier]);
+				if (parent.names[identifier] !== result.lookup) state.error("/name/ne-24", [identifier]);
 			}
 			else
 			{
@@ -5358,8 +5358,8 @@ function parse_use(state, parent)
 		}
 
 		// check for delimiter
-		if (token.type == "delimiter" && token.value == ';') break;
-		else if (token.type == "delimiter" && token.value == ',') { }
+		if (token.type === "delimiter" && token.value === ';') break;
+		else if (token.type === "delimiter" && token.value === ',') { }
 		else state.error("/syntax/se-68");
 	}
 
@@ -5371,7 +5371,7 @@ function parse_ifthenelse(state, parent)
 	// handle "if" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "if", "[parse_ifthenelse] internal error");
+	module.assert(token.type === "keyword" && token.value === "if", "[parse_ifthenelse] internal error");
 
 	// create the conditional object
 	let ifthenelse = {
@@ -5383,14 +5383,14 @@ function parse_ifthenelse(state, parent)
 						let frame = this.stack[this.stack.length - 1];
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						if (ip == 0)
+						if (ip === 0)
 						{
 							// push the condition onto the stack
 							frame.pe.push(pe.condition);
 							frame.ip.push(-1);
 							return false;
 						}
-						else if (ip == 1)
+						else if (ip === 1)
 						{
 							// evaluate the condition
 							let cond = frame.temporaries.pop();
@@ -5432,15 +5432,15 @@ function parse_ifthenelse(state, parent)
 
 	// parse the then-part
 	token = module.get_token(state);
-	if (token.type != "keyword" || token.value != "then") state.error("/syntax/se-69");
+	if (token.type !== "keyword" || token.value !== "then") state.error("/syntax/se-69");
 	ifthenelse.then_part = parse_statement(state, parent);
 
 	// parse the else-part
 	let kw = peek_keyword(state);
-	if (kw == "else")
+	if (kw === "else")
 	{
 		token = module.get_token(state);
-		module.assert(token.type == "keyword" && token.value == "else", "[parse_ifthenelse] internal error");
+		module.assert(token.type === "keyword" && token.value === "else", "[parse_ifthenelse] internal error");
 		ifthenelse.else_part = parse_statement(state, parent);
 	}
 
@@ -5452,7 +5452,7 @@ function parse_for(state, parent)
 	// handle "for" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "for", "[parse_for] internal error");
+	module.assert(token.type === "keyword" && token.value === "for", "[parse_for] internal error");
 
 	// create the loop object
 	let forloop = {
@@ -5465,7 +5465,7 @@ function parse_for(state, parent)
 						let frame = this.stack[this.stack.length - 1];
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						if (ip == -2)
+						if (ip === -2)
 						{
 							// handle "break" statement
 							frame.temporaries.pop();
@@ -5474,20 +5474,20 @@ function parse_for(state, parent)
 							frame.ip.pop();
 							return false;
 						}
-						else if (ip == -1)
+						else if (ip === -1)
 						{
 							// recover from "continue", jump to ip = 4
 							frame.ip[frame.ip.length - 1] = 4 - 1;
 							return false;
 						}
-						else if (ip == 0)
+						else if (ip === 0)
 						{
 							// preparation phase: evaluate the iterable container
 							frame.pe.push(pe.iterable);
 							frame.ip.push(-1);
 							return false;
 						}
-						else if (ip == 1)
+						else if (ip === 1)
 						{
 							// preparation phase: push a copy of the container and the first index onto the temporaries stack
 							let iterable = frame.temporaries.pop();
@@ -5501,7 +5501,7 @@ function parse_for(state, parent)
 							frame.temporaries.push(0);
 							return false;
 						}
-						else if (ip == 2)
+						else if (ip === 2)
 						{
 							// check the end-of-loop condition and set the loop variable
 							let container = frame.temporaries[frame.temporaries.length - 2];
@@ -5518,24 +5518,24 @@ function parse_for(state, parent)
 								let typedvalue = container.hasOwnProperty("rangemarker")
 										? {"type": this.program.types[module.typeid_integer], "value": {"b": (container.begin + index) | 0}}
 										: container[index];
-								if (pe.var_scope == "global")
+								if (pe.var_scope === "global")
 									this.stack[0].variables[pe.var_id] = typedvalue;
-								else if (pe.var_scope == "local")
+								else if (pe.var_scope === "local")
 									frame.variables[pe.var_id] = typedvalue;
-								else if (pe.var_scope == "object")
+								else if (pe.var_scope === "object")
 									frame.object.value.a[pe.var_id] = typedvalue;
 								else module.assert(false, "unknown scope: " + pe.var_scope);
 							}
 							return true;
 						}
-						else if (ip == 3)
+						else if (ip === 3)
 						{
 							// push the body onto the stack
 							frame.pe.push(pe.body);
 							frame.ip.push(-1);
 							return false;
 						}
-						else if (ip == 4)
+						else if (ip === 4)
 						{
 							// increment the loop counter and jump to ip = 2
 							frame.temporaries[frame.temporaries.length - 1]++;
@@ -5547,7 +5547,7 @@ function parse_for(state, parent)
 					{
 						let frame = this.stack[this.stack.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						return (ip == 2);
+						return (ip === 2);
 					},
 		};
 
@@ -5555,13 +5555,13 @@ function parse_for(state, parent)
 	let vardecl = false;
 	where = state.get();
 	token = module.get_token(state, true);
-	if (token.type == "keyword" && token.value == "var")
+	if (token.type === "keyword" && token.value === "var")
 	{
 		// create and register a new variable
 		// Note: the program element does *not* need a step function, it is only there to define the variable's id
 		module.get_token(state);
 		token = module.get_token(state);
-		if (token.type != "identifier") state.error("/syntax/se-70");
+		if (token.type !== "identifier") state.error("/syntax/se-70");
 		let fn = get_function(parent);
 		let id = fn.variables.length;
 		let pe = { "petype": "variable", "where": where, "parent": forloop, "name": token.value, "id": id, "scope": "local" };
@@ -5572,14 +5572,14 @@ function parse_for(state, parent)
 
 		// parse "in"
 		token = module.get_token(state);
-		if (token.type != "identifier" || token.value != "in") state.error("/syntax/se-71");
+		if (token.type !== "identifier" || token.value !== "in") state.error("/syntax/se-71");
 
 		// parse the iterable object
 		forloop.iterable = parse_expression(state, parent);
 
 		// parse the "do" keyword
 		token = module.get_token(state);
-		if (token.type != "keyword" || token.value != "do") state.error("/syntax/se-72");
+		if (token.type !== "keyword" || token.value !== "do") state.error("/syntax/se-72");
 	}
 	else
 	{
@@ -5587,27 +5587,27 @@ function parse_for(state, parent)
 		let ex = parse_expression(state, forloop);
 
 		token = module.get_token(state);
-		if (token.type == "identifier" && token.value == "in")
+		if (token.type === "identifier" && token.value === "in")
 		{
 			state.set(w);
 			let result = parse_name(state, parent, "for-loop");
 			let v = result.lookup;
-			if (v.petype != "variable" && v.petype != "attribute") state.error("/argument-mismatch/am-35", [result.name, result.lookup.petype]);
+			if (v.petype !== "variable" && v.petype !== "attribute") state.error("/argument-mismatch/am-35", [result.name, result.lookup.petype]);
 			forloop.var_id = v.id;
 			forloop.var_scope = v.scope;
 
 			// parse "in"
 			token = module.get_token(state);
-			module.assert(token.type == "identifier" && token.value == "in", "[parse_for] internal error");
+			module.assert(token.type === "identifier" && token.value === "in", "[parse_for] internal error");
 
 			// parse the iterable object
 			forloop.iterable = parse_expression(state, parent);
 
 			// parse the "do" keyword
 			token = module.get_token(state);
-			if (token.type != "keyword" || token.value != "do") state.error("/syntax/se-72");
+			if (token.type !== "keyword" || token.value !== "do") state.error("/syntax/se-72");
 		}
-		else if (token.type == "keyword" && token.value == "do")
+		else if (token.type === "keyword" && token.value === "do")
 		{
 			forloop.iterable = ex;
 		}
@@ -5625,7 +5625,7 @@ function parse_dowhile(state, parent)
 	// handle "do" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "do", "[parse_dowhile] internal error");
+	module.assert(token.type === "keyword" && token.value === "do", "[parse_dowhile] internal error");
 
 	// create the loop object
 	let dowhile = {
@@ -5637,33 +5637,33 @@ function parse_dowhile(state, parent)
 						let frame = this.stack[this.stack.length - 1];
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						if (ip == -2)
+						if (ip === -2)
 						{
 							// handle "break" statement
 							frame.pe.pop();
 							frame.ip.pop();
 							return false;
 						}
-						else if (ip == -1)
+						else if (ip === -1)
 						{
 							// recover from "continue" statement
 							return false;
 						}
-						else if (ip == 0)
+						else if (ip === 0)
 						{
 							// push the body onto the stack
 							frame.pe.push(pe.body);
 							frame.ip.push(-1);
 							return false;
 						}
-						else if (ip == 1)
+						else if (ip === 1)
 						{
 							// push the condition onto the stack
 							frame.pe.push(pe.condition);
 							frame.ip.push(-1);
 							return false;
 						}
-						else if (ip == 2)
+						else if (ip === 2)
 						{
 							// evaluate the condition
 							let cond = frame.temporaries.pop();
@@ -5687,7 +5687,7 @@ function parse_dowhile(state, parent)
 					{
 						let frame = this.stack[this.stack.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						return (ip == 2);
+						return (ip === 2);
 					},
 		};
 
@@ -5696,14 +5696,14 @@ function parse_dowhile(state, parent)
 
 	// parse the "while" keyword
 	token = module.get_token(state);
-	if (token.type != "keyword" || token.value != "while") state.error("/syntax/se-74");
+	if (token.type !== "keyword" || token.value !== "while") state.error("/syntax/se-74");
 
 	// parse the condition
 	dowhile.condition = parse_expression(state, parent);
 
 	// parse the final semicolon
 	token = module.get_token(state);
-	if (token.type != "delimiter" || token.value != ";") state.error("/syntax/se-75");
+	if (token.type !== "delimiter" || token.value !== ";") state.error("/syntax/se-75");
 
 	return dowhile;
 }
@@ -5713,7 +5713,7 @@ function parse_whiledo(state, parent)
 	// handle "while" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "while", "[parse_whiledo] internal error");
+	module.assert(token.type === "keyword" && token.value === "while", "[parse_whiledo] internal error");
 
 	// create the loop object
 	let whiledo = {
@@ -5725,26 +5725,26 @@ function parse_whiledo(state, parent)
 						let frame = this.stack[this.stack.length - 1];
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						if (ip == -2)
+						if (ip === -2)
 						{
 							// handle "break" statement
 							frame.pe.pop();
 							frame.ip.pop();
 							return false;
 						}
-						else if (ip == -1)
+						else if (ip === -1)
 						{
 							// recover from "continue" statement
 							return false;
 						}
-						else if (ip == 0)
+						else if (ip === 0)
 						{
 							// push the condition onto the stack
 							frame.pe.push(pe.condition);
 							frame.ip.push(-1);
 							return false;
 						}
-						else if (ip == 1)
+						else if (ip === 1)
 						{
 							// evaluate the condition
 							let cond = frame.temporaries.pop();
@@ -5763,7 +5763,7 @@ function parse_whiledo(state, parent)
 							}
 							return true;
 						}
-						else if (ip == 2)
+						else if (ip === 2)
 						{
 							// return to the condition
 							frame.ip.pop();
@@ -5775,7 +5775,7 @@ function parse_whiledo(state, parent)
 					{
 						let frame = this.stack[this.stack.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						return (ip == 1);
+						return (ip === 1);
 					},
 		};
 
@@ -5784,7 +5784,7 @@ function parse_whiledo(state, parent)
 
 	// parse the "do" keyword
 	token = module.get_token(state);
-	if (token.type != "keyword" || token.value != "do") state.error("/syntax/se-76");
+	if (token.type !== "keyword" || token.value !== "do") state.error("/syntax/se-76");
 
 	// parse the loop body
 	whiledo.body = parse_statement(state, whiledo);
@@ -5797,20 +5797,20 @@ function parse_break(state, parent)
 	// handle "break" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "break", "[parse_break] internal error");
+	module.assert(token.type === "keyword" && token.value === "break", "[parse_break] internal error");
 
 	// ensure that we are inside a loop
 	let p = parent;
 	while (p)
 	{
-		if (p.petype == "function" || p.petype == "method" || p.petype == "global scope") state.error("/syntax/se-77");
+		if (p.petype === "function" || p.petype === "method" || p.petype === "global scope") state.error("/syntax/se-77");
 		if (p.petype.indexOf("loop") >= 0) break;
 		p = p.parent;
 	}
 
 	// parse the closing semicolon
 	token = module.get_token(state);
-	if (token.type != "delimiter" || token.value != ';') state.error("/syntax/se-81b");
+	if (token.type !== "delimiter" || token.value !== ';') state.error("/syntax/se-81b");
 
 	// create the break object
 	return {
@@ -5844,20 +5844,20 @@ function parse_continue(state, parent)
 	// handle "continue" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "continue", "[parse_continue] internal error");
+	module.assert(token.type === "keyword" && token.value === "continue", "[parse_continue] internal error");
 
 	// ensure that we are inside a loop
 	let p = parent;
 	while (p)
 	{
-		if (p.petype == "function" || p.petype == "method" || p.petype == "global scope") state.error("/syntax/se-78");
+		if (p.petype === "function" || p.petype === "method" || p.petype === "global scope") state.error("/syntax/se-78");
 		if (p.petype.indexOf("loop") >= 0) break;
 		p = p.parent;
 	}
 
 	// parse the closing semicolon
 	token = module.get_token(state);
-	if (token.type != "delimiter" || token.value != ';') state.error("/syntax/se-81c");
+	if (token.type !== "delimiter" || token.value !== ';') state.error("/syntax/se-81c");
 
 	// create the continue object
 	return {
@@ -5891,7 +5891,7 @@ function parse_return(state, parent)
 	// handle "return" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "return", "[parse_return] internal error");
+	module.assert(token.type === "keyword" && token.value === "return", "[parse_return] internal error");
 
 	// create the return object
 	let ret = {
@@ -5904,7 +5904,7 @@ function parse_return(state, parent)
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
 
-						if (ip == 0)
+						if (ip === 0)
 						{
 							// evaluate the argument
 							if (pe.hasOwnProperty("argument"))
@@ -5928,23 +5928,23 @@ function parse_return(state, parent)
 					{
 						let frame = this.stack[this.stack.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						return (ip != 0);
+						return (ip !== 0);
 					},
 		};
 
 	// parse the optional argument
 	token = module.get_token(state, true);
-	if (token.type != "delimiter" || token.value != ';')
+	if (token.type !== "delimiter" || token.value !== ';')
 	{
 		ret.argument = parse_expression(state, parent);
 		let fn = get_function(parent);
-		if (fn.name == "constructor") state.error("/syntax/se-79");
-		if (fn.petype == "global scope" || fn.petype == "namespace") state.error("/syntax/se-80");
+		if (fn.name === "constructor") state.error("/syntax/se-79");
+		if (fn.petype === "global scope" || fn.petype === "namespace") state.error("/syntax/se-80");
 	}
 
 	// parse the closing semicolon
 	token = module.get_token(state);
-	if (token.type != "delimiter" || token.value != ';') state.error("/syntax/se-81");
+	if (token.type !== "delimiter" || token.value !== ';') state.error("/syntax/se-81");
 
 	return ret;
 }
@@ -5954,7 +5954,7 @@ function parse_trycatch(state, parent)
 	// handle "try" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "try", "[parse_trycatch] internal error");
+	module.assert(token.type === "keyword" && token.value === "try", "[parse_trycatch] internal error");
 
 	// create the try-catch object
 	let trycatch = {
@@ -5966,14 +5966,14 @@ function parse_trycatch(state, parent)
 						let frame = this.stack[this.stack.length - 1];
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						if (ip == 0)
+						if (ip === 0)
 						{
 							// run the try part
 							frame.pe.push(pe.try_part);
 							frame.ip.push(-1);
 							return false;
 						}
-						else if (ip == 2)
+						else if (ip === 2)
 						{
 							// catch landing point, an exception is on the temporary stack
 							frame.pe.push(pe.catch_part);
@@ -6001,7 +6001,7 @@ function parse_trycatch(state, parent)
 						let frame = this.stack[this.stack.length - 1];
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						if (ip == 0)
+						if (ip === 0)
 						{
 							// run the try part
 							frame.pe.push(pe.command);
@@ -6024,21 +6024,21 @@ function parse_trycatch(state, parent)
 	// parse the catch statement
 	let where_catch = state.get();
 	token = module.get_token(state);
-	if (token.type != "keyword" || token.value != "catch") state.error("/syntax/se-82");
+	if (token.type !== "keyword" || token.value !== "catch") state.error("/syntax/se-82");
 
 	// handle the "var" keyword
 	token = module.get_token(state);
-	if (token.type != "keyword" || token.value != "var") state.error("/syntax/se-84");
+	if (token.type !== "keyword" || token.value !== "var") state.error("/syntax/se-84");
 
 	// parse the variable name
 	let where_var = state.get();
 	token = module.get_token(state);
-	if (token.type != "identifier") state.error("/syntax/se-85");
+	if (token.type !== "identifier") state.error("/syntax/se-85");
 	let name = token.value;
 
 	// handle the "do" keyword
 	token = module.get_token(state);
-	if (token.type != "keyword" || token.value != "do") state.error("/syntax/se-86");
+	if (token.type !== "keyword" || token.value !== "do") state.error("/syntax/se-86");
 
 	// create the catch part, which declares the exception variable
 	trycatch.catch_part = {
@@ -6051,7 +6051,7 @@ function parse_trycatch(state, parent)
 						let frame = this.stack[this.stack.length - 1];
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						if (ip == 0)
+						if (ip === 0)
 						{
 							// initialize the variable
 							frame.variables[pe.var_id] = frame.temporaries.pop();
@@ -6091,7 +6091,7 @@ function parse_throw(state, parent)
 	// handle "throw" keyword
 	let where = state.get();
 	let token = module.get_token(state);
-	module.assert(token.type == "keyword" && token.value == "throw", "[parse_throw] internal error");
+	module.assert(token.type === "keyword" && token.value === "throw", "[parse_throw] internal error");
 
 	// create the throw object
 	let ret = {
@@ -6104,7 +6104,7 @@ function parse_throw(state, parent)
 						let pe = frame.pe[frame.pe.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
 
-						if (ip == 0)
+						if (ip === 0)
 						{
 							// evaluate the exception
 							frame.pe.push(pe.argument);
@@ -6122,7 +6122,7 @@ function parse_throw(state, parent)
 							while (true)
 							{
 								let f = this.stack[this.stack.length - remove_frame - 1];
-								if (f.pe[f.pe.length - 1 - remove_pe].petype == "try") break;
+								if (f.pe[f.pe.length - 1 - remove_pe].petype === "try") break;
 								remove_pe++;
 								if (remove_pe >= f.pe.length)
 								{
@@ -6149,7 +6149,7 @@ function parse_throw(state, parent)
 					{
 						let frame = this.stack[this.stack.length - 1];
 						let ip = frame.ip[frame.ip.length - 1];
-						return (ip != 0);
+						return (ip !== 0);
 					},
 		};
 
@@ -6158,7 +6158,7 @@ function parse_throw(state, parent)
 
 	// parse the closing semicolon
 	token = module.get_token(state);
-	if (token.type != "delimiter" || token.value != ';') state.error("/syntax/se-87");
+	if (token.type !== "delimiter" || token.value !== ';') state.error("/syntax/se-87");
 
 	return ret;
 }
@@ -6169,49 +6169,49 @@ function parse_declaration(state, parent)
 {
 	let kw = peek_keyword(state);
 
-	if (kw == "var") return parse_var(state, parent);
-	else if (kw == "function") return parse_function(state, parent);
-	else if (kw == "class") return parse_class(state, parent);
-	else if (kw == "namespace") return parse_namespace(state, parent);
-	else if (kw == "use" || kw == "from") return parse_use(state, parent);
+	if (kw === "var") return parse_var(state, parent);
+	else if (kw === "function") return parse_function(state, parent);
+	else if (kw === "class") return parse_class(state, parent);
+	else if (kw === "namespace") return parse_namespace(state, parent);
+	else if (kw === "use" || kw === "from") return parse_use(state, parent);
 	else return null;
 }
 
 // Parse a single statement, or a group of statements.
 function parse_statement(state, parent, var_allowed)
 {
-	if (var_allowed === undefined) var_allowed = false;
+	if (typeof var_allowed === 'undefined') var_allowed = false;
 
 	let kw = peek_keyword(state);
 
-	if (kw == "if") return parse_ifthenelse(state, parent);
-	else if (kw == "for") return parse_for(state, parent);
-	else if (kw == "do") return parse_dowhile(state, parent);
-	else if (kw == "while") return parse_whiledo(state, parent);
-	else if (kw == "break") return parse_break(state, parent);
-	else if (kw == "continue") return parse_continue(state, parent);
-	else if (kw == "return") return parse_return(state, parent);
-	else if (kw == "try") return parse_trycatch(state, parent);
-	else if (kw == "throw") return parse_throw(state, parent);
+	if (kw === "if") return parse_ifthenelse(state, parent);
+	else if (kw === "for") return parse_for(state, parent);
+	else if (kw === "do") return parse_dowhile(state, parent);
+	else if (kw === "while") return parse_whiledo(state, parent);
+	else if (kw === "break") return parse_break(state, parent);
+	else if (kw === "continue") return parse_continue(state, parent);
+	else if (kw === "return") return parse_return(state, parent);
+	else if (kw === "try") return parse_trycatch(state, parent);
+	else if (kw === "throw") return parse_throw(state, parent);
 	else
 	{
 		let where = state.get();
 		let token = module.get_token(state, true);
-		if (token.type == "identifier")
+		if (token.type === "identifier")
 		{
 			return parse_assignment_or_expression(state, parent);
 		}
-		else if ((token.type == "keyword" && (token.value == "null" || token.value == "true" || token.value == "false" || token.value == "not" || token.value == "this" || token.value == "super"))
-				|| (token.type == "grouping" && (token.value == '(' || token.value == '['))
-				|| (token.type == "operator" && (token.value == '+' || token.value == '-'))
-				|| token.type == "integer"
-				|| token.type == "real"
-				|| token.type == "string")
+		else if ((token.type === "keyword" && (token.value === "null" || token.value === "true" || token.value === "false" || token.value === "not" || token.value === "this" || token.value === "super"))
+				|| (token.type === "grouping" && (token.value === '(' || token.value === '['))
+				|| (token.type === "operator" && (token.value === '+' || token.value === '-'))
+				|| token.type === "integer"
+				|| token.type === "real"
+				|| token.type === "string")
 		{
 			// rather stupid cases, forbid them??
 			return parse_assignment_or_expression(state, parent);
 		}
-		else if (token.type == "delimiter" && token.value == ';')
+		else if (token.type === "delimiter" && token.value === ';')
 		{
 			// ignore solitude semicolon
 			module.get_token(state);
@@ -6228,7 +6228,7 @@ function parse_statement(state, parent, var_allowed)
 					"sim": simfalse,
 				};
 		}
-		else if (token.type == "grouping" && token.value == '{')
+		else if (token.type === "grouping" && token.value === '{')
 		{
 			// parse a scope
 			module.get_token(state);
@@ -6237,14 +6237,14 @@ function parse_statement(state, parent, var_allowed)
 			while (true)
 			{
 				token = module.get_token(state, true);
-				if (token.type == "grouping" && token.value == '}')
+				if (token.type === "grouping" && token.value === '}')
 				{
 					state.indent.pop();
 					if (module.options.checkstyle && ! state.builtin())
 					{
 						let indent = state.indentation();
 						let topmost = state.indent[state.indent.length - 1];
-						if (topmost >= 0 && topmost != indent) state.error("/style/ste-2");
+						if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
 					}
 					module.get_token(state);
 					break;
@@ -6254,8 +6254,8 @@ function parse_statement(state, parent, var_allowed)
 			}
 			return scope;
 		}
-		else if (token.type == "grouping" && token.value == '}') state.error("/syntax/se-88");
-		else if (token.type == "keyword") state.error("/syntax/se-89", [token.value]);
+		else if (token.type === "grouping" && token.value === '}') state.error("/syntax/se-88");
+		else if (token.type === "keyword") state.error("/syntax/se-89", [token.value]);
 		else state.error("/syntax/se-90", [token.value]);
 	}
 }
@@ -6268,7 +6268,7 @@ function parse_statement_or_declaration(state, parent)
 				{
 					for (let i=0; i<value.length; i++) markAsBuiltin(value[i]);
 				}
-				else if (value !== null && typeof value == "object" && value.constructor == Object)
+				else if (value !== null && typeof value === "object" && value.constructor === Object)
 				{
 					if (value.hasOwnProperty("builtin") && value.builtin) return;
 					if (value.hasOwnProperty("petype"))
@@ -6279,7 +6279,7 @@ function parse_statement_or_declaration(state, parent)
 					for (let key in value)
 					{
 						if (! value.hasOwnProperty(key)) continue;
-						if (key == "parent") continue;
+						if (key === "parent") continue;
 						markAsBuiltin(value[key]);
 					}
 				}
@@ -6351,7 +6351,7 @@ module.parse = function(sourcecode)
 					{ return Object.keys(this.impl).length > 0; },
 			"setSource": function(source, impl)
 					{
-						this.impl = (impl === undefined) ? {} : impl;
+						this.impl = (typeof impl === 'undefined') ? {} : impl;
 						this.source = source;
 						this.pos = 0;
 						this.line = 1;
@@ -6359,14 +6359,14 @@ module.parse = function(sourcecode)
 						this.skip();
 					},
 			"good": function()
-					{ return (this.pos < this.source.length) && (this.errors.length == 0); },
+					{ return (this.pos < this.source.length) && (this.errors.length === 0); },
 			"bad": function()
 					{ return (! this.good()); },
 			"eof": function()
 					{ return this.pos >= this.source.length; },
 			"error": function(path, args)
 					{
-						if (args === undefined) args = [];
+						if (typeof args === 'undefined') args = [];
 						let msg = module.composeError(path, args);
 						this.errors.push({"type": "error", "line": this.line, "ch": this.ch, "message": msg, "href": "#/errors" + path});
 						throw new ParseError("error");
@@ -6389,21 +6389,21 @@ module.parse = function(sourcecode)
 						for (let i=this.pos - this.ch; i<this.pos; i++)
 						{
 							let c = this.source[i];
-							if (c == ' ') w++;
-							else if (c == '\t') { w += 4; w -= (w % 4); }
+							if (c === ' ') w++;
+							else if (c === '\t') { w += 4; w -= (w % 4); }
 							else break;
 						}
 						return w;
 					},
 			"advance": function(n)
 					{
-						if (n === undefined) n = 1;
+						if (typeof n === 'undefined') n = 1;
 
 						if (this.pos + n > this.source.length) n = this.source.length - this.pos;
 						for (let i=0; i<n; i++)
 						{
 							let c = this.current();
-							if (c == '\n') { this.line++; this.ch = 0; }
+							if (c === '\n') { this.line++; this.ch = 0; }
 							this.pos++; this.ch++;
 						}
 					},
@@ -6413,39 +6413,39 @@ module.parse = function(sourcecode)
 						while (this.good())
 						{
 							let c = this.current();
-							if (c == '#')
+							if (c === '#')
 							{
 								this.pos++; this.ch++;
-								if (this.current() == '*')
+								if (this.current() === '*')
 								{
 									this.pos++; this.ch++;
 									let star = false;
 									while (this.good())
 									{
-										if (this.current() == '\n')
+										if (this.current() === '\n')
 										{
 											this.pos++;
 											this.line++; this.ch = 0;
 											star = false;
 											continue;
 										}
-										if (star && this.current() == '#')
+										if (star && this.current() === '#')
 										{
 											this.pos++; this.ch++;
 											break;
 										}
-										star = (this.current() == '*');
+										star = (this.current() === '*');
 										this.pos++; this.ch++;
 									}
 								}
 								else
 								{
-									while (this.good() && this.current() != '\n') { this.pos++; this.ch++; }
+									while (this.good() && this.current() !== '\n') { this.pos++; this.ch++; }
 								}
 								continue;
 							}
-							if (c != ' ' && c != '\t' && c != '\r' && c != '\n') break;
-							if (c == '\n') { this.line++; this.ch = 0; lines.push(this.line); }
+							if (c !== ' ' && c !== '\t' && c !== '\r' && c !== '\n') break;
+							if (c === '\n') { this.line++; this.ch = 0; lines.push(this.line); }
 							else this.ch++;
 							this.pos++;
 						}
@@ -6457,9 +6457,9 @@ module.parse = function(sourcecode)
 	let parse1 = function(source, impl)
 			{
 				state.setSource(source, impl);
-				if (impl === undefined) program.where = state.get();
+				if (typeof impl === 'undefined') program.where = state.get();
 				while (state.good()) program.commands.push(parse_statement_or_declaration(state, program));
-				if (impl === undefined) program.lines = state.line;
+				if (typeof impl === 'undefined') program.lines = state.line;
 			};
 
 	try
@@ -6805,9 +6805,9 @@ module.Interpreter = function(program)
 	// exception type
 	function RuntimeError(msg, line, ch, href)
 	{
-		if (line === undefined) line = null;
-		if (ch === undefined) ch = null;
-		if (href === undefined) href = "";
+		if (typeof line === 'undefined') line = null;
+		if (typeof ch === 'undefined') ch = null;
+		if (typeof href === 'undefined') href = "";
 		this.message = msg;
 		this.line = line;
 		this.ch = ch;
@@ -6831,7 +6831,7 @@ module.Interpreter = function(program)
 			return;
 		}
 
-		if (this.status == "waiting")
+		if (this.status === "waiting")
 		{
 			let t = (new Date()).getTime();
 			if (t >= this.waittime)
@@ -6841,10 +6841,10 @@ module.Interpreter = function(program)
 			}
 		}
 
-		if (this.status == "running")
+		if (this.status === "running")
 		{
 			let start = (new Date()).getTime();
-			while (this.background && (new Date()).getTime() - start < 14 && this.status == "running")
+			while (this.background && (new Date()).getTime() - start < 14 && this.status === "running")
 			{
 				this.exec_step();
 
@@ -6886,7 +6886,7 @@ module.Interpreter = function(program)
 	// start or continue running the program in the background
 	this.run = function()
 	{
-		if (this.status == "running" || this.status == "waiting")
+		if (this.status === "running" || this.status === "waiting")
 		{
 			this.background = true;
 			if (this.service.statechanged) this.service.statechanged(false);
@@ -6930,7 +6930,7 @@ module.Interpreter = function(program)
 	// make the interpreter wait (at least) for the given number of milliseconds
 	this.wait = function(milliseconds)
 	{
-		if (this.status != "running") return false;
+		if (this.status !== "running") return false;
 		this.waittime = (new Date()).getTime() + milliseconds;
 		this.status = "waiting";
 		if (this.service.statechanged) this.service.statechanged(false);
@@ -6950,12 +6950,12 @@ module.Interpreter = function(program)
 		while (this.stack.length > 0)
 		{
 			let frame = this.stack[this.stack.length - 1];
-			if (frame.ip.length == 0)
+			if (frame.ip.length === 0)
 			{
 				// implicit return from a function
-				module.assert(frame.temporaries.length == 0, "[Interpreter.progress] temporaries stack is not empty at the end of the function scope");
+				module.assert(frame.temporaries.length === 0, "[Interpreter.progress] temporaries stack is not empty at the end of the function scope");
 				this.stack.pop();
-				if (this.stack.length == 0)
+				if (this.stack.length === 0)
 				{
 					// end of the program
 					break;
@@ -6986,7 +6986,7 @@ module.Interpreter = function(program)
 	// command.
 	this.exec_step = function()
 	{
-		if (this.status == "waiting")
+		if (this.status === "waiting")
 		{
 			let t = (new Date()).getTime();
 			if (t >= this.waittime)
@@ -6996,9 +6996,9 @@ module.Interpreter = function(program)
 			}
 		}
 
-		if (this.status != "running") return;
+		if (this.status !== "running") return;
 
-		if (this.stack.length == 0)
+		if (this.stack.length === 0)
 		{
 			this.status = "finished";
 			if (this.service.statechanged) this.service.statechanged(true);
@@ -7022,7 +7022,7 @@ module.Interpreter = function(program)
 			// execute a step that returns true
 			let frame = this.stack[this.stack.length - 1];
 			let pe = frame.pe[frame.pe.length - 1];
-			if (frame.ip.length != 1 || frame.ip[0] != 0)
+			if (frame.ip.length !== 1 || frame.ip[0] !== 0)
 			{
 				// execute the current program element, and demand that it "did something"
 				let done = pe.step.call(this);
@@ -7034,7 +7034,7 @@ module.Interpreter = function(program)
 			}
 
 			// execute trivial steps
-			while (this.stack.length > 0 && (this.status == "running" || this.status == "waiting"))
+			while (this.stack.length > 0 && (this.status === "running" || this.status === "waiting"))
 			{
 				let frame = this.stack[this.stack.length - 1];
 				let pe = frame.pe[frame.pe.length - 1];
@@ -7082,7 +7082,7 @@ module.Interpreter = function(program)
 
 	this.step_into = function()
 	{
-		if (this.background || this.status != "running") return;
+		if (this.background || this.status !== "running") return;
 		this.halt = function() { return true; };
 		this.background = true;
 	};
@@ -7090,9 +7090,9 @@ module.Interpreter = function(program)
 	// move to a different line in the same function
 	this.step_over = function()
 	{
-		if (this.background || this.status != "running") return;
+		if (this.background || this.status !== "running") return;
 		let len = this.stack.length;
-		if (len == 0)
+		if (len === 0)
 		{
 			this.halt = function() { return true; };
 			this.background = true;
@@ -7104,11 +7104,11 @@ module.Interpreter = function(program)
 		this.halt = (function(len, line) { return function()
 				{
 					if (this.stack.length < len) return true;
-					else if (this.stack.length == len)
+					else if (this.stack.length === len)
 					{
 						let pe = frame.pe[frame.pe.length - 1];
 						let ln = pe.where ? pe.where.line : -1;
-						if (ln != line) return true;
+						if (ln !== line) return true;
 					}
 					return false;
 				}; })(len, line);
@@ -7118,9 +7118,9 @@ module.Interpreter = function(program)
 	// move out of the current function
 	this.step_out = function()
 	{
-		if (this.background || this.status != "running") return;
+		if (this.background || this.status !== "running") return;
 		let len = this.stack.length;
-		if (len == 0) this.halt = function() { return true; };
+		if (len === 0) this.halt = function() { return true; };
 		else this.halt = (function(len) { return function()
 				{
 					return (this.stack.length < len);
@@ -7148,10 +7148,10 @@ module.Interpreter = function(program)
 	// define an event handler - there can only be one :)
 	this.setEventHandler = function(type, handler)
 	{
-		if (handler.type.id == module.typeid_null) delete this.eventhandler[type];
+		if (handler.type.id === module.typeid_null) delete this.eventhandler[type];
 		else if (module.isDerivedFrom(handler.type, module.typeid_function))
 		{
-			if (handler.value.b.func.params.length != 1) throw new RuntimeError("[Interpreter.setEventHandler] handler must be a function with exactly one parameter");
+			if (handler.value.b.func.params.length !== 1) throw new RuntimeError("[Interpreter.setEventHandler] handler must be a function with exactly one parameter");
 			this.eventhandler[type] = handler.value.b;
 		}
 		else throw new RuntimeError("[Interpreter.setEventHandler] invalid argument");
