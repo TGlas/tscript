@@ -4297,7 +4297,7 @@ let tests = [
 window.addEventListener("load", function()
 {
 	let start = Date.now();
-	document.getElementById("version").innerHTML = TScript.version.full();
+	document.getElementById("version").innerText = TScript.version.full();
 
 	// loop over an array of unit tests
 	let testindex = 0;
@@ -4309,12 +4309,16 @@ window.addEventListener("load", function()
 		{
 			let finish = Date.now();
 			function tests(n) { return n + (n != 1 ? " tests" : " test"); }
-			document.getElementById("status").innerHTML = tests(testindex) + " completed in "
+			let status = document.getElementById("status");
+			status.innerText = tests(testindex) + " completed in "
 					+ (finish - start) / 1000.0
 					+ " seconds; " + tests(passed) + " passed, " + tests(failed) + " failed.";
+			if(failed > 0){
+				status.style.color = "#FF0000"
+			}
 			return;
 		}
-		document.getElementById("status").innerHTML = "Running test " + (testindex + 1) + " out of " + tests.length + " ...";
+		document.getElementById("status").innerText = "Running test " + (testindex + 1) + " out of " + tests.length + " ...";
 
 		let test = tests[testindex];
 
