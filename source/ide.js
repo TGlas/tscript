@@ -1396,16 +1396,26 @@ function handleDialogCloseWith(onClose)
 	}
 }
 
+// TODO move to tgui.js
 function createTitleBar(dlg, title, onClose)
 {
 	let titlebar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0", "background": "#008", "color": "#fff", "padding": "1px 2px 1px 10px"},
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0"},
+			"classname": "tgui-modal-titlebar",
+		});
+		
+	let titlebar_title = tgui.createElement({
+			"parent": titlebar,
+			"type": "span",
+			"style": {},
+			"classname": "tgui-modal-titlebar-title",
 			"text": title,
 		});
 		
 	let close = tgui.createButton({
+			"parent": titlebar,
 			"click": function ()
 					{
 						return handleDialogCloseWith(onClose)(null);
@@ -1426,7 +1436,6 @@ function createTitleBar(dlg, title, onClose)
 						ctx.lineTo(14,  4);
 						ctx.stroke();
 					},
-			"parent": titlebar,
 			"classname": "tgui-panel-dockbutton",
 			"tooltip-right": "close",
 		});
@@ -1434,13 +1443,12 @@ function createTitleBar(dlg, title, onClose)
 	return titlebar;
 }
 
+// TODO move to tgui.js
 function createDialog(title, size, onClose)
 {
 	let dlg = tgui.createElement({
 			"type": "div",
-			// file   "position": "fixed", "width": "50vw", "left": "25vw", "height": "70vh", "top": "15vh", "background": "#eee", "overflow": "hidden"
-			// conf  {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
-			"style": {"position": "center", "width": size["width"], "left": "calc((100vw - "+size["width"]+")/2)", "height": size["height"], "top": "calc((100vh - "+size["height"]+")/2)", "background": "#eee", "overflow": "hidden"},
+			"style": {"width": size["width"], "height": size["height"], "background": "#eee", "overflow": "hidden"},
 		});
 	let titlebar = createTitleBar(dlg, title, onClose);
 	
@@ -1597,10 +1605,17 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 
 	// create controls
 	let dlg = createDialog(title, {"width": "calc(max(440px, 50vw))", "left": "25vw", "height": "calc(max(260px, 70vh))", "top": "15vh"});
+	let dlgContent = tgui.createElement({
+		"parent": dlg,
+		"type": "div",
+		"classname": "tgui-modal-content",
+		"style": {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
+	});
+	
 	let toolbar = tgui.createElement({
-			"parent": dlg,
+			"parent": dlgContent,
 			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "32px"},
+			"style": {"width": "100%", "height": "25px", "margin-top": "7px"},
 		});
 	// Toolbar contents
 	let deleteBtn = tgui.createElement({
@@ -1639,31 +1654,29 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	// end Toolbar contents
 	
 	let list = tgui.createElement({
-			"parent": dlg,
+			"parent": dlgContent,
 			"type": files.length > 0 ? "select" : "text",
 			"properties": {"size": Math.max(2, files.length)},
 			"classname": "tgui-list-box",
-			"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "calc(100% - 25px - 4*7px - 2*25px)", "top": "calc(25px + 2*7px + 1*25px)", "background": "#fff", "overflow": "scroll"},
-			//"text": files.length > 0 ? "" : "No documents saved.",
-		});
-	let buttons = tgui.createElement({
-			"parent": dlg,
-			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "bottom": "7px", "display": "flex", "justify-content": "flex-end"},
+			"style": {"flex": "auto", "background": "#fff", "margin": "7px 10px", "overflow": "scroll"}
 		});
 	let name = {value: filename};
 	if (allowNewFilename)
 	{
 		name = tgui.createElement({
-				"parent": dlg,
+				"parent": dlgContent,
 				"type": "input",
-				"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "25px", "bottom": "40px"},
+				"style": {"height": "25px", "background": "#fff", "margin": "0 10px 7px 10px"},
 				"classname": "tgui-text-box",
 				"text": filename,
 				"properties": {type:"text", placeholder:"Filename"}
 			});
-		list.style.height = "calc(100% - 25px - 5*7px - 3*25px)";
 	}
+	let buttons = tgui.createElement({
+			"parent": dlgContent,
+			"type": "div",
+			"style": {"width": "100%", "height": "25px", "margin-bottom": "7px", "display": "flex", "justify-content": "flex-end"},
+		});
 	let okay = tgui.createElement({
 			"parent": buttons,
 			"type": "button",
@@ -1826,7 +1839,7 @@ module.create = function(container, options)
 						{
 							let ctx = canvas.getContext("2d");
 							ctx.strokeStyle = "#080";
-							ctx.lineWidth = 1.5;
+							ctx.lineWidth = 2;
 							ctx.beginPath();
 							ctx.moveTo( 3,  7);
 							ctx.lineTo(10,  7);
@@ -1923,7 +1936,7 @@ module.create = function(container, options)
 					"background": "#fff"
 					}
 		});
-	// TODO set tooltip text to the content text
+	// TODO set tooltip text to the content text, this should apply when the statusbox is too narrow
 	module.programstate.unchecked = function() { this.setText("program has not been checked").setBackground("#ee8"); }
 	module.programstate.error     = function() { this.setText("an error has occurred").setBackground("#f44"); }
 	module.programstate.running   = function() { this.setText("program is running").setBackground("#8e8"); }
@@ -1958,20 +1971,24 @@ module.create = function(container, options)
 					{
 						let ctx = canvas.getContext("2d");
 						ctx.lineWidth = 1;
-						ctx.fillStyle = "#ffe";
+						ctx.fillStyle = "#fff";
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.rect(5.5, 6.5, 12, 9);
+						ctx.rect(5.5, 5.5, 12, 10);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(2.5, 5.5, 10, 6);
+						ctx.rect(2.5, 4.5, 10, 7);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(7.5, 2.5, 7, 5);
+						ctx.rect(7.5, 2.5, 7, 6);
 						ctx.fill();
 						ctx.stroke();
+						ctx.fillStyle = "#00c";
+						ctx.fillRect(15, 6, 2, 1);
+						ctx.fillRect(3, 5, 4, 1);
+						ctx.fillRect(8, 3, 6, 1);
 					},
 			"parent": module.toolbar,
 			"style": {"float": "left"},

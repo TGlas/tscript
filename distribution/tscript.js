@@ -7698,6 +7698,12 @@ function createControl(type, description, classname)
 		element.style.cursor = "pointer";
 	}
 
+	// add a dblclick (double click) handler
+	if (description.hasOwnProperty("dblclick"))
+	{
+		element.addEventListener("dblclick", description.dblclick);
+	}
+	
 	// add arbitrary event handlers
 	if (description.hasOwnProperty("event"))
 	{
@@ -8309,6 +8315,23 @@ module.createPanel = function(description)
 	control.dom = panel;
 	control.panelID = free_panel_id;
 	free_panel_id++;
+	
+	
+	
+	if (! control.hasOwnProperty("icondraw")) control.icondraw = function(canvas)
+			{
+					let ctx = canvas.getContext("2d");
+					ctx.lineWidth = 1;
+					ctx.fillStyle = "#fff";
+					ctx.fillRect(2.5, 2.5, 15, 15);
+					ctx.strokeStyle = "#000";
+					ctx.beginPath();
+					ctx.rect(2.5, 2.5, 15, 15);
+					ctx.fillStyle = "#00c";
+					ctx.fillRect(2.5, 2.5, 15, 3);
+					ctx.stroke();
+			};
+	
 
 	// register the panel
 	module.panels.push(control);
@@ -8319,32 +8342,29 @@ module.createPanel = function(description)
 				"parent": panel,
 				"classname": "tgui tgui-panel-titlebar",
 		});
+	control.titlebar_icon = tgui.createElement({
+				"type": "canvas",
+				"dblclick": function (event) { control.dock("icon"); return false; },
+				"properties": {"width": 20, "height": 20},
+				"parent": control.titlebar_container,
+				"style": {"left": "1px", "top": "1px", "width":"20px", "height": "20px", "cursor": "pointer"},
+			});
+	control.icondraw(control.titlebar_icon);
+	
+	// title bar text only
 	control.titlebar = tgui.createElement({
 				"type": "span",
-				"parent": control.titlebar_container,
-				"text": control.title,
-		});
-
-	control.button_icon = tgui.createButton({
-				"click": function (event) { control.dock("icon"); return false; },
-				"width": 20,
-				"height": 20,
-				"draw": function(canvas)
-				{
-					let ctx = canvas.getContext("2d");
-					ctx.lineWidth = 2.5;
-					ctx.strokeStyle = "#000";
-					ctx.beginPath();
-					ctx.moveTo( 3, 15);
-					ctx.lineTo(15, 15);
-					ctx.stroke();
+				"dblclick": function (event) { 
+					control.dock(control.state == "max" ? control.fallbackState : "max");
+					return false;
 				},
 				"parent": control.titlebar_container,
-				"classname": "tgui-panel-dockbutton",
-				"tooltip-right": "minimize",
-			});
-	control.button_float = tgui.createButton({
-				"click": function () { control.dock("float"); return false; },
+				"text": control.title,
+				"classname": "tgui-panel-titlebar-title",
+		});
+		
+	control.button_left = tgui.createButton({
+				"click": function () { control.dock("left"); return false; },
 				"width": 20,
 				"height": 20,
 				"draw": function(canvas)
@@ -8356,38 +8376,17 @@ module.createPanel = function(description)
 					ctx.rect(2.5, 2.5, 13, 13);
 					ctx.stroke();
 					ctx.fillStyle = "#fff";
-					ctx.fillRect(4.5, 5.5, 9, 8);
+					ctx.fillRect(2.5, 2.5, 7, 13);
 					ctx.strokeStyle = "#000";
 					ctx.beginPath();
-					ctx.rect(4.5, 5.5, 9, 8);
+					ctx.rect(2.5, 2.5, 7, 13);
 					ctx.fillStyle = "#00c";
-					ctx.fillRect(4.5, 5.5, 9, 3);
+					ctx.fillRect(2.5, 2.5, 7, 3);
 					ctx.stroke();
 				},
 				"parent": control.titlebar_container,
 				"classname": "tgui-panel-dockbutton",
-				"tooltip-right": "floating",
-			});
-	control.button_max = tgui.createButton({
-				"click": function () { control.dock("max"); return false; },
-				"width": 20,
-				"height": 20,
-				"draw": function(canvas)
-				{
-					let ctx = canvas.getContext("2d");
-					ctx.lineWidth = 1;
-					ctx.fillStyle = "#fff";
-					ctx.fillRect(2.5, 2.5, 13, 13);
-					ctx.strokeStyle = "#000";
-					ctx.beginPath();
-					ctx.rect(2.5, 2.5, 13, 13);
-					ctx.fillStyle = "#00c";
-					ctx.fillRect(2.5, 2.5, 13, 3);
-					ctx.stroke();
-				},
-				"parent": control.titlebar_container,
-				"classname": "tgui-panel-dockbutton",
-				"tooltip-right": "maximize",
+				"tooltip-right": "dock left",
 			});
 	control.button_right = tgui.createButton({
 				"click": function () { control.dock("right"); return false; },
@@ -8414,8 +8413,29 @@ module.createPanel = function(description)
 				"classname": "tgui-panel-dockbutton",
 				"tooltip-right": "dock right",
 			});
-	control.button_left = tgui.createButton({
-				"click": function () { control.dock("left"); return false; },
+	control.button_max = tgui.createButton({
+				"click": function () { control.dock("max"); return false; },
+				"width": 20,
+				"height": 20,
+				"draw": function(canvas)
+				{
+					let ctx = canvas.getContext("2d");
+					ctx.lineWidth = 1;
+					ctx.fillStyle = "#fff";
+					ctx.fillRect(2.5, 2.5, 13, 13);
+					ctx.strokeStyle = "#000";
+					ctx.beginPath();
+					ctx.rect(2.5, 2.5, 13, 13);
+					ctx.fillStyle = "#00c";
+					ctx.fillRect(2.5, 2.5, 13, 3);
+					ctx.stroke();
+				},
+				"parent": control.titlebar_container,
+				"classname": "tgui-panel-dockbutton",
+				"tooltip-right": "maximize",
+			});
+	control.button_float = tgui.createButton({
+				"click": function () { control.dock("float"); return false; },
 				"width": 20,
 				"height": 20,
 				"draw": function(canvas)
@@ -8427,35 +8447,39 @@ module.createPanel = function(description)
 					ctx.rect(2.5, 2.5, 13, 13);
 					ctx.stroke();
 					ctx.fillStyle = "#fff";
-					ctx.fillRect(2.5, 2.5, 7, 13);
+					ctx.fillRect(4.5, 5.5, 9, 8);
 					ctx.strokeStyle = "#000";
 					ctx.beginPath();
-					ctx.rect(2.5, 2.5, 7, 13);
+					ctx.rect(4.5, 5.5, 9, 8);
 					ctx.fillStyle = "#00c";
-					ctx.fillRect(2.5, 2.5, 7, 3);
+					ctx.fillRect(4.5, 5.5, 9, 3);
 					ctx.stroke();
 				},
 				"parent": control.titlebar_container,
 				"classname": "tgui-panel-dockbutton",
-				"tooltip-right": "dock left",
+				"tooltip-right": "floating",
+			});
+	control.button_icon = tgui.createButton({
+				"click": function (event) { control.dock("icon"); return false; },
+				"width": 20,
+				"height": 20,
+				"draw": function(canvas)
+				{
+					let ctx = canvas.getContext("2d");
+					ctx.lineWidth = 2.5;
+					ctx.strokeStyle = "#000";
+					ctx.beginPath();
+					ctx.moveTo( 3, 14.5);
+					ctx.lineTo(15, 14.5);
+					ctx.stroke();
+				},
+				"parent": control.titlebar_container,
+				"classname": "tgui-panel-dockbutton",
+				"tooltip-right": "minimize",
 			});
 
 	// create the content div
 	control.content = tgui.createElement({"type": "div", parent: panel, "classname": "tgui tgui-panel-content"});
-
-	if (! control.hasOwnProperty("icondraw")) control.icondraw = function(canvas)
-			{
-					let ctx = canvas.getContext("2d");
-					ctx.lineWidth = 1;
-					ctx.fillStyle = "#fff";
-					ctx.fillRect(2.5, 2.5, 15, 15);
-					ctx.strokeStyle = "#000";
-					ctx.beginPath();
-					ctx.rect(2.5, 2.5, 15, 15);
-					ctx.fillStyle = "#00c";
-					ctx.fillRect(2.5, 2.5, 15, 3);
-					ctx.stroke();
-			};
 
 	// create the icon
 	control.icon = tgui.createButton({
@@ -8476,6 +8500,21 @@ module.createPanel = function(description)
 	if (! control.hasOwnProperty("onResize")) control.onResize = function(w, h) { };
 	if (! control.hasOwnProperty("onArrange")) control.onArrange = function() { };
 
+
+	
+	// when a floating panel is clicked on, then the panel should move to the top of the panel stack
+	var mousedown_focus = function(e) {
+		if(control.state == "float")
+		{
+			// bring panel to the front
+			// appendChild moves controls to their new position,
+			// by also removing them from their old position
+			module.panelcontainer.appendChild(panel);
+		}
+	};
+	panel.addEventListener("mousedown", mousedown_focus);
+	
+
 	// dock function for changing docking state
 	control.dock = function(state, create = false)
 			{
@@ -8484,7 +8523,7 @@ module.createPanel = function(description)
 					if (state == this.state) return;
 
 					// disable
-					interact(panel).draggable(false).resizable(false);
+					interact(panel).unset(); // remove all event listeners set by interact
 					panel.style.zIndex = 0;
 					if (icon.parentNode) icon.parentNode.removeChild(icon);
 					if (panel.parentNode) panel.parentNode.removeChild(panel);
@@ -8492,6 +8531,8 @@ module.createPanel = function(description)
 					if (this.state == "right") module.panels_right.splice(module.panels_right.indexOf(this), 1);
 					if (this.state == "float") module.panels_float.splice(module.panels_float.indexOf(this), 1);
 					if (module.panel_max == this) module.panel_max = null;
+					
+					panel.classList.remove("tgui-panel-float");
 				}
 
 				// enable again
@@ -8579,8 +8620,25 @@ module.createPanel = function(description)
 					panel.style.zIndex = 1;
 					this.fallbackState = state;
 					module.panels_float.push(this);
+					
+					panel.classList.add("tgui-panel-float");
+					
+					
+					var onmove = function(event)
+					{
+						if (control.state == "float") 
+						{
+							let x = control.pos[0] + event.dx;
+							let y = control.pos[1] + event.dy;
+							panel.style.left = x + "px";
+							panel.style.top = y + "px";
+							control.pos = [x, y];
+							control.floatingpos = [x, y];
+						}
+					};
+	
 					interact(panel).draggable({
-							"inertia": true,
+							"inertia": false,
 							"allowFrom": ".tgui-panel-titlebar",
 							"restrict": {
 									"restriction": "parent",
@@ -8588,22 +8646,8 @@ module.createPanel = function(description)
 									"elementRect": { top: 0, left: 0, bottom: 1, right: 1 }
 								},
 							"autoScroll": false,
-							"onmove": function (event)
-									{
-										let x = control.pos[0] + event.pageX - event.x0;
-										let y = control.pos[1] + event.pageY - event.y0;
-										panel.style.left = x + "px";
-										panel.style.top = y + "px";
-									},
-							"onend": function (event)
-									{
-										let x = control.pos[0] + event.pageX - event.x0;
-										let y = control.pos[1] + event.pageY - event.y0;
-										panel.style.left = x + "px";
-										panel.style.top = y + "px";
-										control.pos = [x, y];
-										if (control.state == "float") control.floatingpos = [x, y];
-									},
+							"onmove":onmove,
+							"onend":onmove,
 						}).resizable({
 							"edges": { right: true, bottom: true },
 							"restrictEdges": { "outer": "parent", "endOnly": false },
@@ -19281,16 +19325,26 @@ function handleDialogCloseWith(onClose)
 	}
 }
 
+// TODO move to tgui.js
 function createTitleBar(dlg, title, onClose)
 {
 	let titlebar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0", "background": "#008", "color": "#fff", "padding": "1px 2px 1px 10px"},
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0"},
+			"classname": "tgui-modal-titlebar",
+		});
+		
+	let titlebar_title = tgui.createElement({
+			"parent": titlebar,
+			"type": "span",
+			"style": {},
+			"classname": "tgui-modal-titlebar-title",
 			"text": title,
 		});
 		
 	let close = tgui.createButton({
+			"parent": titlebar,
 			"click": function ()
 					{
 						return handleDialogCloseWith(onClose)(null);
@@ -19311,7 +19365,6 @@ function createTitleBar(dlg, title, onClose)
 						ctx.lineTo(14,  4);
 						ctx.stroke();
 					},
-			"parent": titlebar,
 			"classname": "tgui-panel-dockbutton",
 			"tooltip-right": "close",
 		});
@@ -19319,13 +19372,12 @@ function createTitleBar(dlg, title, onClose)
 	return titlebar;
 }
 
+// TODO move to tgui.js
 function createDialog(title, size, onClose)
 {
 	let dlg = tgui.createElement({
 			"type": "div",
-			// file   "position": "fixed", "width": "50vw", "left": "25vw", "height": "70vh", "top": "15vh", "background": "#eee", "overflow": "hidden"
-			// conf  {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
-			"style": {"position": "center", "width": size["width"], "left": "calc((100vw - "+size["width"]+")/2)", "height": size["height"], "top": "calc((100vh - "+size["height"]+")/2)", "background": "#eee", "overflow": "hidden"},
+			"style": {"width": size["width"], "height": size["height"], "background": "#eee", "overflow": "hidden"},
 		});
 	let titlebar = createTitleBar(dlg, title, onClose);
 	
@@ -19430,14 +19482,14 @@ function configDlg()
 									return false;
 								};
 							
-						let close = tgui.createElement({
+						let cancel = tgui.createElement({
 								"parent": dlg,
 								"type": "button",
 								"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
-								"text": "Close",
+								"text": "Cancel",
 								"classname": "tgui-dialog-button"
 							});
-						close.addEventListener("click", handleDialogCloseWith(saveConfig));
+						cancel.addEventListener("click", handleDialogCloseWith(saveConfig));
 						tgui.startModal(dlg);
 					};
 		}
@@ -19482,10 +19534,17 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 
 	// create controls
 	let dlg = createDialog(title, {"width": "calc(max(440px, 50vw))", "left": "25vw", "height": "calc(max(260px, 70vh))", "top": "15vh"});
+	let dlgContent = tgui.createElement({
+		"parent": dlg,
+		"type": "div",
+		"classname": "tgui-modal-content",
+		"style": {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
+	});
+	
 	let toolbar = tgui.createElement({
-			"parent": dlg,
+			"parent": dlgContent,
 			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "top": "32px"},
+			"style": {"width": "100%", "height": "25px", "margin-top": "7px"},
 		});
 	// Toolbar contents
 	let deleteBtn = tgui.createElement({
@@ -19524,31 +19583,29 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	// end Toolbar contents
 	
 	let list = tgui.createElement({
-			"parent": dlg,
+			"parent": dlgContent,
 			"type": files.length > 0 ? "select" : "text",
 			"properties": {"size": Math.max(2, files.length)},
 			"classname": "tgui-list-box",
-			"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "calc(100% - 25px - 4*7px - 2*25px)", "top": "calc(25px + 2*7px + 1*25px)", "background": "#fff", "overflow": "scroll"},
-			//"text": files.length > 0 ? "" : "No documents saved.",
-		});
-	let buttons = tgui.createElement({
-			"parent": dlg,
-			"type": "div",
-			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "25px", "bottom": "7px", "display": "flex", "justify-content": "flex-end"},
+			"style": {"flex": "auto", "background": "#fff", "margin": "7px 10px", "overflow": "scroll"}
 		});
 	let name = {value: filename};
 	if (allowNewFilename)
 	{
 		name = tgui.createElement({
-				"parent": dlg,
+				"parent": dlgContent,
 				"type": "input",
-				"style": {"position": "absolute", "width": "calc(100% - 20px)", "left": "10px", "height": "25px", "bottom": "40px"},
+				"style": {"height": "25px", "background": "#fff", "margin": "0 10px 7px 10px"},
 				"classname": "tgui-text-box",
 				"text": filename,
 				"properties": {type:"text", placeholder:"Filename"}
 			});
-		list.style.height = "calc(100% - 25px - 5*7px - 3*25px)";
 	}
+	let buttons = tgui.createElement({
+			"parent": dlgContent,
+			"type": "div",
+			"style": {"width": "100%", "height": "25px", "margin-bottom": "7px", "display": "flex", "justify-content": "flex-end"},
+		});
 	let okay = tgui.createElement({
 			"parent": buttons,
 			"type": "button",
@@ -19711,7 +19768,7 @@ module.create = function(container, options)
 						{
 							let ctx = canvas.getContext("2d");
 							ctx.strokeStyle = "#080";
-							ctx.lineWidth = 1.5;
+							ctx.lineWidth = 2;
 							ctx.beginPath();
 							ctx.moveTo( 3,  7);
 							ctx.lineTo(10,  7);
@@ -19808,7 +19865,7 @@ module.create = function(container, options)
 					"background": "#fff"
 					}
 		});
-	// TODO set tooltip text to the content text
+	// TODO set tooltip text to the content text, this should apply when the statusbox is too narrow
 	module.programstate.unchecked = function() { this.setText("program has not been checked").setBackground("#ee8"); }
 	module.programstate.error     = function() { this.setText("an error has occurred").setBackground("#f44"); }
 	module.programstate.running   = function() { this.setText("program is running").setBackground("#8e8"); }
@@ -19843,20 +19900,24 @@ module.create = function(container, options)
 					{
 						let ctx = canvas.getContext("2d");
 						ctx.lineWidth = 1;
-						ctx.fillStyle = "#ffe";
+						ctx.fillStyle = "#fff";
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.rect(5.5, 6.5, 12, 9);
+						ctx.rect(5.5, 5.5, 12, 10);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(2.5, 5.5, 10, 6);
+						ctx.rect(2.5, 4.5, 10, 7);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(7.5, 2.5, 7, 5);
+						ctx.rect(7.5, 2.5, 7, 6);
 						ctx.fill();
 						ctx.stroke();
+						ctx.fillStyle = "#00c";
+						ctx.fillRect(15, 6, 2, 1);
+						ctx.fillRect(3, 5, 4, 1);
+						ctx.fillRect(8, 3, 6, 1);
 					},
 			"parent": module.toolbar,
 			"style": {"float": "left"},
