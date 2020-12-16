@@ -618,6 +618,7 @@ if (doc) doc.children.push({
 		<p>
 		The different event types are lightweight classes providing
 		public attributes. They are defined as follows:
+		</p><p>
 		<tscript>
 			class MouseMoveEvent
 			{
@@ -661,10 +662,18 @@ if (doc) doc.children.push({
 				var height;    # new height of the canvas
 			}
 		</tscript>
+		</p><p>
 		Buttons are named <code class="code">"left"</code>,
 		<code class="code">"middle"</code>, and <code class="code">"right"</code>.
 		Keys are named according to the
 		<a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values">JavaScript rules</a>.
+		</p><p>
+		Mouse pointer coordinates always refer to <i>untransformed</i> canvas pixels:
+		if a transformation has been performed before the event occurs (like
+		<code class="code">shift(100, 100);</code>) then drawing actions inside the
+		event handler are affected by the transformation. However, the coordinates
+		reported in the event object are unaffected; they always refer to the
+		original canvas coordinates.
 		</p>
 	`,
 	"children": [
