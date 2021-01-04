@@ -1,5 +1,0 @@
-use namespace audio;
-
-var audioFile = AudioFile("https://www.w3schools.com/tags/horse.mp3");
-audioFile.setPlaybackRate(0.5);
-audioFile.play();
