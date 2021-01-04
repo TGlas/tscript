@@ -405,9 +405,10 @@
 }
 .tgui-panel-dockbutton:active {
 	background: #bbb;	
-	border-color: #ccc; /*#47f;*/
-	box-shadow: inset 0px 0px 5px -2px #00000080,
-				inset 1px 1px 1px -1px #00000080;
+	border-color: #777;
+	background-clip: padding-box;
+	box-shadow: inset 1px  0px 3px -1px #00000040,
+				inset 0px  2px 3px -1px #00000040;
 }
 
 .tgui-panel-content {
