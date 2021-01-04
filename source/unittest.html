@@ -2053,6 +2053,20 @@ let tests = [
 				"finished"],
 	},
 
+	{
+		name: "audio",
+		description: "test audio",
+		code: `
+		use namespace audio;
+		var audioFile = AudioFile("https://www.w3schools.com/tags/horse.mp3");
+		audioFile.setPlaybackRate(1.25);
+		audioFile.seek(30);
+		audioFile.play();
+		audioFile.pause();
+		`,
+		expectation: ["finished"],
+	},
+
 	// syntax errors
 	{
 		name: "se-1",

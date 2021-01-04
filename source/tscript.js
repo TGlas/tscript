@@ -2112,6 +2112,50 @@ let lib_canvas = {
 	};
 
 
+	let lib_audio = {
+		"source": 
+		`
+			namespace audio
+			{
+				class AudioFile
+				{
+					public:
+						constructor(src){}
+						function play(){}
+						function pause(){}
+						function seek(time){}
+						function setPlaybackRate(speed){}
+				}
+			}
+		`,
+		"impl": {
+			"audio":
+			{
+				"AudioFile":
+				{
+					"constructor": function(object, src){
+						if (! module.isDerivedFrom(src.type, module.typeid_string)) this.error("/argument-mismatch/am-1", ["src", "audio.AudioFile.constructor", "string", module.displayname(src)]);
+						object.value.b = new Audio(src.value.b);
+					},
+					"play": function(object){
+						object.value.b.play()
+					},
+					"pause": function(object){
+						object.value.b.pause()
+					},
+					"seek":function(object, time){
+						if(! module.isDerivedFrom(time.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["time", "audio.AudioFile.seek", "integer", module.displayname(time)])
+						object.value.b.currentTime = time.value.b;
+					},
+					"setPlaybackRate":function(object, speed){
+						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.AudioFile.setPlaybackRate", "real", module.displayname(speed)])
+						object.value.b.playbackRate = speed.value.b;
+					}
+				}
+			}
+		}
+	}
+
 ///////////////////////////////////////////////////////////
 // lexer
 //
@@ -5447,6 +5491,16 @@ function parse_ifthenelse(state, parent)
 	return ifthenelse;
 }
 
+function pase_switch(state, parent){
+	debugger;
+		// handle "switch" keyword
+		let where = state.get();
+		let token = module.get_token(state);
+		module.assert(token.type === "keyword" && token.value === "switch", "[pase_switch] internal error");
+	
+		// create the conditional object
+}
+
 function parse_for(state, parent)
 {
 	// handle "for" keyword
@@ -6183,9 +6237,9 @@ function parse_statement(state, parent, var_allowed)
 	if (typeof var_allowed === 'undefined') var_allowed = false;
 
 	let kw = peek_keyword(state);
-
 	if (kw === "if") return parse_ifthenelse(state, parent);
 	else if (kw === "for") return parse_for(state, parent);
+	else if (kw === "switch") return pase_switch(state, parent);
 	else if (kw === "do") return parse_dowhile(state, parent);
 	else if (kw === "while") return parse_whiledo(state, parent);
 	else if (kw === "break") return parse_break(state, parent);
@@ -6297,7 +6351,7 @@ function parse_statement_or_declaration(state, parent)
 			parent.commands.push(b);
 		}
 	}
-
+	
 	let ret = parse_declaration(state, parent);
 	if (ret !== null)
 	{
@@ -6471,6 +6525,8 @@ module.parse = function(sourcecode)
 		parse1(lib_math.source, lib_math.impl);
 		parse1(lib_turtle.source, lib_turtle.impl);
 		parse1(lib_canvas.source, lib_canvas.impl);
+
+		parse1(lib_audio.source, lib_audio.impl)
 
 		// parse the user's source code
 		parse1(sourcecode);
