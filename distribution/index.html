@@ -19909,21 +19909,21 @@ module.create = function(container, options)
 						ctx.fillStyle = "#fff";
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.rect(5.5, 5.5, 12, 10);
+						ctx.rect(5.5, 6.5, 12, 10);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(2.5, 4.5, 10, 7);
+						ctx.rect(2.5, 5.5, 10, 7);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(7.5, 2.5, 7, 6);
+						ctx.rect(7.5, 3.5, 7, 6);
 						ctx.fill();
 						ctx.stroke();
 						ctx.fillStyle = "#00c";
-						ctx.fillRect(15, 6, 2, 1);
-						ctx.fillRect(3, 5, 4, 1);
-						ctx.fillRect(8, 3, 6, 1);
+						ctx.fillRect(15, 7, 2, 1);
+						ctx.fillRect(3, 6, 4, 1);
+						ctx.fillRect(8, 4, 6, 1);
 					},
 			"parent": module.toolbar,
 			"style": {"float": "left"},
@@ -20948,9 +20948,10 @@ span.CodeMirror-selectedtext { background: none; }
 
 	border-width: 1px;
 	border-style: solid;
-	
 	border-color: #eee;
+	
 	box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+	
 	border-radius: 1.5px;
 }
 
@@ -21125,6 +21126,9 @@ span.CodeMirror-selectedtext { background: none; }
 	font-size: 10pt;
 	line-height: 24px;
 	user-select: none;
+	
+	/*box-shadow: inset -1px -1px 3px -2px #000000ff,
+				inset  1px  1px 3px -2px #00ccffff;*/
 }
 
 .tgui-modal-titlebar-title {
@@ -21157,8 +21161,10 @@ span.CodeMirror-selectedtext { background: none; }
 
 /* this class is additionaly used for floating panels */
 .tgui-panel-float {
-	box-shadow: 0px 1px 8px #00000030,
+	box-shadow: 0px 1px 8px #00000050,
 				0px 0px 0px 1px #00000020;
+				
+	/*border-radius: 2px;*/
 }
 
 .tgui-panel-titlebar {
@@ -21186,6 +21192,11 @@ span.CodeMirror-selectedtext { background: none; }
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+	
+	
+	
+	/*box-shadow: inset -1px -1px 3px -2px #000000ff,
+				inset  1px  1px 3px -2px #00ffffff;*/
 }
 
 .tgui-panel-titlebar-title {
@@ -21203,6 +21214,25 @@ span.CodeMirror-selectedtext { background: none; }
 	width: 20px;
 	height: 20px;
 	margin: 0 0 0 1px;
+	
+	
+
+	background: #ddd;
+
+	border-width: 1px;
+	border-style: solid;
+	border-color: #eee #ccc #ccc #eee;
+	
+	box-shadow: inset -1px -1px 2px -2px #00000050,
+				inset  1px  1px 2px -2px #fffffff0;
+	
+	border-radius: 1.5px;
+}
+.tgui-panel-dockbutton:active {
+	background: #bbb;	
+	border-color: #ccc; /*#47f;*/
+	box-shadow: inset 0px 0px 5px -2px #00000080,
+				inset 1px 1px 1px -1px #00000080;
 }
 
 .tgui-panel-content {
@@ -21281,7 +21311,7 @@ button {
 	min-height: 300px;
 	background: #aaa;
 	overflow: hidden;
-	box-shadow: inset 0px 1px 8px #00000020;
+	box-shadow: inset 0px 1px 8px #00000030;
 }
 
 .ide-toolbar {

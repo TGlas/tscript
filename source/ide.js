@@ -1974,21 +1974,21 @@ module.create = function(container, options)
 						ctx.fillStyle = "#fff";
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.rect(5.5, 5.5, 12, 10);
+						ctx.rect(5.5, 6.5, 12, 10);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(2.5, 4.5, 10, 7);
+						ctx.rect(2.5, 5.5, 10, 7);
 						ctx.fill();
 						ctx.stroke();
 						ctx.beginPath();
-						ctx.rect(7.5, 2.5, 7, 6);
+						ctx.rect(7.5, 3.5, 7, 6);
 						ctx.fill();
 						ctx.stroke();
 						ctx.fillStyle = "#00c";
-						ctx.fillRect(15, 6, 2, 1);
-						ctx.fillRect(3, 5, 4, 1);
-						ctx.fillRect(8, 3, 6, 1);
+						ctx.fillRect(15, 7, 2, 1);
+						ctx.fillRect(3, 6, 4, 1);
+						ctx.fillRect(8, 4, 6, 1);
 					},
 			"parent": module.toolbar,
 			"style": {"float": "left"},
