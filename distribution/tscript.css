@@ -354,21 +354,23 @@ span.CodeMirror-selectedtext { background: none; }
 
 .CodeMirror-dialog {
   position: absolute;
-  left: 30%; right: 105px;
+  left: 30%; right: 106px;
+  height: 22px;
   background: #ddf;
   z-index: 15;
-  padding: .1em .8em;
+  padding: .1em .6em;
   overflow: hidden;
   color: inherit;
+  font-family: sans-serif;
 }
 
 .CodeMirror-dialog-top {
-  border-bottom: 1px solid #eee;
+  box-shadow: inset 0px -1px 0px 0px #00000020;
   top: 0;
 }
 
 .CodeMirror-dialog-bottom {
-  border-top: 1px solid #eee;
+  box-shadow: inset 0px 1px 0px 0px #00000020;
   bottom: 0;
 }
 
@@ -377,12 +379,20 @@ span.CodeMirror-selectedtext { background: none; }
   outline: none;
   background: transparent;
   width: 20em;
+  height: 20px;
   color: inherit;
+  border: 1px solid #888;
   font-family: monospace;
+  padding-left: 1px;
+}
+
+.CodeMirror-dialog input:focus {
+  border-color: #000;
 }
 
 .CodeMirror-dialog button {
-  font-size: 70%;
+  font-size: 90%;
+  padding: 1px 3px 1px 3px;
 }
 
 .tgui
@@ -791,9 +801,10 @@ span.CodeMirror-selectedtext { background: none; }
 }
 .tgui-panel-dockbutton:active {
 	background: #bbb;	
-	border-color: #ccc; /*#47f;*/
-	box-shadow: inset 0px 0px 5px -2px #00000080,
-				inset 1px 1px 1px -1px #00000080;
+	border-color: #777;
+	background-clip: padding-box;
+	box-shadow: inset 1px  0px 3px -1px #00000040,
+				inset 0px  2px 3px -1px #00000040;
 }
 
 .tgui-panel-content {

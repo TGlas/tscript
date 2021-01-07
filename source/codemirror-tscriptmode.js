@@ -19,6 +19,7 @@ CodeMirror.defineMode("text/tscript", function(config, parserConfig)
 			"then": true,
 			"else": true,
 			"for": true,
+			"in": true,
 			"do": true,
 			"while": true,
 			"break": true,

@@ -131,7 +131,25 @@ function stackinfo(value, node_id)
 					"text": "[" + value.index + "] ",
 					"classname": "ide-index",
 				});
-			tgui.createText(func.petype + " " + TScript.displayname(func), ret.element);
+				
+			let frame_head = tgui.createText(func.petype + " " + TScript.displayname(func), ret.element);
+			
+			let inner_element = value.frame.pe[value.frame.pe.length-1];
+			if(inner_element.hasOwnProperty("where"))
+			{
+				// on click, jump to line where the call into the next frame happened
+				let where = inner_element.where;
+				let where_str = " (" + where.line + ":" + where.ch + ")";
+				
+				tgui.createElement({"type": "span", "parent": ret.element, "text": " (" + where.line + ":" + where.ch + ")", "classname": "ide-index"});
+		
+				ret.element.addEventListener("click", function(event)
+				{
+					setCursorPosition(where.line, where.ch);
+					return false;
+				});
+			}
+			
 			if (value.frame.object)
 			{
 				ret.children.push({
@@ -605,7 +623,10 @@ function updateControls()
 		}
 		else
 		{
-			setCursorPosition(module.sourcecode.lineCount(), 1000000);
+			// it might be appropiate to keep the scroll position after running the program,
+			// because in a large program one would continue editing some location in the middle
+			// of the code
+			//setCursorPosition(module.sourcecode.lineCount(), 1000000);
 		}
 	}
 
@@ -833,30 +854,26 @@ let cmd_export = function()
 	let fn = title;
 	if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
 
-	let dlg = tgui.createElement({
-			"type": "div",
-			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
-		});
-	let titlebar = createTitleBar(dlg, "export");
+	let dlg = createDialog("export program as webpage", {"width": "calc(max(400px, 50vw))", "height": "calc(max(260px, 50vh))"});
 	let status = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
 			"text": "status: preparing ...",
-			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "40px", "color": "#000", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000"},
+			"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "40px", "color": "#000", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000"},
 		});
 	let download_turtle = tgui.createElement({
 			"parent": dlg,
 			"type": "a",
 			"properties": {"target": "_blank", "download": fn},
 			"text": "download standalone turtle application",
-			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "100px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
+			"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "100px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
 		});
 	let download_canvas = tgui.createElement({
 			"parent": dlg,
 			"type": "a",
 			"properties": {"target": "_blank", "download": fn},
 			"text": "download standalone canvas application",
-			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "160px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
+			"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "160px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
 		});
 
 	let close = tgui.createElement({
@@ -866,26 +883,7 @@ let cmd_export = function()
 			"text": "Close",
 			"classname": "tgui-dialog-button"
 		});
-	close.addEventListener("click", function(event)
-			{
-				saveConfig();
-				tgui.stopModal();
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			});
-
-	dlg.onKeyDown = function(event)
-			{
-				if (event.key == "Escape")
-				{
-					saveConfig();
-					tgui.stopModal();
-					event.preventDefault();
-					event.stopPropagation();
-					return false;
-				}
-			};
+	close.addEventListener("click", handleDialogCloseWith(null));
 
 	tgui.startModal(dlg);
 
@@ -1344,6 +1342,19 @@ let buttons = [
 			"tooltip": "toggle breakpoint",
 			"hotkey": "F8",
 		},
+		/*{
+			"click": function() { module.sourcecode.execCommand("findPersistent"); },
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.strokeStyle = "#000";
+						ctx.lineWidth = 1.5;
+						ctx.arc(8, 8, 5, 0.25*Math.PI, 2.25*Math.PI, false); // starting/ending point at 45 degrees south-east
+						ctx.lineTo(17, 17);
+						ctx.stroke();
+					},
+			"tooltip": "Search",
+		},*/
 	];
 
 // load hotkeys
@@ -1797,19 +1808,32 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	function importFile(){
 		let fileImport = document.createElement('input');
 		fileImport.type = "file";
+		fileImport.multiple = true;
 		fileImport.style.display = "none";
 		fileImport.accept = ".tscript";
 
 		fileImport.addEventListener('change', async (event) => {
 			if(event.target.files){
-				var file = event.target.files[0];
-				var filename = file.name.split('.tscript')[0];
-				var data = await file.text();
-				localStorage.setItem("tscript.code." + filename, data);
-				files.push(filename);
-				var option = document.createElement('option');
-				option.text = filename;
-				tgui.stopModal();
+				for(let file of event.target.files)
+				{
+					let filename = file.name.split('.tscript')[0];
+					if(files.includes(filename))
+					{
+						// TODO: setting to always confirm this dialog
+						if(!confirm("Replace file \"" + filename + "\"\nAre you sure?"))
+						{
+							return;
+						}
+					}
+					let data = await file.text();
+					localStorage.setItem("tscript.code." + filename, data);
+					if(!files.includes(filename))
+					{
+						files.push(filename);
+						let option = new Option(filename, filename);
+						list.appendChild(option);
+					}
+				}
 			}
 		});
 
@@ -1891,21 +1915,21 @@ module.create = function(container, options)
 						let ctx = canvas.getContext("2d");
 						ctx.fillStyle = "#000";
 						ctx.strokeStyle = "#000";
-						ctx.arc(9.5, 9.5, 2.0, 0, 2 * Math.PI, false);
+						ctx.arc(10, 10, 2.0, 0, 2 * Math.PI, false);
 						ctx.fill();
-						ctx.lineWidth = 3;
+						ctx.lineWidth = 2;
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.arc(9.5, 9.5, 5.7, 0, 2 * Math.PI, false);
+						ctx.arc(10, 10, 5.7, 0, 2 * Math.PI, false);
 						ctx.closePath();
 						ctx.stroke();
 						ctx.lineWidth = 2;
 						ctx.beginPath();
 						for (let i=0; i<12; i++)
 						{
-							let a = i * Math.PI / 6;
-							ctx.moveTo(9.5 + 6.0 * Math.cos(a), 9.5 + 6.0 * Math.sin(a));
-							ctx.lineTo(9.5 + 8.8 * Math.cos(a), 9.5 + 8.8 * Math.sin(a));
+							let a = (i+0.5) * Math.PI / 6;
+							ctx.moveTo(10 + 6.0 * Math.cos(a), 10 + 6.0 * Math.sin(a));
+							ctx.lineTo(10 + 9.4 * Math.cos(a), 10 + 9.4 * Math.sin(a));
 						}
 						ctx.stroke();
 					},
@@ -1924,7 +1948,7 @@ module.create = function(container, options)
 				"parent": module.toolbar,
 				"style": {
 					"float": "left",
-					"width": "calc(min(250px, max(20px, 40vw - 200px)))",
+					"width": "calc(min(250px, max(20px, 50vw - 270px)))",
 					"height": "23px",
 					// clipping
 					"white-space": "nowrap",
@@ -1962,7 +1986,7 @@ module.create = function(container, options)
 							else
 								p.dock("right");
 						}
-						savePanelData();
+						tgui.savePanelData();
 						return false;
 					},
 			"width": 20,
@@ -1972,23 +1996,33 @@ module.create = function(container, options)
 						let ctx = canvas.getContext("2d");
 						ctx.lineWidth = 1;
 						ctx.fillStyle = "#fff";
-						ctx.strokeStyle = "#000";
+						ctx.strokeStyle = "#aaa";
+						
 						ctx.beginPath();
-						ctx.rect(5.5, 6.5, 12, 10);
+						ctx.rect(2.5, 2.5, 15, 15);
 						ctx.fill();
 						ctx.stroke();
+						
+						ctx.fillStyle = "#ccc";
+						ctx.fillRect(11, 3, 1, 14);
+						
+						ctx.fillStyle = "#77f";
+						ctx.fillRect(3, 3, 14, 1);
+						ctx.fillRect(3, 12, 8, 1);
+						
+						
+						ctx.strokeStyle = "#222";
+						ctx.lineWidth = 1.7;
 						ctx.beginPath();
-						ctx.rect(2.5, 5.5, 10, 7);
-						ctx.fill();
+						ctx.arc( 9.5, 10.5, 4, 1.25*Math.PI, 2.6*Math.PI);
 						ctx.stroke();
+						
+						ctx.fillStyle = "#222";
 						ctx.beginPath();
-						ctx.rect(7.5, 3.5, 7, 6);
+						ctx.moveTo( 5,  5);
+						ctx.lineTo( 5,  10);
+						ctx.lineTo(10,  10);
 						ctx.fill();
-						ctx.stroke();
-						ctx.fillStyle = "#00c";
-						ctx.fillRect(15, 7, 2, 1);
-						ctx.fillRect(3, 6, 4, 1);
-						ctx.fillRect(8, 4, 6, 1);
 					},
 			"parent": module.toolbar,
 			"style": {"float": "left"},
@@ -2023,25 +2057,85 @@ module.create = function(container, options)
 	if (options["documentation-button"])
 	{
 		tgui.createButton({
-				"click": function ()
-						{
-							let selection = module.sourcecode.getSelection();
-							// maximum limit of 30 characters
-							// so that there is no problem, when accedentially everything
-							// in a file is selected
-							selection = selection.substr(0, 30);
-							let words = selection.match(/[a-z]+/gi); // global case insensitive
-							let href = "";
-							if(words)
-							{
-								href = "#search/"+words.join("/");
-							}
-							showdoc(href);
-							return false;
-						},
+				"click": () => showdoc(),
 				"text": "documentation",
 				"parent": module.toolbar,
 				"style": {"position": "absolute", "right": "0px"},
+			});
+			
+		
+		// pressing F1 
+		tgui.setHotkey("F1", function()
+			{
+				let dlg = createDialog("open documentation", {"width": "calc(max(300px, 20vw))", "height": "calc(max(150px, 15vh))"});
+				
+				let selection = module.sourcecode.getSelection();
+				// maximum limit of 30 characters
+				// so that there is no problem, when accedentially everything
+				// in a file is selected
+				if(!selection)
+				{
+					// get current word under the cursor
+					let cursor = module.sourcecode.getCursor();
+					
+					let word = module.sourcecode.findWordAt(cursor);
+
+					selection = module.sourcecode.getRange(word.anchor, word.head);
+				}
+				selection = selection.substr(0, 30);
+				let words = selection.match(/[a-z]+/gi); // global case insensitive
+				let href = "";
+				
+				if(words)
+				{
+					href = "#search/"+words.join("/");
+				}
+					
+				tgui.createElement({
+					"parent": dlg,
+					"type": "div",
+					"style": {"margin-top": "20px"},
+					"text": "Open the documentation in another tab?",
+				});
+					
+				if(words)
+				{
+					tgui.createElement({
+						"parent": dlg,
+						"type": "div",
+						"style": {"margin-top": "10px"},
+						"text": "Search for \"" + words.join(" ") + "\"?",
+					});
+				}
+				
+				let okay = tgui.createElement({
+						"parent": dlg,
+						"type": "button",
+						"style": {"position": "absolute", "right": "120px", "bottom": "10px", "width": "100px", "height": "25px"},
+						"text": "Okay",
+						"classname": "tgui-dialog-button"
+					});
+				okay.addEventListener("click", (event) => 
+					{
+						tgui.stopModal();
+						event.preventDefault();
+						event.stopPropagation();
+						showdoc(href)
+						return false;
+					});
+					
+				let cancel = tgui.createElement({
+						"parent": dlg,
+						"type": "button",
+						"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
+						"text": "Cancel",
+						"classname": "tgui-dialog-button"
+					});
+				cancel.addEventListener("click", handleDialogCloseWith(null));
+						
+				tgui.startModal(dlg);
+				
+				okay.focus();
 			});
 	}
 
@@ -2084,6 +2178,7 @@ module.create = function(container, options)
 			extraKeys: {
 					"Ctrl-D": "toggleComment",
 					"Cmd-D": "toggleComment",
+					"Ctrl-R": "replace",
 					"F3": "findNext",
 					"Shift-F3": "findPrev",
 					"Ctrl-Up": "scrollUp",
@@ -2158,6 +2253,7 @@ module.create = function(container, options)
 						let ctx = canvas.getContext("2d");
 
 						ctx.strokeStyle = "#222";
+						ctx.lineWidth = 0.6;
 
 						// white top
 						ctx.fillStyle = "#fff";
@@ -2174,14 +2270,19 @@ module.create = function(container, options)
 						ctx.moveTo( 4,  5.5);
 						ctx.lineTo( 4, 14.5);
 						ctx.lineTo(10, 17.5);
+						ctx.lineTo(10,  8.5);
+						ctx.fill();
+						
+						ctx.fillStyle = "#999";
+						ctx.beginPath();
+						ctx.moveTo(10, 17.5);
 						ctx.lineTo(16, 14.5);
 						ctx.lineTo(16,  5.5);
 						ctx.lineTo(10,  8.5);
 						ctx.fill();
 
 
-						let i = 8;
-						for(; i < 17; i+=3)
+						for(let i = 8; i < 17; i+=3)
 						{
 							ctx.beginPath();
 							ctx.moveTo( 3, i + 0.5);
@@ -2212,7 +2313,32 @@ module.create = function(container, options)
 			"icondraw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
-
+						
+						// Outline
+						ctx.fillStyle = "#eeeeeec0";
+						ctx.moveTo( 3,  2);
+						ctx.lineTo(13,  2);
+						ctx.lineTo(13,  5);
+						ctx.lineTo(15,  5);
+						ctx.lineTo(15,  8);
+						ctx.lineTo(17,  8);
+						ctx.lineTo(17, 12);
+						ctx.lineTo(13, 12);
+						ctx.lineTo(13, 14);
+						ctx.lineTo(15, 14);
+						ctx.lineTo(15, 18);
+						ctx.lineTo( 5, 18);
+						ctx.lineTo( 5, 15);
+						ctx.lineTo( 3, 15);
+						ctx.lineTo( 3, 11);
+						ctx.lineTo( 7, 11);
+						ctx.lineTo( 7,  9);
+						ctx.lineTo( 5,  9);
+						ctx.lineTo( 5,  6);
+						ctx.lineTo( 3,  6);
+						ctx.fill();
+						
+						// Black boxes
 						ctx.fillStyle = "#000";
 						ctx.fillRect(4,  3,  8, 2);
 						ctx.fillRect(6,  6,  8, 2);
@@ -2244,7 +2370,7 @@ module.create = function(container, options)
 
 						//ctx.fillStyle = "#4d5";
 						ctx.fillStyle = "#2c3";
-						ctx.strokeStyle = "#050";
+						ctx.strokeStyle = "#070";
 
 						// head
 						ctx.beginPath();
@@ -2284,7 +2410,7 @@ module.create = function(container, options)
 						ctx.fill();
 						ctx.stroke();
 
-						ctx.strokeStyle = "#0509";
+						ctx.strokeStyle = "#0709";
 						ctx.beginPath();
 						ctx.ellipse(8.7, 10.7, 4, 5, 0, -0.3*Math.PI, 0.8*Math.PI, false);
 						ctx.stroke();

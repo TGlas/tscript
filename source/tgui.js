@@ -508,7 +508,7 @@ function loadPanelData(title)
 }
 
 // save panel arrangement data to local storage
-function savePanelData()
+module.savePanelData = function()
 {
 	let paneldata = {};
 	for (let i=0; i<module.panels.length; i++)
@@ -639,7 +639,7 @@ function arrange()
 	arrangeDocked(module.panels_left, 0, (module.panels_right.length > 0) ? w60 : w, h);
 	arrangeDocked(module.panels_right, (module.panels_left.length > 0) ? w60 : 0, (module.panels_left.length > 0) ? w40 : w, h);
 
-	savePanelData();
+	module.savePanelData();
 }
 
 let arrangerequest = (new Date()).getTime();
@@ -914,7 +914,7 @@ module.createPanel = function(description)
 	
 	// when a floating panel is clicked on, then the panel should move to the top of the panel stack
 	var mousedown_focus = function(e) {
-		if(control.state == "float")
+		if(control.state == "float" && module.panelcontainer.lastChild !== panel)
 		{
 			// bring panel to the front
 			// appendChild moves controls to their new position,
@@ -922,6 +922,7 @@ module.createPanel = function(description)
 			module.panelcontainer.appendChild(panel);
 		}
 	};
+	panel.addEventListener("focusin", mousedown_focus);
 	panel.addEventListener("mousedown", mousedown_focus);
 	
 
@@ -972,7 +973,7 @@ module.createPanel = function(description)
 										let h = module.panelcontainer.clientHeight;
 										let w60 = Math.round(0.6 * w);
 										arrangeDocked(module.panels_left, 0, w60, h);
-										savePanelData();
+										module.savePanelData();
 									},
 						});
 				}
@@ -1003,7 +1004,7 @@ module.createPanel = function(description)
 										let w60 = Math.round(0.6 * w);
 										let w40 = w - w60;
 										arrangeDocked(module.panels_right, w60, w40, h);
-										savePanelData();
+										module.savePanelData();
 									},
 						});
 				}
@@ -1049,7 +1050,7 @@ module.createPanel = function(description)
 	
 					interact(panel).draggable({
 							"inertia": false,
-							"allowFrom": ".tgui-panel-titlebar",
+							"allowFrom": ".tgui-panel-titlebar-title",
 							"restrict": {
 									"restriction": "parent",
 									"endOnly": false,
