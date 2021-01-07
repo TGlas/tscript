@@ -194,6 +194,45 @@ module.createLabel = function(description)
 		};
 };
 
+
+// Create a canvas icon element with automaticly zoomed contents
+// if the website is zoomed to 200% then the actual width of the
+// canvas is twice as large. The draw function does not need to
+// care about this
+// Fields of the #description object:
+// * draw - function with a "canvas" argument that draws the canvas icon
+// * width - canvas width
+// * height - canvas height
+// * parent - DOM object containing the control 
+// * style - optional dictionary of CSS styles
+module.createCanvasIcon = function(description)
+{
+	let style = {"display": "block", "width": description.width+"px", "height": description.height+"px"};
+	if(description.hasOwnProperty("style")) Object.assign(style, description.style);
+	let canvas = module.createElement({
+		"type": "canvas", 
+		"parent": description.parent,
+		"classname": "tgui", 
+		"style": style,
+	});
+	canvas.width = description.width;
+	canvas.height = description.height;
+	
+	// zoom
+	// TODO: programmaticly detect whenever zoom changes
+	let zoom = window.devicePixelRatio;
+	if(zoom > 1)
+	{
+		canvas.width*=zoom;
+		canvas.height*=zoom;
+		let ctx = canvas.getContext("2d");
+		ctx.scale(zoom, zoom);
+	}
+	description.draw(canvas);
+	
+	return canvas;
+}
+
 // Create a new button.
 // Fields of the #description object:
 // * click - event handler, taking an "event" argument
@@ -216,10 +255,7 @@ module.createButton = function(description)
 	if (description.draw)
 	{
 		// fancy canvas button
-		let canvas = module.createElement({"type": "canvas", "parent": element, "classname": "tgui", "style": {"display": "block"}});
-		canvas.width = description.width;
-		canvas.height = description.height;
-		description.draw(canvas);
+		let canvas = module.createCanvasIcon({"parent": element, "draw": description.draw, "width": description.width, "height": description.height});
 	}
 	else if (! description.text) throw "[tgui.createButton] either .text or .draw are required";
 
@@ -752,14 +788,14 @@ module.createPanel = function(description)
 				"parent": panel,
 				"classname": "tgui tgui-panel-titlebar",
 		});
-	control.titlebar_icon = tgui.createElement({
-				"type": "canvas",
-				"dblclick": function (event) { control.dock("icon"); return false; },
-				"properties": {"width": 20, "height": 20},
-				"parent": control.titlebar_container,
-				"style": {"left": "1px", "top": "1px", "width":"20px", "height": "20px", "cursor": "pointer"},
-			});
-	control.icondraw(control.titlebar_icon);
+	control.titlebar_icon = tgui.createCanvasIcon({
+			"parent": control.titlebar_container,
+			"draw": control.icondraw,
+			"width": 20,
+			"height": 20,
+			"style": {"left": "1px", "top": "1px", "cursor": "pointer"},
+	});
+	control.titlebar_icon.addEventListener("dblclick", function (event) { control.dock("icon"); return false; });
 	
 	// title bar text only
 	control.titlebar = tgui.createElement({

@@ -1079,16 +1079,16 @@ function draw_icon_pencil_overlay(ctx)
 
 	ctx.fillStyle = "#fc9";
 	ctx.beginPath();
-	ctx.moveTo(8, 6);
-	ctx.lineTo(12, 8);
-	ctx.lineTo(10, 10);
+	ctx.moveTo( 8,  6);
+	ctx.lineTo(11,  7);
+	ctx.lineTo( 9,  9);
 	ctx.fill();
 
 	ctx.fillStyle = "#000";
 	ctx.beginPath();
-	ctx.moveTo(8, 6);
-	ctx.lineTo(10, 6);
-	ctx.lineTo(8, 8);
+	ctx.moveTo( 8,      6);
+	ctx.lineTo( 9.5,  6.5);
+	ctx.lineTo( 8.5,  7.5);
 	ctx.fill();
 
 	ctx.strokeStyle = "#000";
@@ -1107,11 +1107,14 @@ function draw_icon_pencil_overlay(ctx)
 
 	ctx.fillStyle = "#000";
 	ctx.beginPath();
-	ctx.arc(18, 16, 1.5, 0, 2*Math.PI, false);
+	ctx.arc(18, 16, 1.5, 1.75*Math.PI, 2.75*Math.PI, false);
 	ctx.fill();
 
 	ctx.fillStyle = "#f33";
-	ctx.fillRect(17, 14.5, 2, 2);
+	ctx.beginPath();
+	ctx.arc(18, 16, 1, 0, 2*Math.PI, false);
+	ctx.fill();
+	
 }
 
 
@@ -1336,7 +1339,7 @@ let buttons = [
 					{
 						let ctx = canvas.getContext("2d");
 						ctx.fillStyle = "#c00";
-						ctx.arc(10, 10, 4.0, 0, 2 * Math.PI, false);
+						ctx.arc(10, 10, 3.9, 0, 2 * Math.PI, false);
 						ctx.fill();
 					},
 			"tooltip": "toggle breakpoint",
@@ -1497,14 +1500,13 @@ function configDlg()
 			let btn = i;
 			description.click = function()
 					{
-						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(220px, 30vh))"});						
-						let icon = tgui.createElement({
-							"type": "canvas",
-							"parent": dlg,
-							"properties": {"width": 22, "height": 22},
-							"style": {"position": "absolute", "left": "15px", "top": "40px", "width": "22px", "height": "22px"},
+						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(220px, 30vh))"});
+						let icon = tgui.createCanvasIcon({
+							"parent": dlg, 
+							"width": 20, "height": 20, 
+							"draw": buttons[btn].draw, 
+							"style": {"position": "absolute", "left": "15px", "top": "40px"}
 						});
-						buttons[btn].draw(icon);
 						
 						tgui.createElement({
 							parent: dlg, 
@@ -1819,11 +1821,10 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 					let filename = file.name.split('.tscript')[0];
 					if(files.includes(filename))
 					{
-						// TODO: setting to always confirm this dialog
-						if(!confirm("Replace file \"" + filename + "\"\nAre you sure?"))
+						/*if(!confirm("Replace file \"" + filename + "\"\nAre you sure?"))
 						{
 							return;
-						}
+						}*/
 					}
 					let data = await file.text();
 					localStorage.setItem("tscript.code." + filename, data);

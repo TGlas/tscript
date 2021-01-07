@@ -355,10 +355,9 @@ span.CodeMirror-selectedtext { background: none; }
 .CodeMirror-dialog {
   position: absolute;
   left: 30%; right: 106px;
-  height: 22px;
   background: #ddf;
   z-index: 15;
-  padding: .1em .6em;
+  padding: 1px .6em;
   overflow: hidden;
   color: inherit;
   font-family: sans-serif;
@@ -392,7 +391,7 @@ span.CodeMirror-selectedtext { background: none; }
 
 .CodeMirror-dialog button {
   font-size: 90%;
-  padding: 1px 3px 1px 3px;
+  padding: 1px 3px;
 }
 
 .tgui

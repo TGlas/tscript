@@ -7791,6 +7791,45 @@ module.createLabel = function(description)
 		};
 };
 
+
+// Create a canvas icon element with automaticly zoomed contents
+// if the website is zoomed to 200% then the actual width of the
+// canvas is twice as large. The draw function does not need to
+// care about this
+// Fields of the #description object:
+// * draw - function with a "canvas" argument that draws the canvas icon
+// * width - canvas width
+// * height - canvas height
+// * parent - DOM object containing the control 
+// * style - optional dictionary of CSS styles
+module.createCanvasIcon = function(description)
+{
+	let style = {"display": "block", "width": description.width+"px", "height": description.height+"px"};
+	if(description.hasOwnProperty("style")) Object.assign(style, description.style);
+	let canvas = module.createElement({
+		"type": "canvas", 
+		"parent": description.parent,
+		"classname": "tgui", 
+		"style": style,
+	});
+	canvas.width = description.width;
+	canvas.height = description.height;
+	
+	// zoom
+	// TODO: programmaticly detect whenever zoom changes
+	let zoom = window.devicePixelRatio;
+	if(zoom > 1)
+	{
+		canvas.width*=zoom;
+		canvas.height*=zoom;
+		let ctx = canvas.getContext("2d");
+		ctx.scale(zoom, zoom);
+	}
+	description.draw(canvas);
+	
+	return canvas;
+}
+
 // Create a new button.
 // Fields of the #description object:
 // * click - event handler, taking an "event" argument
@@ -7813,10 +7852,7 @@ module.createButton = function(description)
 	if (description.draw)
 	{
 		// fancy canvas button
-		let canvas = module.createElement({"type": "canvas", "parent": element, "classname": "tgui", "style": {"display": "block"}});
-		canvas.width = description.width;
-		canvas.height = description.height;
-		description.draw(canvas);
+		let canvas = module.createCanvasIcon({"parent": element, "draw": description.draw, "width": description.width, "height": description.height});
 	}
 	else if (! description.text) throw "[tgui.createButton] either .text or .draw are required";
 
@@ -8349,14 +8385,14 @@ module.createPanel = function(description)
 				"parent": panel,
 				"classname": "tgui tgui-panel-titlebar",
 		});
-	control.titlebar_icon = tgui.createElement({
-				"type": "canvas",
-				"dblclick": function (event) { control.dock("icon"); return false; },
-				"properties": {"width": 20, "height": 20},
-				"parent": control.titlebar_container,
-				"style": {"left": "1px", "top": "1px", "width":"20px", "height": "20px", "cursor": "pointer"},
-			});
-	control.icondraw(control.titlebar_icon);
+	control.titlebar_icon = tgui.createCanvasIcon({
+			"parent": control.titlebar_container,
+			"draw": control.icondraw,
+			"width": 20,
+			"height": 20,
+			"style": {"left": "1px", "top": "1px", "cursor": "pointer"},
+	});
+	control.titlebar_icon.addEventListener("dblclick", function (event) { control.dock("icon"); return false; });
 	
 	// title bar text only
 	control.titlebar = tgui.createElement({
@@ -19016,16 +19052,16 @@ function draw_icon_pencil_overlay(ctx)
 
 	ctx.fillStyle = "#fc9";
 	ctx.beginPath();
-	ctx.moveTo(8, 6);
-	ctx.lineTo(12, 8);
-	ctx.lineTo(10, 10);
+	ctx.moveTo( 8,  6);
+	ctx.lineTo(11,  7);
+	ctx.lineTo( 9,  9);
 	ctx.fill();
 
 	ctx.fillStyle = "#000";
 	ctx.beginPath();
-	ctx.moveTo(8, 6);
-	ctx.lineTo(10, 6);
-	ctx.lineTo(8, 8);
+	ctx.moveTo( 8,      6);
+	ctx.lineTo( 9.5,  6.5);
+	ctx.lineTo( 8.5,  7.5);
 	ctx.fill();
 
 	ctx.strokeStyle = "#000";
@@ -19044,11 +19080,14 @@ function draw_icon_pencil_overlay(ctx)
 
 	ctx.fillStyle = "#000";
 	ctx.beginPath();
-	ctx.arc(18, 16, 1.5, 0, 2*Math.PI, false);
+	ctx.arc(18, 16, 1.5, 1.75*Math.PI, 2.75*Math.PI, false);
 	ctx.fill();
 
 	ctx.fillStyle = "#f33";
-	ctx.fillRect(17, 14.5, 2, 2);
+	ctx.beginPath();
+	ctx.arc(18, 16, 1, 0, 2*Math.PI, false);
+	ctx.fill();
+	
 }
 
 
@@ -19273,7 +19312,7 @@ let buttons = [
 					{
 						let ctx = canvas.getContext("2d");
 						ctx.fillStyle = "#c00";
-						ctx.arc(10, 10, 4.0, 0, 2 * Math.PI, false);
+						ctx.arc(10, 10, 3.9, 0, 2 * Math.PI, false);
 						ctx.fill();
 					},
 			"tooltip": "toggle breakpoint",
@@ -19434,14 +19473,13 @@ function configDlg()
 			let btn = i;
 			description.click = function()
 					{
-						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(220px, 30vh))"});						
-						let icon = tgui.createElement({
-							"type": "canvas",
-							"parent": dlg,
-							"properties": {"width": 22, "height": 22},
-							"style": {"position": "absolute", "left": "15px", "top": "40px", "width": "22px", "height": "22px"},
+						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(220px, 30vh))"});
+						let icon = tgui.createCanvasIcon({
+							"parent": dlg, 
+							"width": 20, "height": 20, 
+							"draw": buttons[btn].draw, 
+							"style": {"position": "absolute", "left": "15px", "top": "40px"}
 						});
-						buttons[btn].draw(icon);
 						
 						tgui.createElement({
 							parent: dlg, 
@@ -19756,11 +19794,10 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 					let filename = file.name.split('.tscript')[0];
 					if(files.includes(filename))
 					{
-						// TODO: setting to always confirm this dialog
-						if(!confirm("Replace file \"" + filename + "\"\nAre you sure?"))
+						/*if(!confirm("Replace file \"" + filename + "\"\nAre you sure?"))
 						{
 							return;
-						}
+						}*/
 					}
 					let data = await file.text();
 					localStorage.setItem("tscript.code." + filename, data);
@@ -20922,10 +20959,9 @@ span.CodeMirror-selectedtext { background: none; }
 .CodeMirror-dialog {
   position: absolute;
   left: 30%; right: 106px;
-  height: 22px;
   background: #ddf;
   z-index: 15;
-  padding: .1em .6em;
+  padding: 1px .6em;
   overflow: hidden;
   color: inherit;
   font-family: sans-serif;
@@ -20959,7 +20995,7 @@ span.CodeMirror-selectedtext { background: none; }
 
 .CodeMirror-dialog button {
   font-size: 90%;
-  padding: 1px 3px 1px 3px;
+  padding: 1px 3px;
 }
 
 .tgui
