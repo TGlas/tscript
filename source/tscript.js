@@ -750,6 +750,7 @@ let errors = {
 		"am-41": "argument handler passed to setEventHandler must be a function with exactly one parameter",
 		"am-42": "deepcopy failed due to $$",
 		"am-43": "infinite recursion due to recursive data structure",
+		"am-44": "array '$$' contains unexpected data expected values of type '$$'",
 	},
 	"name": {
 		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",
@@ -2110,6 +2111,133 @@ let lib_canvas = {
 			},
 		},
 	};
+
+
+
+	//moves data from a tscript array of reals into a Float32 array returns false if the buffer contained invalid data
+	let fillAudioBuffer = function(tscriptBuffer, array){
+		function clamp(v, min, max){
+			return v > max ? max : (v < min) ? min : v;
+		} 
+		
+		for(let i=0; i < array.length; i++){
+			//check if number is a real
+			if (! module.isDerivedFrom(tscriptBuffer.value.b[i].type, module.typeid_real)){
+				return false;
+			}
+			//clip sample to [-1,1]
+			array[i] = clamp(tscriptBuffer.value.b[i].value.b, -1, 1);;
+		}
+
+		return true;
+	}
+
+	function audioContextNullOrUndefined(){
+		if(typeof this.service.audioContext === 'undefined') return true;
+		if(this.service.audioContext  === null) return true;
+		return false;
+	}
+
+	let lib_audio = {
+		"source":`
+			namespace audio{
+				class MonoAudio
+				{
+					public:
+					constructor(buffer, sampleRate){}
+					function play(){}
+					function pause(){}
+					function setPlaybackRate(speed){}
+				}
+				class StereoAudio
+				{
+					public:
+					constructor(leftBuffer, rightBuffer, sampleRate){}
+					function play(){}
+					function pause(){}
+					function setPlaybackRate(speed){}
+				}
+			}
+		`,
+		"impl": {
+			"audio":{
+				"MonoAudio":{
+					"constructor":function(object, buffer, sampleRate){
+						if (! module.isDerivedFrom(buffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["buffer", "audio.MonoAudio.constructor", "array", module.displayname(buffer)]);
+						
+						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.MonoAudio.constructor", "integer", module.displayname(sampleRate)])	
+											
+						if(audioContextNullOrUndefined.bind(this)()) return;
+						let buf = this.service.audioContext.createBuffer(1, buffer.value.b.length, sampleRate.value.b);
+						
+						if(!fillAudioBuffer(buffer, buf.getChannelData(0))){
+							this.error("/argument-mismatch/am-44", ["buffer", "real"]);
+						}				
+
+						let sourceNode = this.service.audioContext.createBufferSource();
+						sourceNode.buffer = buf;
+						sourceNode.connect(this.service.audioContext.destination);
+
+						
+						object.value.b = sourceNode;
+					},
+					"play": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
+						object.value.b.start()	
+					},	
+					"pause": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
+						object.value.b.stop()	
+					},		
+					"setPlaybackRate":function(object, speed){	
+						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.MonoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						if(audioContextNullOrUndefined.bind(this)()) return;
+						object.value.b.playbackRate.value = speed.value.b;	
+					}
+				},
+				"StereoAudio":{
+					"constructor":function(object, leftBuffer, rightBuffer, sampleRate){
+						if (! module.isDerivedFrom(leftBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["leftBuffer", "audio.StereoAudio.constructor", "array", module.displayname(leftBuffer)]);
+						if (! module.isDerivedFrom(rightBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["rightBuffer", "audio.StereoAudio.constructor", "array", module.displayname(rightBuffer)]);
+
+						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.StereoAudio.constructor", "integer", module.displayname(sampleRate)])	
+						
+						if(audioContextNullOrUndefined.bind(this)()) return;
+						let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
+
+						if(!fillAudioBuffer(leftBuffer, buf.getChannelData(0))){
+							this.error("/argument-mismatch/am-44", ["leftBuffer", "real"]);
+						}
+
+						if(!fillAudioBuffer(rightBuffer, buf.getChannelData(1))){
+							this.error("/argument-mismatch/am-44", ["rightBuffer", "real"]);
+						}
+
+						let sourceNode = this.service.audioContext.createBufferSource();
+						sourceNode.buffer = buf;
+						sourceNode.connect(this.service.audioContext.destination);
+
+						object.value.b = sourceNode;
+					},
+
+					"play": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
+						object.value.b.start()	
+					},	
+					"pause": function(object){
+						if(audioContextNullOrUndefined.bind(this)()) return;	
+						object.value.b.stop()	
+					},		
+					"setPlaybackRate":function(object, speed){	
+						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.StereoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						if(audioContextNullOrUndefined.bind(this)()) return;
+
+						object.value.b.playbackRate.value = speed.value.b;	
+					}
+				},
+			}
+		},
+	}
 
 
 ///////////////////////////////////////////////////////////
@@ -6471,6 +6599,7 @@ module.parse = function(sourcecode)
 		parse1(lib_math.source, lib_math.impl);
 		parse1(lib_turtle.source, lib_turtle.impl);
 		parse1(lib_canvas.source, lib_canvas.impl);
+		parse1(lib_audio.source, lib_audio.impl)
 
 		// parse the user's source code
 		parse1(sourcecode);
@@ -6801,6 +6930,8 @@ module.Interpreter = function(program)
 			ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
 		}
 	};
+
+	this.service.audioContext = new AudioContext();
 
 	// exception type
 	function RuntimeError(msg, line, ch, href)

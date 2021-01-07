@@ -678,5 +678,68 @@ if (doc) doc.children.push({
 	`,
 	"children": [
 	]},
+
+	{
+		"id": "audio",
+		"name": "Audio playback",
+		"title": "Audio playback",
+		"content": `
+			<p>TScript supports playback of audio. The classes <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code> allow the playback of arbitrary buffers consisting of reals with values from -1 to 1.
+			The playback is performed asynchronously, meaning that a call to <code class="code">play()</code> will return immediately regardless of sound duration.
+			</p>
+			<h3>Constructors</h3>
+			<table class="methods">
+			<tr><th>MonoAudio</th><td>
+				<code class="code">MonoAudio(buffer, sampleRate)</code> where <code class="code">buffer</code> is an array containing the samples to be played, <code class="code">sampleRate</code> specifies the rate they are to be played at in Hz.
+			</td></tr>
+			<tr><th>StereoAudio</th><td>
+				<code class="code">StereoAudio(leftBuffer, rightBuffer, sampleRate)</code> provides the same functionality as above, but allows playback of stereo audio.
+			</td></tr>
+			</table>
+					
+			<h3>Functions</h3>
+			<tscript>
+			function play(){}
+			function pause(){}
+			function setPlaybackRate(speed){}
+			</tscript>
+			Are available on <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code>, they behave as expected.
+			<h3> Example</h3>
+			<p> The following code plays two different tones on the left and right channel. <code class="code">l_freq</code> and <code class="code"> r_freq</code> 
+			and the <code class="code"> sampleRate</code> can be modified to alter the tones.
+			<tscript>
+				use namespace math;
+				use namespace audio;
+
+				var durationInSeconds = 2;
+				var l_freq = 440; # frequency in Hz 
+				var r_freq = 554;
+				var sampleRate = 48000; # sampleRate in Hz
+
+
+				var l_samples = [];
+				var r_samples = [];
+
+				for var i in 0:(sampleRate * durationInSeconds) do
+				{
+					l_samples.push(sin( i * (l_freq / sampleRate) * 2 * pi()));
+				}
+
+				for var i in 0:(sampleRate * durationInSeconds) do
+				{
+					r_samples.push(sin( i * (r_freq / sampleRate) * 2 * pi()));
+				}
+				
+				var a = StereoAudio(l_samples, r_samples, sampleRate);
+				
+				# only play 1 of the 2 seconds
+				a.play();
+				wait(1000);
+				a.pause();
+				
+			</tscript>
+		`,
+		"children":[],
+	}
 ]
 });
