@@ -15293,21 +15293,23 @@ if (doc) doc.children.push({
 				var l_samples = [];
 				var r_samples = [];
 
-				for var i in 0:(sampleRate*durationInSeconds) do{
+				for var i in 0:(sampleRate * durationInSeconds) do
+				{
 					l_samples.push(sin( i * (l_freq / sampleRate) * pi()));
 				}
 
-				for var i in 0:(sampleRate*durationInSeconds) do{
+				for var i in 0:(sampleRate * durationInSeconds) do
+				{
 					r_samples.push(sin( i * (r_freq / sampleRate) * 2 * pi()));
 				}
-
+				
 				var a = StereoAudio(l_samples, r_samples, sampleRate);
-
-				#only play 1 of the 2 seconds
+				
+				# only play 1 of the 2 seconds
 				a.play();
 				wait(1000);
 				a.pause();
-
+				
 			</tscript>
 		`,
 		"children":[],
