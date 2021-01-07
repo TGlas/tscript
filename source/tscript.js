@@ -750,6 +750,7 @@ let errors = {
 		"am-41": "argument handler passed to setEventHandler must be a function with exactly one parameter",
 		"am-42": "deepcopy failed due to $$",
 		"am-43": "infinite recursion due to recursive data structure",
+		"am-44": "array '$$' contains unexpected data expected values of type '$$'",
 	},
 	"name": {
 		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",
@@ -2113,13 +2114,31 @@ let lib_canvas = {
 
 
 
+	//moves data from a tscript array of reals into a Float32 array returns false if the buffer contained invalid data
+	let fillAudioBuffer = function(tscriptBuffer, array, performTypeCheck = true){
+		let clamp = performTypeCheck ? function(v, min, max){
+			return v > max ? max : (v < min) ? min : v;
+		} : (x)=>x;
+		
+		for(let i=0; i < array.length; i++){
+			//check if number is a real
+			if (performTypeCheck && ! module.isDerivedFrom(tscriptBuffer.value.b[i].type, module.typeid_real)){
+				return false;
+			}
+			//clip sample to [-1,1]
+			array[i] = clamp(tscriptBuffer.value.b[i].value.b, -1, 1);;
+		}
+
+		return true;
+	}
+
 	let lib_audio = {
 		"source":`
 			namespace audio{
 				class MonoAudio
 				{
 					public:
-					constructor(buffer, sampleRate){}
+					constructor(buffer, sampleRate, performTypeCheck=true){}
 					function play(){}
 					function pause(){}
 					function setPlaybackRate(speed){}
@@ -2127,7 +2146,7 @@ let lib_canvas = {
 				class StereoAudio
 				{
 					public:
-					constructor(leftBuffer, rightBuffer, sampleRate){}
+					constructor(leftBuffer, rightBuffer, sampleRate, performTypeCheck=true){}
 					function play(){}
 					function pause(){}
 					function setPlaybackRate(speed){}
@@ -2137,16 +2156,17 @@ let lib_canvas = {
 		"impl": {
 			"audio":{
 				"MonoAudio":{
-					"constructor":function(object, buffer, sampleRate){
+					"constructor":function(object, buffer, sampleRate, performTypeCheck){
 						if (! module.isDerivedFrom(buffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["buffer", "audio.MonoAudio.constructor", "array", module.displayname(buffer)]);
+						
 						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.MonoAudio.constructor", "integer", module.displayname(sampleRate)])	
+						if(! module.isDerivedFrom(performTypeCheck.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["performTypeCheck", "audio.MonoAudio.constructor", "boolean", module.displayname(performTypeCheck)])	
+						
 						let buf = this.service.audioContext.createBuffer(1, buffer.value.b.length, sampleRate.value.b);
-						let ar = buf.getChannelData(0);
-						//copy from buffer to js objects buffer
-						for(let i=0; i < ar.length; i++){
-							//maybe check if number is a real and between -1 and 1?
-							ar[i] = buffer.value.b[i].value.b;
-						}
+						
+						if(!fillAudioBuffer(buffer, buf.getChannelData(0), performTypeCheck)){
+							this.error("/argument-mismatch/am-44", ["buffer", "real"]);
+						}				
 
 						let sourceNode = this.service.audioContext.createBufferSource();
 						sourceNode.buffer = buf;
@@ -2167,26 +2187,21 @@ let lib_canvas = {
 					}
 				},
 				"StereoAudio":{
-					"constructor":function(object, leftBuffer, rightBuffer, sampleRate){
+					"constructor":function(object, leftBuffer, rightBuffer, sampleRate, performTypeCheck){
 						if (! module.isDerivedFrom(leftBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["leftBuffer", "audio.StereoAudio.constructor", "array", module.displayname(leftBuffer)]);
 						if (! module.isDerivedFrom(rightBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["rightBuffer", "audio.StereoAudio.constructor", "array", module.displayname(rightBuffer)]);
-						
+
+						if(! module.isDerivedFrom(performTypeCheck.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["performTypeCheck", "audio.MonoAudio.constructor", "boolean", module.displayname(performTypeCheck)])	
 						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.StereoAudio.constructor", "integer", module.displayname(sampleRate)])	
-						debugger;
+						
 						let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
-						//left
-						let arl = buf.getChannelData(0);
-						//copy from buffer to js objects buffer
-						for(let i=0; i < arl.length; i++){
-							//maybe check if number is a real and between -1 and 1?
-							arl[i] = leftBuffer.value.b[i].value.b;
+
+						if(!fillAudioBuffer(leftBuffer, buf.getChannelData(0), performTypeCheck)){
+							this.error("/argument-mismatch/am-44", ["leftBuffer", "real"]);
 						}
 
-						let arr = buf.getChannelData(1);
-						//copy from buffer to js objects buffer
-						for(let i=0; i < arr.length; i++){
-							//maybe check if number is a real and between -1 and 1?
-							arr[i] = rightBuffer.value.b[i].value.b;
+						if(!fillAudioBuffer(rightBuffer, buf.getChannelData(1), performTypeCheck)){
+							this.error("/argument-mismatch/am-44", ["rightBuffer", "real"]);
 						}
 
 						let sourceNode = this.service.audioContext.createBufferSource();

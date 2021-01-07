@@ -694,6 +694,9 @@ if (doc) doc.children.push({
 				<code class="code">StereoAudio(leftBuffer, rightBuffer, sampleRate)</code> provides the same functionality as above, but allows playback of stereo audio.
 			</td></tr>
 			</table>
+			<p> Both constructors allow disabling checks that ensure the arrays only contain floats and are in the proper ranges. 
+			This is disabled by default and can be set by calling the constructor with an optional trailing <code class="code">false</code>.</p>
+			
 			<h3>Functions</h3>
 			<tscript>
 			function play(){}
@@ -707,33 +710,31 @@ if (doc) doc.children.push({
 			<tscript>
 				use namespace math;
 				use namespace audio;
-
-				var lenInSeconds = 2;
-				var l_freq = 180;
-				var r_freq = 1000;
-				var sampleRate = 48000;
-
-				var l_sf = (l_freq / sampleRate) * pi(); 
-				var r_sf = (r_freq / sampleRate) * pi(); 
-
+				
+				var lenInSeconds = 2; # length of the sound
+				var l_freq = 440; # frequency in Hz 
+				var r_freq = 554;
+				var sampleRate = 48000; # sampleRate in Hz
+				
+				
 				var l_samples = [];
 				var r_samples = [];
-
-				var c = 0;
+				
 				for var i in 0:(sampleRate*lenInSeconds) do{
-					l_samples.push(sin(c));
-					c += l_sf;
+					l_samples.push(sin( i * (l_freq / sampleRate) * pi()));
 				}
-				c = 0;
+				
 				for var i in 0:(sampleRate*lenInSeconds) do{
-					r_samples.push(sin(c));
-					c += r_sf;
+					r_samples.push(sin( i * (r_freq / sampleRate) * pi()));
 				}
-
+				
 				var a = StereoAudio(l_samples, r_samples, sampleRate);
-				a.setPlaybackRate(2.0);
+				
+				#only play 1 of the 2 seconds
 				a.play();
-
+				wait(1000);
+				a.pause();
+				
 			</tscript>
 		`,
 		"children":[],

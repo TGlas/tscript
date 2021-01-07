@@ -2052,6 +2052,17 @@ let tests = [
 				{type: "print", message: "25"},
 				"finished"],
 	},
+	{
+		name: "audio",
+		description: "checks if the audio object rejects invalid samples",
+		code: `
+			use namespace audio;
+			var samples = [];
+			samples.push("hello");
+			var ma = MonoAudio(samples, 48000, false);
+`,
+		expectation: [{type: "error", href: "#/errors/argument-mismatch/am-44"}, "error"],
+	},
 
 	// syntax errors
 	{
