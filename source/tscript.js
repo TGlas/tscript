@@ -2112,6 +2112,106 @@ let lib_canvas = {
 	};
 
 
+
+	let lib_audio = {
+		"source":`
+			namespace audio{
+				class MonoAudio
+				{
+					public:
+					constructor(buffer, sampleRate){}
+					function play(){}
+					function pause(){}
+					function setPlaybackRate(speed){}
+				}
+				class StereoAudio
+				{
+					public:
+					constructor(leftBuffer, rightBuffer, sampleRate){}
+					function play(){}
+					function pause(){}
+					function setPlaybackRate(speed){}
+				}
+			}
+		`,
+		"impl": {
+			"audio":{
+				"MonoAudio":{
+					"constructor":function(object, buffer, sampleRate){
+						if (! module.isDerivedFrom(buffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["buffer", "audio.MonoAudio.constructor", "array", module.displayname(buffer)]);
+						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.MonoAudio.constructor", "integer", module.displayname(sampleRate)])	
+						let buf = this.service.audioContext.createBuffer(1, buffer.value.b.length, sampleRate.value.b);
+						let ar = buf.getChannelData(0);
+						//copy from buffer to js objects buffer
+						for(let i=0; i < ar.length; i++){
+							//maybe check if number is a real and between -1 and 1?
+							ar[i] = buffer.value.b[i].value.b;
+						}
+
+						let sourceNode = this.service.audioContext.createBufferSource();
+						sourceNode.buffer = buf;
+						sourceNode.connect(this.service.audioContext.destination);
+
+						
+						object.value.b = sourceNode;
+					},
+					"play": function(object){	
+						object.value.b.start()	
+					},	
+					"pause": function(object){	
+						object.value.b.stop()	
+					},		
+					"setPlaybackRate":function(object, speed){	
+						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.MonoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						object.value.b.playbackRate.value = speed.value.b;	
+					}
+				},
+				"StereoAudio":{
+					"constructor":function(object, leftBuffer, rightBuffer, sampleRate){
+						if (! module.isDerivedFrom(leftBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["leftBuffer", "audio.StereoAudio.constructor", "array", module.displayname(leftBuffer)]);
+						if (! module.isDerivedFrom(rightBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["rightBuffer", "audio.StereoAudio.constructor", "array", module.displayname(rightBuffer)]);
+						
+						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.StereoAudio.constructor", "integer", module.displayname(sampleRate)])	
+						debugger;
+						let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
+						//left
+						let arl = buf.getChannelData(0);
+						//copy from buffer to js objects buffer
+						for(let i=0; i < arl.length; i++){
+							//maybe check if number is a real and between -1 and 1?
+							arl[i] = leftBuffer.value.b[i].value.b;
+						}
+
+						let arr = buf.getChannelData(1);
+						//copy from buffer to js objects buffer
+						for(let i=0; i < arr.length; i++){
+							//maybe check if number is a real and between -1 and 1?
+							arr[i] = rightBuffer.value.b[i].value.b;
+						}
+
+						let sourceNode = this.service.audioContext.createBufferSource();
+						sourceNode.buffer = buf;
+						sourceNode.connect(this.service.audioContext.destination);
+
+						object.value.b = sourceNode;
+					},
+
+					"play": function(object){	
+						object.value.b.start()	
+					},	
+					"pause": function(object){	
+						object.value.b.stop()	
+					},		
+					"setPlaybackRate":function(object, speed){	
+						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.StereoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						object.value.b.playbackRate.value = speed.value.b;	
+					}
+				},
+			}
+		},
+	}
+
+
 ///////////////////////////////////////////////////////////
 // lexer
 //
@@ -6471,6 +6571,7 @@ module.parse = function(sourcecode)
 		parse1(lib_math.source, lib_math.impl);
 		parse1(lib_turtle.source, lib_turtle.impl);
 		parse1(lib_canvas.source, lib_canvas.impl);
+		parse1(lib_audio.source, lib_audio.impl)
 
 		// parse the user's source code
 		parse1(sourcecode);
@@ -6801,6 +6902,8 @@ module.Interpreter = function(program)
 			ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
 		}
 	};
+
+	this.service.audioContext = new AudioContext();
 
 	// exception type
 	function RuntimeError(msg, line, ch, href)

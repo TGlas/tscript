@@ -2488,6 +2488,106 @@ let lib_canvas = {
 	};
 
 
+
+	let lib_audio = {
+		"source":`
+			namespace audio{
+				class MonoAudio
+				{
+					public:
+					constructor(buffer, sampleRate){}
+					function play(){}
+					function pause(){}
+					function setPlaybackRate(speed){}
+				}
+				class StereoAudio
+				{
+					public:
+					constructor(leftBuffer, rightBuffer, sampleRate){}
+					function play(){}
+					function pause(){}
+					function setPlaybackRate(speed){}
+				}
+			}
+		`,
+		"impl": {
+			"audio":{
+				"MonoAudio":{
+					"constructor":function(object, buffer, sampleRate){
+						if (! module.isDerivedFrom(buffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["buffer", "audio.MonoAudio.constructor", "array", module.displayname(buffer)]);
+						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.MonoAudio.constructor", "integer", module.displayname(sampleRate)])	
+						let buf = this.service.audioContext.createBuffer(1, buffer.value.b.length, sampleRate.value.b);
+						let ar = buf.getChannelData(0);
+						//copy from buffer to js objects buffer
+						for(let i=0; i < ar.length; i++){
+							//maybe check if number is a real and between -1 and 1?
+							ar[i] = buffer.value.b[i].value.b;
+						}
+
+						let sourceNode = this.service.audioContext.createBufferSource();
+						sourceNode.buffer = buf;
+						sourceNode.connect(this.service.audioContext.destination);
+
+						
+						object.value.b = sourceNode;
+					},
+					"play": function(object){	
+						object.value.b.start()	
+					},	
+					"pause": function(object){	
+						object.value.b.stop()	
+					},		
+					"setPlaybackRate":function(object, speed){	
+						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.MonoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						object.value.b.playbackRate.value = speed.value.b;	
+					}
+				},
+				"StereoAudio":{
+					"constructor":function(object, leftBuffer, rightBuffer, sampleRate){
+						if (! module.isDerivedFrom(leftBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["leftBuffer", "audio.StereoAudio.constructor", "array", module.displayname(leftBuffer)]);
+						if (! module.isDerivedFrom(rightBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["rightBuffer", "audio.StereoAudio.constructor", "array", module.displayname(rightBuffer)]);
+						
+						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.StereoAudio.constructor", "integer", module.displayname(sampleRate)])	
+						debugger;
+						let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
+						//left
+						let arl = buf.getChannelData(0);
+						//copy from buffer to js objects buffer
+						for(let i=0; i < arl.length; i++){
+							//maybe check if number is a real and between -1 and 1?
+							arl[i] = leftBuffer.value.b[i].value.b;
+						}
+
+						let arr = buf.getChannelData(1);
+						//copy from buffer to js objects buffer
+						for(let i=0; i < arr.length; i++){
+							//maybe check if number is a real and between -1 and 1?
+							arr[i] = rightBuffer.value.b[i].value.b;
+						}
+
+						let sourceNode = this.service.audioContext.createBufferSource();
+						sourceNode.buffer = buf;
+						sourceNode.connect(this.service.audioContext.destination);
+
+						object.value.b = sourceNode;
+					},
+
+					"play": function(object){	
+						object.value.b.start()	
+					},	
+					"pause": function(object){	
+						object.value.b.stop()	
+					},		
+					"setPlaybackRate":function(object, speed){	
+						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.StereoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						object.value.b.playbackRate.value = speed.value.b;	
+					}
+				},
+			}
+		},
+	}
+
+
 ///////////////////////////////////////////////////////////
 // lexer
 //
@@ -6847,6 +6947,7 @@ module.parse = function(sourcecode)
 		parse1(lib_math.source, lib_math.impl);
 		parse1(lib_turtle.source, lib_turtle.impl);
 		parse1(lib_canvas.source, lib_canvas.impl);
+		parse1(lib_audio.source, lib_audio.impl)
 
 		// parse the user's source code
 		parse1(sourcecode);
@@ -7177,6 +7278,8 @@ module.Interpreter = function(program)
 			ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
 		}
 	};
+
+	this.service.audioContext = new AudioContext();
 
 	// exception type
 	function RuntimeError(msg, line, ch, href)
@@ -15127,6 +15230,66 @@ if (doc) doc.children.push({
 	`,
 	"children": [
 	]},
+
+	{
+		"id": "audio",
+		"name": "Audio playback",
+		"title": "Audio playback",
+		"content": `
+			<p>TScript supports playback of audio. The classes <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code> allow the playback of arbitrary buffers consisting of real with values from -1 to 1.</p>
+			<h3>Constructors</h3>
+			<table class="methods">
+			<tr><th>MonoAudio</th><td>
+				<code class="code">MonoAudio(buffer, sampleRate)</code> where <code class="code">buffer</code> is an array containing the samples to be played, <code class="code">sampleRate</code> specifies the rate they are to be played at in Hz.
+			</td></tr>
+			<tr><th>StereoAudio</th><td>
+				<code class="code">StereoAudio(leftBuffer, rightBuffer, sampleRate)</code> provides the same functionality as above, but allows playback of stereo audio.
+			</td></tr>
+			</table>
+			<h3>Functions</h3>
+			<tscript>
+			function play(){}
+			function pause(){}
+			function setPlaybackRate(speed){}
+			</tscript>
+			Are available on <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code>, they behave as expected.
+			<h3> Example</h3>
+			<p> The following code plays two different tones on the left and right channel. <code class="code">l_freq</code> and <code class="code"> r_freq</code> 
+			and the <code class="code"> sampleRate</code> can be modified to alter the tones.
+			<tscript>
+				use namespace math;
+				use namespace audio;
+
+				var lenInSeconds = 2;
+				var l_freq = 180;
+				var r_freq = 1000;
+				var sampleRate = 48000;
+
+				var l_sf = (l_freq / sampleRate) * pi(); 
+				var r_sf = (r_freq / sampleRate) * pi(); 
+
+				var l_samples = [];
+				var r_samples = [];
+
+				var c = 0;
+				for var i in 0:(sampleRate*lenInSeconds) do{
+					l_samples.push(sin(c));
+					c += l_sf;
+				}
+				c = 0;
+				for var i in 0:(sampleRate*lenInSeconds) do{
+					r_samples.push(sin(c));
+					c += r_sf;
+				}
+
+				var a = StereoAudio(l_samples, r_samples, sampleRate);
+				a.setPlaybackRate(2.0);
+				a.play();
+
+			</tscript>
+		`,
+		"children":[],
+	}
 ]
 });
 "use strict"

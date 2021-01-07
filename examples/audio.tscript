@@ -1,0 +1,28 @@
+use namespace math;
+use namespace audio;
+
+var lenInSeconds = 2;
+var l_freq = 180;
+var r_freq = 1000;
+var sampleRate = 48000;
+
+var l_sf = (l_freq / sampleRate) * pi(); 
+var r_sf = (r_freq / sampleRate) * pi(); 
+
+var l_samples = [];
+var r_samples = [];
+
+var c = 0;
+for var i in 0:(sampleRate*lenInSeconds) do{
+	l_samples.push(sin(c));
+	c += l_sf;
+}
+c = 0;
+for var i in 0:(sampleRate*lenInSeconds) do{
+	r_samples.push(sin(c));
+	c += r_sf;
+}
+
+var a = StereoAudio(l_samples, r_samples, sampleRate);
+a.setPlaybackRate(2.0);
+a.play();
