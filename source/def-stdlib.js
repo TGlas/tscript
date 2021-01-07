@@ -722,7 +722,7 @@ if (doc) doc.children.push({
 
 				for var i in 0:(sampleRate * durationInSeconds) do
 				{
-					l_samples.push(sin( i * (l_freq / sampleRate) * pi()));
+					l_samples.push(sin( i * (l_freq / sampleRate) * 2 * pi()));
 				}
 
 				for var i in 0:(sampleRate * durationInSeconds) do
