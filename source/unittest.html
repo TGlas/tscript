@@ -2059,7 +2059,7 @@ let tests = [
 			use namespace audio;
 			var samples = [];
 			samples.push("hello");
-			var ma = MonoAudio(samples, 48000, false);
+			var ma = MonoAudio(samples, 48000);
 `,
 		expectation: [{type: "error", href: "#/errors/argument-mismatch/am-44"}, "error"],
 	},

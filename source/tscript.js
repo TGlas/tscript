@@ -2115,14 +2115,14 @@ let lib_canvas = {
 
 
 	//moves data from a tscript array of reals into a Float32 array returns false if the buffer contained invalid data
-	let fillAudioBuffer = function(tscriptBuffer, array, performTypeCheck = true){
-		let clamp = performTypeCheck ? function(v, min, max){
+	let fillAudioBuffer = function(tscriptBuffer, array){
+		function clamp(v, min, max){
 			return v > max ? max : (v < min) ? min : v;
-		} : (x)=>x;
+		} 
 		
 		for(let i=0; i < array.length; i++){
 			//check if number is a real
-			if (performTypeCheck && ! module.isDerivedFrom(tscriptBuffer.value.b[i].type, module.typeid_real)){
+			if (! module.isDerivedFrom(tscriptBuffer.value.b[i].type, module.typeid_real)){
 				return false;
 			}
 			//clip sample to [-1,1]
@@ -2132,13 +2132,19 @@ let lib_canvas = {
 		return true;
 	}
 
+	function audioContextNullOrUndefined(){
+		if(typeof this.service.audioContext === 'undefined') return true;
+		if(this.service.audioContext  === null) return true;
+		return false;
+	}
+
 	let lib_audio = {
 		"source":`
 			namespace audio{
 				class MonoAudio
 				{
 					public:
-					constructor(buffer, sampleRate, performTypeCheck=true){}
+					constructor(buffer, sampleRate){}
 					function play(){}
 					function pause(){}
 					function setPlaybackRate(speed){}
@@ -2146,7 +2152,7 @@ let lib_canvas = {
 				class StereoAudio
 				{
 					public:
-					constructor(leftBuffer, rightBuffer, sampleRate, performTypeCheck=true){}
+					constructor(leftBuffer, rightBuffer, sampleRate){}
 					function play(){}
 					function pause(){}
 					function setPlaybackRate(speed){}
@@ -2156,15 +2162,15 @@ let lib_canvas = {
 		"impl": {
 			"audio":{
 				"MonoAudio":{
-					"constructor":function(object, buffer, sampleRate, performTypeCheck){
+					"constructor":function(object, buffer, sampleRate){
 						if (! module.isDerivedFrom(buffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["buffer", "audio.MonoAudio.constructor", "array", module.displayname(buffer)]);
 						
 						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.MonoAudio.constructor", "integer", module.displayname(sampleRate)])	
-						if(! module.isDerivedFrom(performTypeCheck.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["performTypeCheck", "audio.MonoAudio.constructor", "boolean", module.displayname(performTypeCheck)])	
-						
+											
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						let buf = this.service.audioContext.createBuffer(1, buffer.value.b.length, sampleRate.value.b);
 						
-						if(!fillAudioBuffer(buffer, buf.getChannelData(0), performTypeCheck)){
+						if(!fillAudioBuffer(buffer, buf.getChannelData(0))){
 							this.error("/argument-mismatch/am-44", ["buffer", "real"]);
 						}				
 
@@ -2176,31 +2182,34 @@ let lib_canvas = {
 						object.value.b = sourceNode;
 					},
 					"play": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						object.value.b.start()	
 					},	
 					"pause": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						object.value.b.stop()	
 					},		
 					"setPlaybackRate":function(object, speed){	
 						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.MonoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						object.value.b.playbackRate.value = speed.value.b;	
 					}
 				},
 				"StereoAudio":{
-					"constructor":function(object, leftBuffer, rightBuffer, sampleRate, performTypeCheck){
+					"constructor":function(object, leftBuffer, rightBuffer, sampleRate){
 						if (! module.isDerivedFrom(leftBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["leftBuffer", "audio.StereoAudio.constructor", "array", module.displayname(leftBuffer)]);
 						if (! module.isDerivedFrom(rightBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["rightBuffer", "audio.StereoAudio.constructor", "array", module.displayname(rightBuffer)]);
 
-						if(! module.isDerivedFrom(performTypeCheck.type, module.typeid_boolean)) this.error("/argument-mismatch/am-1", ["performTypeCheck", "audio.MonoAudio.constructor", "boolean", module.displayname(performTypeCheck)])	
 						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.StereoAudio.constructor", "integer", module.displayname(sampleRate)])	
 						
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
 
-						if(!fillAudioBuffer(leftBuffer, buf.getChannelData(0), performTypeCheck)){
+						if(!fillAudioBuffer(leftBuffer, buf.getChannelData(0))){
 							this.error("/argument-mismatch/am-44", ["leftBuffer", "real"]);
 						}
 
-						if(!fillAudioBuffer(rightBuffer, buf.getChannelData(1), performTypeCheck)){
+						if(!fillAudioBuffer(rightBuffer, buf.getChannelData(1))){
 							this.error("/argument-mismatch/am-44", ["rightBuffer", "real"]);
 						}
 
@@ -2212,13 +2221,17 @@ let lib_canvas = {
 					},
 
 					"play": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						object.value.b.start()	
 					},	
-					"pause": function(object){	
+					"pause": function(object){
+						if(audioContextNullOrUndefined.bind(this)()) return;	
 						object.value.b.stop()	
 					},		
 					"setPlaybackRate":function(object, speed){	
 						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.StereoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						if(audioContextNullOrUndefined.bind(this)()) return;
+
 						object.value.b.playbackRate.value = speed.value.b;	
 					}
 				},

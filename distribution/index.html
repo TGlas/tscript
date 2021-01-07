@@ -1126,6 +1126,7 @@ let errors = {
 		"am-41": "argument handler passed to setEventHandler must be a function with exactly one parameter",
 		"am-42": "deepcopy failed due to $$",
 		"am-43": "infinite recursion due to recursive data structure",
+		"am-44": "array '$$' contains unexpected data expected values of type '$$'",
 	},
 	"name": {
 		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",
@@ -2489,6 +2490,30 @@ let lib_canvas = {
 
 
 
+	//moves data from a tscript array of reals into a Float32 array returns false if the buffer contained invalid data
+	let fillAudioBuffer = function(tscriptBuffer, array){
+		function clamp(v, min, max){
+			return v > max ? max : (v < min) ? min : v;
+		} 
+		
+		for(let i=0; i < array.length; i++){
+			//check if number is a real
+			if (! module.isDerivedFrom(tscriptBuffer.value.b[i].type, module.typeid_real)){
+				return false;
+			}
+			//clip sample to [-1,1]
+			array[i] = clamp(tscriptBuffer.value.b[i].value.b, -1, 1);;
+		}
+
+		return true;
+	}
+
+	function audioContextNullOrUndefined(){
+		if(typeof this.service.audioContext === 'undefined') return true;
+		if(this.service.audioContext  === null) return true;
+		return false;
+	}
+
 	let lib_audio = {
 		"source":`
 			namespace audio{
@@ -2515,14 +2540,15 @@ let lib_canvas = {
 				"MonoAudio":{
 					"constructor":function(object, buffer, sampleRate){
 						if (! module.isDerivedFrom(buffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["buffer", "audio.MonoAudio.constructor", "array", module.displayname(buffer)]);
+						
 						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.MonoAudio.constructor", "integer", module.displayname(sampleRate)])	
+											
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						let buf = this.service.audioContext.createBuffer(1, buffer.value.b.length, sampleRate.value.b);
-						let ar = buf.getChannelData(0);
-						//copy from buffer to js objects buffer
-						for(let i=0; i < ar.length; i++){
-							//maybe check if number is a real and between -1 and 1?
-							ar[i] = buffer.value.b[i].value.b;
-						}
+						
+						if(!fillAudioBuffer(buffer, buf.getChannelData(0))){
+							this.error("/argument-mismatch/am-44", ["buffer", "real"]);
+						}				
 
 						let sourceNode = this.service.audioContext.createBufferSource();
 						sourceNode.buffer = buf;
@@ -2532,13 +2558,16 @@ let lib_canvas = {
 						object.value.b = sourceNode;
 					},
 					"play": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						object.value.b.start()	
 					},	
 					"pause": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						object.value.b.stop()	
 					},		
 					"setPlaybackRate":function(object, speed){	
 						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.MonoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						object.value.b.playbackRate.value = speed.value.b;	
 					}
 				},
@@ -2546,23 +2575,18 @@ let lib_canvas = {
 					"constructor":function(object, leftBuffer, rightBuffer, sampleRate){
 						if (! module.isDerivedFrom(leftBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["leftBuffer", "audio.StereoAudio.constructor", "array", module.displayname(leftBuffer)]);
 						if (! module.isDerivedFrom(rightBuffer.type, module.typeid_array)) this.error("/argument-mismatch/am-1", ["rightBuffer", "audio.StereoAudio.constructor", "array", module.displayname(rightBuffer)]);
-						
+
 						if(! module.isDerivedFrom(sampleRate.type, module.typeid_integer)) this.error("/argument-mismatch/am-1", ["sampleRate", "audio.StereoAudio.constructor", "integer", module.displayname(sampleRate)])	
-						debugger;
+						
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
-						//left
-						let arl = buf.getChannelData(0);
-						//copy from buffer to js objects buffer
-						for(let i=0; i < arl.length; i++){
-							//maybe check if number is a real and between -1 and 1?
-							arl[i] = leftBuffer.value.b[i].value.b;
+
+						if(!fillAudioBuffer(leftBuffer, buf.getChannelData(0))){
+							this.error("/argument-mismatch/am-44", ["leftBuffer", "real"]);
 						}
 
-						let arr = buf.getChannelData(1);
-						//copy from buffer to js objects buffer
-						for(let i=0; i < arr.length; i++){
-							//maybe check if number is a real and between -1 and 1?
-							arr[i] = rightBuffer.value.b[i].value.b;
+						if(!fillAudioBuffer(rightBuffer, buf.getChannelData(1))){
+							this.error("/argument-mismatch/am-44", ["rightBuffer", "real"]);
 						}
 
 						let sourceNode = this.service.audioContext.createBufferSource();
@@ -2573,13 +2597,17 @@ let lib_canvas = {
 					},
 
 					"play": function(object){	
+						if(audioContextNullOrUndefined.bind(this)()) return;
 						object.value.b.start()	
 					},	
-					"pause": function(object){	
+					"pause": function(object){
+						if(audioContextNullOrUndefined.bind(this)()) return;	
 						object.value.b.stop()	
 					},		
 					"setPlaybackRate":function(object, speed){	
 						if(! module.isDerivedFrom(speed.type, module.typeid_real)) this.error("/argument-mismatch/am-1", ["speed", "audio.StereoAudio.setPlaybackRate", "real", module.displayname(speed)])	
+						if(audioContextNullOrUndefined.bind(this)()) return;
+
 						object.value.b.playbackRate.value = speed.value.b;	
 					}
 				},
@@ -15236,7 +15264,9 @@ if (doc) doc.children.push({
 		"name": "Audio playback",
 		"title": "Audio playback",
 		"content": `
-			<p>TScript supports playback of audio. The classes <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code> allow the playback of arbitrary buffers consisting of real with values from -1 to 1.</p>
+			<p>TScript supports playback of audio. The classes <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code> allow the playback of arbitrary buffers consisting of reals with values from -1 to 1.
+			The playback is performed asynchronously, meaning that a call to <code class="code">play()</code> will return immediately regardless of sound duration.
+			</p>
 			<h3>Constructors</h3>
 			<table class="methods">
 			<tr><th>MonoAudio</th><td>
@@ -15246,6 +15276,7 @@ if (doc) doc.children.push({
 				<code class="code">StereoAudio(leftBuffer, rightBuffer, sampleRate)</code> provides the same functionality as above, but allows playback of stereo audio.
 			</td></tr>
 			</table>
+					
 			<h3>Functions</h3>
 			<tscript>
 			function play(){}
@@ -15260,31 +15291,29 @@ if (doc) doc.children.push({
 				use namespace math;
 				use namespace audio;
 
-				var lenInSeconds = 2;
-				var l_freq = 180;
-				var r_freq = 1000;
-				var sampleRate = 48000;
+				var durationInSeconds = 2;
+				var l_freq = 440; # frequency in Hz 
+				var r_freq = 554;
+				var sampleRate = 48000; # sampleRate in Hz
 
-				var l_sf = (l_freq / sampleRate) * pi(); 
-				var r_sf = (r_freq / sampleRate) * pi(); 
 
 				var l_samples = [];
 				var r_samples = [];
 
-				var c = 0;
-				for var i in 0:(sampleRate*lenInSeconds) do{
-					l_samples.push(sin(c));
-					c += l_sf;
+				for var i in 0:(sampleRate*durationInSeconds) do{
+					l_samples.push(sin( i * (l_freq / sampleRate) * pi()));
 				}
-				c = 0;
-				for var i in 0:(sampleRate*lenInSeconds) do{
-					r_samples.push(sin(c));
-					c += r_sf;
+
+				for var i in 0:(sampleRate*durationInSeconds) do{
+					r_samples.push(sin( i * (r_freq / sampleRate) * 2 * pi()));
 				}
 
 				var a = StereoAudio(l_samples, r_samples, sampleRate);
-				a.setPlaybackRate(2.0);
+
+				#only play 1 of the 2 seconds
 				a.play();
+				wait(1000);
+				a.pause();
 
 			</tscript>
 		`,

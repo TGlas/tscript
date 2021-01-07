@@ -1,7 +1,7 @@
 use namespace math;
 use namespace audio;
 
-var lenInSeconds = 2; # length of the sound
+var durationInSeconds = 2;
 var l_freq = 440; # frequency in Hz 
 var r_freq = 554;
 var sampleRate = 48000; # sampleRate in Hz
@@ -10,12 +10,12 @@ var sampleRate = 48000; # sampleRate in Hz
 var l_samples = [];
 var r_samples = [];
 
-for var i in 0:(sampleRate*lenInSeconds) do{
+for var i in 0:(sampleRate*durationInSeconds) do{
 	l_samples.push(sin( i * (l_freq / sampleRate) * pi()));
 }
 
-for var i in 0:(sampleRate*lenInSeconds) do{
-	r_samples.push(sin( i * (r_freq / sampleRate) * pi()));
+for var i in 0:(sampleRate*durationInSeconds) do{
+	r_samples.push(sin( i * (r_freq / sampleRate) * 2 * pi()));
 }
 
 var a = StereoAudio(l_samples, r_samples, sampleRate);
