@@ -2503,6 +2503,7 @@ module.keywords = {
 		"then": true,
 		"else": true,
 		"for": true,
+		// TODO: should 'in' be considered a keyword?
 		"do": true,
 		"while": true,
 		"break": true,
@@ -19368,6 +19369,10 @@ function saveConfig()
 	localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 }
 
+
+// TODO move to tgui.js
+// creates an event handler for a dialog, whenever it is going to be closed.
+// * onClose - a cleanup callback, use null for no cleanup
 function handleDialogCloseWith(onClose)
 {
 	return function(event)
@@ -20148,7 +20153,7 @@ module.create = function(container, options)
 			indentUnit: 4,
 			tabSize: 4,
 			indentWithTabs: true,
-			// TODO: Setting: lineWrapping: false,
+			// TODO: Setting in configuration: lineWrapping: true/false,
 			extraKeys: {
 					"Ctrl-D": "toggleComment",
 					"Cmd-D": "toggleComment",
@@ -20342,7 +20347,6 @@ module.create = function(container, options)
 						// draws literally a turtle
 						let ctx = canvas.getContext("2d");
 
-						//ctx.fillStyle = "#4d5";
 						ctx.fillStyle = "#2c3";
 						ctx.strokeStyle = "#070";
 
@@ -21300,9 +21304,6 @@ span.CodeMirror-selectedtext { background: none; }
 	font-size: 10pt;
 	line-height: 24px;
 	user-select: none;
-	
-	/*box-shadow: inset -1px -1px 3px -2px #000000ff,
-				inset  1px  1px 3px -2px #00ccffff;*/
 }
 
 .tgui-modal-titlebar-title {
@@ -21337,8 +21338,6 @@ span.CodeMirror-selectedtext { background: none; }
 .tgui-panel-float {
 	box-shadow: 0px 1px 8px #00000050,
 				0px 0px 0px 1px #00000020;
-				
-	/*border-radius: 2px;*/
 }
 
 .tgui-panel-titlebar {
@@ -21356,7 +21355,6 @@ span.CodeMirror-selectedtext { background: none; }
 	color: #fff;
 	font-family: sans-serif;
 	/*old style on browsers like firefox: font-family: serif; -- "sans" does not work and leads to "serif"*/
-	/*font-size: 12pt;*/
 	font-weight: 600;
 	font-size: 10pt;
 
@@ -21366,11 +21364,6 @@ span.CodeMirror-selectedtext { background: none; }
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	
-	
-	
-	/*box-shadow: inset -1px -1px 3px -2px #000000ff,
-				inset  1px  1px 3px -2px #00ffffff;*/
 }
 
 .tgui-panel-titlebar-title {

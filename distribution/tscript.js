@@ -2497,6 +2497,7 @@ module.keywords = {
 		"then": true,
 		"else": true,
 		"for": true,
+		// TODO: should 'in' be considered a keyword?
 		"do": true,
 		"while": true,
 		"break": true,
@@ -19362,6 +19363,10 @@ function saveConfig()
 	localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 }
 
+
+// TODO move to tgui.js
+// creates an event handler for a dialog, whenever it is going to be closed.
+// * onClose - a cleanup callback, use null for no cleanup
 function handleDialogCloseWith(onClose)
 {
 	return function(event)
@@ -20142,7 +20147,7 @@ module.create = function(container, options)
 			indentUnit: 4,
 			tabSize: 4,
 			indentWithTabs: true,
-			// TODO: Setting: lineWrapping: false,
+			// TODO: Setting in configuration: lineWrapping: true/false,
 			extraKeys: {
 					"Ctrl-D": "toggleComment",
 					"Cmd-D": "toggleComment",
@@ -20336,7 +20341,6 @@ module.create = function(container, options)
 						// draws literally a turtle
 						let ctx = canvas.getContext("2d");
 
-						//ctx.fillStyle = "#4d5";
 						ctx.fillStyle = "#2c3";
 						ctx.strokeStyle = "#070";
 
