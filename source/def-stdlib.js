@@ -133,6 +133,9 @@ if (doc) doc.children.push({
 			i.e., be contained as an item inside itself or one of its
 			sub-items.
 		</td></tr>
+		<tr><th>listKeys</th><td>
+			The <code class="code">function listKeys()</code> returns an array containing the keys to all stored values.
+		</td></tr>
 		<tr><th>deepcopy</th><td>
 			<p>
 			The <code class="code">function deepcopy(value)</code> creates

@@ -255,6 +255,32 @@ module.mod = function(lhs, rhs)
 			: rhs * Math.floor(lhs / rhs) - lhs;
 }
 
+module.jsObject2typed = function jsObject2typed(object){
+	debugger;
+	switch(typeof object){
+		case 'boolean':
+			return {type: this.program.types[module.typeid_boolean], value: {b: object}};
+		case 'number':
+			if(object % 1 === 0){
+				return {type: this.program.types[module.typeid_integer], value: {b: object}};
+			}else{
+				return {type: this.program.types[module.typeid_real], value: {b: object}};
+			}
+		case 'object':
+			if(object === null){
+				return {type: this.program.types[module.typeid_null], value: {b: null}};
+			}else if(Array.isArray(object)){
+				return  {type: this.program.types[module.typeid_array], value: {b:object.map(jsObject2typed.bind(this))}};
+			}
+		break;
+		case 'string':
+			return {type: this.program.types[module.typeid_string], value: {b: object}};
+		case 'undefined':
+			return {type: this.program.types[module.typeid_null], value: {b: null}};
+	}
+	throw "value could not be converted.";
+};
+
 // convert a JSON value to a typed data structure, call with interpreter as this argument
 module.json2typed = function(arg)
 {
@@ -945,6 +971,7 @@ let core = {
 			function exists(key) { }
 			function load(key) { }
 			function save(key, value) { }
+			function listKeys(){}
 			function deepcopy(value) { }
 		`,
 	"impl": {
@@ -1495,6 +1522,14 @@ let core = {
 					this.error("/argument-mismatch/am-39");
 				}
 			},
+			"listKeys": function(){
+				return module.jsObject2typed.call(this,
+					Object.keys(localStorage) //will always return an array
+						.filter((key) => {return key.startsWith("tscript.data.")}) //filter all that are not data
+						.map( (key) => {return key.substr("tscript.data.".length)}) //remove the prefix from the name
+				);
+			},
+
 			"deepcopy": function(value) {
 				try
 				{
