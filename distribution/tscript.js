@@ -7812,7 +7812,8 @@ module.createCanvasIcon = function(description)
 	
 	// zoom
 	// TODO: programmaticly detect whenever zoom changes
-	let zoom = window.devicePixelRatio;
+	let zoom = 2; // Good enough
+	//let zoom = window.devicePixelRatio;
 	if(zoom > 1)
 	{
 		canvas.width*=zoom;
