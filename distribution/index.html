@@ -7364,7 +7364,7 @@ module.Interpreter = function(program)
 
 	// background "thread": run a chunk of code for about
 	// 15 milliseconds, then trigger the next chunk
-	this.chunk = function()
+	this.chunk = function(deadline)
 	{
 		if (this.stop)
 		{
@@ -7385,8 +7385,8 @@ module.Interpreter = function(program)
 
 		if (this.status === "running")
 		{
-			let start = (new Date()).getTime();
-			while (this.background && (new Date()).getTime() - start < 14 && this.status === "running")
+			
+			while (this.background && deadline.timeRemaining() > 3)
 			{
 				this.exec_step();
 
@@ -7406,8 +7406,10 @@ module.Interpreter = function(program)
 			}
 		}
 
-		let context = this;
-		setTimeout(function() { context.chunk(); }, 1);
+		if(this.status !== "finished"){
+			window.requestIdleCallback(this.chunk.bind(this));
+		}
+		
 	};
 
 	// reset the program state, set the instruction pointer to its start
@@ -7770,8 +7772,7 @@ module.Interpreter = function(program)
 
 	// start the background thread
 	this.thread = true;
-	let context = this;
-	setTimeout(function() { context.chunk(); }, 1);
+	window.requestIdleCallback(this.chunk.bind(this));
 };
 
 
