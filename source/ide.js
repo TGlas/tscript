@@ -871,7 +871,6 @@ let cmd_export = function()
 	let fn = title;
 	if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
 	let dlg = createDialog("export program as webpage", {"width": "calc(max(400px, 50vw))", "height": "calc(max(260px, 50vh))"});
-
 	let status = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -1491,7 +1490,7 @@ function createDialog(title, size, onClose)
 			"style": {"width": size["width"], "height": size["height"], "background": "#eee", "overflow": "hidden"},
 		});
 	let titlebar = createTitleBar(dlg, title, onClose);
-	
+
 	dlg.onKeyDown = function(event)
 		{
 			if (event.key == "Escape")
@@ -1499,7 +1498,7 @@ function createDialog(title, size, onClose)
 				return handleDialogCloseWith(onClose)(event);
 			}
 		};
-	
+
 	return dlg;
 }
 
@@ -1683,6 +1682,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => importFile(),
 			"classname": "tgui-dialog-button"
 		});
+
 	let status = tgui.createElement({
 			"parent": toolbar,
 			"type": "label",

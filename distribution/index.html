@@ -19105,7 +19105,6 @@ let cmd_export = function()
 	let fn = title;
 	if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
 	let dlg = createDialog("export program as webpage", {"width": "calc(max(400px, 50vw))", "height": "calc(max(260px, 50vh))"});
-
 	let status = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -19687,7 +19686,7 @@ function createTitleBar(dlg, title, onClose)
 			"classname": "tgui-modal-titlebar-title",
 			"text": title,
 		});
-		
+
 	let close = tgui.createButton({
 			"parent": titlebar,
 			"click": function ()
@@ -19908,7 +19907,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => exportFile(name.value),
 			"classname": "tgui-dialog-button"
 		});
-	
+
 	let importBtn = tgui.createElement({
 			"parent": toolbar,
 			"type": "button",

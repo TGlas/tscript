@@ -19718,7 +19718,7 @@ function createDialog(title, size, onClose)
 			"style": {"width": size["width"], "height": size["height"], "background": "#eee", "overflow": "hidden"},
 		});
 	let titlebar = createTitleBar(dlg, title, onClose);
-	
+
 	dlg.onKeyDown = function(event)
 		{
 			if (event.key == "Escape")
@@ -19726,7 +19726,7 @@ function createDialog(title, size, onClose)
 				return handleDialogCloseWith(onClose)(event);
 			}
 		};
-	
+
 	return dlg;
 }
 
