@@ -36,10 +36,10 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 5,
-			patch: 42,
-			day: 12,
-			month: 12,
-			year: 2020,
+			patch: 43,
+			day: 7,
+			month: 1,
+			year: 2021,
 			full: function()
 					{
 						let s = "TScript version " + module.version.major
