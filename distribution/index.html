@@ -389,6 +389,23 @@ if (! isStrict) console.log("WARNING: NOT IN STRICT MODE!");
 
 let TScript = (function() {
 
+//inject a polyfill for window.requestIdleCallback()
+if(typeof window.requestIdleCallback === "undefined"){
+	window.requestIdleCallback = function (callback){
+		setTimeout(function(){
+			let deadline = {
+				startTime: Date.now(),
+				maxTime: 17,
+				timeRemaining: function(){
+					return this.startTime + this.maxTime - Date.now();
+				}
+			};
+			callback(deadline);
+		}, 1);
+	};
+}
+
+
 let module = {
 	// T-Script version
 	version: {
