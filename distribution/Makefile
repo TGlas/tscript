@@ -46,7 +46,9 @@ index.html: start ${JSFILES} middle ${CSSFILES} end
 	rm -f index.html
 	cat start ${JSFILES} middle ${CSSFILES} end > index.html
 
-zipfile: index.html
+zipfile: index.html.zip ;
+
+index.html.zip: index.html
 	rm -f index.html.zip
 	zip index.html.zip index.html
 
