@@ -35,7 +35,6 @@ singlefile:
 	rm -f index.html
 	rm -f index.html.zip
 	cat start ${JSFILES} middle ${CSSFILES} end > index.html
-	zip index.html.zip index.html
 
 multifile:
 	rm -f tscript.css
