@@ -7344,7 +7344,10 @@ module.Interpreter = function(program)
 		}
 	};
 
-	this.service.audioContext = new AudioContext();
+	var AudioContext = window.AudioContext || window.webkitAudioContext;
+	if (typeof AudioContext === "function") {
+		this.service.audioContext = new AudioContext();
+	}
 
 	// exception type
 	function RuntimeError(msg, line, ch, href)
@@ -19686,7 +19689,7 @@ function createTitleBar(dlg, title, onClose)
 			"classname": "tgui-modal-titlebar-title",
 			"text": title,
 		});
-
+		
 	let close = tgui.createButton({
 			"parent": titlebar,
 			"click": function ()
@@ -19724,7 +19727,7 @@ function createDialog(title, size, onClose)
 			"style": {"width": size["width"], "height": size["height"], "background": "#eee", "overflow": "hidden"},
 		});
 	let titlebar = createTitleBar(dlg, title, onClose);
-	
+
 	dlg.onKeyDown = function(event)
 		{
 			if (event.key == "Escape")
@@ -19732,7 +19735,7 @@ function createDialog(title, size, onClose)
 				return handleDialogCloseWith(onClose)(event);
 			}
 		};
-	
+
 	return dlg;
 }
 
@@ -19907,7 +19910,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => exportFile(name.value),
 			"classname": "tgui-dialog-button"
 		});
-
+	
 	let importBtn = tgui.createElement({
 			"parent": toolbar,
 			"type": "button",
@@ -19916,6 +19919,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => importFile(),
 			"classname": "tgui-dialog-button"
 		});
+
 	let status = tgui.createElement({
 			"parent": toolbar,
 			"type": "label",
