@@ -7337,7 +7337,10 @@ module.Interpreter = function(program)
 		}
 	};
 
-	this.service.audioContext = new AudioContext();
+	var AudioContext = window.AudioContext || window.webkitAudioContext;
+	if (typeof AudioContext === "function") {
+		this.service.audioContext = new AudioContext();
+	}
 
 	// exception type
 	function RuntimeError(msg, line, ch, href)
@@ -19098,7 +19101,6 @@ let cmd_export = function()
 	let fn = title;
 	if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
 	let dlg = createDialog("export program as webpage", {"width": "calc(max(400px, 50vw))", "height": "calc(max(260px, 50vh))"});
-
 	let status = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -19910,6 +19912,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => importFile(),
 			"classname": "tgui-dialog-button"
 		});
+
 	let status = tgui.createElement({
 			"parent": toolbar,
 			"type": "label",
