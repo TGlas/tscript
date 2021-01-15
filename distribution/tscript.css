@@ -354,21 +354,22 @@ span.CodeMirror-selectedtext { background: none; }
 
 .CodeMirror-dialog {
   position: absolute;
-  left: 30%; right: 105px;
+  left: 30%; right: 106px;
   background: #ddf;
   z-index: 15;
-  padding: .1em .8em;
+  padding: 1px .6em;
   overflow: hidden;
   color: inherit;
+  font-family: sans-serif;
 }
 
 .CodeMirror-dialog-top {
-  border-bottom: 1px solid #eee;
+  box-shadow: inset 0px -1px 0px 0px #00000020;
   top: 0;
 }
 
 .CodeMirror-dialog-bottom {
-  border-top: 1px solid #eee;
+  box-shadow: inset 0px 1px 0px 0px #00000020;
   bottom: 0;
 }
 
@@ -377,12 +378,20 @@ span.CodeMirror-selectedtext { background: none; }
   outline: none;
   background: transparent;
   width: 20em;
+  height: 20px;
   color: inherit;
+  border: 1px solid #888;
   font-family: monospace;
+  padding-left: 1px;
+}
+
+.CodeMirror-dialog input:focus {
+  border-color: #000;
 }
 
 .CodeMirror-dialog button {
-  font-size: 70%;
+  font-size: 90%;
+  padding: 1px 3px;
 }
 
 .tgui
@@ -401,6 +410,7 @@ span.CodeMirror-selectedtext { background: none; }
 	border: none;
 	margin: 3px;
 	position: relative;
+	margin: 3px calc(min(3px, max(0.5px, calc(0.5vw - 3px)))); /* TODO: only for toolbar items */
 }
 
 .tgui-hidden
@@ -442,16 +452,32 @@ span.CodeMirror-selectedtext { background: none; }
 	display: block;
 }
 
+.tgui-toolbar-separator
+{
+	float: left;
+	width: 1px;
+	height: 22px;
+	background: #999;
+	margin: 3px calc(min(10px, max(1.5px, calc(1vw - 3px)))); /* TODO: only for toolbar items */
+	
+	box-shadow: 0px 1px 2px #ffffff80;
+}
+
+/* used for program status on the toolbar */
 .tgui-label
 {
 	background: #ddd;
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
+	border-color: #999;
 
+	box-shadow: inset 0px  1px 4px #00000030,
+				inset 0px -1px 4px #ffffff50;
+	
 	text-align: center;
-	padding: 3px 10px 3px 10px;
+	padding: 2px 10px 2px 10px;
+	border-radius: 2px;
 }
 
 .tgui-button-text
@@ -462,15 +488,26 @@ span.CodeMirror-selectedtext { background: none; }
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
+	
+	border-color: #eee;
+	box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+	border-radius: 1.5px;
 
 	text-align: center;
-	padding: 3px 10px 3px 10px;
+	padding: 2px 10px 2px 10px;
 }
 
 .tgui-button-text:hover
 {
-	background: #bbb;
+	background: #eee;
+	border-color: #fff;
+}
+
+.tgui-button-text:active
+{
+	background: #bbb;	
+	border-color: #888;
+	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.2);
 }
 
 .tgui-button-canvas
@@ -481,12 +518,89 @@ span.CodeMirror-selectedtext { background: none; }
 
 	border-width: 1px;
 	border-style: solid;
-	border-color: #fff #555 #555 #fff;
+	border-color: #eee;
+	
+	box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+	
+	border-radius: 1.5px;
 }
 
 .tgui-button-canvas:hover
 {
+	background: #eee;
+	border-color: #fff;
+}
+
+.tgui-button-canvas:active
+{
+	background: #bbb;	
+	border-color: #888;
+	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.2),
+				0px 0px 1px 1px #ffffff20;
+}
+
+
+
+.tgui-dialog-button
+{
+	cursor: pointer;
+	
+	background: #eee;
+	border-width: 1px;
+	border-color: #000;
+	box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
+	
+	border-radius: 2px;
+}
+.tgui-dialog-button:focus
+{
+	background: #eee;
+	border-width: 2px;
+}
+
+.tgui-dialog-button:hover
+{
+	background: #fff;
+	border-width: 2px;
+}
+
+.tgui-dialog-button:active
+{
 	background: #bbb;
+	border-width: 2px;
+	box-shadow: inset 0px 0px 3px rgba(0,0,0,0.4);
+}
+
+/* used in file dialog */
+.tgui-status-box
+{
+	background: #eee;
+	
+	font-size: 10pt;
+	
+	padding: 4px
+}
+
+
+.tgui-list-box
+{
+	box-shadow: 0px 0px 2px #00000030;
+	border-radius: 2px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ccc;
+	padding: 3px;
+}
+
+
+.tgui-text-box
+{
+	box-shadow: 0px 0px 2px #00000030;
+	border-radius: 2px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #ccc;
+	padding: 0 0 0 3px;
 }
 
 .tgui-tree
@@ -552,16 +666,59 @@ span.CodeMirror-selectedtext { background: none; }
 
 .tgui-modal
 {
-	position: fixed;
+	position: absolute;
+	margin: auto;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	
 	box-sizing: border-box;
 	background: #fff;
 	color: #000;
 	font-family: sans-serif;
-	font-size: 12pt;
+	font-size: 10pt;
 	padding: 10px;
 	border: 5px solid #888;
 	overflow-y: scroll;
 }
+
+.tgui-modal-titlebar {
+	
+	display: flex;
+	flex-direction: row;
+	
+	background: #008;
+	color: #fff;
+	padding: 2px 2px 2px 10px;
+	
+	font-weight: bold;
+	font-size: 10pt;
+	line-height: 24px;
+	user-select: none;
+}
+
+.tgui-modal-titlebar-title {
+	flex: auto;
+	color: #fff;
+	font-family: sans-serif;
+	vertical-align: middle;
+	padding: 2px;
+	height: 100%;
+	width: auto;
+}
+
+.tgui-modal-content
+{
+	position: absolute;
+	left: 0;
+	top: 24px;
+	width: 100%;
+	height: calc(100% - 24px)
+}
+
+
+
 
 .tgui-panel-container {
 	overflow: hidden;
@@ -569,18 +726,29 @@ span.CodeMirror-selectedtext { background: none; }
 	box-sizing: border-box;
 }
 
+/* this class is additionaly used for floating panels */
+.tgui-panel-float {
+	box-shadow: 0px 1px 8px #00000050,
+				0px 0px 0px 1px #00000020;
+}
+
 .tgui-panel-titlebar {
+	display: flex;
+	flex-direction: row;
+	
 	position: absolute;
 	width: 100%;
 	height: 22px;
 	line-height: 22px;
-	padding: 0 1px 0 10px;
+	padding: 1px;
 	left: 0;
 	top: 0;
 	background: #00c;
 	color: #fff;
-	font-family: sans;
-	font-size: 12pt;
+	font-family: sans-serif;
+	/*old style on browsers like firefox: font-family: serif; -- "sans" does not work and leads to "serif"*/
+	font-weight: 600;
+	font-size: 10pt;
 
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
@@ -590,13 +758,41 @@ span.CodeMirror-selectedtext { background: none; }
 	user-select: none;
 }
 
+.tgui-panel-titlebar-title {
+	flex: auto;
+	color: #fff;
+	font-family: sans-serif;
+	vertical-align: middle;
+	padding: 1px;
+	height: 100%;
+	width: auto;
+}
+
 .tgui-panel-dockbutton {
-	float: right;
-	margin: 0;
 	padding: 0;
 	width: 20px;
 	height: 20px;
-	margin: 1px 0;
+	margin: 0 0 0 1px;
+	
+	
+
+	background: #ddd;
+
+	border-width: 1px;
+	border-style: solid;
+	border-color: #eee #ccc #ccc #eee;
+	
+	box-shadow: inset -1px -1px 2px -2px #00000050,
+				inset  1px  1px 2px -2px #fffffff0;
+	
+	border-radius: 1.5px;
+}
+.tgui-panel-dockbutton:active {
+	background: #bbb;	
+	border-color: #777;
+	background-clip: padding-box;
+	box-shadow: inset 1px  0px 3px -1px #00000040,
+				inset 0px  2px 3px -1px #00000040;
 }
 
 .tgui-panel-content {
@@ -675,6 +871,7 @@ button {
 	min-height: 300px;
 	background: #aaa;
 	overflow: hidden;
+	box-shadow: inset 0px 1px 8px #00000030;
 }
 
 .ide-toolbar {
@@ -682,7 +879,8 @@ button {
 	height: 30px;
 	background: #ccc;
 	color: #000;
-	border-bottom: #888 solid 2px;
+	border-bottom: #888 solid 1px;
+	box-shadow: inset 0px -1px 0px #ddd;
 	box-sizing: border-box;
 }
 

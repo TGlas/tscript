@@ -18,9 +18,9 @@ let module = {
 	version: {
 			type: "beta",
 			major: 0,
-			minor: 5,
-			patch: 43,
-			day: 7,
+			minor: 6,
+			patch: 0,
+			day: 15,
 			month: 1,
 			year: 2021,
 			full: function()
@@ -2290,6 +2290,7 @@ module.keywords = {
 		"then": true,
 		"else": true,
 		"for": true,
+		// TODO: should 'in' be considered a keyword?
 		"do": true,
 		"while": true,
 		"break": true,

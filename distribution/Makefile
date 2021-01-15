@@ -1,5 +1,11 @@
+# all -- default recipe
+all: singlefile multifile ;
 
-all: singlefile multifile
+# non-file recipies:
+.PHONY: all singlefile zipfile multifile clean help ;
+
+
+
 
 JSFILES := ../source/codemirror.js \
 	../source/codemirror-activeline.js \
@@ -31,20 +37,50 @@ CSSFILES := ../source/codemirror.css \
 	../source/ide.css \
 	../source/documentation.css \
 
-singlefile:
+
+
+
+singlefile: index.html ;
+
+index.html: start ${JSFILES} middle ${CSSFILES} end
 	rm -f index.html
-	rm -f index.html.zip
 	cat start ${JSFILES} middle ${CSSFILES} end > index.html
+
+zipfile: index.html.zip ;
+
+index.html.zip: index.html
+	rm -f index.html.zip
 	zip index.html.zip index.html
 
-multifile:
+
+
+
+multifile: tscript.css tscript.js ;
+
+tscript.css: ${CSSFILES}
 	rm -f tscript.css
-	rm -f tscript.js
 	cat ${CSSFILES} > tscript.css
+
+tscript.js: strict ${JSFILES}
+	rm -f tscript.js
 	cat strict ${JSFILES} > tscript.js
+
+
+
 
 clean:
 	rm -f index.html
 	rm -f index.html.zip
 	rm -f tscript.css
 	rm -f tscript.js
+
+
+
+
+help:
+	@echo "make help       -- show this help"
+	@echo "make all        -- build the recipies singlefile and multifile (default)"
+	@echo "make singlefile -- build one single file containing TScript and the IDE"
+	@echo "make zipfile    -- zip the single file into a zip"
+	@echo "make multifile  -- build TScript files as separated JavaScript and CSS"
+	@echo "make clean      -- clean generated files"

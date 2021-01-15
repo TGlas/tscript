@@ -131,7 +131,25 @@ function stackinfo(value, node_id)
 					"text": "[" + value.index + "] ",
 					"classname": "ide-index",
 				});
-			tgui.createText(func.petype + " " + TScript.displayname(func), ret.element);
+				
+			let frame_head = tgui.createText(func.petype + " " + TScript.displayname(func), ret.element);
+			
+			let inner_element = value.frame.pe[value.frame.pe.length-1];
+			if(inner_element.hasOwnProperty("where"))
+			{
+				// on click, jump to line where the call into the next frame happened
+				let where = inner_element.where;
+				let where_str = " (" + where.line + ":" + where.ch + ")";
+				
+				tgui.createElement({"type": "span", "parent": ret.element, "text": " (" + where.line + ":" + where.ch + ")", "classname": "ide-index"});
+		
+				ret.element.addEventListener("click", function(event)
+				{
+					setCursorPosition(where.line, where.ch);
+					return false;
+				});
+			}
+			
 			if (value.frame.object)
 			{
 				ret.children.push({
@@ -606,7 +624,10 @@ function updateControls()
 		}
 		else
 		{
-			setCursorPosition(module.sourcecode.lineCount(), 1000000);
+			// it might be appropiate to keep the scroll position after running the program,
+			// because in a large program one would continue editing some location in the middle
+			// of the code
+			//setCursorPosition(module.sourcecode.lineCount(), 1000000);
 		}
 	}
 
@@ -849,37 +870,27 @@ let cmd_export = function()
 	if (! title || title === "") title = "tscript-export";
 	let fn = title;
 	if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
+	let dlg = createDialog("export program as webpage", {"width": "calc(max(400px, 50vw))", "height": "calc(max(260px, 50vh))"});
 
-	// export dialog
-	let dlg = tgui.createElement({
-			"type": "div",
-			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
-		});
-	let titlebar = tgui.createElement({
-			"parent": dlg,
-			"type": "div",
-			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "22px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
-			"text": "export",
-		});
 	let status = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
 			"text": "status: preparing ...",
-			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "40px", "color": "#000", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000"},
+			"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "40px", "color": "#000", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000"},
 		});
 	let download_turtle = tgui.createElement({
 			"parent": dlg,
 			"type": "a",
 			"properties": {"target": "_blank", "download": fn},
 			"text": "download standalone turtle application",
-			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "100px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
+			"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "100px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
 		});
 	let download_canvas = tgui.createElement({
 			"parent": dlg,
 			"type": "a",
 			"properties": {"target": "_blank", "download": fn},
 			"text": "download standalone canvas application",
-			"style": {"position": "absolute", "width": "40vw", "left": "5vw", "height": "40px", "line-height": "40px", "top": "160px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
+			"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "160px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
 		});
 
 	let close = tgui.createElement({
@@ -887,27 +898,9 @@ let cmd_export = function()
 			"type": "button",
 			"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
 			"text": "Close",
+			"classname": "tgui-dialog-button"
 		});
-	close.addEventListener("click", function(event)
-			{
-				saveConfig();
-				tgui.stopModal();
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			});
-
-	dlg.onKeyDown = function(event)
-			{
-				if (event.key === "Escape")
-				{
-					saveConfig();
-					tgui.stopModal();
-					event.preventDefault();
-					event.stopPropagation();
-					return false;
-				}
-			};
+	close.addEventListener("click", handleDialogCloseWith(null));
 
 	tgui.startModal(dlg);
 
@@ -1108,16 +1101,16 @@ function draw_icon_pencil_overlay(ctx)
 
 	ctx.fillStyle = "#fc9";
 	ctx.beginPath();
-	ctx.moveTo(8, 6);
-	ctx.lineTo(12, 8);
-	ctx.lineTo(10, 10);
+	ctx.moveTo( 8,  6);
+	ctx.lineTo(11,  7);
+	ctx.lineTo( 9,  9);
 	ctx.fill();
 
 	ctx.fillStyle = "#000";
 	ctx.beginPath();
-	ctx.moveTo(8, 6);
-	ctx.lineTo(10, 6);
-	ctx.lineTo(8, 8);
+	ctx.moveTo( 8,      6);
+	ctx.lineTo( 9.5,  6.5);
+	ctx.lineTo( 8.5,  7.5);
 	ctx.fill();
 
 	ctx.strokeStyle = "#000";
@@ -1136,11 +1129,14 @@ function draw_icon_pencil_overlay(ctx)
 
 	ctx.fillStyle = "#000";
 	ctx.beginPath();
-	ctx.arc(18, 16, 1.5, 0, 2*Math.PI, false);
+	ctx.arc(18, 16, 1.5, 1.75*Math.PI, 2.75*Math.PI, false);
 	ctx.fill();
 
 	ctx.fillStyle = "#f33";
-	ctx.fillRect(17, 14.5, 2, 2);
+	ctx.beginPath();
+	ctx.arc(18, 16, 1, 0, 2*Math.PI, false);
+	ctx.fill();
+	
 }
 
 
@@ -1246,7 +1242,7 @@ let buttons = [
 						ctx.lineTo(5, 15);
 						ctx.fill();
 					},
-			"tooltip": "run the program, or continue running the program",
+			"tooltip": "run/continue program",
 			"hotkey": "F7",
 		},
 		{
@@ -1258,7 +1254,7 @@ let buttons = [
 						ctx.fillRect(5, 5, 4, 10);
 						ctx.fillRect(11, 5, 4, 10);
 					},
-			"tooltip": "interrupt the program",
+			"tooltip": "interrupt program",
 			"hotkey": "shift-F7",
 		},
 		{
@@ -1269,7 +1265,7 @@ let buttons = [
 						ctx.fillStyle = "#c00";
 						ctx.fillRect(5, 5, 10, 10);
 					},
-			"tooltip": "abort the program",
+			"tooltip": "abort program",
 			"hotkey": "F10",
 		},
 		{
@@ -1298,7 +1294,7 @@ let buttons = [
 						ctx.lineTo(9.5, 10);
 						ctx.fill();
 					},
-			"tooltip": "run the current command, step into function calls",
+			"tooltip": "run current command, step into function calls",
 			"hotkey": "shift-control-F11",
 		},
 		{
@@ -1327,7 +1323,7 @@ let buttons = [
 						ctx.lineTo(9.5, 16);
 						ctx.fill();
 					},
-			"tooltip": "run the current line of code, do no step into function calls",
+			"tooltip": "run current line of code, do no step into function calls",
 			"hotkey": "control-F11",
 		},
 		{
@@ -1356,7 +1352,7 @@ let buttons = [
 						ctx.lineTo(9.5, 16);
 						ctx.fill();
 					},
-			"tooltip": "step out of the current function",
+			"tooltip": "step out of current function",
 			"hotkey": "shift-F11",
 		},
 		{
@@ -1365,12 +1361,25 @@ let buttons = [
 					{
 						let ctx = canvas.getContext("2d");
 						ctx.fillStyle = "#c00";
-						ctx.arc(10, 10, 4.0, 0, 2 * Math.PI, false);
+						ctx.arc(10, 10, 3.9, 0, 2 * Math.PI, false);
 						ctx.fill();
 					},
 			"tooltip": "toggle breakpoint",
 			"hotkey": "F8",
 		},
+		/*{
+			"click": function() { module.sourcecode.execCommand("findPersistent"); },
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.strokeStyle = "#000";
+						ctx.lineWidth = 1.5;
+						ctx.arc(8, 8, 5, 0.25*Math.PI, 2.25*Math.PI, false); // starting/ending point at 45 degrees south-east
+						ctx.lineTo(17, 17);
+						ctx.stroke();
+					},
+			"tooltip": "Search",
+		},*/
 	];
 
 // load hotkeys
@@ -1408,18 +1417,95 @@ function saveConfig()
 	localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 }
 
-function configDlg()
+
+// TODO move to tgui.js
+// creates an event handler for a dialog, whenever it is going to be closed.
+// * onClose - a cleanup callback, use null for no cleanup
+function handleDialogCloseWith(onClose)
 {
-	let dlg = tgui.createElement({
-			"type": "div",
-			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "50vh", "top": "25vh", "background": "#eee", "overflow": "hidden"},
-		});
+	return function(event)
+	{
+		if(onClose!=null) onClose();
+		tgui.stopModal();
+		if(event)
+		{
+			event.preventDefault();
+			event.stopPropagation();
+		}
+		return false;
+	}
+}
+
+// TODO move to tgui.js
+function createTitleBar(dlg, title, onClose)
+{
 	let titlebar = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
-			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "22px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
-			"text": "configuration",
+			"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0"},
+			"classname": "tgui-modal-titlebar",
 		});
+		
+	let titlebar_title = tgui.createElement({
+			"parent": titlebar,
+			"type": "span",
+			"style": {},
+			"classname": "tgui-modal-titlebar-title",
+			"text": title,
+		});
+		
+	let close = tgui.createButton({
+			"parent": titlebar,
+			"click": function ()
+					{
+						return handleDialogCloseWith(onClose)(null);
+					},
+			"width": 20,
+			"height": 20,
+			"draw": function(canvas)
+					{
+						let ctx = canvas.getContext("2d");
+						ctx.lineWidth = 2;
+						ctx.strokeStyle = "#000";
+						ctx.beginPath();
+						ctx.moveTo( 4,  4);
+						ctx.lineTo(14, 14);
+						ctx.stroke();
+						ctx.beginPath();
+						ctx.moveTo( 4, 14);
+						ctx.lineTo(14,  4);
+						ctx.stroke();
+					},
+			"classname": "tgui-panel-dockbutton",
+			"tooltip-right": "close",
+		});
+		
+	return titlebar;
+}
+
+// TODO move to tgui.js
+function createDialog(title, size, onClose)
+{
+	let dlg = tgui.createElement({
+			"type": "div",
+			"style": {"width": size["width"], "height": size["height"], "background": "#eee", "overflow": "hidden"},
+		});
+	let titlebar = createTitleBar(dlg, title, onClose);
+	
+	dlg.onKeyDown = function(event)
+		{
+			if (event.key == "Escape")
+			{
+				return handleDialogCloseWith(onClose)(event);
+			}
+		};
+	
+	return dlg;
+}
+
+function configDlg()
+{
+	let dlg = createDialog("configuration", {"width": "calc(max(370px, 50vw))", "left": "25vw", "height": "calc(max(270px, 50vh))", "top": "25vh"}, saveConfig);
 	let content = tgui.createElement({
 			"parent": dlg,
 			"type": "div",
@@ -1440,11 +1526,32 @@ function configDlg()
 			let btn = i;
 			description.click = function()
 					{
-						let dlg = tgui.createElement({
-								"type": "div",
-								"style": {"position": "fixed", "width": "30vw", "left": "35vw", "height": "30vh", "top": "35vh", "background": "#eee"},
-								"html": "<p>press the hotkey to assign, or press escape to remove the current hotkey</p>",
-							});
+						let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(220px, 30vh))"});
+						let icon = tgui.createCanvasIcon({
+							"parent": dlg, 
+							"width": 20, "height": 20, 
+							"draw": buttons[btn].draw, 
+							"style": {"position": "absolute", "left": "15px", "top": "40px"}
+						});
+						
+						tgui.createElement({
+							parent: dlg, 
+							type: "label", 
+							"text":buttons[btn].tooltip, 
+							"style":{"position": "absolute", "left": "50px", "top": "40px"}
+						});
+						tgui.createElement({
+							parent: dlg, 
+							type: "label", 
+							"text": "current hotkey: " + (buttons[btn].hotkey ? buttons[btn].hotkey : "<None>"),
+							"style":{"position": "absolute", "left": "50px", "top": "70px"}
+						});
+						tgui.createElement({
+							parent: dlg, 
+							type: "label", 
+							"text":"press the hotkey to assign, or press escape to remove the current hotkey", 
+							"style":{"position": "absolute", "left": "15px", "top": "130px"}
+						});
 						dlg.onKeyDown = function(event)
 								{
 									event.preventDefault();
@@ -1484,6 +1591,15 @@ function configDlg()
 									}
 									return false;
 								};
+							
+						let cancel = tgui.createElement({
+								"parent": dlg,
+								"type": "button",
+								"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
+								"text": "Cancel",
+								"classname": "tgui-dialog-button"
+							});
+						cancel.addEventListener("click", handleDialogCloseWith(saveConfig));
 						tgui.startModal(dlg);
 					};
 		}
@@ -1507,33 +1623,17 @@ function configDlg()
 			"type": "button",
 			"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
 			"text": "Close",
+			"classname": "tgui-dialog-button"
 		});
-	close.addEventListener("click", function(event)
-			{
-				saveConfig();
-				tgui.stopModal();
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			});
-
-	dlg.onKeyDown = function(event)
-			{
-				if (event.key === "Escape")
-				{
-					saveConfig();
-					tgui.stopModal();
-					event.preventDefault();
-					event.stopPropagation();
-					return false;
-				}
-			};
+	close.addEventListener("click", handleDialogCloseWith(saveConfig));
 
 	tgui.startModal(dlg);
 }
 
 function fileDlg(title, filename, allowNewFilename, onOkay)
 {
+	// 10px horizontal spacing
+	//  7px vertical spacing
 	// populate array of existing files
 	let files = [];
 	for (let key in localStorage)
@@ -1543,74 +1643,92 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	files.sort();
 
 	// create controls
-	let dlg = tgui.createElement({
+	let dlg = createDialog(title, {"width": "calc(max(440px, 50vw))", "left": "25vw", "height": "calc(max(260px, 70vh))", "top": "15vh"});
+	let dlgContent = tgui.createElement({
+		"parent": dlg,
+		"type": "div",
+		"classname": "tgui-modal-content",
+		"style": {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
+	});
+	
+	let toolbar = tgui.createElement({
+			"parent": dlgContent,
 			"type": "div",
-			"style": {"position": "fixed", "width": "50vw", "left": "25vw", "height": "70vh", "top": "15vh", "background": "#eee", "overflow": "hidden"},
+			"style": {"width": "100%", "height": "25px", "margin-top": "7px"},
 		});
-	let titlebar = tgui.createElement({
-			"parent": dlg,
-			"type": "div",
-			"style": {"position": "absolute", "width": "50vw", "left": "0", "height": "20px", "top": "0", "background": "#008", "color": "#fff", "padding": "2px 10px"},
-			"text": title,
+	// Toolbar contents
+	let deleteBtn = tgui.createElement({
+			"parent": toolbar,
+			"type": "button",
+			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
+			"text": "Delete file",
+			"click": () => deleteFile(name.value),
+			"classname": "tgui-dialog-button"
 		});
+
+	let exportBtn = tgui.createElement({
+			"parent": toolbar,
+			"type": "button",
+			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
+			"text": "Export",
+			"click": () => exportFile(name.value),
+			"classname": "tgui-dialog-button"
+		});
+	
+	let importBtn = tgui.createElement({
+			"parent": toolbar,
+			"type": "button",
+			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
+			"text": "Import",
+			"click": () => importFile(),
+			"classname": "tgui-dialog-button"
+		});
+	let status = tgui.createElement({
+			"parent": toolbar,
+			"type": "label",
+			"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
+			"text": (files.length > 0 ? files.length : "No") + " document"+(files.length == 1?"":"s"),
+			"classname": "tgui-status-box"
+		});
+	// end Toolbar contents
+	
 	let list = tgui.createElement({
-			"parent": dlg,
+			"parent": dlgContent,
 			"type": files.length > 0 ? "select" : "text",
 			"properties": {"size": Math.max(2, files.length)},
-			"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "calc(70vh - 80px)", "top": "30px", "background": "#fff", "overflow": "scroll"},
-			"text": files.length > 0 ? "" : "No documents saved.",
-		});
-	let buttons = tgui.createElement({
-			"parent": dlg,
-			"type": "div",
-			"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "25px", "bottom": "10px"},
+			"classname": "tgui-list-box",
+			"style": {"flex": "auto", "background": "#fff", "margin": "7px 10px", "overflow": "scroll"}
 		});
 	let name = {value: filename};
 	if (allowNewFilename)
 	{
 		name = tgui.createElement({
-				"parent": dlg,
+				"parent": dlgContent,
 				"type": "input",
-				"style": {"position": "absolute", "width": "46vw", "left": "2vw", "height": "25px", "bottom": "40px"},
+				"style": {"height": "25px", "background": "#fff", "margin": "0 10px 7px 10px"},
+				"classname": "tgui-text-box",
 				"text": filename,
 				"properties": {type:"text", placeholder:"Filename"}
 			});
-		list.style.height = "calc(70vh - 110px)";
 	}
+	let buttons = tgui.createElement({
+			"parent": dlgContent,
+			"type": "div",
+			"style": {"width": "100%", "height": "25px", "margin-bottom": "7px", "display": "flex", "justify-content": "flex-end"},
+		});
 	let okay = tgui.createElement({
 			"parent": buttons,
 			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
 			"text": "Okay",
+			"classname": "tgui-dialog-button"
 		});
 	let cancel = tgui.createElement({
 			"parent": buttons,
 			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
+			"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
 			"text": "Cancel",
-		});
-	let deleteBtn = tgui.createElement({
-			"parent": buttons,
-			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
-			"text": "Delete file",
-			"click": () => deleteFile(name.value),
-		});
-
-	let exportBtn = tgui.createElement({
-			"parent": buttons,
-			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
-			"text": "Export",
-			"click": () => exportFile(name.value)
-		});
-	
-	let importBtn = tgui.createElement({
-			"parent": buttons,
-			"type": "button",
-			"style": {"width": "100px", "height": "25px", "margin-left": "10px"},
-			"text": "Import",
-			"click": () => importFile()
+			"classname": "tgui-dialog-button"
 		});
 	// populate options
 	for (let i=0; i<files.length; i++)
@@ -1633,8 +1751,8 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 					deleteFile(name.value);
 					return false;
 				}
-			});
-	okay.addEventListener("click", function(event)
+			})
+	let handleFileConfirmation = function(event)
 			{
 				event.preventDefault();
 				event.stopPropagation();
@@ -1648,14 +1766,10 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 					}
 				}
 				return false;
-			});
-	cancel.addEventListener("click", function(event)
-			{
-				tgui.stopModal();
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			});
+			};
+	list.addEventListener("dblclick", handleFileConfirmation);
+	okay.addEventListener("click", handleFileConfirmation);
+	cancel.addEventListener("click", handleDialogCloseWith(null));
 
 	dlg.onKeyDown = function(event)
 			{
@@ -1726,20 +1840,32 @@ console.log(mime);
 	{
 		let fileImport = document.createElement('input');
 		fileImport.type = "file";
+		fileImport.multiple = true;
 		fileImport.style.display = "none";
 		fileImport.accept = ".tscript";
 
 		fileImport.addEventListener('change', async (event) =>
 		{
 			if(event.target.files){
-				var file = event.target.files[0];
-				var filename = file.name.split('.tscript')[0];
-				var data = await file.text();
-				localStorage.setItem("tscript.code." + filename, data);
-				files.push(filename);
-				var option = document.createElement('option');
-				option.text = filename;
-				tgui.stopModal();
+				for(let file of event.target.files)
+				{
+					let filename = file.name.split('.tscript')[0];
+					if(files.includes(filename))
+					{
+						/*if(!confirm("Replace file \"" + filename + "\"\nAre you sure?"))
+						{
+							return;
+						}*/
+					}
+					let data = await file.text();
+					localStorage.setItem("tscript.code." + filename, data);
+					if(!files.includes(filename))
+					{
+						files.push(filename);
+						let option = new Option(filename, filename);
+						list.appendChild(option);
+					}
+				}
 			}
 		});
 
@@ -1769,7 +1895,7 @@ module.create = function(container, options)
 						{
 							let ctx = canvas.getContext("2d");
 							ctx.strokeStyle = "#080";
-							ctx.lineWidth = 1.5;
+							ctx.lineWidth = 2;
 							ctx.beginPath();
 							ctx.moveTo( 3,  7);
 							ctx.lineTo(10,  7);
@@ -1803,16 +1929,8 @@ module.create = function(container, options)
 			tgui.createElement({
 						"type": "div",
 						"parent": module.toolbar,
-						"classname":
-						"tgui tgui-control",
-						"style": {
-							"float": "left",
-							"width": "1px",
-							"height": "22px",
-							"background": "#666",
-							"margin": "3px 10px 3px 10px"
-							}
-						});
+						"classname": "tgui tgui-control tgui-toolbar-separator"
+					});
 		}
 	}
 
@@ -1829,21 +1947,21 @@ module.create = function(container, options)
 						let ctx = canvas.getContext("2d");
 						ctx.fillStyle = "#000";
 						ctx.strokeStyle = "#000";
-						ctx.arc(9.5, 9.5, 2.0, 0, 2 * Math.PI, false);
+						ctx.arc(10, 10, 2.0, 0, 2 * Math.PI, false);
 						ctx.fill();
-						ctx.lineWidth = 3;
+						ctx.lineWidth = 2;
 						ctx.strokeStyle = "#000";
 						ctx.beginPath();
-						ctx.arc(9.5, 9.5, 5.7, 0, 2 * Math.PI, false);
+						ctx.arc(10, 10, 5.7, 0, 2 * Math.PI, false);
 						ctx.closePath();
 						ctx.stroke();
 						ctx.lineWidth = 2;
 						ctx.beginPath();
 						for (let i=0; i<12; i++)
 						{
-							let a = i * Math.PI / 6;
-							ctx.moveTo(9.5 + 6.0 * Math.cos(a), 9.5 + 6.0 * Math.sin(a));
-							ctx.lineTo(9.5 + 8.8 * Math.cos(a), 9.5 + 8.8 * Math.sin(a));
+							let a = (i+0.5) * Math.PI / 6;
+							ctx.moveTo(10 + 6.0 * Math.cos(a), 10 + 6.0 * Math.sin(a));
+							ctx.lineTo(10 + 9.4 * Math.cos(a), 10 + 9.4 * Math.sin(a));
 						}
 						ctx.stroke();
 					},
@@ -1855,45 +1973,39 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	module.programstate = tgui.createLabel({
 				"parent": module.toolbar,
 				"style": {
 					"float": "left",
-					"width": "250px",
+					"width": "calc(min(250px, max(20px, 50vw - 270px)))",
+					"height": "23px",
+					// clipping
+					"white-space": "nowrap",
+					"overflow": "hidden",
+					"direction": "rtl",
+					"text-overflow": "ellipsis clip",
+					
 					"text-align": "center",
 					"background": "#fff"
 					}
 		});
+	// TODO set tooltip text to the content text, this should apply when the statusbox is too narrow
 	module.programstate.unchecked = function() { this.setText("program has not been checked").setBackground("#ee8"); }
-	module.programstate.error = function() { this.setText("an error has occurred").setBackground("#f44"); }
-	module.programstate.running = function() { this.setText("program is running").setBackground("#8e8"); }
-	module.programstate.waiting = function() { this.setText("program is waiting").setBackground("#aca"); }
-	module.programstate.stepping = function() { this.setText("program is in stepping mode").setBackground("#8ee"); }
-	module.programstate.finished = function() { this.setText("program has finished").setBackground("#88e"); }
+	module.programstate.error     = function() { this.setText("an error has occurred").setBackground("#f44"); }
+	module.programstate.running   = function() { this.setText("program is running").setBackground("#8e8"); }
+	module.programstate.waiting   = function() { this.setText("program is waiting").setBackground("#aca"); }
+	module.programstate.stepping  = function() { this.setText("program is in stepping mode").setBackground("#8ee"); }
+	module.programstate.finished  = function() { this.setText("program has finished").setBackground("#88e"); }
 	module.programstate.unchecked();
 
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	tgui.createButton({
 			"click": function ()
@@ -1906,7 +2018,7 @@ module.create = function(container, options)
 							else
 								p.dock("right");
 						}
-						savePanelData();
+						tgui.savePanelData();
 						return false;
 					},
 			"width": 20,
@@ -1915,20 +2027,34 @@ module.create = function(container, options)
 					{
 						let ctx = canvas.getContext("2d");
 						ctx.lineWidth = 1;
-						ctx.fillStyle = "#ffe";
-						ctx.strokeStyle = "#000";
+						ctx.fillStyle = "#fff";
+						ctx.strokeStyle = "#aaa";
+						
 						ctx.beginPath();
-						ctx.rect(5.5, 6.5, 12, 9);
+						ctx.rect(2.5, 2.5, 15, 15);
 						ctx.fill();
 						ctx.stroke();
+						
+						ctx.fillStyle = "#ccc";
+						ctx.fillRect(11, 3, 1, 14);
+						
+						ctx.fillStyle = "#77f";
+						ctx.fillRect(3, 3, 14, 1);
+						ctx.fillRect(3, 12, 8, 1);
+						
+						
+						ctx.strokeStyle = "#222";
+						ctx.lineWidth = 1.7;
 						ctx.beginPath();
-						ctx.rect(2.5, 5.5, 10, 6);
-						ctx.fill();
+						ctx.arc( 9.5, 10.5, 4, 1.25*Math.PI, 2.6*Math.PI);
 						ctx.stroke();
+						
+						ctx.fillStyle = "#222";
 						ctx.beginPath();
-						ctx.rect(8.5, 2.5, 7, 5);
+						ctx.moveTo( 5,  5);
+						ctx.lineTo( 5,  10);
+						ctx.lineTo(10,  10);
 						ctx.fill();
-						ctx.stroke();
 					},
 			"parent": module.toolbar,
 			"style": {"float": "left"},
@@ -1938,15 +2064,8 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	module.iconlist = tgui.createElement({
 			"type": "div",
@@ -1964,27 +2083,91 @@ module.create = function(container, options)
 	tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
-				"classname": "tgui tgui-control",
-				"style": {
-						"float": "left",
-						"width": "1px",
-						"height": "22px",
-						"background": "#666",
-						"margin": "3px 10px 3px 10px"
-					},
-				});
+				"classname": "tgui tgui-control tgui-toolbar-separator"
+			});
 
 	if (options["documentation-button"])
 	{
 		tgui.createButton({
-				"click": function ()
-						{
-							showdoc();
-							return false;
-						},
+				"click": () => showdoc(),
 				"text": "documentation",
 				"parent": module.toolbar,
-				"style": {"float": "right"},
+				"style": {"position": "absolute", "right": "0px"},
+			});
+			
+		
+		// pressing F1 
+		tgui.setHotkey("F1", function()
+			{
+				let dlg = createDialog("open documentation", {"width": "calc(max(300px, 20vw))", "height": "calc(max(150px, 15vh))"});
+				
+				let selection = module.sourcecode.getSelection();
+				// maximum limit of 30 characters
+				// so that there is no problem, when accedentially everything
+				// in a file is selected
+				if(!selection)
+				{
+					// get current word under the cursor
+					let cursor = module.sourcecode.getCursor();
+					
+					let word = module.sourcecode.findWordAt(cursor);
+
+					selection = module.sourcecode.getRange(word.anchor, word.head);
+				}
+				selection = selection.substr(0, 30);
+				let words = selection.match(/[a-z]+/gi); // global case insensitive
+				let href = "";
+				
+				if(words)
+				{
+					href = "#search/"+words.join("/");
+				}
+					
+				tgui.createElement({
+					"parent": dlg,
+					"type": "div",
+					"style": {"margin-top": "20px"},
+					"text": "Open the documentation in another tab?",
+				});
+					
+				if(words)
+				{
+					tgui.createElement({
+						"parent": dlg,
+						"type": "div",
+						"style": {"margin-top": "10px"},
+						"text": "Search for \"" + words.join(" ") + "\"?",
+					});
+				}
+				
+				let okay = tgui.createElement({
+						"parent": dlg,
+						"type": "button",
+						"style": {"position": "absolute", "right": "120px", "bottom": "10px", "width": "100px", "height": "25px"},
+						"text": "Okay",
+						"classname": "tgui-dialog-button"
+					});
+				okay.addEventListener("click", (event) => 
+					{
+						tgui.stopModal();
+						event.preventDefault();
+						event.stopPropagation();
+						showdoc(href)
+						return false;
+					});
+					
+				let cancel = tgui.createElement({
+						"parent": dlg,
+						"type": "button",
+						"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
+						"text": "Cancel",
+						"classname": "tgui-dialog-button"
+					});
+				cancel.addEventListener("click", handleDialogCloseWith(null));
+						
+				tgui.startModal(dlg);
+				
+				okay.focus();
 			});
 	}
 
@@ -2023,9 +2206,11 @@ module.create = function(container, options)
 			indentUnit: 4,
 			tabSize: 4,
 			indentWithTabs: true,
+			// TODO: Setting in configuration: lineWrapping: true/false,
 			extraKeys: {
 					"Ctrl-D": "toggleComment",
 					"Cmd-D": "toggleComment",
+					"Ctrl-R": "replace",
 					"F3": "findNext",
 					"Shift-F3": "findPrev",
 					"Ctrl-Up": "scrollUp",
@@ -2100,6 +2285,7 @@ module.create = function(container, options)
 						let ctx = canvas.getContext("2d");
 
 						ctx.strokeStyle = "#222";
+						ctx.lineWidth = 0.6;
 
 						// white top
 						ctx.fillStyle = "#fff";
@@ -2116,14 +2302,19 @@ module.create = function(container, options)
 						ctx.moveTo( 4,  5.5);
 						ctx.lineTo( 4, 14.5);
 						ctx.lineTo(10, 17.5);
+						ctx.lineTo(10,  8.5);
+						ctx.fill();
+						
+						ctx.fillStyle = "#999";
+						ctx.beginPath();
+						ctx.moveTo(10, 17.5);
 						ctx.lineTo(16, 14.5);
 						ctx.lineTo(16,  5.5);
 						ctx.lineTo(10,  8.5);
 						ctx.fill();
 
 
-						let i = 8;
-						for(; i < 17; i+=3)
+						for(let i = 8; i < 17; i+=3)
 						{
 							ctx.beginPath();
 							ctx.moveTo( 3, i + 0.5);
@@ -2154,7 +2345,32 @@ module.create = function(container, options)
 			"icondraw": function(canvas)
 					{
 						let ctx = canvas.getContext("2d");
-
+						
+						// Outline
+						ctx.fillStyle = "#eeeeeec0";
+						ctx.moveTo( 3,  2);
+						ctx.lineTo(13,  2);
+						ctx.lineTo(13,  5);
+						ctx.lineTo(15,  5);
+						ctx.lineTo(15,  8);
+						ctx.lineTo(17,  8);
+						ctx.lineTo(17, 12);
+						ctx.lineTo(13, 12);
+						ctx.lineTo(13, 14);
+						ctx.lineTo(15, 14);
+						ctx.lineTo(15, 18);
+						ctx.lineTo( 5, 18);
+						ctx.lineTo( 5, 15);
+						ctx.lineTo( 3, 15);
+						ctx.lineTo( 3, 11);
+						ctx.lineTo( 7, 11);
+						ctx.lineTo( 7,  9);
+						ctx.lineTo( 5,  9);
+						ctx.lineTo( 5,  6);
+						ctx.lineTo( 3,  6);
+						ctx.fill();
+						
+						// Black boxes
 						ctx.fillStyle = "#000";
 						ctx.fillRect(4,  3,  8, 2);
 						ctx.fillRect(6,  6,  8, 2);
@@ -2184,9 +2400,8 @@ module.create = function(container, options)
 						// draws literally a turtle
 						let ctx = canvas.getContext("2d");
 
-						//ctx.fillStyle = "#4d5";
 						ctx.fillStyle = "#2c3";
-						ctx.strokeStyle = "#050";
+						ctx.strokeStyle = "#070";
 
 						// head
 						ctx.beginPath();
@@ -2226,7 +2441,7 @@ module.create = function(container, options)
 						ctx.fill();
 						ctx.stroke();
 
-						ctx.strokeStyle = "#0509";
+						ctx.strokeStyle = "#0709";
 						ctx.beginPath();
 						ctx.ellipse(8.7, 10.7, 4, 5, 0, -0.3*Math.PI, 0.8*Math.PI, false);
 						ctx.stroke();
