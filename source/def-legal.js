@@ -52,7 +52,8 @@ if (doc) doc.children.push({
 			<a target=\"_blank\" href=\"https://github.com/taye/interact.js/blob/master/LICENSE\">MIT license</a>.
 		</li>
 	</ul>
-	Thanks to <a href="https://github.com/manuel-fischer">Manuel Fischer</a> for contributions.
+	Thanks to <a href="https://github.com/manuel-fischer">Manuel Fischer</a> and
+	<a href="https://github.com/TheHllm">The Hllm</a> for contributions.
 	</p>
 `,
 "children": [],

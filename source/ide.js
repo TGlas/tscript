@@ -74,7 +74,7 @@ module.interpreter = null;
 // set the cursor in the editor; line is 1-based, ch (char within the line) is 0-based
 let setCursorPosition = function(line, ch)
 {
-	if (ch === undefined) ch = 0;
+	if (typeof ch === 'undefined') ch = 0;
 	module.sourcecode.setCursor(line-1, ch);
 	module.sourcecode.focus();
 //	module.sourcecode.scrollIntoView({"line": line-1, "ch": 0}, 40);
@@ -120,7 +120,7 @@ function stackinfo(value, node_id)
 	else
 	{
 		if (! value.hasOwnProperty("nodetype")) throw "[stacktree.update] missing value.nodetype";
-		if (value.nodetype == "frame")
+		if (value.nodetype === "frame")
 		{
 			ret.opened = true;
 			let func = value.frame.pe[0];
@@ -179,13 +179,13 @@ function stackinfo(value, node_id)
 				ret.ids.push(node_id + "/<temporaries>");
 			}
 		}
-		else if (value.nodetype == "typedvalue")
+		else if (value.nodetype === "typedvalue")
 		{
 			ret.opened = false;
 			ret.element = document.createElement("span");
 
 			let s = ret.opened ? value.typedvalue.type.name : TScript.previewValue(value.typedvalue);
-			if (value.typedvalue.type.id == TScript.typeid_array)
+			if (value.typedvalue.type.id === TScript.typeid_array)
 			{
 				for (let i=0; i<value.typedvalue.value.b.length; i++)
 				{
@@ -198,7 +198,7 @@ function stackinfo(value, node_id)
 				}
 				s = "Array(" + ret.children.length + ") " + s;
 			}
-			else if (value.typedvalue.type.id == TScript.typeid_dictionary)
+			else if (value.typedvalue.type.id === TScript.typeid_dictionary)
 			{
 				for (let key in value.typedvalue.value.b)
 				{
@@ -214,7 +214,7 @@ function stackinfo(value, node_id)
 				}
 				s = "Dictionary(" + ret.children.length + ") " + s;
 			}
-			else if (value.typedvalue.type.id == TScript.typeid_function)
+			else if (value.typedvalue.type.id === TScript.typeid_function)
 			{
 				if (value.typedvalue.value.b.hasOwnProperty("object"))
 				{
@@ -270,13 +270,14 @@ function stackinfo(value, node_id)
 					"text": s,
 				});
 		}
-		else if (value.nodetype == "temporaries")
+		else if (value.nodetype === "temporaries")
 		{
 			ret.opened = true;
 			ret.element = tgui.createElement({"type": "span", "parent": ret.element, "text": "[temporaries]"});
 			let j = 0;
 			for (let i=0; i<value.frame.temporaries.length; i++)
 			{
+	if (! value.frame.temporaries[i]) continue;
 				if (value.frame.temporaries[i].hasOwnProperty("type") && value.frame.temporaries[i].hasOwnProperty("value"))
 				{
 					ret.children.push({
@@ -299,7 +300,7 @@ function programinfo(value, node_id)
 {
 	let ret = { "children": [], "ids": [] };
 	if (! module.interpreter) return ret;
-	if (module.interpreter.stack.length == 0) return ret;
+	if (module.interpreter.stack.length === 0) return ret;
 
 	let frame = module.interpreter.stack[module.interpreter.stack.length - 1];
 	let current_pe = frame.pe[frame.pe.length - 1];
@@ -316,8 +317,8 @@ function programinfo(value, node_id)
 		ret.opened = true;
 
 		let pe = value;
-		if (pe.petype == "expression") pe = pe.sub;
-		while (pe.petype == "group") pe = pe.sub;
+		if (pe.petype === "expression") pe = pe.sub;
+		while (pe.petype === "group") pe = pe.sub;
 
 		ret.element = document.createElement("div");
 		let s = "";
@@ -326,17 +327,17 @@ function programinfo(value, node_id)
 		if (pe.name) s += " " + pe.name;
 
 		let petype = String(pe.petype);
-		if (petype == "global scope" || petype == "scope" || petype == "namespace")
+		if (petype === "global scope" || petype === "scope" || petype === "namespace")
 		{
 			for (let i=0; i<pe.commands.length; i++)
 			{
 				if (pe.commands[i].hasOwnProperty("builtin") && pe.commands[i].builtin) continue;
-				if (pe.commands[i].petype == "breakpoint") continue;
+				if (pe.commands[i].petype === "breakpoint") continue;
 				ret.children.push(pe.commands[i]);
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "conditional statement")
+		else if (petype === "conditional statement")
 		{
 			ret.children.push(pe.condition);
 			ret.ids.push(node_id + "/" + ret.children.length);
@@ -348,25 +349,25 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "for-loop")
+		else if (petype === "for-loop")
 		{
 			ret.children.push(pe.iterable);
 			ret.ids.push(node_id + "/" + ret.children.length);
 			ret.children.push(pe.body);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype == "do-while-loop" || petype == "while-do-loop")
+		else if (petype === "do-while-loop" || petype === "while-do-loop")
 		{
 			ret.children.push(pe.condition);
 			ret.ids.push(node_id + "/" + ret.children.length);
 			ret.children.push(pe.body);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype == "break")
+		else if (petype === "break")
 		{ }
-		else if (petype == "continue")
+		else if (petype === "continue")
 		{ }
-		else if (petype == "return")
+		else if (petype === "return")
 		{
 			if (pe.argument)
 			{
@@ -374,7 +375,7 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "variable declaration")
+		else if (petype === "variable declaration")
 		{
 			for (let i=0; i<pe.vars.length; i++)
 			{
@@ -382,7 +383,7 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "variable" || petype == "attribute")
+		else if (petype === "variable" || petype === "attribute")
 		{
 			if (pe.initializer)
 			{
@@ -390,7 +391,7 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "function" || petype == "method")
+		else if (petype === "function" || petype === "method")
 		{
 			for (let i=0; i<pe.params.length; i++)
 			{
@@ -403,12 +404,12 @@ function programinfo(value, node_id)
 			}
 			for (let i=0; i<pe.commands.length; i++)
 			{
-				if (pe.commands[i].petype == "breakpoint") continue;
+				if (pe.commands[i].petype === "breakpoint") continue;
 				ret.children.push(pe.commands[i]);
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "type")
+		else if (petype === "type")
 		{
 			ret.children.push(pe.class_constructor);
 			ret.ids.push(node_id + "/" + ret.children.length);
@@ -429,18 +430,18 @@ function programinfo(value, node_id)
 				}
 			}
 		}
-		else if (petype == "constant")
+		else if (petype === "constant")
 		{
 			s = TScript.previewValue(pe.typedvalue);
 			css = (pe.typedvalue.type.id < type2css.length) ? type2css[pe.typedvalue.type.id] : "ide-userclass";
 		}
-		else if (petype == "name")
+		else if (petype === "name")
 		{
 			// nothing to do...?
 		}
-		else if (petype == "this")
+		else if (petype === "this")
 		{ }
-		else if (petype == "closure")
+		else if (petype === "closure")
 		{
 			ret.children.push(pe.func);
 			ret.ids.push(node_id + "/" + ret.children.length);
@@ -450,7 +451,7 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "array")
+		else if (petype === "array")
 		{
 			for (let i=0; i<pe.elements.length; i++)
 			{
@@ -458,7 +459,7 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "dictionary")
+		else if (petype === "dictionary")
 		{
 			for (let i=0; i<pe.values.length; i++)
 			{
@@ -466,7 +467,7 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "function call")
+		else if (petype === "function call")
 		{
 			ret.children.push(pe.base);
 			ret.ids.push(node_id + "/" + ret.children.length);
@@ -476,7 +477,7 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "named argument")
+		else if (petype === "named argument")
 		{
 			s = pe.name;
 			if (pe.argument)
@@ -485,64 +486,64 @@ function programinfo(value, node_id)
 				ret.ids.push(node_id + "/" + ret.children.length);
 			}
 		}
-		else if (petype == "item access")
+		else if (petype === "item access")
 		{
 			ret.children.push(pe.base);
 			ret.ids.push(node_id + "/" + ret.children.length);
 			ret.children.push(pe.argument);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype.substr(0, 17) == "access of member ")
+		else if (petype.substr(0, 17) === "access of member ")
 		{
 			ret.children.push(pe.object);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype.substr(0, 11) == "assignment ")
+		else if (petype.substr(0, 11) === "assignment ")
 		{
 			ret.children.push(pe.lhs);
 			ret.ids.push(node_id + "/" + ret.children.length);
 			ret.children.push(pe.rhs);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype.substr(0, 20) == "left-unary operator ")
+		else if (petype.substr(0, 20) === "left-unary operator ")
 		{
 			ret.children.push(pe.argument);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype.substr(0, 16) == "binary operator ")
+		else if (petype.substr(0, 16) === "binary operator ")
 		{
 			ret.children.push(pe.lhs);
 			ret.ids.push(node_id + "/" + ret.children.length);
 			ret.children.push(pe.rhs);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype == "try-catch")
+		else if (petype === "try-catch")
 		{
 			ret.children.push(pe.try_part);
 			ret.ids.push(node_id + "/" + ret.children.length);
 			ret.children.push(pe.catch_part);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype == "try")
+		else if (petype === "try")
 		{
 			ret.children.push(pe.command);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype == "catch")
+		else if (petype === "catch")
 		{
 			ret.children.push(pe.command);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype == "throw")
+		else if (petype === "throw")
 		{
 			ret.children.push(pe.argument);
 			ret.ids.push(node_id + "/" + ret.children.length);
 		}
-		else if (petype == "use")
+		else if (petype === "use")
 		{ }
-		else if (petype == "no-operation")
+		else if (petype === "no-operation")
 		{ }
-		else if (petype == "breakpoint")
+		else if (petype === "breakpoint")
 		{
 			throw "[programinfo] internal error; breakpoints should not be listed";
 		}
@@ -553,7 +554,7 @@ function programinfo(value, node_id)
 
 		if (current_pes.has(pe))
 		{
-			if (pe == current_pe)
+			if (pe === current_pe)
 			{
 				css += " ide-program-current";
 				ret.visible = true;
@@ -579,14 +580,14 @@ function updateStatus()
 	// update status indicator
 	if (module.interpreter)
 	{
-		if (module.interpreter.status == "running")
+		if (module.interpreter.status === "running")
 		{
 			if (module.interpreter.background) module.programstate.running();
 			else module.programstate.stepping();
 		}
-		else if (module.interpreter.status == "waiting") module.programstate.waiting();
-		else if (module.interpreter.status == "error") module.programstate.error();
-		else if (module.interpreter.status == "finished") module.programstate.finished();
+		else if (module.interpreter.status === "waiting") module.programstate.waiting();
+		else if (module.interpreter.status === "error") module.programstate.error();
+		else if (module.interpreter.status === "finished") module.programstate.finished();
 		else throw "internal error; unknown interpreter state";
 	}
 	else
@@ -598,7 +599,7 @@ function updateStatus()
 	// update read-only state of the editor
 	if (module.sourcecode)
 	{
-		let should = module.interpreter && (module.interpreter.status == "running" || module.interpreter.status == "waiting");
+		let should = module.interpreter && (module.interpreter.status === "running" || module.interpreter.status === "waiting");
 		if (module.sourcecode.getOption("readOnly") != should)
 		{
 			module.sourcecode.setOption("readOnly", should);
@@ -661,7 +662,7 @@ module.addMessage = function(type, text, line, ch, href)
 	{
 		let s = lines[i];
 		let msg = tgui.createElement({"type": "div", "parent": td, "classname": "ide ide-message" + (type != "print" ? " ide-errormessage" : ""), "text": s});
-		if (line !== undefined)
+		if (typeof line !== 'undefined')
 		{
 			msg.ide_line = line;
 			msg.ide_ch = ch;
@@ -735,7 +736,6 @@ module.prepare_run = function()
 
 	if (program)
 	{
-//console.log(program);
 		module.interpreter = new TScript.Interpreter(program);
 		module.interpreter.service.documentation_mode = false;
 		module.interpreter.service.print = (function(msg) { module.addMessage("print", msg); });
@@ -744,16 +744,16 @@ module.prepare_run = function()
 		module.interpreter.service.prompt = (function(msg) { return prompt(msg); });
 		module.interpreter.service.message = (function(msg, line, ch, href)
 				{
-					if (line === undefined) line = null;
-					if (ch === undefined) ch = null;
-					if (href === undefined) href = "";
+					if (typeof line === 'undefined') line = null;
+					if (typeof ch === 'undefined') ch = null;
+					if (typeof href === 'undefined') href = "";
 					module.addMessage("error", msg, line, ch, href);
 				});
 		module.interpreter.service.statechanged = function(stop)
 				{
 					if (stop) updateControls();
 					else updateStatus();
-					if (module.interpreter.status == "finished") module.sourcecode.focus();
+					if (module.interpreter.status === "finished") module.sourcecode.focus();
 				};
 		module.interpreter.service.breakpoint = function()
 				{
@@ -794,8 +794,6 @@ module.prepare_run = function()
 			alert("Note: breakpoints were moved to valid locations");
 		}
 	}
-
-//	updateControls();
 };
 
 let cmd_reset = function()
@@ -809,7 +807,6 @@ let cmd_run = function()
 	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
 	if (! module.interpreter) return;
 	module.interpreter.run();
-//	updateControls();
 	module.canvas.parentElement.focus();
 };
 
@@ -817,7 +814,6 @@ let cmd_interrupt = function()
 {
 	if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) return;
 	module.interpreter.interrupt();
-//	updateControls();
 };
 
 let cmd_step_into = function()
@@ -826,7 +822,6 @@ let cmd_step_into = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_into();
-//	updateControls();
 };
 
 let cmd_step_over = function()
@@ -835,7 +830,6 @@ let cmd_step_over = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_over();
-//	updateControls();
 };
 
 let cmd_step_out = function()
@@ -844,16 +838,38 @@ let cmd_step_out = function()
 	if (! module.interpreter) return;
 	if (module.interpreter.running) return;
 	module.interpreter.step_out();
-//	updateControls();
 };
 
 let cmd_export = function()
 {
+	// don't interrupt a running program
+	if (module.interpreter)
+	{
+		if (module.interpreter.status === "running" || module.interpreter.status === "waiting") return;
+	}
+
+	// check that the code at least compiles
+	let source = ide.sourcecode.getValue();
+	clear();
+	let result = TScript.parse(source);
+	let program = result.program;
+	let errors = result.errors;
+	if (errors && errors.length > 0)
+	{
+		for (let i=0; i<errors.length; i++)
+		{
+			let err = errors[i];
+			module.addMessage(err.type, err.type + " in line " + err.line + ": " + err.message, err.line, err.ch, err.href);
+		}
+		return;
+	}
+	if (! program) { alert("internal error during export"); return; }
+
+	// create a filename for the file download from the title
 	let title = module.document.filename;
-	if (! title || title == "") title = "tscript-export";
+	if (! title || title === "") title = "tscript-export";
 	let fn = title;
 	if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
-
 	let dlg = createDialog("export program as webpage", {"width": "calc(max(400px, 50vw))", "height": "calc(max(260px, 50vh))"});
 	let status = tgui.createElement({
 			"parent": dlg,
@@ -887,16 +903,19 @@ let cmd_export = function()
 
 	tgui.startModal(dlg);
 
-	let source = ide.sourcecode.getValue().replace(/\\n/g, "\\\\n").replace(/\n/g, "\\n").replace(/'/g, "\\'");
+	// escape the TScript source code; prepare it to reside inside a single-quoted string
+	source = source.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/'/g, "\\'");
 
+	// obtain the page itself as a string
 	{
 		var xhr = new XMLHttpRequest();
 		xhr.open("GET", window.location, true);
 		xhr.overrideMimeType("text/html");
 		xhr.onreadystatechange = function()
 		{
-			if (xhr.readyState == 4)
+			if (xhr.readyState === 4)
 			{
+				// hide the IDE and let canvas or turtle run in full screen
 				let page = xhr.responseText;
 
 				let key = '"export key"';
@@ -913,12 +932,12 @@ let cmd_export = function()
 
 				let s_init = "ide.sourcecode.setValue('" + source + "');\nide.prepare_run();\nif (ide.interpreter) ide.interpreter.run(); else { cv.innerHTML = ''; cv.appendChild(ide.messagecontainer); };\n";
 				let turtle = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nide.turtle.parentNode.removeChild(ide.turtle);\ndocument.body.appendChild(ide.turtle);\nide.turtle.style.width="100vh";\nide.turtle.style.height="100vh";\n' + s_init + '}, false);\n';
-				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\ncv.style.top="0px";\nlet init = function() {\nif (cv.offsetWidth == 0 || cv.offsetHeight == 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
+				let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\ncv.style.top="0px";\nlet init = function() {\nif (cv.offsetWidth === 0 || cv.offsetHeight === 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
 
 				status.innerHTML = "status: ready for download";
-				download_turtle.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + turtle + s3);
+				download_turtle.href="data:text/html," + encodeURIComponent(s1 + title + s2 + turtle + s3);
 				download_turtle.style.display = "block";
-				download_canvas.href="data:text/plain," + encodeURIComponent(s1 + title + s2 + canvas + s3);
+				download_canvas.href="data:text/html," + encodeURIComponent(s1 + title + s2 + canvas + s3);
 				download_canvas.style.display = "block";
 			}
 		}
@@ -978,7 +997,8 @@ let cmd_load = function()
 			{
 				clear();
 
-				module.editor_title.innerHTML = "editor &mdash; " + filename;
+				module.editor_title.innerHTML = "editor &mdash; ";
+				tgui.createText(filename, module.editor_title);
 				module.document.filename = filename;
 				module.sourcecode.setValue(localStorage.getItem("tscript.code." + filename));
 				module.sourcecode.getDoc().setCursor({line: 0, ch: 0}, );
@@ -992,7 +1012,7 @@ let cmd_load = function()
 
 let cmd_save = function()
 {
-	if (module.document.filename == "")
+	if (module.document.filename === "")
 	{
 		cmd_save_as();
 		return;
@@ -1006,7 +1026,8 @@ let cmd_save_as = function()
 {
 	let dlg = fileDlg("save file as ...", module.document.filename, true, function(filename)
 			{
-				module.editor_title.innerHTML = "editor &mdash; " + filename;
+				module.editor_title.innerHTML = "editor &mdash; ";
+				tgui.createText(filename, module.editor_title);
 				module.document.filename = filename;
 				cmd_save();
 				module.sourcecode.focus();
@@ -1469,7 +1490,7 @@ function createDialog(title, size, onClose)
 			"style": {"width": size["width"], "height": size["height"], "background": "#eee", "overflow": "hidden"},
 		});
 	let titlebar = createTitleBar(dlg, title, onClose);
-	
+
 	dlg.onKeyDown = function(event)
 		{
 			if (event.key == "Escape")
@@ -1477,7 +1498,7 @@ function createDialog(title, size, onClose)
 				return handleDialogCloseWith(onClose)(event);
 			}
 		};
-	
+
 	return dlg;
 }
 
@@ -1536,7 +1557,7 @@ function configDlg()
 									event.stopPropagation();
 
 									let key = event.key;
-									if (key == "Shift" || key == "Control" || key == "Alt" || key == "OS" || key == "Meta") return;
+									if (key === "Shift" || key === "Control" || key === "Alt" || key === "OS" || key === "Meta") return;
 									if (buttons[btn].hotkey)
 									{
 										tgui.setTooltip(buttons[btn].control.dom, buttons[btn].tooltip);
@@ -1544,7 +1565,7 @@ function configDlg()
 										tgui.releaseHotkey(buttons[btn].hotkey);
 										delete buttons[btn].hotkey;
 									}
-									if (key == "Escape")
+									if (key === "Escape")
 									{
 										tgui.stopModal();
 										return false;
@@ -1616,7 +1637,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 	let files = [];
 	for (let key in localStorage)
 	{
-		if (key.substr(0, 13) == "tscript.code.") files.push(key.substr(13));
+		if (key.substr(0, 13) === "tscript.code.") files.push(key.substr(13));
 	}
 	files.sort();
 
@@ -1661,6 +1682,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			"click": () => importFile(),
 			"classname": "tgui-dialog-button"
 		});
+
 	let status = tgui.createElement({
 			"parent": toolbar,
 			"type": "label",
@@ -1722,7 +1744,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 			});
 	list.addEventListener("keydown", function(event)
 			{
-				if (event.key == "Backspace" || event.key == "Delete")
+				if (event.key === "Backspace" || event.key === "Delete")
 				{
 					event.preventDefault();
 					event.stopPropagation();
@@ -1751,14 +1773,14 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 
 	dlg.onKeyDown = function(event)
 			{
-				if (event.key == "Escape")
+				if (event.key === "Escape")
 				{
 					tgui.stopModal();
 					event.preventDefault();
 					event.stopPropagation();
 					return false;
 				}
-				else if (event.key == "Enter")
+				else if (event.key === "Enter")
 				{
 					event.preventDefault();
 					event.stopPropagation();
@@ -1793,32 +1815,37 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 		}
 	}
 
-	function download(filename, text) {
+	function download(filename, text, mime = "text/plain")
+	{
+console.log(mime);
 		var element = document.createElement('a');
-		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		element.setAttribute('href', 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(text));
 		element.setAttribute('download', filename);
-	  
+
 		element.style.display = 'none';
 		document.body.appendChild(element);
-	  
+
 		element.click();
-	  
+
 		document.body.removeChild(element);
 	}
 
-	function exportFile(filename){
+	function exportFile(filename)
+	{
 		let data = localStorage.getItem("tscript.code." + filename);
 		download(filename + ".tscript", data);
 	}
 
-	function importFile(){
+	function importFile()
+	{
 		let fileImport = document.createElement('input');
 		fileImport.type = "file";
 		fileImport.multiple = true;
 		fileImport.style.display = "none";
 		fileImport.accept = ".tscript";
 
-		fileImport.addEventListener('change', async (event) => {
+		fileImport.addEventListener('change', async (event) =>
+		{
 			if(event.target.files){
 				for(let file of event.target.files)
 				{
@@ -1986,7 +2013,7 @@ module.create = function(container, options)
 						for (let i=0; i<tgui.panels.length; i++)
 						{
 							let p = tgui.panels[i];
-							if (p.title == "editor" || p.title == "messages")
+							if (p.title === "editor" || p.title === "messages")
 								p.dock("left");
 							else
 								p.dock("right");
@@ -2449,7 +2476,7 @@ module.create = function(container, options)
 		for (let idx=10; idx<p.types.length; idx++)
 		{
 			let t = p.types[idx];
-			if (t.displayname == displayname)
+			if (t.displayname === displayname)
 			{
 				// create the object without calling the constructor, considering default values, etc
 				let obj = { "type": t, "value": { "a": [] } };
@@ -2522,8 +2549,8 @@ module.create = function(container, options)
 //	module.canvas.font_size = 16;
 	function buttonName(button)
 	{
-		if (button == 0) return "left";
-		else if (button == 1) return "middle";
+		if (button === 0) return "left";
+		else if (button === 1) return "middle";
 		else return "right";
 	}
 	function buttonNames(buttons)
