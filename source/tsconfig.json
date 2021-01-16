@@ -1,0 +1,20 @@
+{
+    "compilerOptions": 
+    {
+        "target": "es5",
+        "lib": ["DOM", "ES2018", "ESNext"],
+        "outDir": "/dist/",
+        "module": "ES6",
+        "removeComments": true,
+        "sourceMap": true,
+        "strict": true,
+        "noImplicitAny": false,
+        "noImplicitThis": false,
+        
+        "noFallthroughCasesInSwitch": true,
+        //"strictNullChecks": true //would be nice if all these would work.
+        //"noImplicitAny": true,
+        //"noImplicitReturns" : true,
+        //"noImplicitThis": true,
+    }
+}
