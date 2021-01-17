@@ -1,4 +1,4 @@
-import { Typeid } from "../typeIds";
+import { Typeid } from "./typeIds";
 
 // Recursively apply an operation to a loop-free typed data structure.
 // If a loop is detected then a "recursive data structure" exception is thrown.

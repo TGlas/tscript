@@ -1,7 +1,8 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { RuntimeError } from "../errors/RuntimeError";
+import { Options } from "../helpers/options";
 import { TScript } from "../tscript";
-import { Typeid } from "../typeIds";
+import { Typeid } from "../helpers/typeIds";
 import { defaultService } from "./defaultService";
 
 export class Interpreter{
@@ -22,12 +23,14 @@ export class Interpreter{
     public hook:any = null;         // function to be called before each step with the interpreter as this argument
     public program:any = null;  // the program to execute
     public service:any = null;  // external services, mostly for communication with the IDE
-    public timerEventEnqueued:boolean = false;
+	public timerEventEnqueued:boolean = false;
+	public options: Options;
 
     public constructor(program, service = defaultService){
         // create attributes
         this.program = program;   
-        this.service = service;  
+		this.service = service;  
+		this.options = program.options;
 
         	// start the background thread
 		this.thread = true;
@@ -212,7 +215,7 @@ export class Interpreter{
 			if (frame.ip.length !== 1 || frame.ip[0] !== 0)
 			{
 				// execute the current program element, and demand that it "did something"
-				let done = pe.step.call(this);
+				let done = pe.step.call(this, this.options);
 				ErrorHelper.assert(done, "[Interpreter.exec_step] 'done' expected");
 
 				// progress the instruction pointer
@@ -231,7 +234,7 @@ export class Interpreter{
 				if (done) break;
 
 				// execute the current program element
-				done = pe.step.call(this);
+				done = pe.step.call(this, this.options);
 				ErrorHelper.assert(! done, "[Interpreter.exec_step] 'not done' expected");
 
 				// progress the instruction pointer

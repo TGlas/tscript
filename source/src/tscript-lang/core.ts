@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { TScript } from "../tscript";
-import { Typeid } from "../typeIds";
+import { Typeid } from "../helpers/typeIds";
 import { Version } from "../version";
 import { simfalse, simtrue} from "../helpers/sims";
 
@@ -230,7 +230,7 @@ export const core = {
                             if (comp.hasOwnProperty("object")) newframe.object = comp.object;
                             if (comp.hasOwnProperty("enclosed")) newframe.enclosed = comp.enclosed;
                             this.stack.push(newframe);
-                            if (this.stack.length >= TScript.options.maxstacksize) this.error("/logic/le-1");
+                            if (this.stack.length >= this.options.maxstacksize) this.error("/logic/le-1");
                             return false;
                         }
                         else if (ip === 2)
@@ -493,6 +493,7 @@ export const core = {
             return {"type": this.program.types[Typeid.typeid_dictionary], "value": {"b": ret}};
         },
         "print": function(text) {
+            debugger;
             let s = TScript.toString.call(this, text);
             if (this.service.print) this.service.print(s);
             return {"type": this.program.types[Typeid.typeid_null], "value": {"b": null}};
@@ -684,7 +685,7 @@ export const core = {
                                     if (handler.hasOwnProperty("object")) frame.object = handler.object;
                                     if (handler.hasOwnProperty("enclosed")) frame.enclosed = handler.enclosed;
                                     this.stack.push(frame);
-                                    if (this.stack.length >= TScript.options.maxstacksize) this.error("/logic/le-1");
+                                    if (this.stack.length >= this.options.maxstacksize) this.error("/logic/le-1");
                                 }
                             }
 

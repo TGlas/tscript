@@ -1,5 +1,5 @@
 import { TScript } from "../tscript";
-import { Typeid } from "../typeIds";
+import { Typeid } from "../helpers/typeIds";
 
 export const lib_math = {
     source: require('raw-loader!./lib-math.tsc').default,

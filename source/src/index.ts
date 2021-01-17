@@ -1,5 +1,5 @@
 import { Interpreter } from "./interpreter/interpreter";
-import { Parser } from "./parser";
+import { Parser } from "./parse/parser";
 import * as _ from 'lodash';
 import { defaultService } from "./interpreter/defaultService";
 
@@ -24,6 +24,7 @@ function run_code(code:string, service:any = defaultService):void{
     else if (program)
 	{
 		let interpreter = new Interpreter(program);
+		interpreter.service = service;
 		interpreter.service.documentation_mode = false;
 		interpreter.service.print = console.log;
 		interpreter.service.alert = (function(msg) { alert(msg); });
@@ -53,4 +54,4 @@ function run_code(code:string, service:any = defaultService):void{
     }
 }
 
-run_code("print(prompt(\"Hi\"));");
+run_code("print(\"Hi\");");

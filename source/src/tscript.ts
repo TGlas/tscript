@@ -1,11 +1,8 @@
-import { Typeid } from './typeIds';
+import { Typeid } from './helpers/typeIds';
 import { recApply } from './helpers/recApply';
 import { ErrorHelper } from './errors/ErrorHelper';
 
 export class TScript{
-    
-    public static options = {checkstyle: false, maxstacksize: 1000};
-
     // obtain the "displayname", which is the "name" if no special displayname is defined
     public static displayname(arg:any):string
     {

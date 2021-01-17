@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { TScript } from "../tscript";
-import { Typeid } from "../typeIds";
+import { Typeid } from "../helpers/typeIds";
 
 export const lib_canvas = {
     source: require('raw-loader!./lib-canvas.tsc').default,
