@@ -1,4 +1,6 @@
-export const doc_concepts = {
+import { Documentation } from "./doc-combined";
+
+export const doc_concepts:Documentation = {
 "id": "concepts",
 "name": "Core Concepts",
 "title": "Core Concepts of the TScript Programming Language",
@@ -88,10 +90,10 @@ export const doc_concepts = {
 	The following documents should be helpful for readers with some
 	programming experience to get an quick overview of tscript:
 	<ul>
-	<li><a href="#/cheatsheet">Cheat Sheet</a></li>
-	<li><a href="#/concepts/overview">The Language at a Glance</a></li>
-	<li><a href="#/concepts/design">Design Decisions</a></li>
-	<li><a href="#/concepts/arithmetics">Arithmetics</a></li>
+	<li><a href="#/doc/cheatsheet">Cheat Sheet</a></li>
+	<li><a href="#/doc/concepts/overview">The Language at a Glance</a></li>
+	<li><a href="#/doc/concepts/design">Design Decisions</a></li>
+	<li><a href="#/doc/concepts/arithmetics">Arithmetics</a></li>
 	</ul>
 	</p>
 `,
@@ -116,15 +118,15 @@ export const doc_concepts = {
 		This line reveals a lot about the syntax of the language. First
 		of all, it is semicolon delimited. Variables are declared with
 		the <keyword>var</keyword> keyword. There is a special
-		<a href="#/language/types/range">range</a>
+		<a href="#/doc/language/types/range">range</a>
 		type, objects of which are created with the colon operator.
 		Function calls and computations are denoted in the usual way.
-		However, the <a href="#/language/statements/for-loops">for-loop</a>
+		However, the <a href="#/doc/language/statements/for-loops">for-loop</a>
 		is rather verbose, involving the keywords <keyword>for</keyword>,
 		<keyword>in</keyword>, and <keyword>do</keyword>.
 		</p>
 		<p>
-		<a href="#/language/declarations/functions">Functions</a>
+		<a href="#/doc/language/declarations/functions">Functions</a>
 		are declared with the <keyword>function</keyword>
 		keyword:
 		<tscript>
@@ -139,22 +141,22 @@ export const doc_concepts = {
 		<keyword>then</keyword>, which is another example of the verbose
 		syntax when it comes to control structures. It is also possible
 		to assign functions to variables and to define
-		<a href="#/language/expressions/literals/anonymous-functions">anonymous (lambda) functions enclosing variables</a>.
+		<a href="#/doc/language/expressions/literals/anonymous-functions">anonymous (lambda) functions enclosing variables</a>.
 		</p>
 		<p>
 		Like JSON, the TScript language knows the types
-		<a href="#/language/types/null">null</a>,
-		<a href="#/language/types/boolean">boolean</a>,
-		<a href="#/language/types/real">real</a> (number in JSON),
-		<a href="#/language/types/string">string</a>,
-		<a href="#/language/types/null">array</a>, and
-		<a href="#/language/types/dictionary">dictionary</a> (object in JSON),
+		<a href="#/doc/language/types/null">null</a>,
+		<a href="#/doc/language/types/boolean">boolean</a>,
+		<a href="#/doc/language/types/real">real</a> (number in JSON),
+		<a href="#/doc/language/types/string">string</a>,
+		<a href="#/doc/language/types/null">array</a>, and
+		<a href="#/doc/language/types/dictionary">dictionary</a> (object in JSON),
 		and JSON expressions are valid literals. In addition,
 		TScript has a signed 32bit
-		<a href="#/language/types/integer">integer</a> type, a
-		<a href="#/language/types/range">range</a> type, a
-		<a href="#/language/types/function">function</a> type, and a
-		<a href="#/language/types/type">type</a> type. Arrays are
+		<a href="#/doc/language/types/integer">integer</a> type, a
+		<a href="#/doc/language/types/range">range</a> type, a
+		<a href="#/doc/language/types/function">function</a> type, and a
+		<a href="#/doc/language/types/type">type</a> type. Arrays are
 		denoted with square brackets and dictionaries with curly braces.
 		Dictionary keys can be identifiers or strings:
 		<tscript>
@@ -162,11 +164,11 @@ export const doc_concepts = {
 			var d = {name: "John", age: 25};  #* a dictionary *#
 		</tscript>
 		The above example also demonstrates line and block
-		<a href="#/language/syntax/comments">comments</a>.
+		<a href="#/doc/language/syntax/comments">comments</a>.
 		</p>
 		<p>
 		The built-in types can be extended by declaring
-		<a href="#/language/declarations/classes">classes</a>:
+		<a href="#/doc/language/declarations/classes">classes</a>:
 		<tscript>
 			class Person
 			{
@@ -201,11 +203,11 @@ export const doc_concepts = {
 		</p>
 		<p>
 		Further features of interest are
-		<a href="#/language/declarations/namespaces">namespaces</a> and
-		corresponding <a href="#/language/directives/use">use directives</a>,
-		as well as <a href="#/language/statements/throw">exceptions</a>.
+		<a href="#/doc/language/declarations/namespaces">namespaces</a> and
+		corresponding <a href="#/doc/language/directives/use">use directives</a>,
+		as well as <a href="#/doc/language/statements/throw">exceptions</a>.
 		For a more complete and more formal overview of the language please
-		refer to the <a href="#/language">reference documentation</a>.
+		refer to the <a href="#/doc/language">reference documentation</a>.
 		</p>
 		<p>
 		An important aspect of TScript as a teaching language is the closed
@@ -213,11 +215,11 @@ export const doc_concepts = {
 		as a general purpose tool, capable of interacting with arbitrary
 		operating systems and libraries. Instead, its scope is limited to a
 		very specific and highly standardized working environment. It comes
-		with easily accessible <a href="#/library/turtle">turtle graphics</a>
-		and <a href="#/library/canvas">canvas graphics</a> modules. While the
+		with easily accessible <a href="#/doc/library/turtle">turtle graphics</a>
+		and <a href="#/doc/library/canvas">canvas graphics</a> modules. While the
 		former is ideal for visual demonstrations of programming concepts
 		like loops and recursion, the latter allows for the creating of all
-		kinds of (classic) games. Check the <a href="#/examples">examples</a>
+		kinds of (classic) games. Check the <a href="#/doc/examples">examples</a>
 		for demonstrations.
 		</p>
 	`,
@@ -386,7 +388,7 @@ export const doc_concepts = {
 		prone to integer overflow. However, it is rarely applied with
 		large exponents. Instead of providing a second operator that
 		is more safe with respect to integer overflow, the function
-		<a href="#/library/math">math.pow</a> is provided as an alternative.
+		<a href="#/doc/library/math">math.pow</a> is provided as an alternative.
 		</p>
 	`,
 	"children": []},

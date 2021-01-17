@@ -2,9 +2,11 @@ import { Interpreter } from "./interpreter/interpreter";
 import { Parser } from "./parse/parser";
 import * as _ from 'lodash';
 import { defaultService } from "./interpreter/defaultService";
+import { Domconverter } from "./doc/doc-domconverter";
+import { GuiManager } from "./gui/guiManager";
 
 
-function run_code(code:string, service:any = defaultService):void{
+export function run_code(code:string, service:any = defaultService):void{
     if(code[code.length - 1] !== '\n'){
         code += '\n';
     }
@@ -54,4 +56,7 @@ function run_code(code:string, service:any = defaultService):void{
     }
 }
 
-run_code("print(\"Hi\");");
+window.onload = function(){
+	let gm = new GuiManager(document.body);
+}
+run_code("print(\"Hi, Ho\".split(\"i\"));");

@@ -155,7 +155,7 @@ export function parse_class(state, parent, options: Options)
 		{
 			if (access === null) state.error("/syntax/se-56");
 
-			let pe:any = parse_function(state, cls, (stat ? "function" : "method"));
+			let pe:any = parse_function(state, cls, options, (stat ? "function" : "method"));
 			if (stat) pe.displayname = cname + "." + pe.name;
 			pe.access = access;
 			if (stat) cls.staticmembers[pe.name] = pe;

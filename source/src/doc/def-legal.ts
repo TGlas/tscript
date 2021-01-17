@@ -1,4 +1,6 @@
-export const doc_legal = {
+import { Documentation } from "./doc-combined";
+
+export const doc_legal:Documentation = {
 "id": "legal",
 "name": "Legal Information",
 "title": "Legal Information",

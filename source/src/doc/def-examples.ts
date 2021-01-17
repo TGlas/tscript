@@ -1,4 +1,6 @@
-export const doc_examples = {
+import { Documentation } from "./doc-combined";
+
+export const doc_examples:Documentation = {
 "id": "examples",
 "name": "Example Programs",
 "title": "Example Programs",
@@ -11,9 +13,9 @@ export const doc_examples = {
 	order to see the output.
 	</p>
 	<ul>
-		<li><a href="#/examples/koch-snowflake">Koch snowflake (turtle graphics)</a></li>
-		<li><a href="#/examples/game-of-life">Conway's Game of Life (canvas graphics)</a></li>
-		<li><a href="#/examples/cube-3D">Rotating 3D Cube (canvas graphics)</a></li>
+		<li><a href="#/doc/examples/koch-snowflake">Koch snowflake (turtle graphics)</a></li>
+		<li><a href="#/doc/examples/game-of-life">Conway's Game of Life (canvas graphics)</a></li>
+		<li><a href="#/doc/examples/cube-3D">Rotating 3D Cube (canvas graphics)</a></li>
 	</ul>
 `,
 "children": [

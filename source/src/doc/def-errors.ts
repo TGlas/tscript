@@ -1,4 +1,6 @@
-export const doc_errors = {
+import { Documentation } from "./doc-combined";
+
+export const doc_errors:Documentation = {
 "id": "errors",
 "name": "Error Messages",
 "title": "All Error Messages Explained",
@@ -83,7 +85,7 @@ export const doc_errors = {
 	"content": `
 		<p>
 		A syntax error indicates failure to follow the
-		<a href="#/language/syntax/EBNF-syntax">formal syntax</a>
+		<a href="#/doc/language/syntax/EBNF-syntax">formal syntax</a>
 		of the language.
 		</p>
 	`,
@@ -120,7 +122,7 @@ export const doc_errors = {
 		{"id": "se-2",
 		"content": `
 			<p>
-			Each <a href="#/language/expressions/literals/strings">string literal</a>
+			Each <a href="#/doc/language/expressions/literals/strings">string literal</a>
 			must end within a single line. This error indicates that the
 			closing double quotes character was not found before the end
 			of the line.
@@ -131,7 +133,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			A Unicode escape sequence in a
-			<a href="#/language/expressions/literals/strings">string literal</a>
+			<a href="#/doc/language/expressions/literals/strings">string literal</a>
 			is of the form <code class="code">\\uXXXX</code>, where each
 			X represents a hexadecimal digit, i.e., a digit or a lower
 			or upper case letter in the range A to F. This error is
@@ -152,10 +154,10 @@ export const doc_errors = {
 		"content": `
 			<p>
 			In a
-			<a href="#/language/expressions/literals/strings">string literal</a>,
+			<a href="#/doc/language/expressions/literals/strings">string literal</a>,
 			the backslash character starts an escape sequence. Only specific codes
 			are allowed in escape sequences, as specified
-			<a href="#/language/syntax/tokens">here</a>. This error occurs if an
+			<a href="#/doc/language/syntax/tokens">here</a>. This error occurs if an
 			invalid code is encountered.
 			</p>
 			<div class="example">
@@ -175,7 +177,7 @@ export const doc_errors = {
 			string literals, but not in the rest of the program. The exact
 			rules which character is legal in which context are determined
 			by the
-			<a href="#/language/syntax/EBNF-syntax">syntax rules</a>.
+			<a href="#/doc/language/syntax/EBNF-syntax">syntax rules</a>.
 			For example, the character <code class="code">@</code> is not
 			legal outside comments and string literals.
 			</p>
@@ -273,7 +275,7 @@ export const doc_errors = {
 			<p>
 			A context where this error may be unintuitive at first is when
 			using a function name as a
-			<a href="#/language/expressions/constants">constant expression</a>,
+			<a href="#/doc/language/expressions/constants">constant expression</a>,
 			i.e., as the default value of a parameter or as the initializer
 			of an attribute. A constant can refer to a function declaration
 			only if it is not a member of a class or if it is static.
@@ -393,7 +395,7 @@ export const doc_errors = {
 		{"id": "se-24",
 		"content": `
 			<p>
-			An <a href="#/language/expressions/literals/arrays">array literal</a>
+			An <a href="#/doc/language/expressions/literals/arrays">array literal</a>
 			starts with an opening bracket <code class="code">[</code> and stops with
 			a closing bracket <code class="code">]</code>, enclosing a comma-separated
 			list of expressions. This error indicates that neither a comma nor a
@@ -404,7 +406,7 @@ export const doc_errors = {
 		{"id": "se-25",
 		"content": `
 			<p>
-			An <a href="#/language/expressions/literals/arrays">array literal</a>
+			An <a href="#/doc/language/expressions/literals/arrays">array literal</a>
 			starts with an opening bracket <code class="code">[</code> and stops with
 			a closing bracket <code class="code">]</code>. This error indicates that
 			the end of the program was reached without encountering the closing
@@ -416,7 +418,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			Keys in a dictionary must be unique. This error occurs if a
-			<a href="#/language/expressions/literals/dictionaries">dictionary literal</a>
+			<a href="#/doc/language/expressions/literals/dictionaries">dictionary literal</a>
 			specifies the given key more than once.
 			</p>
 			<div class="example">
@@ -435,7 +437,7 @@ export const doc_errors = {
 		{"id": "se-27",
 		"content": `
 			<p>
-			A <a href="#/language/expressions/literals/dictionaries">dictionary literal</a>
+			A <a href="#/doc/language/expressions/literals/dictionaries">dictionary literal</a>
 			starts with an opening brace <code class="code">{</code> and stops with
 			a closing brace <code class="code">}</code>, enclosing a comma-separated
 			list of key-value pairs. This error indicates that neither a comma nor a
@@ -446,7 +448,7 @@ export const doc_errors = {
 		{"id": "se-28",
 		"content": `
 			<p>
-			Keys in a <a href="#/language/expressions/literals/dictionaries">dictionary literal</a>
+			Keys in a <a href="#/doc/language/expressions/literals/dictionaries">dictionary literal</a>
 			are identifiers or strings. This error is reported if neither of them
 			was found where a key was expected.
 			</p>
@@ -455,7 +457,7 @@ export const doc_errors = {
 		{"id": "se-29",
 		"content": `
 			<p>
-			In a <a href="#/language/expressions/literals/dictionaries">dictionary literal</a>,
+			In a <a href="#/doc/language/expressions/literals/dictionaries">dictionary literal</a>,
 			keys and values are separated by colons. This error occurs is there is
 			no colon found after the key.
 			</p>
@@ -464,7 +466,7 @@ export const doc_errors = {
 		{"id": "se-30",
 		"content": `
 			<p>
-			A <a href="#/language/expressions/literals/dictionaries">dictionary literal</a>
+			A <a href="#/doc/language/expressions/literals/dictionaries">dictionary literal</a>
 			starts with an opening brace <code class="code">{</code> and stops with
 			a closing brace <code class="code">}</code>. This error indicates that
 			the end of the program was reached without encountering the closing
@@ -475,7 +477,7 @@ export const doc_errors = {
 		{"id": "se-31",
 		"content": `
 			<p>
-			An <a href="#/language/expressions/literals/anonymous-functions">anonymous function</a>
+			An <a href="#/doc/language/expressions/literals/anonymous-functions">anonymous function</a>
 			expression encloses variables as a comma-separated list of named expressions
 			enclosed in square brackets. In other words, a comma or a closing bracket
 			must follow each variable or expression, otherwise this error is reported.
@@ -485,7 +487,7 @@ export const doc_errors = {
 		{"id": "se-32",
 		"content": `
 			<p>
-			An <a href="#/language/expressions/literals/anonymous-functions">anonymous function</a>
+			An <a href="#/doc/language/expressions/literals/anonymous-functions">anonymous function</a>
 			expression encloses variables as a comma-separated list of named expressions
 			in square brackets. It can enclose variables under their names in the
 			surrounding scope, or it can enclose an expression under an explicitly
@@ -508,7 +510,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			When using the keyword <keyword>function</keyword> in an expression,
-			an <a href="#/language/expressions/literals/anonymous-functions">anonymous function</a>
+			an <a href="#/doc/language/expressions/literals/anonymous-functions">anonymous function</a>
 			is declared. The keyword is followed by an optional list of closure
 			variables enclosed in square brackets or by a parameter list in
 			enclosed parentheses, otherwise this error is emitted.
@@ -518,9 +520,9 @@ export const doc_errors = {
 		{"id": "se-36",
 		"content": `
 			<p>
-			When declaring a <a href="#/language/declarations/functions">function</a>,
-			<a href="#/language/expressions/literals/anonymous-functions">anonymous function</a>,
-			or a <a href="#/language/declarations/classes">constructor</a>,
+			When declaring a <a href="#/doc/language/declarations/functions">function</a>,
+			<a href="#/doc/language/expressions/literals/anonymous-functions">anonymous function</a>,
+			or a <a href="#/doc/language/declarations/classes">constructor</a>,
 			then a parameter list must be defined, even if it is empty. This
 			error indicates that the opening parenthesis was not found.
 			</p>
@@ -529,7 +531,7 @@ export const doc_errors = {
 		{"id": "se-37",
 		"content": `
 			<p>
-			A <href="#/language/declarations/functions">function</a> declares
+			A <href="#/doc/language/declarations/functions">function</a> declares
 			parameters as a comma-separated list in parentheses. Hence, each
 			parameter must be followed by a comma or a closing parenthesis,
 			otherwise this error is reported.
@@ -540,8 +542,8 @@ export const doc_errors = {
 		"content": `
 			<p>
 			Default values of
-			<href="#/language/declarations/functions">function</a> parameters
-			must be <a href="#/language/expressions/constants">constants</a>.
+			<href="#/doc/language/declarations/functions">function</a> parameters
+			must be <a href="#/doc/language/expressions/constants">constants</a>.
 			This error indicates that the default value expression is not
 			considered a proper constant in TScript.
 			</p>
@@ -551,8 +553,8 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error indicates that a namespace, class, or function body is
-			missing in a <a href="#/language/declarations">declaration</a> or
-			<a href="#/language/expressions/literals/anonymous-functions">anonymous function</a>.
+			missing in a <a href="#/doc/language/declarations">declaration</a> or
+			<a href="#/doc/language/expressions/literals/anonymous-functions">anonymous function</a>.
 			</p>
 		`,
 		"children": []},
@@ -589,8 +591,8 @@ export const doc_errors = {
 		{"id": "se-43",
 		"content": `
 			<p>
-			A <a href="#/language/expressions/names">name</a> used to
-			<a href="#/language/expressions/member-access">access a member</a>
+			A <a href="#/doc/language/expressions/names">name</a> used to
+			<a href="#/doc/language/expressions/member-access">access a member</a>
 			of an object or a namespace is a sequence of identifiers separated
 			with dots. This error indicates that the sequence ends with a dot,
 			and not with an identifier, as it should.
@@ -601,7 +603,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			Characters of strings and items of arrays and dictionaries are
-			<a href="#/language/expressions/item-access">accessed with an index in square brackets</a>.
+			<a href="#/doc/language/expressions/item-access">accessed with an index in square brackets</a>.
 			This error indicates that the closing square bracket is missing
 			after the index expression.
 			</p>
@@ -610,7 +612,7 @@ export const doc_errors = {
 		{"id": "se-47",
 		"content": `
 			<p>
-			Within a <a href="#/language/declarations/classes">class declaration</a>
+			Within a <a href="#/doc/language/declarations/classes">class declaration</a>
 			the keyword <keyword>this</keyword> refers to the object upon which
 			a method acts. The keyword is only meaningful in contexts that do
 			actually act on an object. The use of <keyword>this</keyword> in
@@ -618,7 +620,7 @@ export const doc_errors = {
 			</p>
 			<p>
 			A second legal use of the <keyword>this</keyword> keyword is within an
-			<a href="#/language/expressions/literals/anonymous-functions">anonymous function</a>.
+			<a href="#/doc/language/expressions/literals/anonymous-functions">anonymous function</a>.
 			There it refers to the function itself, and hence allows the function
 			to recursively call itself.
 			</p>
@@ -648,7 +650,7 @@ export const doc_errors = {
 		{"id": "se-48",
 		"content": `
 			<p>
-			An <a href="#/language/statements/assignments">assignment</a> ends with
+			An <a href="#/doc/language/statements/assignments">assignment</a> ends with
 			a semicolon. This error indicates that the semicolon was not found after
 			the expression on the right-hand-side of the assignment operator.
 			</p>
@@ -665,9 +667,9 @@ export const doc_errors = {
 		{"id": "se-49",
 		"content": `
 			<p>
-			This error indicates that an <a href="#/language/expressions">expression</a>
+			This error indicates that an <a href="#/doc/language/expressions">expression</a>
 			ended in an unexpected way. When
-			<a href="#/language/statements/expressions">using an expression as a statement</a>,
+			<a href="#/doc/language/statements/expressions">using an expression as a statement</a>,
 			the expression must be terminated with a semicolon. Alternatively, the expression
 			can be continued by appending a binary operator and a further expression.
 			If these expectations are not met then this error is reported.
@@ -685,9 +687,9 @@ export const doc_errors = {
 		{"id": "se-50",
 		"content": `
 			<p>
-			In a <a href="#/language/declarations/variables">variable declaration</a>,
+			In a <a href="#/doc/language/declarations/variables">variable declaration</a>,
 			the names of all variables must be identifiers. This error indicates that
-			a different type of <a href="#/language/syntax/tokens">token</a> was
+			a different type of <a href="#/doc/language/syntax/tokens">token</a> was
 			encountered instead.
 			</p>
 		`,
@@ -696,7 +698,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error indicates that the basic syntax of a
-			<a href="#/language/declarations/variables">variable declaration</a>
+			<a href="#/doc/language/declarations/variables">variable declaration</a>
 			is violated. Variables are separated with commas, the list closes with a
 			semicolon, and each variable can have an initializer starting with an
 			equals sign. Therefore the identifier must be followed by an equals sign,
@@ -708,7 +710,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error indicates that the basic syntax of a
-			<a href="#/language/declarations/variables">variable declaration</a>
+			<a href="#/doc/language/declarations/variables">variable declaration</a>
 			is violated. Variables are separated with commas, the list closes with a
 			semicolon. Therefore the initializer must be followed by a comma or a
 			semicolon. Otherwise this error is reported.
@@ -718,7 +720,7 @@ export const doc_errors = {
 		{"id": "se-52",
 		"content": `
 			<p>
-			A <a href="#/language/declarations/functions">function declaration</a>
+			A <a href="#/doc/language/declarations/functions">function declaration</a>
 			must have a name, which is an identifier. This error indicates that the
 			name was not found after the <keyword>function</keyword> keyword.
 			</p>
@@ -735,7 +737,7 @@ export const doc_errors = {
 		{"id": "se-53",
 		"content": `
 			<p>
-			The <a href="#/language/declarations/classes">constructor of a class</a>
+			The <a href="#/doc/language/declarations/classes">constructor of a class</a>
 			can invoke the constructor of the super class with a special syntax,
 			</p>
 		`,
@@ -743,7 +745,7 @@ export const doc_errors = {
 		{"id": "se-54",
 		"content": `
 			<p>
-			A <a href="#/language/declarations/classes">class declaration</a>
+			A <a href="#/doc/language/declarations/classes">class declaration</a>
 			contains an identifier acting as the name of the class. This error
 			indicates that no identifier was found after the keyword
 			<keyword>class</keyword>.
@@ -753,7 +755,7 @@ export const doc_errors = {
 		{"id": "se-55",
 		"content": `
 			<p>
-			An <a href="#/language/declarations/classes">access modifier in a class declaration</a>
+			An <a href="#/doc/language/declarations/classes">access modifier in a class declaration</a>
 			consists of one of the keywords <keyword>public</keyword>, <keyword>protected</keyword>,
 			or <keyword>private</keyword>, followed by a colon. This error indicates that the colon
 			is missing.
@@ -763,7 +765,7 @@ export const doc_errors = {
 		{"id": "se-56",
 		"content": `
 			<p>
-			All <a href="#/language/declarations/classes">members of a class</a>
+			All <a href="#/doc/language/declarations/classes">members of a class</a>
 			are subject to a visibility modifier, consisting of one of the keywords
 			<keyword>public</keyword>, <keyword>protected</keyword>, or
 			<keyword>private</keyword>, followed by a colon. This error indicates
@@ -774,18 +776,18 @@ export const doc_errors = {
 		{"id": "se-57",
 		"content": `
 			<p>
-			<a href="#/language/declarations/classes">Attributes of a class</a>
+			<a href="#/doc/language/declarations/classes">Attributes of a class</a>
 			can be initialized in their declaration by providing an initializer.
 			This works for static as well as for non-static attributes. However,
 			in contrast to global and local variables, the initializer must be
-			a <a href="#/language/expressions/constants">constant</a>.
+			a <a href="#/doc/language/expressions/constants">constant</a>.
 			</p>
 		`,
 		"children": []},
 		{"id": "se-58",
 		"content": `
 			<p>
-			All <a href="#/language/declarations/classes">members of a class</a>
+			All <a href="#/doc/language/declarations/classes">members of a class</a>
 			are subject to visibility settings. The constructor of a class always
 			calls the constructor of the super class. This even holds for the
 			default constructor, which is generated if no constructor is
@@ -801,7 +803,7 @@ export const doc_errors = {
 		{"id": "se-59",
 		"content": `
 			<p>
-			The <a href="#/language/declarations/classes">constructor of a class</a>
+			The <a href="#/doc/language/declarations/classes">constructor of a class</a>
 			needs a <keyword>this</keyword> reference to the object to be initialized,
 			therefore it cannot be static. This error indicates that the constructor
 			was marked as static.
@@ -811,7 +813,7 @@ export const doc_errors = {
 		{"id": "se-59b",
 		"content": `
 			<p>
-			The <a href="#/language/declarations/classes">constructor of a class</a>
+			The <a href="#/doc/language/declarations/classes">constructor of a class</a>
 			must be unique, it cannot be overloaded. Remove all but one constructor
 			to fix this error.
 			</p>
@@ -820,7 +822,7 @@ export const doc_errors = {
 		{"id": "se-60",
 		"content": `
 			<p>
-			The only members of a <a href="#/language/declarations/classes">class</a>
+			The only members of a <a href="#/doc/language/declarations/classes">class</a>
 			that can be declared are attributes and methods. This error indicates that
 			a class declaration found inside the scope of another class is declared
 			static.
@@ -830,9 +832,9 @@ export const doc_errors = {
 		{"id": "se-61",
 		"content": `
 			<p>
-			The only members of a <a href="#/language/declarations/classes">class</a>
+			The only members of a <a href="#/doc/language/declarations/classes">class</a>
 			that can be declared are attributes and methods. This error indicates that
-			a <a href="#/language/directives/use">use directive</a> found inside the
+			a <a href="#/doc/language/directives/use">use directive</a> found inside the
 			scope of another class is declared static.
 			</p>
 		`,
@@ -841,7 +843,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error indicates that an unexpected entity was found inside a
-			<a href="#/language/declarations/classes">class</a>. The class syntax
+			<a href="#/doc/language/declarations/classes">class</a>. The class syntax
 			demands that only access modifiers, attribute and method declarations,
 			declarations of nested classes, and use-directives are allowed.
 			</p>
@@ -851,7 +853,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			As the error message states, a
-			<a href="#/language/declarations/namespaces">namespace</a> can be
+			<a href="#/doc/language/declarations/namespaces">namespace</a> can be
 			declared only at global scope or nested within another namespace.
 			It must not be declared at function of class scope. The error
 			message indicates that this rule was violated.
@@ -861,7 +863,7 @@ export const doc_errors = {
 		{"id": "se-64",
 		"content": `
 			<p>
-			A <a href="#/language/declarations/namespaces">namespace declaration</a>
+			A <a href="#/doc/language/declarations/namespaces">namespace declaration</a>
 			contains an identifier acting as the name of the class. This error
 			indicates that no identifier was found after the keyword
 			<keyword>namespace</keyword>.
@@ -871,7 +873,7 @@ export const doc_errors = {
 		{"id": "se-65",
 		"content": `
 			<p>
-			<a href="#/language/directives/use">Use directives</a> can have two forms.
+			<a href="#/doc/language/directives/use">Use directives</a> can have two forms.
 			This error occurs if the form starting with <keyword>from</keyword> does
 			not contain the keyword <keyword>use</keyword> after the from-clause.
 			</p>
@@ -880,7 +882,7 @@ export const doc_errors = {
 		{"id": "se-66",
 		"content": `
 			<p>
-			In a <a href="#/language/directives/use">use directive</a>, an imported name
+			In a <a href="#/doc/language/directives/use">use directive</a>, an imported name
 			can be remapped to a different name with an <keyword>as</keyword> clause.
 			However, the same mechanism does not work when importing all name from a
 			namespace. This error indicates that the attempt was made nevertheless.
@@ -891,14 +893,14 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error indicates that the <ebnf>identifier</ebnf> is missing after
-			<keyword>as</keyword> in a <a href="#/language/directives/use">use directive</a>.
+			<keyword>as</keyword> in a <a href="#/doc/language/directives/use">use directive</a>.
 			</p>
 		`,
 		"children": []},
 		{"id": "se-68",
 		"content": `
 			<p>
-			In a <a href="#/language/directives/use">use directive</a>, multiple names
+			In a <a href="#/doc/language/directives/use">use directive</a>, multiple names
 			or whole namespaces can be imported. The individual imports are separated
 			with commas, and the overall use directive closes with a semicolon. Therefore
 			each import must be followed either by a comma or by a semicolon. This error
@@ -910,7 +912,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			The error indicates that in an
-			<a href="#/language/statements/if-then-else">if-then-else</a> conditional
+			<a href="#/doc/language/statements/if-then-else">if-then-else</a> conditional
 			statement the keyword <keyword>then</keyword> is missing. This mistake is
 			commonly made by programmers coming from C-style languages which do not
 			have this keyword.
@@ -920,7 +922,7 @@ export const doc_errors = {
 		{"id": "se-70",
 		"content": `
 			<p>
-			A <a href="#/language/statements/for-loops">for loop</a> uses a loop
+			A <a href="#/doc/language/statements/for-loops">for loop</a> uses a loop
 			variable to indicate its current iteration. If this variable is declared
 			within the loop with the <keyword>var</keyword> keyword, then the variable
 			name must be a plain <ebnf>identifier</ebnf>. The error message indicates
@@ -931,7 +933,7 @@ export const doc_errors = {
 		{"id": "se-71",
 		"content": `
 			<p>
-			In a <a href="#/language/statements/for-loops">for loop</a> declaring its
+			In a <a href="#/doc/language/statements/for-loops">for loop</a> declaring its
 			own loop variable, the keyword <keyword>in</keyword> must follow the loop
 			variable declaration. This error indicates that some other token was
 			encountered.
@@ -941,7 +943,7 @@ export const doc_errors = {
 		{"id": "se-72",
 		"content": `
 			<p>
-			In a <a href="#/language/statements/for-loops">for loop</a> after the
+			In a <a href="#/doc/language/statements/for-loops">for loop</a> after the
 			container to loop over must be followed by the keyword <keyword>do</keyword>.
 			This error indicates that some other token was encountered.
 			</p>
@@ -950,7 +952,7 @@ export const doc_errors = {
 		{"id": "se-73",
 		"content": `
 			<p>
-			If a <a href="#/language/statements/for-loops">for loop</a> does not use
+			If a <a href="#/doc/language/statements/for-loops">for loop</a> does not use
 			loop variable declared within the loop, then the expression following
 			the keyword <keyword>for</keyword> could either be an externally declared
 			loop variable or the container to iterate over. In the former case, the
@@ -963,7 +965,7 @@ export const doc_errors = {
 		{"id": "se-74",
 		"content": `
 			<p>
-			The syntax of a <a href="#/language/statements/do-while-loops">do-while loop</a>
+			The syntax of a <a href="#/doc/language/statements/do-while-loops">do-while loop</a>
 			demands that the loop body is followed by the keyword <keyword>while</keyword>.
 			This error message indicates that an different token was encountered.
 			</p>
@@ -972,7 +974,7 @@ export const doc_errors = {
 		{"id": "se-75",
 		"content": `
 			<p>
-			The syntax of a <a href="#/language/statements/do-while-loops">do-while loop</a>
+			The syntax of a <a href="#/doc/language/statements/do-while-loops">do-while loop</a>
 			demands that the condition is followed by a semicolon.
 			This error message indicates that an different token was encountered.
 			It may indicate that the expression representing the loop condition
@@ -983,7 +985,7 @@ export const doc_errors = {
 		{"id": "se-76",
 		"content": `
 			<p>
-			The syntax of a <a href="#/language/statements/while-do-loops">while-do loop</a>
+			The syntax of a <a href="#/doc/language/statements/while-do-loops">while-do loop</a>
 			demands that the condition is followed by the keyword <keyword>do</keyword>.
 			This error message indicates that an different token was encountered.
 			</p>
@@ -992,7 +994,7 @@ export const doc_errors = {
 		{"id": "se-77",
 		"content": `
 			<p>
-			A <a href="#/language/statements/break-continue">break</a> statement
+			A <a href="#/doc/language/statements/break-continue">break</a> statement
 			can only appear inside a loop. This error message indicates that there
 			is no loop surrounding the statement.
 			</p>
@@ -1001,7 +1003,7 @@ export const doc_errors = {
 		{"id": "se-78",
 		"content": `
 			<p>
-			A <a href="#/language/statements/break-continue">continue</a> statement
+			A <a href="#/doc/language/statements/break-continue">continue</a> statement
 			can only appear inside a loop. This error message indicates that there
 			is no loop surrounding the statement.
 			</p>
@@ -1010,7 +1012,7 @@ export const doc_errors = {
 		{"id": "se-79",
 		"content": `
 			<p>
-			A <a href="#/language/statements/return">return</a> statement returns
+			A <a href="#/doc/language/statements/return">return</a> statement returns
 			the control flow from the current function back to the calling context.
 			When doing so, it can also return a value, which then becomes the value
 			of the function call expression. However, a constructor does not evaluate
@@ -1023,7 +1025,7 @@ export const doc_errors = {
 		{"id": "se-80",
 		"content": `
 			<p>
-			A <a href="#/language/statements/return">return</a> statement returns
+			A <a href="#/doc/language/statements/return">return</a> statement returns
 			the control flow from the current function back to the calling context.
 			When doing so, it can also return a value, which then becomes the value
 			of the function call expression. When applied at global or namespace
@@ -1036,7 +1038,7 @@ export const doc_errors = {
 		{"id": "se-81",
 		"content": `
 			<p>
-			A <a href="#/language/statements/return">return</a> statement ends with
+			A <a href="#/doc/language/statements/return">return</a> statement ends with
 			a semicolon. The error message indicates that this is not the case.
 			The most probably reason is that the return expression is broken.
 			</p>
@@ -1045,7 +1047,7 @@ export const doc_errors = {
 		{"id": "se-81b",
 		"content": `
 			<p>
-			A <a href="#/language/statements/break-continue">break</a> statement ends with
+			A <a href="#/doc/language/statements/break-continue">break</a> statement ends with
 			a semicolon. The error message indicates that this is not the case.
 			</p>
 		`,
@@ -1053,7 +1055,7 @@ export const doc_errors = {
 		{"id": "se-81c",
 		"content": `
 			<p>
-			A <a href="#/language/statements/break-continue">continue</a> statement ends with
+			A <a href="#/doc/language/statements/break-continue">continue</a> statement ends with
 			a semicolon. The error message indicates that this is not the case.
 			</p>
 		`,
@@ -1061,35 +1063,35 @@ export const doc_errors = {
 		{"id": "se-82",
 		"content": `
 			<p>
-			<a href="#/language/statements/try-catch">try-catch</a>
+			<a href="#/doc/language/statements/try-catch">try-catch</a>
 			</p>
 		`,
 		"children": []},
 		{"id": "se-84",
 		"content": `
 			<p>
-			<a href="#/language/statements/try-catch">try-catch</a>
+			<a href="#/doc/language/statements/try-catch">try-catch</a>
 			</p>
 		`,
 		"children": []},
 		{"id": "se-85",
 		"content": `
 			<p>
-			<a href="#/language/statements/try-catch">try-catch</a>
+			<a href="#/doc/language/statements/try-catch">try-catch</a>
 			</p>
 		`,
 		"children": []},
 		{"id": "se-86",
 		"content": `
 			<p>
-			<a href="#/language/statements/try-catch">try-catch</a>
+			<a href="#/doc/language/statements/try-catch">try-catch</a>
 			</p>
 		`,
 		"children": []},
 		{"id": "se-87",
 		"content": `
 			<p>
-			A <a href="#/language/statements/throw">throw</a> statements ends with
+			A <a href="#/doc/language/statements/throw">throw</a> statements ends with
 			a semicolon. This error message indicates that the semicolon is missing.
 			The most probably cause of this error is a bug in the expression preceding
 			the semicolon.
@@ -1100,8 +1102,8 @@ export const doc_errors = {
 		"content": `
 			<p>
 			Curly braces can close
-			<a href="#/language/statements/blocks">blocks of statements</a> and
-			<a href="#/language/expressions/literals/dictionaries">dictionary literals</a>.
+			<a href="#/doc/language/statements/blocks">blocks of statements</a> and
+			<a href="#/doc/language/expressions/literals/dictionaries">dictionary literals</a>.
 			This error indicates that a closing brace was found in a different
 			context. The most common cause of this error is that the declaration
 			or statement preceding the closing brace is broken.
@@ -1183,7 +1185,7 @@ export const doc_errors = {
 		{"id": "am-2",
 		"content": `
 			<p>
-			The <a href="#/language/expressions/unary-operators/minus">unary operator not</a>
+			The <a href="#/doc/language/expressions/unary-operators/minus">unary operator not</a>
 			is only defined for boolean arguments. Applying unary not
 			to a value of any other type results in this error.
 			</p>
@@ -1192,7 +1194,7 @@ export const doc_errors = {
 		{"id": "am-3",
 		"content": `
 			<p>
-			The <a href="#/language/expressions/unary-operators/plus">unary operator +</a>
+			The <a href="#/doc/language/expressions/unary-operators/plus">unary operator +</a>
 			is only defined for numerical arguments. Applying unary plus
 			to a value of any other type results in this error.
 			</p>
@@ -1201,7 +1203,7 @@ export const doc_errors = {
 		{"id": "am-4",
 		"content": `
 			<p>
-			The <a href="#/language/expressions/unary-operators/minus">unary operator -</a>
+			The <a href="#/doc/language/expressions/unary-operators/minus">unary operator -</a>
 			is only defined for numerical arguments. Applying unary minus
 			to a value of any other type results in this error.
 			</p>
@@ -1211,7 +1213,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error occurs if the
-			<a href="#/language/expressions/binary-operators/addition">binary operator +</a>
+			<a href="#/doc/language/expressions/binary-operators/addition">binary operator +</a>
 			is applied to two types that cannot be added. The operator supports
 			numeric types as well as string concatenation. All other operand
 			types result in this error.
@@ -1222,7 +1224,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error occurs if the
-			<a href="#/language/expressions/binary-operators/subtraction">binary operator -</a>
+			<a href="#/doc/language/expressions/binary-operators/subtraction">binary operator -</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
@@ -1231,7 +1233,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error occurs if the
-			<a href="#/language/expressions/binary-operators/multiplication">binary operator +</a>
+			<a href="#/doc/language/expressions/binary-operators/multiplication">binary operator +</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
@@ -1240,9 +1242,9 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error occurs if the
-			<a href="#/language/expressions/binary-operators/real-division">binary operator /</a>
+			<a href="#/doc/language/expressions/binary-operators/real-division">binary operator /</a>
 			or the
-			<a href="#/language/expressions/binary-operators/integer-division">binary operator \/\/</a>
+			<a href="#/doc/language/expressions/binary-operators/integer-division">binary operator \/\/</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
@@ -1251,7 +1253,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error occurs if the
-			<a href="#/language/expressions/binary-operators/modulo">binary operator %</a>
+			<a href="#/doc/language/expressions/binary-operators/modulo">binary operator %</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
@@ -1260,7 +1262,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error occurs if the
-			<a href="#/language/expressions/binary-operators/power">binary operator ^</a>
+			<a href="#/doc/language/expressions/binary-operators/power">binary operator ^</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
@@ -1269,7 +1271,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error occurs if the
-			<a href="#/language/expressions/binary-operators/addition">binary operator :</a>
+			<a href="#/doc/language/expressions/binary-operators/addition">binary operator :</a>
 			is applied to non-integer arguments.
 			</p>
 		`,
@@ -1278,9 +1280,9 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error occurs if one of the binary operators
-			<a href="#/language/expressions/binary-operators/and">and</a>,
-			<a href="#/language/expressions/binary-operators/or">or</a>, or
-			<a href="#/language/expressions/binary-operators/xor">xor</a>
+			<a href="#/doc/language/expressions/binary-operators/and">and</a>,
+			<a href="#/doc/language/expressions/binary-operators/or">or</a>, or
+			<a href="#/doc/language/expressions/binary-operators/xor">xor</a>
 			is applied to non-boolean non-integer arguments.
 			</p>
 		`,
@@ -1361,7 +1363,7 @@ export const doc_errors = {
 			<code class="code">&lt;</code>, <code class="code">&lt;=</code>,
 			<code class="code">&gt;</code>, and <code class="code">&gt;=</code>.
 			The rules for ordering values are found
-			<a href="#/language/expressions/binary-operators/order">here</a>.
+			<a href="#/doc/language/expressions/binary-operators/order">here</a>.
 			For example, arrays can be ordered, while dictionaries cannot.
 			</p>
 			<div class="example">
@@ -1376,7 +1378,7 @@ export const doc_errors = {
 			<p>
 			This error occurs frequently if one of the operands of the comparison
 			is of a type the programmer did not expect. E.g., a function like
-			<a href="#/language/types/string">String.find</a> usually returns a
+			<a href="#/doc/language/types/string">String.find</a> usually returns a
 			number, but in occasional error conditions it returns null. Therefore
 			a statement like
 			<tscript>
@@ -1395,7 +1397,7 @@ export const doc_errors = {
 			<code class="code">&lt;</code>, <code class="code">&lt;=</code>,
 			<code class="code">&gt;</code>, and <code class="code">&gt;=</code>.
 			The rules for ordering values are found
-			<a href="#/language/expressions/binary-operators/order">here</a>.
+			<a href="#/doc/language/expressions/binary-operators/order">here</a>.
 			For example, arrays can be ordered, while dictionaries cannot.
 			In most cases, values of different types cannot be ordered. Integer
 			and Real are exceptions:
@@ -1410,7 +1412,7 @@ export const doc_errors = {
 			<p>
 			This error occurs frequently if one of the operands of the comparison
 			is of a type the programmer did not expect. E.g., a function like
-			<a href="#/language/types/string">String.find</a> usually returns a
+			<a href="#/doc/language/types/string">String.find</a> usually returns a
 			number, but in occasional error conditions it returns null. Therefore
 			a statement like
 			<tscript>
@@ -1446,7 +1448,7 @@ export const doc_errors = {
 		{"id": "am-18",
 		"content": `
 			<p>
-			The <a href="#/language/types/array">Array.insert</a> function
+			The <a href="#/doc/language/types/array">Array.insert</a> function
 			takes a position within the array as its argument. The position
 			must neither be negative nor exceed the array length. If it does,
 			then this error is reported.
@@ -1469,7 +1471,7 @@ export const doc_errors = {
 		{"id": "am-18b",
 		"content": `
 			<p>
-			The <a href="#/language/types/array">Array.pop</a> function removes
+			The <a href="#/doc/language/types/array">Array.pop</a> function removes
 			the last item of the array, which is returned. If the array is
 			empty and hence there is no item to remove and return then this
 			error is reported.
@@ -1479,7 +1481,7 @@ export const doc_errors = {
 		{"id": "am-19",
 		"content": `
 			<p>
-			The <a href="#/language/types/array">Array.sort</a> function can
+			The <a href="#/doc/language/types/array">Array.sort</a> function can
 			sort the array according to a user-specificed order relation,
 			defined by the 'comparator' function passed as an argument to
 			Array.sort. Given two items as arguments, this function must
@@ -1492,8 +1494,8 @@ export const doc_errors = {
 		"content": `
 			<p>
 			This error is reported if the items of a
-			<a href="#/language/types/string">string</a> are
-			<a href="#/language/expressions/item-access">accessed</a>
+			<a href="#/doc/language/types/string">string</a> are
+			<a href="#/doc/language/expressions/item-access">accessed</a>
 			with an invalid index of key type. Valid index types are
 			integer and range.
 			</p>
@@ -1502,8 +1504,8 @@ export const doc_errors = {
 		{"id": "am-21",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a>
-			a single character of a <a href="#/language/types/string">string</a>
+			When <a href="#/doc/language/expressions/item-access">accessing</a>
+			a single character of a <a href="#/doc/language/types/string">string</a>
 			as an integer code, the index must be a valid position within the
 			string. This error indicates that the index is negative.
 			</p>
@@ -1512,8 +1514,8 @@ export const doc_errors = {
 		{"id": "am-22",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a>
-			a single character of a <a href="#/language/types/string">string</a>
+			When <a href="#/doc/language/expressions/item-access">accessing</a>
+			a single character of a <a href="#/doc/language/types/string">string</a>
 			as an integer code, the index must be a valid position within the
 			string. This error indicates that the index exceeds the valid range,
 			which is upper bounded by the string size.
@@ -1523,7 +1525,7 @@ export const doc_errors = {
 		{"id": "am-23",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a> an item
+			When <a href="#/doc/language/expressions/item-access">accessing</a> an item
 			of an array, a valid (zero-based) index is neither negative, not does it
 			exceed the size of the array. This error indicates that the index is
 			negative. This error is usually caused by an expression evaluating to a
@@ -1534,8 +1536,8 @@ export const doc_errors = {
 		{"id": "am-24",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a> an item
-			of an <a href="#/language/types/array">array</a>, a valid (zero-based)
+			When <a href="#/doc/language/expressions/item-access">accessing</a> an item
+			of an <a href="#/doc/language/types/array">array</a>, a valid (zero-based)
 			index is neither negative, not does it exceed the size of the array.
 			This error indicates that the index is at least at large as the array size.
 			The error is usually caused by an expression evaluating to a too large
@@ -1546,8 +1548,8 @@ export const doc_errors = {
 		{"id": "am-25",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a> an item
-			of an <a href="#/language/types/array">array</a>, a valid index is of
+			When <a href="#/doc/language/expressions/item-access">accessing</a> an item
+			of an <a href="#/doc/language/types/array">array</a>, a valid index is of
 			type integer or range. If the expression is on the left-hand-side of an
 			assignment operator, then the only valid index type is an integer. This
 			error indicates that the index expression evaluates to a different type.
@@ -1557,8 +1559,8 @@ export const doc_errors = {
 		{"id": "am-26",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a> an item
-			of an <a href="#/language/types/array">array</a>, a valid index is of
+			When <a href="#/doc/language/expressions/item-access">accessing</a> an item
+			of an <a href="#/doc/language/types/array">array</a>, a valid index is of
 			type integer or range. This error indicates that the index expression
 			evaluates to a different type.
 			</p>
@@ -1567,8 +1569,8 @@ export const doc_errors = {
 		{"id": "am-27",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a> an item
-			of a <a href="#/language/types/dictionary">dictionary</a>, the index
+			When <a href="#/doc/language/expressions/item-access">accessing</a> an item
+			of a <a href="#/doc/language/types/dictionary">dictionary</a>, the index
 			must be a key of the dictionary. This error indicates that the index was
 			not found as a key in the dictionary.
 			</p>
@@ -1577,8 +1579,8 @@ export const doc_errors = {
 		{"id": "am-28",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a> an item
-			of a <a href="#/language/types/dictionary">dictionary</a>, a valid key
+			When <a href="#/doc/language/expressions/item-access">accessing</a> an item
+			of a <a href="#/doc/language/types/dictionary">dictionary</a>, a valid key
 			is of type string. This error indicates that the index expression
 			evaluates to a different type.
 			</p>
@@ -1587,8 +1589,8 @@ export const doc_errors = {
 		{"id": "am-29",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a> an item
-			of a <a href="#/language/types/range">range</a>, the index must be a
+			When <a href="#/doc/language/expressions/item-access">accessing</a> an item
+			of a <a href="#/doc/language/types/range">range</a>, the index must be a
 			valid index of an array representing the elements of the range. This
 			means that it must not be negative, and it must be less than the size of
 			the range. This error indicates that the index is outside these bounds.
@@ -1598,8 +1600,8 @@ export const doc_errors = {
 		{"id": "am-30",
 		"content": `
 			<p>
-			When <a href="#/language/expressions/item-access">accessing</a> an item
-			of a <a href="#/language/types/range">range</a>, the index must be a of
+			When <a href="#/doc/language/expressions/item-access">accessing</a> an item
+			of a <a href="#/doc/language/types/range">range</a>, the index must be a of
 			type integer or range. This error indicates that the index expression
 			evaluates to a different type.
 			</p>
@@ -1608,7 +1610,7 @@ export const doc_errors = {
 		{"id": "am-31",
 		"content": `
 			<p>
-			The <a href="#/language/expressions/item-access">access operator</a>
+			The <a href="#/doc/language/expressions/item-access">access operator</a>
 			provides access to the items of a container. The only types supporting
 			this mechanism are string, array, dictionary, and range. This error
 			indicates that it was attempted to access an item of a different type.
@@ -1618,7 +1620,7 @@ export const doc_errors = {
 		{"id": "am-31b",
 		"content": `
 			<p>
-			The <a href="#/language/expressions/item-access">access operator</a>
+			The <a href="#/doc/language/expressions/item-access">access operator</a>
 			provides access to the items of a container. The only types supporting
 			this mechanism when used on the left-hand-side of an assignment are
 			array and dictionary. This error indicates that it was attempted to
@@ -1630,7 +1632,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			The left-hand side of an
-			<a href="#/language/statements/assignments">assignment operator</a>
+			<a href="#/doc/language/statements/assignments">assignment operator</a>
 			is an expression. However, not all expressions can be assigned to.
 			This error indicates that it was attempted to assign to an expression
 			that does not refer to a variable in which the result of the
@@ -1642,10 +1644,10 @@ export const doc_errors = {
 		"content": `
 			<p>
 			The condition in an
-			<a href="#/language/statements/if-then-else">if-then-else</a>
+			<a href="#/doc/language/statements/if-then-else">if-then-else</a>
 			statement decides whether the then-branch or the else-branch is
 			executed. The expression must evaluate to a
-			<a href="#/language/types/boolean">boolean</a> value, otherwise
+			<a href="#/doc/language/types/boolean">boolean</a> value, otherwise
 			this error is triggered.
 			</p>
 		`,
@@ -1653,7 +1655,7 @@ export const doc_errors = {
 		{"id": "am-34",
 		"content": `
 			<p>
-			A <a href="#/language/statements/for-loops">for-loop</a> iterates
+			A <a href="#/doc/language/statements/for-loops">for-loop</a> iterates
 			over the items of a range or array. If the expression defining the
 			container evaluates to a different type then this error is emitted.
 			</p>
@@ -1662,7 +1664,7 @@ export const doc_errors = {
 		{"id": "am-35",
 		"content": `
 			<p>
-			A <a href="#/language/statements/for-loops">for-loop</a> stores
+			A <a href="#/doc/language/statements/for-loops">for-loop</a> stores
 			the current item of the container it iterates over in a variable.
 			It this variable is not declared inside the loop, then an arbitrary
 			name can be provided. This name must refer to a variable, otherwise
@@ -1674,9 +1676,9 @@ export const doc_errors = {
 		"content": `
 			<p>
 			The condition in a
-			<a href="#/language/statements/do-while-loops">do-while loop</a>
+			<a href="#/doc/language/statements/do-while-loops">do-while loop</a>
 			decides whether to stop or to continue the loop. The expression
-			must evaluate to a <a href="#/language/types/boolean">boolean</a>
+			must evaluate to a <a href="#/doc/language/types/boolean">boolean</a>
 			value, otherwise this error is triggered.
 			</p>
 		`,
@@ -1685,9 +1687,9 @@ export const doc_errors = {
 		"content": `
 			<p>
 			The condition in a
-			<a href="#/language/statements/while-do-loops">while-do loop</a>
+			<a href="#/doc/language/statements/while-do-loops">while-do loop</a>
 			decides whether to stop or to continue the loop. The expression
-			must evaluate to a <a href="#/language/types/boolean">boolean</a>
+			must evaluate to a <a href="#/doc/language/types/boolean">boolean</a>
 			value, otherwise this error is triggered.
 			</p>
 		`,
@@ -1796,7 +1798,7 @@ export const doc_errors = {
 	"title": "Name Lookup Errors",
 	"content": `
 		<p>
-		A <a href="#/language/expressions/names">name</a> refers to a declaration
+		A <a href="#/doc/language/expressions/names">name</a> refers to a declaration
 		according to the name lookup rules. The errors in this category indicate
 		that something went wrong either when declaring or when resolving a name.
 		</p>
@@ -2010,7 +2012,7 @@ export const doc_errors = {
 		{"id": "ne-12",
 		"content": `
 			<p>
-			The <a href="#/language/expressions/member-access">member access operator .</a>
+			The <a href="#/doc/language/expressions/member-access">member access operator .</a>
 			references a public member of a type. If the left-hand-side evaluates
 			to a type then access is restricted to public static members.
 			This error is reported if neither the type nor any of its super
@@ -2021,7 +2023,7 @@ export const doc_errors = {
 		{"id": "ne-13",
 		"content": `
 			<p>
-			The <a href="#/language/expressions/member-access">member access operator .</a>
+			The <a href="#/doc/language/expressions/member-access">member access operator .</a>
 			references a public member of a type. This error is reported if neither
 			the type nor any of its super classes has a public member of the given
 			name.
@@ -2065,7 +2067,7 @@ export const doc_errors = {
 			One typical pitfall is that function parameters, closure parameters,
 			and the function body are all in the same scope. Therefore a function
 			parameter can conflict with a
-			<a href="#/language/expressions/literals/anonymous-functions">closure</a>
+			<a href="#/doc/language/expressions/literals/anonymous-functions">closure</a>
 			parameter, which is declared first.
 			</p>
 		`,
@@ -2073,7 +2075,7 @@ export const doc_errors = {
 		{"id": "ne-17",
 		"content": `
 			<p>
-			All <a href="#/language/expressions/literals/anonymous-functions">closure</a>
+			All <a href="#/doc/language/expressions/literals/anonymous-functions">closure</a>
 			parameters belong to the same scope, therefore they must be unique.
 			If two closure parameters are declared with same name are declared
 			then this error is reported.
@@ -2109,7 +2111,7 @@ export const doc_errors = {
 		{"id": "ne-21",
 		"content": `
 			<p>
-			The <a href="#/language/declarations/classes">constructor of a class</a>
+			The <a href="#/doc/language/declarations/classes">constructor of a class</a>
 			can invoke the constructor of the super class with a special syntax
 			starting with a colon after the parameter list. Calling the super class
 			constructor makes sense only if the class has a super class. This error
@@ -2121,7 +2123,7 @@ export const doc_errors = {
 		{"id": "ne-22",
 		"content": `
 			<p>
-			The <a href="#/language/declarations/classes">super class of a class</a>
+			The <a href="#/doc/language/declarations/classes">super class of a class</a>
 			is provided as a name. The name must refer to a type, otherwise this
 			error is reported.
 			</p>
@@ -2131,7 +2133,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			When importing all name from a namespace with a
-			<a href="#/language/directives/use">use directive</a> of the form
+			<a href="#/doc/language/directives/use">use directive</a> of the form
 			<ebnf>"use" "namespace" use-name</ebnf>, then the namespace is
 			provided as a name. This is done in the assumption that the name
 			indeed refers to a namespace, otherwise this error is triggered.
@@ -2142,7 +2144,7 @@ export const doc_errors = {
 		"content": `
 			<p>
 			When importing a name from a namespace with a
-			<a href="#/language/directives/use">use directive</a>, then the
+			<a href="#/doc/language/directives/use">use directive</a>, then the
 			names are made available in the current scope as if the declarations
 			were members of the scope. Since names of declarations in a scope
 			must be unique, this can trigger conflicts. This error indicates that
@@ -2164,7 +2166,7 @@ export const doc_errors = {
 			private constructor from outside the scope of the class, and for a
 			protected constructor, from outside the scope of its sub-classes.
 			This violates the member access rules explained
-			< href="#/language/declarations/classes">here</a>.
+			< href="#/doc/language/declarations/classes">here</a>.
 			</p>
 			<p>
 			An easy fix is to make the constructor public. However, this error
@@ -2228,7 +2230,7 @@ export const doc_errors = {
 		{"id": "ue-1",
 		"content": `
 			<p>
-			The library function <a href="#/library/core">assert</a> can be
+			The library function <a href="#/doc/library/core">assert</a> can be
 			called in order to report an error in case a condition is violated.
 			The error is reported by user or library code, not by the core language.
 			</p>
@@ -2237,7 +2239,7 @@ export const doc_errors = {
 		{"id": "ue-2",
 		"content": `
 			<p>
-			The library function <a href="#/library/core">error</a> can be
+			The library function <a href="#/doc/library/core">error</a> can be
 			called in order to report an error. The error is reported by user
 			or library code, not by the core language.
 			</p>
@@ -2246,8 +2248,8 @@ export const doc_errors = {
 		{"id": "ue-3",
 		"content": `
 			<p>
-			If an exception is <a href="#/language/statements/throw">thrown</a>
-			and not <a href="#/language/statements/try-catch">caught</a> then
+			If an exception is <a href="#/doc/language/statements/throw">thrown</a>
+			and not <a href="#/doc/language/statements/try-catch">caught</a> then
 			the program stops and this error message is reported. This is often
 			unintended by the programmer and hints at an internal error that
 			should be fixed.

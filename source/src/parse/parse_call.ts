@@ -1,5 +1,3 @@
-// Parse the argument list of a function call.
-
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { get_type, copyconstant } from "../interpreter/runner_helper";
@@ -9,6 +7,7 @@ import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
 import { Options } from "../helpers/options";
 
+// Parse the argument list of a function call.
 // The expression to the left of the parenthesis is provided as #base.
 export function parse_call(state, parent, base, options: Options)
 {
@@ -276,6 +275,7 @@ export function callstep(options: Options)
                     "object": null,
                     "enclosed": null,
 				};
+
 			if (f_obj) frame.object = f_obj;
 			if (f.value.b.hasOwnProperty("enclosed")) frame.enclosed = f.value.b.enclosed;
 			this.stack.push(frame);

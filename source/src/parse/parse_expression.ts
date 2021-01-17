@@ -586,6 +586,7 @@ export function parse_expression(state, parent, options, lhs:any | undefined = u
 										if (m.petype === "method")
 										{
 											// non-static method
+
 											frame.temporaries.push({"type": this.program.types[Typeid.typeid_function], "value": {"b": {"func": m, "object": object}}});
 										}
 										else if (m.petype === "attribute")

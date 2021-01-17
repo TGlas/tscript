@@ -493,7 +493,6 @@ export const core = {
             return {"type": this.program.types[Typeid.typeid_dictionary], "value": {"b": ret}};
         },
         "print": function(text) {
-            debugger;
             let s = TScript.toString.call(this, text);
             if (this.service.print) this.service.print(s);
             return {"type": this.program.types[Typeid.typeid_null], "value": {"b": null}};
