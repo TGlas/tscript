@@ -10,6 +10,7 @@
         "strict": true,
         "noImplicitAny": false,
         "noImplicitThis": false,
+        "esModuleInterop": true,
         
         "noFallthroughCasesInSwitch": true,
         //"strictNullChecks": true //would be nice if all these would work.

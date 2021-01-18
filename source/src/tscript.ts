@@ -413,7 +413,7 @@ export class TScript{
     // Convert typed value to string, as a "preview" for display.
     // The preview does not attempt to represent the value completely,
     // however, it makes an effort to make its type recognizable.
-    public static previewValue(arg, depth)
+    public static previewValue(arg, depth:number = 1)
     {
         if (typeof depth === 'undefined') depth = 1;
         if (! arg.hasOwnProperty("type") || ! arg.hasOwnProperty("value")) throw "[module.previewValue] invalid argument";

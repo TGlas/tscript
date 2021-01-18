@@ -2,9 +2,21 @@ import { Interpreter } from "./interpreter/interpreter";
 import { Parser } from "./parse/parser";
 import * as _ from 'lodash';
 import { defaultService } from "./interpreter/defaultService";
-import { Domconverter } from "./doc/doc-domconverter";
-import { GuiManager } from "./gui/guiManager";
+import { documentationData } from "./doc/doc-combined";
+import { ide } from "./gui/ide";
 
+let doc:any = documentationData;
+
+window.addEventListener("load", function(event)
+{
+	let container:any = document.getElementById("ide-container");
+	container.innerHTML = "";
+	if (window.location.search == "?doc") doc.create(container);
+	else ide.create(container);
+}, false);
+
+
+/*
 
 export function run_code(code:string, service:any = defaultService):void{
     if(code[code.length - 1] !== '\n'){
@@ -56,7 +68,9 @@ export function run_code(code:string, service:any = defaultService):void{
     }
 }
 
+/*
 window.onload = function(){
 	let gm = new GuiManager(document.body);
 }
-run_code("print(\"Hi, Ho\".split(\"i\"));");
+
+run_code("print(\"Hi, Ho\".split(\"i\"));");*/

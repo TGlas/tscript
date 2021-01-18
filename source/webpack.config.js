@@ -20,7 +20,7 @@ module.exports = [
     },
     output: {
       filename: 'bundle.js',
-      path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(__dirname, '../dist'),
     },
   },
   {
@@ -40,7 +40,7 @@ module.exports = [
       }),
     ],
     output:{
-      path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(__dirname, '../dist'),
     }
   }
 ];

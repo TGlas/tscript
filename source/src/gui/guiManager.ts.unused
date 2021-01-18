@@ -1,4 +1,5 @@
 import { Domconverter } from "../doc/doc-domconverter";
+import { TreeControl } from "../doc/treeControl";
 import { run_code } from "../index";
 
 export class GuiManager{
@@ -46,7 +47,12 @@ export class GuiManager{
 
     private renderDoc(path:string){
         console.log(path);
-        this.body.append(Domconverter.generateDomObject(path));
+        let div = document.createElement('div');
+        div.append(Domconverter.generateDomObject(path));
+        let tc = new TreeControl();
+        
+        div.append(tc.createDomObject());
+        this.body.append(div);
     }
 
     private clearUi(){
