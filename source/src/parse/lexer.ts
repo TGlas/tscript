@@ -67,7 +67,7 @@ export class Lexer{
     // Note that one cannot rely on the token value alone to infer its type,
     // since string tokens can take on any value. Therefore a token must
     // always be tested for its type first, and then for a certain value.
-    public static get_token(state, options: Options, peek: any | undefined = undefined)
+    public static get_token(state, options: Options, peek: boolean | undefined = undefined)
     {
         peek = (typeof peek !== 'undefined') ? peek : false;
         let where = (peek) ? state.get() : false;

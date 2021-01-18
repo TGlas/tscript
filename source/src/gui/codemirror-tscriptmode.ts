@@ -1,5 +1,5 @@
 // CodeMirror mode "text/tscript"
-import  {default as cm}  from 'codemirror';
+import  {default as cm}  from '../../node_modules/codemirror';
 
 
 (function(mod) {

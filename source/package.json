@@ -4,7 +4,9 @@
   "description": "",
   "main": "tscript.js",
   "scripts": {
-    "build": "webpack"
+    "build": "webpack --mode=production",
+    "develop": "webpack --mode=development -w",
+    "test": "echo \"No tests.\" && exit 0"
   },
   "devDependencies": {
     "@interactjs/types": "^1.10.2",

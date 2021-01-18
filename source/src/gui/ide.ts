@@ -7,7 +7,11 @@ import { Parser } from "../parse/parser";
 import { Interpreter } from "../interpreter/interpreter";
 import { defaultOptions } from "../helpers/options";
 import { defaultService } from "../interpreter/defaultService";
+import * as discard1 from './codemirror-tscriptmode';
 import  {default as cm}  from 'codemirror';
+
+
+discard1; //use it or it will get removed
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development

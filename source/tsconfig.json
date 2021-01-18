@@ -11,6 +11,7 @@
         "noImplicitAny": false,
         "noImplicitThis": false,
         "esModuleInterop": true,
+        "moduleResolution": "node",
         
         "noFallthroughCasesInSwitch": true,
         //"strictNullChecks": true //would be nice if all these would work.

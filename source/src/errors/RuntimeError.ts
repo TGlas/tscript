@@ -6,8 +6,10 @@ export class RuntimeError extends Error{
 
     public constructor(msg, line:any = undefined, ch:any = undefined, href:any = undefined)
 	{
-        super(msg);
-
+        super();
+		this.message = msg;
+		this.name = "Runtime Error";
+		
 		if (typeof line === 'undefined') line = null;
 		if (typeof ch === 'undefined') ch = null;
 		if (typeof href === 'undefined') href = "";

@@ -155,7 +155,7 @@ export const doc_stdlib:Documentation = {
 			function that is called with an event parameter whenever the
 			corresponding event is triggered. The event name is provided
 			as a string. The most common use of this function is to handle
-			GUI-related events emitted by the <a href="#/doc/library/canvas">canvas</a>.
+			GUI-related events emitted by the <a href="?doc#/library/canvas">canvas</a>.
 			The standard library provides a &quot;timer&quot; event,
 			which is fired roughly every 20 milliseonds.
 			<tscript>
@@ -331,7 +331,7 @@ export const doc_stdlib:Documentation = {
 		</td></tr>
 		<tr><th>pow</th><td>
 			The <code class="code">function math.pow(b, e)</code> returns the <i>e</i>-th power of <i>b</i>.
-			It is an alternative to <a href="#/doc/language/expressions/binary-operators/power">operator ^</a> that always works with reals.
+			It is an alternative to <a href="?doc#/language/expressions/binary-operators/power">operator ^</a> that always works with reals.
 		</td></tr>
 		<tr><th>sign</th><td>
 			The <code class="code">function math.sign(x)</code> returns the

@@ -243,7 +243,7 @@ export class Interpreter{
 		}
 		catch (ex)
 		{
-			if (ex instanceof RuntimeError)
+			if (ex.name ===  "Runtime Error")
 			{
 				this.halt = null;
 				this.background = false;

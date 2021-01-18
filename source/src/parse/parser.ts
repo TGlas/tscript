@@ -179,9 +179,8 @@ export class Parser{
         }
         catch (ex)
         {
-            console.log(ex);
             // ignore the actual exception and rely on state.errors instead
-            if (ex instanceof ParseError)
+            if (ex.name ===  "Parse Error")
             {
                 if (state.errors.length > 0) return { "program": null, "errors": state.errors };
             }

@@ -2,17 +2,26 @@ import { Interpreter } from "./interpreter/interpreter";
 import { Parser } from "./parse/parser";
 import * as _ from 'lodash';
 import { defaultService } from "./interpreter/defaultService";
-import { documentationData } from "./doc/doc-combined";
 import { ide } from "./gui/ide";
+import { doc } from "./doc/doc";
+import { runTests } from "./tests/runtests";
 
-let doc:any = documentationData;
 
 window.addEventListener("load", function(event)
 {
 	let container:any = document.getElementById("ide-container");
 	container.innerHTML = "";
-	if (window.location.search == "?doc") doc.create(container);
-	else ide.create(container);
+	switch(window.location.search.slice(1)){
+		case 'doc':
+			doc.create(container);
+			break;
+		case 'unittest':
+			runTests(container);
+			break;
+		default:
+			ide.create(container);
+			break;
+	}
 }, false);
 
 
