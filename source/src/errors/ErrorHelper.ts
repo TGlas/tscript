@@ -28,8 +28,12 @@ export class ErrorHelper{
 	}
 	
 	    // raise a fatal runtime error, preserve the interpreter state for debugging
-	public static error(path, args:Array<any> | undefined = undefined, stack: any | undefined = undefined)
+	public static error(path, args:Array<any> | undefined = undefined, stack: any = undefined)
 	{
+		if(typeof stack === "undefined"){
+			stack = {length:0};
+		}
+
 		if (args === undefined) args = [];
 
 		let message = ErrorHelper.composeError(path, args);

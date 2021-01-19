@@ -218,7 +218,7 @@ export function callstep(options: Options)
 				frame.temporaries.push(f_obj);
 			}
 		}
-		else this.error("/syntax/se-16", [TScript.displayname(f.type)]);
+		else ErrorHelper.error("/syntax/se-16", [TScript.displayname(f.type)]);
 
 		// argument list for the call
 		let m = f_pe.params.length;
@@ -236,18 +236,18 @@ export function callstep(options: Options)
 				{
 					if (f_pe.params[j].hasOwnProperty("name") && f_pe.params[j].name === name)
 					{
-						if (typeof params[j] !== 'undefined') this.error("/name/ne-1", [name, TScript.displayname(f_pe)]);
+						if (typeof params[j] !== 'undefined') ErrorHelper.error("/name/ne-1", [name, TScript.displayname(f_pe)]);
 						params[j] = args[i];
 						found = true;
 						break;
 					}
 				}
-				if (! found) this.error("/name/ne-2", [name, TScript.displayname(f_pe)]);
+				if (! found) ErrorHelper.error("/name/ne-2", [name, TScript.displayname(f_pe)]);
 			}
 			else
 			{
 				if (i < params.length) params[i] = args[i];
-				else this.error("/name/ne-3", [TScript.displayname(f_pe)]);
+				else ErrorHelper.error("/name/ne-3", [TScript.displayname(f_pe)]);
 			}
 		}
 
@@ -257,7 +257,7 @@ export function callstep(options: Options)
 			if (typeof params[j] === 'undefined')
 			{
 				if (f_pe.params[j].hasOwnProperty("defaultvalue")) params[j] = f_pe.params[j].defaultvalue;
-				else this.error("/name/ne-4", [(j+1), TScript.displayname(f_pe)]);
+				else ErrorHelper.error("/name/ne-4", [(j+1), TScript.displayname(f_pe)]);
 			}
 		}
 
@@ -279,7 +279,7 @@ export function callstep(options: Options)
 			if (f_obj) frame.object = f_obj;
 			if (f.value.b.hasOwnProperty("enclosed")) frame.enclosed = f.value.b.enclosed;
 			this.stack.push(frame);
-			if (this.stack.length >= options.maxstacksize) this.error("/logic/le-1");
+			if (this.stack.length >= options.maxstacksize) ErrorHelper.error("/logic/le-1");
 		}
 		return true;
 	}

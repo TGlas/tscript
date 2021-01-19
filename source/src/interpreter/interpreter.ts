@@ -413,4 +413,8 @@ export class Interpreter{
 		}
 		return null;
 	}
+
+	public error(path: string, args: Array<any> | undefined){
+		ErrorHelper.error(path, args, this.stack);
+	}
 }

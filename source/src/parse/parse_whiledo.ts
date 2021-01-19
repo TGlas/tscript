@@ -45,7 +45,7 @@ export function parse_whiledo(state, parent, options)
 						{
 							// evaluate the condition
 							let cond = frame.temporaries.pop();
-							if (! TScript.isDerivedFrom(cond.type,Typeid.typeid_boolean)) this.error("/argument-mismatch/am-37", [TScript.displayname(cond.type)]);
+							if (! TScript.isDerivedFrom(cond.type,Typeid.typeid_boolean)) state.error("/argument-mismatch/am-37", [TScript.displayname(cond.type)]);
 							if (cond.value.b)
 							{
 								// push the body onto the stack

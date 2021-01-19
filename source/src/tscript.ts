@@ -1,6 +1,7 @@
 import { Typeid } from './helpers/typeIds';
 import { recApply } from './helpers/recApply';
 import { ErrorHelper } from './errors/ErrorHelper';
+import { Interpreter } from './interpreter/interpreter';
 
 export class TScript{
     // obtain the "displayname", which is the "name" if no special displayname is defined
@@ -156,7 +157,18 @@ export class TScript{
     // convert a JSON value to a typed data structure, call with interpreter as this argument
     public static json2typed(arg)
     {
-        let program = this as any;
+        
+        let program:any;
+
+        if(this instanceof Interpreter){
+            program = this.program;;
+        }else{
+            program = this as any;
+        }
+        
+        if(!program.hasOwnProperty('types')){
+            debugger;
+        }
 
         let t = typeof arg;
         if (arg === null)
@@ -179,7 +191,7 @@ export class TScript{
         else if (Array.isArray(arg))
         {
             let ret = Array();
-            for (let i=0; i<arg.length; i++) ret.push(TScript.json2typed(arg[i]));
+            for (let i=0; i<arg.length; i++) ret.push(TScript.json2typed.call(program, arg[i]));
             return {"type": program.types[Typeid.typeid_array], "value": {"b": ret}};
         }
         else if (t === "object" && arg.constructor === Object)
@@ -188,7 +200,7 @@ export class TScript{
             for (let key in arg)
             {
                 if (! arg.hasOwnProperty(key)) continue;
-                ret['#' + key] = TScript.json2typed(arg[key]);
+                ret['#' + key] = TScript.json2typed.call(program, arg[key]);
             }
             return {"type": program.types[Typeid.typeid_dictionary], "value": {"b": ret}};
         }

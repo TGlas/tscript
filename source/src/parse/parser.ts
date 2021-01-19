@@ -152,7 +152,6 @@ export class Parser{
                     while (state.good()) program.commands.push(parse_statement_or_declaration(state, program, options));
                     if (typeof impl === 'undefined') program.lines = state.line;
                 };
-
         try
         {
             // parse the language core

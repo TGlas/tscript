@@ -66,7 +66,7 @@ export function parse_function(state, parent, options, petype:any = undefined)
 			Lexer.get_token(state, options);
 			let defaultvalue = parse_expression(state, parent, options);
 			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
-			param.def = defaultvalue.typedvalue;
+			param.defaultvalue = defaultvalue.typedvalue;
 		}
 
 		// register the parameter

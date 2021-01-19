@@ -558,7 +558,7 @@ export function parse_expression(state, parent, options, lhs:any | undefined = u
 												}
 												sup = sup.superclass;
 											}
-											if (m === null) this.error("/name/ne-12", [TScript.displayname(type), pe.member]);
+											if (m === null) state.error("/name/ne-12", [TScript.displayname(type), pe.member]);
 										}
 										else
 										{
@@ -579,7 +579,7 @@ export function parse_expression(state, parent, options, lhs:any | undefined = u
 												}
 												sup = sup.superclass;
 											}
-											if (m === null) this.error("/name/ne-13", [TScript.displayname(type), pe.member]);
+											if (m === null) state.error("/name/ne-13", [TScript.displayname(type), pe.member]);
 										}
 
 										// return the appropriate access object
@@ -668,8 +668,8 @@ export function parse_expression(state, parent, options, lhs:any | undefined = u
 										{
 											if (TScript.isDerivedFrom(index.type,Typeid.typeid_integer))
 											{
-												if (index.value.b < 0) this.error("/argument-mismatch/am-21", [TScript.toString.call(this, index)]);
-												else if (index.value.b >= container.value.b.length) this.error("/argument-mismatch/am-22", [TScript.toString.call(this, index), container.value.b.length]);
+												if (index.value.b < 0) state.error("/argument-mismatch/am-21", [TScript.toString.call(this, index)]);
+												else if (index.value.b >= container.value.b.length) state.error("/argument-mismatch/am-22", [TScript.toString.call(this, index), container.value.b.length]);
 												let code = container.value.b.charCodeAt(index.value.b);
 												let ret = {"type": this.program.types[Typeid.typeid_integer], "value": {"b": code}};
 												frame.temporaries.push(ret);
@@ -684,14 +684,14 @@ export function parse_expression(state, parent, options, lhs:any | undefined = u
 												let ret = {"type": this.program.types[Typeid.typeid_string], "value": {"b": str}};
 												frame.temporaries.push(ret);
 											}
-											else this.error("/argument-mismatch/am-20", [TScript.toString.call(this, index), TScript.displayname(index.type)]);
+											else state.error("/argument-mismatch/am-20", [TScript.toString.call(this, index), TScript.displayname(index.type)]);
 										}
 										else if (TScript.isDerivedFrom(container.type,Typeid.typeid_array))
 										{
 											if (TScript.isDerivedFrom(index.type,Typeid.typeid_integer))
 											{
-												if (index.value.b < 0) this.error("/argument-mismatch/am-23", [TScript.toString.call(this, index)]);
-												else if (index.value.b >= container.value.b.length) this.error("/argument-mismatch/am-24", [TScript.toString.call(this, index), container.value.b.length]);
+												if (index.value.b < 0) state.error("/argument-mismatch/am-23", [TScript.toString.call(this, index)]);
+												else if (index.value.b >= container.value.b.length) state.error("/argument-mismatch/am-24", [TScript.toString.call(this, index), container.value.b.length]);
 												else frame.temporaries.push(container.value.b[index.value.b]);
 											}
 											else if (TScript.isDerivedFrom(index.type,Typeid.typeid_range))
@@ -705,23 +705,23 @@ export function parse_expression(state, parent, options, lhs:any | undefined = u
 												let ret = {"type": this.program.types[Typeid.typeid_array], "value": {"b": arr}};
 												frame.temporaries.push(ret);
 											}
-											else this.error("/argument-mismatch/am-26", [TScript.toString.call(this, index), TScript.displayname(index.type)]);
+											else state.error("/argument-mismatch/am-26", [TScript.toString.call(this, index), TScript.displayname(index.type)]);
 										}
 										else if (TScript.isDerivedFrom(container.type,Typeid.typeid_dictionary))
 										{
 											if (TScript.isDerivedFrom(index.type,Typeid.typeid_string))
 											{
 												if (container.value.b.hasOwnProperty('#' + index.value.b)) frame.temporaries.push(container.value.b['#' + index.value.b]);
-												else this.error("/argument-mismatch/am-27", [index.value.b]);
+												else state.error("/argument-mismatch/am-27", [index.value.b]);
 											}
-											else this.error("/argument-mismatch/am-28", [TScript.displayname(index.type)]);
+											else state.error("/argument-mismatch/am-28", [TScript.displayname(index.type)]);
 										}
 										else if (TScript.isDerivedFrom(container.type,Typeid.typeid_range))
 										{
 											if (TScript.isDerivedFrom(index.type,Typeid.typeid_integer))
 											{
 												let len = Math.max(0, container.value.b.end - container.value.b.begin);
-												if (index.value.b < 0 || index.value.b >= len) this.error("/argument-mismatch/am-29", [TScript.toString.call(this, index), len]);
+												if (index.value.b < 0 || index.value.b >= len) state.error("/argument-mismatch/am-29", [TScript.toString.call(this, index), len]);
 												let ret = {"type": this.program.types[Typeid.typeid_integer], "value": {"b": container.value.b.begin + index.value.b}};
 												frame.temporaries.push(ret);
 											}
@@ -735,9 +735,9 @@ export function parse_expression(state, parent, options, lhs:any | undefined = u
 												let ret = {"type": this.program.types[Typeid.typeid_range], "value": {"b": {"begin": container.value.b.begin + a, "end": container.value.b.begin + b}}};
 												frame.temporaries.push(ret);
 											}
-											else this.error("/argument-mismatch/am-30", [TScript.toString.call(this, index), TScript.displayname(index.type)]);
+											else state.error("/argument-mismatch/am-30", [TScript.toString.call(this, index), TScript.displayname(index.type)]);
 										}
-										else this.error("/argument-mismatch/am-31", [TScript.displayname(container.type)]);
+										else state.error("/argument-mismatch/am-31", [TScript.displayname(container.type)]);
 										return true;
 									}
 									else

@@ -56,7 +56,7 @@ export function parse_for(state, parent, options)
 							{
 								for (let i=0; i<iterable.value.b.length; i++) container.push(iterable.value.b[i]);
 							}
-							else if (! TScript.isDerivedFrom(iterable.type,Typeid.typeid_range)) this.error("/argument-mismatch/am-34", [TScript.displayname(iterable.type)]);
+							else if (! TScript.isDerivedFrom(iterable.type,Typeid.typeid_range)) state.error("/argument-mismatch/am-34", [TScript.displayname(iterable.type)]);
 							frame.temporaries.push(container);
 							frame.temporaries.push(0);
 							return false;

@@ -7,11 +7,12 @@ import { Parser } from "../parse/parser";
 import { Interpreter } from "../interpreter/interpreter";
 import { defaultOptions } from "../helpers/options";
 import { defaultService } from "../interpreter/defaultService";
-import * as discard1 from './codemirror-tscriptmode';
-import  {default as cm}  from 'codemirror';
+import { default as cm } from "CodeMirror";
+import { cmtsmode } from './codemirror-tscriptmode';
 
 
-discard1; //use it or it will get removed
+cmtsmode;// use the mode so it gets used somewhere
+let CodeMirror:any = cm; 
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -711,7 +712,7 @@ module.prepare_run = function()
 	if (source.length != 0 && source[source.length - 1] != '\n')
 	{
 		source += '\n';
-		module.sourcecode.getDoc().replaceRange('\n', cm.Pos(module.sourcecode.lastLine()));
+		module.sourcecode.getDoc().replaceRange('\n', CodeMirror.Pos(module.sourcecode.lastLine()));
 	}
 
 	let result = Parser.parse(source, options);
@@ -970,7 +971,7 @@ let cmd_export = function()
 let cmd_toggle_breakpoint = function()
 {
 	let cm = module.sourcecode;
-	let line = cm.doc.getCursor().line;
+	let line = CodeMirror.doc.getCursor().line;
 	if (module.interpreter)
 	{
 		// ask the interpreter for the correct position of the marker
@@ -978,14 +979,14 @@ let cmd_toggle_breakpoint = function()
 		if (result !== null)
 		{
 			line = result.line;
-			cm.setGutterMarker(line-1, "breakpoints", result.active ? makeMarker() : null);
+			CodeMirror.setGutterMarker(line-1, "breakpoints", result.active ? makeMarker() : null);
 			module.sourcecode.scrollIntoView({"line": line-1}, 40);
 		}
 	}
 	else
 	{
 		// set the marker optimistically, fix as soon as an interpreter is created
-		cm.setGutterMarker(line, "breakpoints", cm.lineInfo(line).gutterMarkers ? null : makeMarker());
+		CodeMirror.setGutterMarker(line, "breakpoints", CodeMirror.lineInfo(line).gutterMarkers ? null : makeMarker());
 	}
 }
 
@@ -2030,7 +2031,7 @@ module.create = function(container, options)
 					}
 		});
 	panel_editor.textarea = tgui.createElement({"type": "textarea", "parent": panel_editor.content, "classname": "ide ide-sourcecode"});
-    module.sourcecode = cm.fromTextArea(panel_editor.textarea, {
+    module.sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
 			gutters: ["CodeMirror-linenumbers", "breakpoints"],
 			lineNumbers: true,
 			matchBrackets: true,
@@ -2067,14 +2068,14 @@ module.create = function(container, options)
 					if (result !== null)
 					{
 						line = result.line;
-						cm.setGutterMarker(line-1, "breakpoints", result.active ? makeMarker() : null);
+						CodeMirror.setGutterMarker(line-1, "breakpoints", result.active ? makeMarker() : null);
 						module.sourcecode.scrollIntoView({"line": line}, 40);
 					}
 				}
 				else
 				{
 					// set the marker optimistically, fix as soon as an interpreter is created
-					cm.setGutterMarker(line, "breakpoints", cm.lineInfo(line).gutterMarkers ? null : makeMarker());
+					CodeMirror.setGutterMarker(line, "breakpoints", CodeMirror.lineInfo(line).gutterMarkers ? null : makeMarker());
 				}
 			});
 	module.editor_title = panel_editor.titlebar;

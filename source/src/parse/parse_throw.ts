@@ -45,7 +45,7 @@ export function parse_throw(state, parent, options)
 								{
 									remove_pe = 0;
 									remove_frame++;
-									if (remove_frame >= this.stack.length) this.error("/user/ue-3", [TScript.toString(ex)]);
+									if (remove_frame >= this.stack.length) state.error("/user/ue-3", [TScript.toString(ex)]);
 								}
 							}
 

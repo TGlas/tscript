@@ -79,24 +79,24 @@ export function parse_lhs(state, parent, options)
 						let key;
 						if (TScript.isDerivedFrom(container.type,Typeid.typeid_string))
 						{
-							this.error("/argument-mismatch/am-32", ["a substring"]);
+							state.error("/argument-mismatch/am-32", ["a substring"]);
 						}
 						else if (TScript.isDerivedFrom(container.type,Typeid.typeid_array))
 						{
 							if (TScript.isDerivedFrom(index.type,Typeid.typeid_integer))
 							{
-								if (index.value.b < 0) this.error("/argument-mismatch/am-23", [TScript.toString.call(this, index)]);
-								else if (index.value.b >= container.value.b.length) this.error("/argument-mismatch/am-24", [TScript.toString.call(this, index), container.value.b.length]);
+								if (index.value.b < 0) state.error("/argument-mismatch/am-23", [TScript.toString.call(this, index)]);
+								else if (index.value.b >= container.value.b.length) state.error("/argument-mismatch/am-24", [TScript.toString.call(this, index), container.value.b.length]);
 								key = index.value.b;
 							}
-							else this.error("/argument-mismatch/am-25", [TScript.toString.call(this, index), TScript.displayname(index.type)]);
+							else state.error("/argument-mismatch/am-25", [TScript.toString.call(this, index), TScript.displayname(index.type)]);
 						}
 						else if (TScript.isDerivedFrom(container.type,Typeid.typeid_dictionary))
 						{
-							if (! TScript.isDerivedFrom(index.type,Typeid.typeid_string)) this.error("/argument-mismatch/am-28", [TScript.displayname(index.type)]);
+							if (! TScript.isDerivedFrom(index.type,Typeid.typeid_string)) state.error("/argument-mismatch/am-28", [TScript.displayname(index.type)]);
 							key = '#' + index.value.b;
 						}
-						else this.error("/argument-mismatch/am-31b", [container.type]);
+						else state.error("/argument-mismatch/am-31b", [container.type]);
 
 						if (op !== '=')
 						{
@@ -106,7 +106,7 @@ export function parse_lhs(state, parent, options)
 							// in this specific case the key must exist
 							if (TScript.isDerivedFrom(container.type,Typeid.typeid_dictionary))
 							{
-								if (! container.value.b.hasOwnProperty(key)) this.error("/argument-mismatch/am-27", [index.value.b]);
+								if (! container.value.b.hasOwnProperty(key)) state.error("/argument-mismatch/am-27", [index.value.b]);
 							}
 
 							rhs = binary_operator_impl[binop].call(this, container.value.b[key], rhs);
@@ -164,7 +164,7 @@ export function parse_lhs(state, parent, options)
 								}
 								sup = sup.superclass;
 							}
-							if (m === null) this.error("/name/ne-12", [TScript.displayname(type), pe.member]);
+							if (m === null) state.error("/name/ne-12", [TScript.displayname(type), pe.member]);
 						}
 						else
 						{
@@ -185,7 +185,7 @@ export function parse_lhs(state, parent, options)
 								}
 								sup = sup.superclass;
 							}
-							if (m === null) this.error("/name/ne-13", [TScript.displayname(type), pe.member]);
+							if (m === null) state.error("/name/ne-13", [TScript.displayname(type), pe.member]);
 						}
 
 						// obtain container and index
@@ -194,7 +194,7 @@ export function parse_lhs(state, parent, options)
 						if (m.petype === "method")
 						{
 							// non-static method
-							this.error("/argument-mismatch/am-32", ["a method"]);
+							state.error("/argument-mismatch/am-32", ["a method"]);
 						}
 						else if (m.petype === "attribute")
 						{
@@ -205,7 +205,7 @@ export function parse_lhs(state, parent, options)
 						else if (m.petype === "function")
 						{
 							// static function
-							this.error("/argument-mismatch/am-32", ["a static method"]);
+							state.error("/argument-mismatch/am-32", ["a static method"]);
 						}
 						else if (m.petype === "variable")
 						{
@@ -216,7 +216,7 @@ export function parse_lhs(state, parent, options)
 						else if (m.petype === "type")
 						{
 							// nested class
-							this.error("/argument-mismatch/am-32", ["a class"]);
+							state.error("/argument-mismatch/am-32", ["a class"]);
 						}
 						else ErrorHelper.assert(false, "[member access] internal error; unknown member type " + m.petype);
 

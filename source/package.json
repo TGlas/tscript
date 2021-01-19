@@ -6,6 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "develop": "webpack --mode=development -w",
+    "tsc": "tsc ./src/index.ts",
     "test": "echo \"No tests.\" && exit 0"
   },
   "devDependencies": {
@@ -20,6 +21,7 @@
     "webpack-cli": "^4.3.1"
   },
   "dependencies": {
+    "@types/codemirror": "^0.0.106",
     "codemirror": "^5.59.1",
     "interactjs": "^1.10.2"
   }

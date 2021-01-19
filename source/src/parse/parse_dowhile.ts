@@ -53,7 +53,7 @@ export function parse_dowhile(state, parent, options: Options)
 						{
 							// evaluate the condition
 							let cond = frame.temporaries.pop();
-							if (! TScript.isDerivedFrom(cond.type,Typeid.typeid_boolean)) this.error("/argument-mismatch/am-36", [TScript.displayname(cond.type)]);
+							if (! TScript.isDerivedFrom(cond.type,Typeid.typeid_boolean)) state.error("/argument-mismatch/am-36", [TScript.displayname(cond.type)]);
 							if (cond.value.b)
 							{
 								// start over
