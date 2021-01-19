@@ -21,6 +21,8 @@ let CodeMirror:any = cm;
 export let ide = (function() {
 if (window.location.search != "") return null;
 
+
+
 let module:any = {};
 let options:any;
 
@@ -2348,7 +2350,7 @@ module.create = function(container, options)
 	module.canvas.addEventListener("contextmenu", function(event) { event.preventDefault(); return false; });
 	panel_canvas.content.tabIndex = -1;
 	panel_canvas.size = [0, 0];
-//	module.canvas.font_size = 16;
+	module.canvas.font_size = 16;
 	function buttonName(button)
 	{
 		if (button === 0) return "left";
