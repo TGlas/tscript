@@ -5,7 +5,7 @@ programming language.
 ## Getting Started
 TScript comes as a single html file. It does not require installation.
 Simply open the file in a modern browser and you are ready to go.
-[Click here for a quick test.](https://tglas.github.io/tscript/distribution/index.html)
+[Click here for a quick test.](https://thehllm.github.io/tscript/)
 For more serious use it is recommended to store the page in your local
 file system &mdash; use "save link as" (or similar) from the context
 menu.
