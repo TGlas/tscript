@@ -1,4 +1,4 @@
-import { default as cm } from "CodeMirror";
+import { default as cm } from "codemirror";
 
 let CodeMirror: any = cm;
 export const cmtsmode = CodeMirror.defineMode("text/tscript", function (config, parserConfig) {

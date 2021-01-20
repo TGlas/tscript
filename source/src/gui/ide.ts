@@ -7,7 +7,7 @@ import { Parser } from "../parse/parser";
 import { Interpreter } from "../interpreter/interpreter";
 import { defaultOptions } from "../helpers/options";
 import { defaultService } from "../interpreter/defaultService";
-import { default as cm } from "CodeMirror";
+import { default as cm } from "codemirror";
 import { cmtsmode } from './codemirror-tscriptmode';
 
 
