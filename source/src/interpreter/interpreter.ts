@@ -243,7 +243,7 @@ export class Interpreter{
 		}
 		catch (ex)
 		{
-			if (ex.name ===  "Runtime Error")
+			if (ex.name ===  "Runtime Error" || ex.name === "Parse Error")
 			{
 				this.halt = null;
 				this.background = false;
@@ -416,5 +416,9 @@ export class Interpreter{
 
 	public error(path: string, args: Array<any> | undefined){
 		ErrorHelper.error(path, args, this.stack);
+	}
+
+	public assert(condition:any, message:any,){
+		ErrorHelper.assert(condition, message);
 	}
 }

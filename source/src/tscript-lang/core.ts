@@ -538,7 +538,7 @@ export const core = {
         },
         "load": function(key) {
             if (! TScript.isDerivedFrom(key.type, Typeid.typeid_string)) this.error("/argument-mismatch/am-1", ["key", "load", "string", TScript.displayname(key.type)]);
-            let s = localStorage.getItem("tscript.data." + key.value.b) + "";
+            let s:any = localStorage.getItem("tscript.data." + key.value.b);
             if (s === null) this.error("/argument-mismatch/am-38", [key.value.b]);
             let j = JSON.parse(s);
             return TScript.json2typed.call(this, j);

@@ -6,8 +6,13 @@ import { TScript } from "../tscript";
 import { Version } from "../version";
 import { tests } from "./tests";
 
-export function runTests(container){
+export function runTests(outerContainer){
+	let container = document.createElement('div');
 	//append the expected doc
+	outerContainer.style.overflow = "auto";
+	outerContainer.style.display = "flex";
+	outerContainer.style.flexDirection="column-reverse";
+	outerContainer.append(container);
 	container.innerHTML = `
 	<style>
 		table
@@ -70,6 +75,9 @@ export function runTests(container){
 		let status:any = document.getElementById("status");
 		if (testindex >= tests.length)
 		{
+			//scroll to top is strange code because of css;
+			outerContainer.scrollTo(0,-outerContainer.scrollHeight)
+
 			let finish = Date.now();
 			let testsPlural = function testsPlural(n) { return n + (n != 1 ? " tests" : " test"); }
 			status.innerText = testsPlural(testindex) + " completed in "

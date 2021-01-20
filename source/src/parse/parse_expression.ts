@@ -9,7 +9,7 @@ import { parse_call } from "./parse_call";
 import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
 import { parse_name } from "./parse_name";
 
-export function parse_expression(state, parent, options, lhs:any | undefined = undefined)
+export function parse_expression(state, parent, options, lhs:any | boolean = false)
 {
 	if (typeof lhs === 'undefined') lhs = false;
 

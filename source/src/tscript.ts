@@ -1,6 +1,5 @@
 import { Typeid } from './helpers/typeIds';
 import { recApply } from './helpers/recApply';
-import { ErrorHelper } from './errors/ErrorHelper';
 import { Interpreter } from './interpreter/interpreter';
 
 export class TScript{
@@ -49,7 +48,7 @@ export class TScript{
     {
         try
         {
-            return recApply(arg,
+            return recApply.call(this, arg,
                     function(value)
                     {
                         if (TScript.isDerivedFrom(value.type, Typeid.typeid_null)) return "null";
@@ -97,12 +96,12 @@ export class TScript{
                             s += "}";
                             return s;
                         }
-                        else ErrorHelper.assert(false, "[TScript.toString] internal error");
+                        else (this as any).assert(false, "[TScript.toString] internal error");
                     });
         }
         catch (ex)
         {
-            if (ex === "recursive data structure") ErrorHelper.error("/argument-mismatch/am-43");
+            if (ex === "recursive data structure") (this as any).error("/argument-mismatch/am-43");
             else throw ex;
         }
     }
@@ -120,7 +119,7 @@ export class TScript{
 
     public static mod(lhs:number, rhs:number):number
     {
-        if (rhs === 0){ ErrorHelper.error("/argument-mismatch/am-15"); return 0; /*dummy return will never be reached*/}
+        if (rhs === 0){ (this as any).error("/argument-mismatch/am-15"); return 0; /*dummy return will never be reached*/}
         else return (rhs > 0)
                 ? lhs - rhs * Math.floor(lhs / rhs)
                 : rhs * Math.floor(lhs / rhs) - lhs;
@@ -213,10 +212,10 @@ export class TScript{
     // convert typed data structure to a JSON value, call with interpreter as this argument
     public static typed2json(arg)
     {
-        return recApply(arg,
+        return recApply.call(this, arg,
                 function(value)
                 {
-                    ErrorHelper.assert(value.type.id === Typeid.typeid_null
+                    (this as any).assert(value.type.id === Typeid.typeid_null
                             || value.type.id === Typeid.typeid_boolean
                             || value.type.id === Typeid.typeid_integer
                             || value.type.id === Typeid.typeid_real
@@ -360,7 +359,7 @@ export class TScript{
         }
         catch (ex)
         {
-            if (ex === "recursive data structure") ErrorHelper.error("/argument-mismatch/am-43");
+            if (ex === "recursive data structure") (this as any).error("/argument-mismatch/am-43");
             else throw ex;
         }
     }
@@ -417,7 +416,7 @@ export class TScript{
         }
         catch (ex)
         {
-            if (ex === "recursive data structure") ErrorHelper.error("/argument-mismatch/am-43");
+            if (ex === "recursive data structure") (this as any).error("/argument-mismatch/am-43");
             else throw ex;
         }
     }
@@ -479,7 +478,7 @@ export class TScript{
             let s = "<Function ";
             if (arg.value.b.hasOwnProperty("object"))
             {
-                ErrorHelper.assert(arg.value.b.func.parent.petype === "type", "[previewValue] invalid method object");
+                (this as any).assert(arg.value.b.func.parent.petype === "type", "[previewValue] invalid method object");
                 s += TScript.displayname(arg.value.b.func.parent) + ".";
             }
             if (arg.value.b.func.displayname) s += arg.value.b.func.displayname;

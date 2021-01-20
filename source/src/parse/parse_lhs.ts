@@ -8,7 +8,7 @@ import { parse_expression } from "./parse_expression";
 export function parse_lhs(state, parent, options)
 {
 	// parse the LHS as an expression
-	let ex = parse_expression(state, parent, true);
+	let ex = parse_expression(state, parent, options, true);
 
 	// replace the topmost step function
 	if (ex.petype === "name")

@@ -27,9 +27,8 @@ export class ErrorHelper{
         return ret;
 	}
 	
-	    // raise a fatal runtime error, preserve the interpreter state for debugging
-	public static error(path, args:Array<any> | undefined = undefined, stack: any = undefined)
-	{
+
+	public static getError(path, args:Array<any> | undefined = undefined, stack: any = undefined, _line:number | undefined = undefined, _ch: number | undefined = undefined){
 		if(typeof stack === "undefined"){
 			stack = {length:0};
 		}
@@ -38,7 +37,15 @@ export class ErrorHelper{
 
 		let message = ErrorHelper.composeError(path, args);
 		let href = "#/errors" + path;
-		let line = null, ch = null;
+		let line:any = null, ch:any = null;
+
+		if(typeof _line === "number"){
+			line = _line;
+		}
+		if(typeof _ch === "number"){
+			ch = _ch;
+		}
+
 		for (let j=stack.length-1; j>=0; j--)
 		{
 			let frame = stack[j];
@@ -54,7 +61,12 @@ export class ErrorHelper{
 			}
 			if (line !== null) break;
 		}
-		throw new RuntimeError(message, line, ch, href);
+		return new RuntimeError(message, line, ch, href);
+	}
+	// raise a fatal runtime error, preserve the interpreter state for debugging
+	public static error(path, args:Array<any> | undefined = undefined, stack: any = undefined)
+	{
+		throw ErrorHelper.getError(path, args, stack);
 	}
 
 	public static ex2string(ex: string | Error | undefined) : string{

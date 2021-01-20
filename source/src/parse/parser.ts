@@ -9,6 +9,7 @@ import { lib_audio } from "../tscript-lang/lib-audio";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
 import { defaultOptions, Options } from "../helpers/options";
+import { RuntimeError } from "../errors/RuntimeError";
 
 export class Parser{
     public static parse(sourcecode, options:Options = defaultOptions)
@@ -59,8 +60,13 @@ export class Parser{
                         {
                             if (typeof args === 'undefined') args = [];
                             let msg = ErrorHelper.composeError(path, args);
-                            this.errors.push({"type": "error", "line": this.line, "ch": this.ch, "message": msg, "href": "#/errors" + path});
-                            throw new ParseError("error");
+                            let err = {"type": "error", "line": this.line, "ch": this.ch, "message": msg, "href": "#/errors" + path, name: "Parse Error"};
+                            this.errors.push(err);
+                            
+                            //let pe:any = ErrorHelper.getError(path, args, undefined, this.line, this.ch);
+                            //let pe:any = new ParseError("err");
+                            //pe.href = "#/errors" + path;
+                            throw err;
                         },
                 "warning": function(msg)
                         { this.errors.push({"type": "warning", "line": this.line, "message": msg}); },
