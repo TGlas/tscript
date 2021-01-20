@@ -493,7 +493,7 @@ module.iconcontainer = null;
 // load panel arrangement data from local storage
 function loadPanelData(title)
 {
-	let str = localStorage.getItem("tgui.panels");
+	let str = window.localStorage.getItem("tgui.panels");
 	if (str)
 	{
 		let paneldata = JSON.parse(str);
@@ -519,7 +519,7 @@ function savePanelData()
 		d.dockedheight = p.dockedheight;
 		paneldata[p.title] = d;
 	}
-	localStorage.setItem("tgui.panels", JSON.stringify(paneldata));
+	window.localStorage.setItem("tgui.panels", JSON.stringify(paneldata));
 }
 
 module.preparePanels = function(panelcontainer, iconcontainer)

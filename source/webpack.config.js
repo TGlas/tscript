@@ -1,6 +1,8 @@
 const path = require('path');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = [
   { //compile .ts and tsc
@@ -22,9 +24,13 @@ module.exports = [
       filename: 'bundle.js',
       path: path.resolve(__dirname, '../dist'),
     },
+    optimization: {
+      minimizer: [new UglifyJsPlugin()],
+    },
+
   },
   {
-    entry: ['./css/ide.css', './css/tgui.css', './css/codemirror.css', './css/documentation.css' ],
+    entry: ['./css/ide.css', './css/tgui.css', './css/codemirror.css', './css/documentation.css'],
     mode: "production",
     module: {
       rules: [
@@ -39,8 +45,15 @@ module.exports = [
         filename: 'bundle.css',
       }),
     ],
-    output:{
+    output: {
       path: path.resolve(__dirname, '../dist'),
+    },
+    optimization: {
+      minimize: true,
+      minimizer: [
+        new CssMinimizerPlugin(),
+      ],
     }
-  }
+  },
+
 ];

@@ -781,7 +781,7 @@ module.create = function(container, options)
 		for (let i=0; i<keys.length; i++) h += "/" + keys[i];
 		if (module.embedded)
 		{
-			sessionStorage.setItem("docpath", h);
+			window.sessionStorage.setItem("docpath", h);
 			module.setpath(h);
 		}
 		else window.location.hash = h;
@@ -792,7 +792,7 @@ module.create = function(container, options)
 
 	if (options.embedded)
 	{
-		let path = sessionStorage.getItem("docpath");
+		let path = window.sessionStorage.getItem("docpath");
 		if (! path) path = "#";
 		module.setpath(path);
 	}
@@ -818,7 +818,7 @@ module.create = function(container, options)
 				let href = target.getAttribute("href");
 				if (href.length == 0) return true;
 				if (href[0] != "#") return true;
-				sessionStorage.setItem("docpath", href);
+				window.sessionStorage.setItem("docpath", href);
 				module.setpath(href);
 				event.preventDefault();
 				event.stopPropagation();

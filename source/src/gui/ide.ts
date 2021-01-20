@@ -1025,7 +1025,7 @@ let cmd_load = function()
 				module.editor_title.innerHTML = "editor &mdash; ";
 				tgui.createText(filename, module.editor_title);
 				module.document.filename = filename;
-				module.sourcecode.setValue(localStorage.getItem("tscript.code." + filename));
+				module.sourcecode.setValue(window.localStorage.getItem("tscript.code." + filename));
 				module.sourcecode.getDoc().setCursor({line: 0, ch: 0}, );
 				module.sourcecode.getDoc().clearHistory();
 				module.document.dirty = false;
@@ -1043,7 +1043,7 @@ let cmd_save = function()
 		return;
 	}
 
-	localStorage.setItem("tscript.code." + module.document.filename, module.sourcecode.getValue());
+	window.localStorage.setItem("tscript.code." + module.document.filename, module.sourcecode.getValue());
 	module.document.dirty = false;
 }
 
@@ -1393,7 +1393,7 @@ let buttons:any = [
 // load hotkeys
 function loadConfig()
 {
-	let str = localStorage.getItem("tscript.ide.config");
+	let str = window.localStorage.getItem("tscript.ide.config");
 	if (str)
 	{
 		let config = JSON.parse(str);
@@ -1424,7 +1424,7 @@ function saveConfig()
 	{
 		config.hotkeys.push(buttons[i].hotkey);
 	}
-	localStorage.setItem("tscript.ide.config", JSON.stringify(config));
+	window.localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 }
 
 function configDlg()
@@ -1555,7 +1555,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 {
 	// populate array of existing files
 	let files:any = [];
-	for (let key in localStorage)
+	for (let key in window.localStorage)
 	{
 		if (key.substr(0, 13) === "tscript.code.") files.push(key.substr(13));
 	}
@@ -1713,7 +1713,7 @@ function fileDlg(title, filename, allowNewFilename, onOkay)
 		{
 			if (confirm("Delete file \"" + filename + "\"\nAre you sure?"))
 			{
-				localStorage.removeItem("tscript.code." + filename);
+				window.localStorage.removeItem("tscript.code." + filename);
 				files.splice(index, 1);
 				list.remove(index);
 			}
@@ -1737,7 +1737,7 @@ console.log(mime);
 
 	function exportFile(filename)
 	{
-		let data = localStorage.getItem("tscript.code." + filename);
+		let data = window.localStorage.getItem("tscript.code." + filename);
 		download(filename + ".tscript", data);
 	}
 
@@ -1754,7 +1754,7 @@ console.log(mime);
 				var file = event.target.files[0];
 				var filename = file.name.split('.tscript')[0];
 				var data = await file.text();
-				localStorage.setItem("tscript.code." + filename, data);
+				window.localStorage.setItem("tscript.code." + filename, data);
 				files.push(filename);
 				var option = document.createElement('option');
 				option.text = filename;

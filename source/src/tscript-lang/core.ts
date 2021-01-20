@@ -533,12 +533,12 @@ export const core = {
         },
         "exists": function(key) {
             if (! TScript.isDerivedFrom(key.type, Typeid.typeid_string)) this.error("/argument-mismatch/am-1", ["key", "exists", "string", TScript.displayname(key.type)]);
-            let ret = localStorage.getItem("tscript.data." + key.value.b) !== null;
+            let ret = window.localStorage.getItem("tscript.data." + key.value.b) !== null;
             return {"type": this.program.types[Typeid.typeid_boolean], "value": {"b": ret}};
         },
         "load": function(key) {
             if (! TScript.isDerivedFrom(key.type, Typeid.typeid_string)) this.error("/argument-mismatch/am-1", ["key", "load", "string", TScript.displayname(key.type)]);
-            let s:any = localStorage.getItem("tscript.data." + key.value.b);
+            let s:any = window.localStorage.getItem("tscript.data." + key.value.b);
             if (s === null) this.error("/argument-mismatch/am-38", [key.value.b]);
             let j = JSON.parse(s);
             return TScript.json2typed.call(this, j);
@@ -549,7 +549,7 @@ export const core = {
             {
                 let j = TScript.typed2json.call(this, value);
                 let s = JSON.stringify(j);
-                localStorage.setItem("tscript.data." + key.value.b, s);
+                window.localStorage.setItem("tscript.data." + key.value.b, s);
                 return {"type": this.program.types[Typeid.typeid_null], "value": {"b": null}};
             }
             catch (ex)
@@ -559,7 +559,7 @@ export const core = {
         },
         "listKeys": function(){
             return TScript.jsObject2typed.call(this,
-                Object.keys(localStorage) //will always return an array
+                Object.keys(window.localStorage) //will always return an array
                     .filter((key) => {return key.startsWith("tscript.data.")}) //filter all that are not data
                     .map( (key) => {return key.substr("tscript.data.".length)}) //remove the prefix from the name
             );
