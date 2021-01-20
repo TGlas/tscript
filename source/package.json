@@ -5,7 +5,7 @@
   "main": "tscript.js",
   "scripts": {
     "build": "webpack --mode=production",
-    "develop": "webpack --mode=development -w",
+    "dev": "webpack --mode=development -w",
     "tsc": "tsc ./src/index.ts",
     "test": "echo \"No tests.\" && exit 0"
   },
