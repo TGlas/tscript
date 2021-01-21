@@ -3,7 +3,6 @@ import { RuntimeError } from "../errors/RuntimeError";
 import { Options } from "../helpers/options";
 import { TScript } from "../tscript";
 import { Typeid } from "../helpers/typeIds";
-import { defaultService } from "./defaultService";
 
 export class Interpreter{
 

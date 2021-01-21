@@ -90,7 +90,6 @@ export  const tests:Array<TscriptTest> = [
 
 	{
 		name: "event handling",
-		browserOnly: true,
 		description: "test of event handling",
 		code: `
 			setEventHandler("canvas.mousedown", function(event) { quitEventMode("down"); });
@@ -1475,7 +1474,7 @@ export  const tests:Array<TscriptTest> = [
 			wait(100);
 			var t2 = time();
 			var d = t2 - t1;
-			if d < 90 or d > 130 then print("wrong");
+			if d < 50 or d > 200 then print("wrong");
 		`,
 		expectation: [
 				"finished"],
@@ -1530,7 +1529,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "event handling",
-		browserOnly: true,
 		description: "test event handling and timer events",
 		code: `
 			var n = 0;
@@ -1794,7 +1792,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "keydown",
-		browserOnly: true,
 		description: "test of canvas event keydown",
 		code: `
 			function onKeyDown(event)
@@ -1830,7 +1827,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "keyup",
-		browserOnly: true,
 		description: "test of canvas event keyup",
 		code: `
 			function onKeyUp(event)
@@ -1866,7 +1862,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "mousedown",
-		browserOnly: true,
 		description: "test of canvas event mousedown",
 		code: `
 			function onMouseDown(event)
@@ -1909,7 +1904,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "mouseup",
-		browserOnly: true,
 		description: "test of canvas event mouseup",
 		code: `
 			function onMouseUp(event)
@@ -1952,7 +1946,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "mousemove",
-		browserOnly: true,
 		description: "test of canvas event mousemove",
 		code: `
 			function onMouseMove(event)
@@ -1992,7 +1985,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "mouseout",
-		browserOnly: true,
 		description: "test of canvas event mouseout",
 		code: `
 			function onMouseOut(event)
@@ -2017,7 +2009,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "resize",
-		browserOnly: true,
 		description: "test of canvas event resize",
 		code: `
 			function onResize(event)
@@ -2047,7 +2038,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "audio",
-		browserOnly: true,
 		description: "checks if the audio object rejects invalid samples",
 		code: `
 			use namespace audio;
@@ -3773,7 +3763,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "am-41",
-		browserOnly: true,
 		description: "test of argument mismatch error am-41",
 		code: `
 			setEventHandler("timer", function() {});
@@ -4246,7 +4235,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "le-2",
-		browserOnly: true,
 		description: "test of logic error le-2",
 		code: `
 			function f() { enterEventMode(); }

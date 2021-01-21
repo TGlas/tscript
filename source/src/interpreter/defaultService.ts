@@ -240,5 +240,5 @@ canvas: {
         ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
     }
 },
-audioContext: new AudioContext()
+    audioContext: undefined,
 };

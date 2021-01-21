@@ -12,13 +12,15 @@ export const lib_audio = {
                     if (! TScript.isDerivedFrom(buffer.type, Typeid.typeid_array)) ErrorHelper.error("/argument-mismatch/am-1", ["buffer", "audio.MonoAudio.constructor", "array", TScript.displayname(buffer)]);
                     
                     if(! TScript.isDerivedFrom(sampleRate.type, Typeid.typeid_integer)) ErrorHelper.error("/argument-mismatch/am-1", ["sampleRate", "audio.MonoAudio.constructor", "integer", TScript.displayname(sampleRate)])	
-                                        
+                                
+                    if(!checkAudioBufferCorrectness(buffer)){
+                        ErrorHelper.error("/argument-mismatch/am-44", ["buffer", "real"]);
+                    }	
+
                     if(audioContextNullOrUndefined.bind(this)()) return;
                     let buf = this.service.audioContext.createBuffer(1, buffer.value.b.length, sampleRate.value.b);
                     
-                    if(!fillAudioBuffer(buffer, buf.getChannelData(0))){
-                        ErrorHelper.error("/argument-mismatch/am-44", ["buffer", "real"]);
-                    }				
+                    fillAudioBuffer(buffer, buf.getChannelData(0));
 
                     let sourceNode = this.service.audioContext.createBufferSource();
                     sourceNode.buffer = buf;
@@ -48,16 +50,19 @@ export const lib_audio = {
 
                     if(! TScript.isDerivedFrom(sampleRate.type, Typeid.typeid_integer)) ErrorHelper.error("/argument-mismatch/am-1", ["sampleRate", "audio.StereoAudio.constructor", "integer", TScript.displayname(sampleRate)])	
                     
-                    if(audioContextNullOrUndefined.bind(this)()) return;
-                    let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
+                    if(!checkAudioBufferCorrectness(rightBuffer)){
+                        ErrorHelper.error("/argument-mismatch/am-44", ["rightBuffer", "real"]);
+                    }
 
-                    if(!fillAudioBuffer(leftBuffer, buf.getChannelData(0))){
+                    if(!checkAudioBufferCorrectness(leftBuffer)){
                         ErrorHelper.error("/argument-mismatch/am-44", ["leftBuffer", "real"]);
                     }
 
-                    if(!fillAudioBuffer(rightBuffer, buf.getChannelData(1))){
-                        ErrorHelper.error("/argument-mismatch/am-44", ["rightBuffer", "real"]);
-                    }
+                    if(audioContextNullOrUndefined.bind(this)()) return;
+                    let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
+
+                    fillAudioBuffer(leftBuffer, buf.getChannelData(0));
+                    fillAudioBuffer(rightBuffer, buf.getChannelData(1));
 
                     let sourceNode = this.service.audioContext.createBufferSource();
                     sourceNode.buffer = buf;
@@ -92,14 +97,21 @@ let fillAudioBuffer = function(tscriptBuffer, array){
     } 
     
     for(let i=0; i < array.length; i++){
-        //check if number is a real
-        if (! TScript.isDerivedFrom(tscriptBuffer.value.b[i].type, Typeid.typeid_real)){
-            return false;
-        }
         //clip sample to [-1,1]
         array[i] = clamp(tscriptBuffer.value.b[i].value.b, -1, 1);;
     }
 
+    return true;
+}
+
+// returns false if the buffer contains invalid data.
+let checkAudioBufferCorrectness = function(tscriptBuffer){
+    for(let i=0; i < tscriptBuffer.value.b.length; i++){
+        //check if number is a real
+        if (! TScript.isDerivedFrom(tscriptBuffer.value.b[i].type, Typeid.typeid_real)){
+            return false;
+        }
+    }
     return true;
 }
 

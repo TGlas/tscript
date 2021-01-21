@@ -1,29 +1,44 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Typeid } from "../helpers/typeIds";
+import { defaultService } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
 import { Parser } from "../parse/parser";
 import { TScript } from "../tscript";
 import { TscriptEventTest, TscriptInputTest, TscriptTest } from "./tests";
 
 interface Callback{
-    suc:()=>any,
-    fail:(ex:any)=>any,
+    suc:(test:TscriptTest)=>any,
+    fail:(test:TscriptTest, ex:any)=>any,
 }
 
 const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
   }
 
+ function clone(obj) {
+    if (null == obj || "object" != typeof obj) return obj;
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if(obj.hasOwnProperty(attr) && typeof obj[attr] === "object"){
+            copy[attr] = clone(obj[attr]);
+        }else{
+            copy[attr] = obj[attr];
+        }
+        
+    }
+    return copy;
+}
+
 export class TestRunner{
 
-    public static async runTest(test:TscriptTest, cb:Callback, isBrowser = true):Promise<void>{
+    public static async runTest(test:TscriptTest, cb:Callback, isBrowser):Promise<void>{
 
         let timeout = test.hasOwnProperty("timeout") ? (test as any).timeout : 10.0;
 		let input:any = test.hasOwnProperty("input") ? (test as TscriptInputTest).input : [];
         let events:any = test.hasOwnProperty("events") ? (test as TscriptEventTest).events : [];
         
         if(!isBrowser || typeof document === "undefined" && (test.expectation as any).type === "turtle" || (test.expectation as any).type === "canvas"){
-            cb.suc();
+            cb.suc(test);
             return;
         }
 
@@ -35,7 +50,7 @@ export class TestRunner{
         try{
             parsed = Parser.parse(test.code);
         }catch(ex){
-            cb.fail(ex);
+            cb.fail(test, ex);
             return;
         }
 
@@ -44,33 +59,28 @@ export class TestRunner{
         }
 
         // create the service to run against
-        let service = 
-        {
-            documentation_mode: false,
-            print: (function(msg) { result.push({type: "print", message: msg}); }),
-            alert: (function(msg) { result.push({type: "alert", message: msg}); }),
-            confirm: (function(msg)
-                    {
-                        result.push({type: "confirm", message: msg});
-                        let b = input.shift();
-                        ErrorHelper.assert(b === true || b === false, "simulated user input is not a boolean");
-                        return b;
-                    }),
-            prompt: (function(msg)
-                    {
-                        result.push({type: "prompt", message: msg});
-                        let s = input.shift();
-                        ErrorHelper.assert(typeof s == "string", "simulated user input is not a string");
-                        return s;
-                    }),
-            message: (function(msg, line, ch, href) { result.push({type: "error", href: href}); }),
-            turtle: {
-                dom: typeof document !== "undefined" ? document.createElement("canvas") : {},
-            },
-            canvas: {
-                dom: typeof document !== "undefined" ? document.createElement("canvas") : {},
-            }
-        }
+        let service:any = clone(defaultService);
+        
+        service.documentation_mode = false;
+        service.print = function (msg) { result.push({ type: "print", message: msg }); };
+        service.alert = function (msg) { result.push({ type: "alert", message: msg }); };
+        service.confirm = function (msg) {
+            result.push({ type: "confirm", message: msg });
+            let b = input.shift();
+            ErrorHelper.assert(b === true || b === false, "simulated user input is not a boolean");
+            return b;
+        },
+            service.prompt = function (msg) {
+                result.push({ type: "prompt", message: msg });
+                let s = input.shift();
+                ErrorHelper.assert(typeof s == "string", "simulated user input is not a string");
+                return s;
+            };
+        service.message = function (msg, line, ch, href) { result.push({ type: "error", href: href }); };
+        service.turtle.dom = typeof document !== "undefined" ? document.createElement("canvas") : {};
+        service.canvas.dom = typeof document !== "undefined" ? document.createElement("canvas") : {};
+        
+
         if(typeof document !== "undefined"){
             let s:any = service;
             s.canvas.dom.width = 600;
@@ -80,6 +90,14 @@ export class TestRunner{
         }
         
         let interpreter = new Interpreter(parsed.program, service);
+        interpreter.eventnames["canvas.resize"] = true;
+		interpreter.eventnames["canvas.mousedown"] = true;
+		interpreter.eventnames["canvas.mouseup"] = true;
+		interpreter.eventnames["canvas.mousemove"] = true;
+		interpreter.eventnames["canvas.mouseout"] = true;
+		interpreter.eventnames["canvas.keydown"] = true;
+		interpreter.eventnames["canvas.keyup"] = true;
+		interpreter.eventnames["timer"] = true;
         interpreter.reset();
 
         let timeLimit = Date.now() + 1000 * timeout;
@@ -91,7 +109,7 @@ export class TestRunner{
                 // the program has finished
                 result.push(interpreter.status);
                 interpreter.stopthread();
-				TestRunner.check(result, test.expectation, cb);
+				TestRunner.check(test, result, cb, interpreter);
 				return;
             }else if (interpreter.status == "running" || interpreter.status == "waiting")
 			{
@@ -110,16 +128,16 @@ export class TestRunner{
 							break;
 						}
 					}
-					if (type === null) {interpreter.stopthread(); cb.fail("unknown event type " + typename); return; }
+					if (type === null) {interpreter.stopthread(); cb.fail(test, "unknown event type " + typename); return; }
 					let attr = new Array();
 					let n = type.members.length;
 					for (let i=0; i<n; i++) attr.push({"type": interpreter.program.types[Typeid.typeid_null], "value": {"b": null}});
 					for (let key in desc.attr)
 					{
 						if (! desc.attr.hasOwnProperty(key)) continue;
-						if (! type.members.hasOwnProperty(key)) {interpreter.stopthread(); cb.fail("unknown event attribute"+ typename + "." + key); return; }
+						if (! type.members.hasOwnProperty(key)) {interpreter.stopthread(); cb.fail(test, "unknown event attribute"+ typename + "." + key); return; }
 						let m = type.members[key];
-						if (m.petype != "attribute") {interpreter.stopthread(); cb.fail("unknown event attribute" + typename + "." + key); return; }
+						if (m.petype != "attribute") {interpreter.stopthread(); cb.fail(test, "unknown event attribute" + typename + "." + key); return; }
 						attr[m.id] = TScript.json2typed.call(interpreter, desc.attr[key]);
 					}
 					let event = { type: type, value: {a: attr, b: null} };
@@ -133,7 +151,7 @@ export class TestRunner{
 
         // timeout!
         interpreter.stopthread();
-        cb.fail("timeout");
+        cb.fail(test, "timeout");
     }
 
     // returns true if the program had parse errors
@@ -146,28 +164,28 @@ export class TestRunner{
 				errors.push({type: "error", href: err.href});
 			}
             errors.push("parsing failed");
-            TestRunner.check(test.expectation, errors, cb);
+            TestRunner.check(test, errors, cb);
             return true;
         }else{
             return false;
         }
     }
 
-    private static check(result, expectation, cb:Callback, interpreter:any = undefined) {
-        switch(result.type){
+    private static check(test:TscriptTest, result, cb:Callback, interpreter:any = undefined) {
+        switch((test.expectation as any).type){
             case "turtle":
-                TestRunner.checkTurtle(result, expectation, interpreter, cb);
+                TestRunner.checkTurtle(test, result, interpreter, cb);
                 break;
             case "canvas":
-                TestRunner.checkCanvas(result, expectation, interpreter, cb);
+                TestRunner.checkCanvas(test, result, interpreter, cb);
                 break;
             default:
-                TestRunner.checkNormal(result, expectation, cb);
+                TestRunner.checkNormal(test, result, cb);
                 break;
         }
     }
-    static checkTurtle(result: any, expectation: any, interpreter:any, cb: Callback) {
-        if (!interpreter) { cb.fail("No interpreter supplied"); return; }
+    static checkTurtle(test:TscriptTest, result: any, interpreter:any, cb: Callback) {
+        if (!interpreter) { cb.fail(test,"No interpreter supplied"); return; }
 
 		// test turtle graphics output
 		let canvas = document.createElement("canvas");
@@ -177,20 +195,20 @@ export class TestRunner{
 		{
 			let run = function run(code)
 			{ eval(code); }
-			run(expectation.js);
+			run((test.expectation as any).js);
 		}
 		let pix1 = context.getImageData(0, 0, 600, 600).data;
 		let pix2 = interpreter.service.turtle.dom.getContext("2d").getImageData(0, 0, 600, 600).data;
-		if (pix1.length != pix2.length) cb.fail("incompatible canvas size");
+		if (pix1.length != pix2.length) cb.fail(test, "incompatible canvas size");
 		for (let i=0; i<pix1.length; i++)
 		{
-			if (Math.abs(pix1[i] - pix2[i]) > 10) { cb.fail(["canvas", interpreter.service.turtle.dom, canvas]); return; }
+			if (Math.abs(pix1[i] - pix2[i]) > 10) { cb.fail(test, ["canvas", interpreter.service.turtle.dom, canvas]); return; }
 		}
-		cb.suc();
+		cb.suc(test);
     }
 
-    static checkCanvas(result: any, expectation: any, interpreter:any, cb: Callback) {
-        if (! interpreter) { cb.fail("No interpreter supplied"); return; }
+    static checkCanvas(test:TscriptTest, result: any, interpreter:any, cb: Callback) {
+        if (! interpreter) { cb.fail(test, "No interpreter supplied"); return; }
 
 		// test canvas graphics output
 		let canvas = document.createElement("canvas");
@@ -200,29 +218,29 @@ export class TestRunner{
 		{
 			let run = function run(code)
 			{ eval(code); }
-			run(expectation.js);
+			run((test.expectation as any).js);
 		}
 		let pix1 = context.getImageData(0, 0, 600, 600).data;
 		let pix2 = interpreter.service.canvas.dom.getContext("2d").getImageData(0, 0, 600, 600).data;
-		if (pix1.length != pix2.length) cb.fail("incompatible canvas size");
+		if (pix1.length != pix2.length) cb.fail(test, "incompatible canvas size");
 		for (let i=0; i<pix1.length; i++)
 		{
-			if (Math.abs(pix1[i] - pix2[i]) > 10) { cb.fail( ["camvas",interpreter.service.canvas.dom, canvas]); return; }
+			if (Math.abs(pix1[i] - pix2[i]) > 10) { cb.fail(test, ["camvas",interpreter.service.canvas.dom, canvas]); return; }
 		}
-        cb.suc();
+        cb.suc(test);
     }
 
-    static checkNormal(result: any, expectation: any, cb: Callback) {
+    static checkNormal(test:TscriptTest, result: any, cb: Callback) {
         // test for a sequence of events
 		let sr = JSON.stringify(result, null, 2);
-		let se = JSON.stringify(expectation, null, 2);
+		let se = JSON.stringify(test.expectation, null, 2);
 		if (sr === se)
 		{
-			cb.suc();
+			cb.suc(test);
 		}
 		else
 		{
-			cb.fail([sr, se]);
+			cb.fail(test, [sr, se]);
 		}
     }
 }
