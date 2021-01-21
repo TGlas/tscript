@@ -389,8 +389,8 @@ let module = {
 			type: "beta",
 			major: 0,
 			minor: 6,
-			patch: 0,
-			day: 15,
+			patch: 1,
+			day: 21,
 			month: 1,
 			year: 2021,
 			full: function()
@@ -3649,7 +3649,7 @@ function resolve_name(state, name, parent, errorname)
 // namespace1.namespace2. [...] .name . The function looks up the name.
 // It returns the full name, the program element holding the entity as
 // a name, and the result of the lookup.
-// In addition, the function reports and error if the name refers to a
+// In addition, the function reports an error if the name refers to a
 // non-static member for which "this" is not available.
 function parse_name(state, parent, errorname, allow_namespace)
 {
@@ -3803,7 +3803,7 @@ function parse_call(state, parent, base)
 				let error = false;
 				if (cls.class_constructor.access === "private")
 				{
-					if (sub_cl === null || sub_cl !== cls.id) error = true;
+					if (sub_cl === null || sub_cl.id !== cls.id) error = true;
 				}
 				else if (cls.class_constructor.access === "protected")
 				{
@@ -17873,7 +17873,7 @@ if (doc) doc.children.push({
 			private constructor from outside the scope of the class, and for a
 			protected constructor, from outside the scope of its sub-classes.
 			This violates the member access rules explained
-			< href="#/language/declarations/classes">here</a>.
+			<a href="#/language/declarations/classes">here</a>.
 			</p>
 			<p>
 			An easy fix is to make the constructor public. However, this error

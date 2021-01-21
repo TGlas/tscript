@@ -2166,7 +2166,7 @@ if (doc) doc.children.push({
 			private constructor from outside the scope of the class, and for a
 			protected constructor, from outside the scope of its sub-classes.
 			This violates the member access rules explained
-			< href="#/language/declarations/classes">here</a>.
+			<a href="#/language/declarations/classes">here</a>.
 			</p>
 			<p>
 			An easy fix is to make the constructor public. However, this error
