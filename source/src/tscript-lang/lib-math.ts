@@ -1,8 +1,9 @@
 import { TScript } from "../tscript";
 import { Typeid } from "../helpers/typeIds";
+import { tscript_math } from "./lib-math.tscript";
 
 export const lib_math = {
-    source: require('raw-loader!./lib-math.tsc').default,
+    source: tscript_math,
     "impl": {
         "math": {
                 "pi": function(arg) {

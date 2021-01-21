@@ -3,9 +3,10 @@ import { TScript } from "../tscript";
 import { Typeid } from "../helpers/typeIds";
 import { Version } from "../version";
 import { simfalse, simtrue} from "../helpers/sims";
+import { tscript_core } from "./core.tscript";
 
 export const core = {
-    source: require('raw-loader!./core.tsc').default,
+    source: tscript_core,
 
     "impl": {
         "Null": {

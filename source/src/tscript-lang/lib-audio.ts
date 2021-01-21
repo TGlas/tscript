@@ -1,9 +1,10 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { TScript } from "../tscript";
 import { Typeid } from "../helpers/typeIds";
+import { tscript_audio } from "./lib-audio.tscript";
 
 export const lib_audio = {
-    source: require('raw-loader!./lib-audio.tsc').default,
+    source: tscript_audio,
     "impl": {
         "audio":{
             "MonoAudio":{

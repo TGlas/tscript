@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { ide } from "./gui/ide";
 import { doc } from "./doc/doc";
-import { runTests } from "./tests/runtests";
+import { runTests } from "./tests/runtests_gui";
 
 
 window.addEventListener("load", function(event)

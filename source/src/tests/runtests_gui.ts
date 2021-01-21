@@ -1,5 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Typeid } from "../helpers/typeIds";
+import { defaultService } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
 import { Parser } from "../parse/parser";
 import { TScript } from "../tscript";
@@ -90,7 +91,7 @@ export function runTests(outerContainer){
 		}
 		status.innerText = "Running test " + (testindex + 1) + " out of " + tests.length + " ...";
 
-		let test = tests[testindex];
+		let test:any = tests[testindex];
 
 		let timeout = test.hasOwnProperty("timeout") ? (test as any).timeout : 10.0;
 		let input:any = test.hasOwnProperty("input") ? test.input : [];
@@ -232,7 +233,7 @@ export function runTests(outerContainer){
 				// test for a sequence of events
 				let sr = JSON.stringify(result, null, 2);
 				let se = JSON.stringify(expectation, null, 2);
-				if (sr == se)
+				if (sr === se)
 				{
 					reportPassed();
 				}
@@ -267,7 +268,7 @@ export function runTests(outerContainer){
 		}
 
 		// prepare the interpreter
-		interpreter = new Interpreter(c.program);
+		interpreter = new Interpreter(c.program, defaultService);
 		interpreter.service.documentation_mode = false;
 		interpreter.service.print = (function(msg) { result.push({type: "print", message: msg}); });
 		interpreter.service.alert = (function(msg) { result.push({type: "alert", message: msg}); });

@@ -1,9 +1,10 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { TScript } from "../tscript";
 import { Typeid } from "../helpers/typeIds";
+import { tscipt_canvas } from "./lib-canvas.tscript";
 
 export const lib_canvas = {
-    source: require('raw-loader!./lib-canvas.tsc').default,
+    source: tscipt_canvas,
     "impl": {
         "canvas": {
                 "width": function() {

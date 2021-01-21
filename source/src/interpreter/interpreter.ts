@@ -26,7 +26,7 @@ export class Interpreter{
 	public timerEventEnqueued:boolean = false;
 	public options: Options;
 
-    public constructor(program, service = defaultService){
+    public constructor(program, service:any){
         // create attributes
         this.program = program;   
 		this.service = service;  
@@ -63,7 +63,7 @@ export class Interpreter{
 			let start = (new Date()).getTime();
 			while (this.background && (new Date()).getTime() - start < 14 && this.status === "running")
 			{
-				this.exec_step();
+				this.exec_step.bind(this)();
 
 				if (this.halt)
 				{
@@ -228,7 +228,6 @@ export class Interpreter{
 			{
 				let frame = this.stack[this.stack.length - 1];
 				let pe = frame.pe[frame.pe.length - 1];
-
 				// check whether we are done
 				let done = pe.sim.call(this);
 				if (done) break;

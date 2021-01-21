@@ -1,9 +1,10 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { TScript } from "../tscript";
 import { Typeid } from "../helpers/typeIds";
+import { tscript_turle } from "./lib-turtle.tscript";
 
 export const lib_turtle = {
-    source: require('raw-loader!./lib-turtle.tsc').default,
+    source: tscript_turle,
     "impl": {
         "turtle": {
                 "reset": function(x, y, degrees, down) {

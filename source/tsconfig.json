@@ -3,7 +3,7 @@
     {
         "target": "es5",
         "lib": ["DOM", "ES2018", "ESNext"],
-        "module": "ESNext",
+        "module": "CommonJS",
         "removeComments": true,
         "sourceMap": true,
         "strict": true,

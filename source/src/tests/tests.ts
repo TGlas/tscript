@@ -3,8 +3,31 @@
 
 import { Version } from "../version";
 
-//
-export  const tests = [
+export type TscriptExpectation = any;
+export type TscriptEvents = any;
+
+export interface _TscriptTest{
+	name:string,
+	description:string,
+	code:string,
+	expectation:Array<TscriptExpectation> | object,
+}
+
+export interface TscriptEventTest extends _TscriptTest{
+	events: undefined | Array<TscriptEvents>;
+}
+
+export interface TscriptInputTest extends _TscriptTest{
+	input: Array<any>,
+}
+
+export interface TscriptBrowserOnlyTest extends _TscriptTest{
+	browserOnly: boolean,
+}
+
+export type TscriptTest = _TscriptTest | TscriptEventTest | TscriptInputTest | TscriptBrowserOnlyTest;
+
+export  const tests:Array<TscriptTest> = [
 	// lexer
 	{
 		name: "lexer and token types",
@@ -67,6 +90,7 @@ export  const tests = [
 
 	{
 		name: "event handling",
+		browserOnly: true,
 		description: "test of event handling",
 		code: `
 			setEventHandler("canvas.mousedown", function(event) { quitEventMode("down"); });
@@ -1468,6 +1492,7 @@ export  const tests = [
 	},
 	{
 		name: "exists",
+		browserOnly: true,
 		description: "test function exists",
 		code: `
 			if exists("implausible-filename-19fe94e375c0b0a1749ad05f") then print("implausible");
@@ -1477,6 +1502,7 @@ export  const tests = [
 	},
 	{
 		name: "load and save",
+		browserOnly: true,
 		description: "test functions load and save",
 		code: `
 			save("unittest-data", {a:3,b:3.5});
@@ -1504,6 +1530,7 @@ export  const tests = [
 	},
 	{
 		name: "event handling",
+		browserOnly: true,
 		description: "test event handling and timer events",
 		code: `
 			var n = 0;
@@ -1767,6 +1794,7 @@ export  const tests = [
 	},
 	{
 		name: "keydown",
+		browserOnly: true,
 		description: "test of canvas event keydown",
 		code: `
 			function onKeyDown(event)
@@ -1802,6 +1830,7 @@ export  const tests = [
 	},
 	{
 		name: "keyup",
+		browserOnly: true,
 		description: "test of canvas event keyup",
 		code: `
 			function onKeyUp(event)
@@ -1837,6 +1866,7 @@ export  const tests = [
 	},
 	{
 		name: "mousedown",
+		browserOnly: true,
 		description: "test of canvas event mousedown",
 		code: `
 			function onMouseDown(event)
@@ -1879,6 +1909,7 @@ export  const tests = [
 	},
 	{
 		name: "mouseup",
+		browserOnly: true,
 		description: "test of canvas event mouseup",
 		code: `
 			function onMouseUp(event)
@@ -1921,6 +1952,7 @@ export  const tests = [
 	},
 	{
 		name: "mousemove",
+		browserOnly: true,
 		description: "test of canvas event mousemove",
 		code: `
 			function onMouseMove(event)
@@ -1960,6 +1992,7 @@ export  const tests = [
 	},
 	{
 		name: "mouseout",
+		browserOnly: true,
 		description: "test of canvas event mouseout",
 		code: `
 			function onMouseOut(event)
@@ -1984,6 +2017,7 @@ export  const tests = [
 	},
 	{
 		name: "resize",
+		browserOnly: true,
 		description: "test of canvas event resize",
 		code: `
 			function onResize(event)
@@ -2013,6 +2047,7 @@ export  const tests = [
 	},
 	{
 		name: "audio",
+		browserOnly: true,
 		description: "checks if the audio object rejects invalid samples",
 		code: `
 			use namespace audio;
@@ -3694,6 +3729,7 @@ export  const tests = [
 	},
 	{
 		name: "am-38",
+		browserOnly: true,
 		description: "test of argument mismatch error am-38",
 		code: `
 			var x = load("unittest-data-9rhgmq9k2lmyxlcjl249vfnx92vmpis");
@@ -3737,6 +3773,7 @@ export  const tests = [
 	},
 	{
 		name: "am-41",
+		browserOnly: true,
 		description: "test of argument mismatch error am-41",
 		code: `
 			setEventHandler("timer", function() {});
@@ -4209,6 +4246,7 @@ export  const tests = [
 	},
 	{
 		name: "le-2",
+		browserOnly: true,
 		description: "test of logic error le-2",
 		code: `
 			function f() { enterEventMode(); }

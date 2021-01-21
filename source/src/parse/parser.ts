@@ -12,7 +12,7 @@ import { defaultOptions, Options } from "../helpers/options";
 import { RuntimeError } from "../errors/RuntimeError";
 
 export class Parser{
-    public static parse(sourcecode, options:Options = defaultOptions)
+    public static parse(sourcecode, options:Options = defaultOptions) : {program:any, errors:Array<any>}
     {
         // create the initial program structure
         let program:any = {

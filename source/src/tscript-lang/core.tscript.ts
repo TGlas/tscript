@@ -1,3 +1,4 @@
+export const tscript_core = `
 class Null
 {
 public:
@@ -108,3 +109,4 @@ function load(key) { }
 function save(key, value) { }
 function listKeys(){}
 function deepcopy(value) { }
+`;
