@@ -6967,7 +6967,10 @@ module.Interpreter = function(program)
 		}
 	};
 
-	this.service.audioContext = new AudioContext();
+	var AudioContext = window.AudioContext || window.webkitAudioContext;
+	if (typeof AudioContext === "function") {
+		this.service.audioContext = new AudioContext();
+	}
 
 	// exception type
 	function RuntimeError(msg, line, ch, href)
