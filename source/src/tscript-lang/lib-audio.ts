@@ -13,11 +13,10 @@ export const lib_audio = {
                     
                     if(! TScript.isDerivedFrom(sampleRate.type, Typeid.typeid_integer)) ErrorHelper.error("/argument-mismatch/am-1", ["sampleRate", "audio.MonoAudio.constructor", "integer", TScript.displayname(sampleRate)])	
                                 
-                    if(!checkAudioBufferCorrectness(buffer)){
-                        ErrorHelper.error("/argument-mismatch/am-44", ["buffer", "real"]);
-                    }	
+                    if(!checkAudioBufferCorrectness(buffer))ErrorHelper.error("/argument-mismatch/am-44", ["buffer", "real"]);
 
-                    if(audioContextNullOrUndefined.bind(this)()) return;
+
+                    if(!hasAudioContext.call(this)) return;
                     let buf = this.service.audioContext.createBuffer(1, buffer.value.b.length, sampleRate.value.b);
                     
                     fillAudioBuffer(buffer, buf.getChannelData(0));
@@ -29,17 +28,20 @@ export const lib_audio = {
                     
                     object.value.b = sourceNode;
                 },
-                "play": function(object){	
-                    if(audioContextNullOrUndefined.bind(this)()) return;
+                "play": function(object)
+                {	
+                    if(!hasAudioContext.call(this)) return;
                     object.value.b.start()	
                 },	
-                "pause": function(object){	
-                    if(audioContextNullOrUndefined.bind(this)()) return;
+                "pause": function(object)
+                {	
+                    if(!hasAudioContext.call(this)) return;
                     object.value.b.stop()	
                 },		
-                "setPlaybackRate":function(object, speed){	
+                "setPlaybackRate":function(object, speed)
+                {	
                     if(! TScript.isDerivedFrom(speed.type, Typeid.typeid_real)) ErrorHelper.error("/argument-mismatch/am-1", ["speed", "audio.MonoAudio.setPlaybackRate", "real", TScript.displayname(speed)])	
-                    if(audioContextNullOrUndefined.bind(this)()) return;
+                    if(!hasAudioContext.call(this)) return;
                     object.value.b.playbackRate.value = speed.value.b;	
                 }
             },
@@ -50,15 +52,13 @@ export const lib_audio = {
 
                     if(! TScript.isDerivedFrom(sampleRate.type, Typeid.typeid_integer)) ErrorHelper.error("/argument-mismatch/am-1", ["sampleRate", "audio.StereoAudio.constructor", "integer", TScript.displayname(sampleRate)])	
                     
-                    if(!checkAudioBufferCorrectness(rightBuffer)){
-                        ErrorHelper.error("/argument-mismatch/am-44", ["rightBuffer", "real"]);
-                    }
+                    if(!checkAudioBufferCorrectness(rightBuffer)) ErrorHelper.error("/argument-mismatch/am-44", ["rightBuffer", "real"]);
+                
 
-                    if(!checkAudioBufferCorrectness(leftBuffer)){
-                        ErrorHelper.error("/argument-mismatch/am-44", ["leftBuffer", "real"]);
-                    }
+                    if(!checkAudioBufferCorrectness(leftBuffer)) ErrorHelper.error("/argument-mismatch/am-44", ["leftBuffer", "real"]);
 
-                    if(audioContextNullOrUndefined.bind(this)()) return;
+
+                    if(!hasAudioContext.call(this)) return;
                     let buf = this.service.audioContext.createBuffer(2, leftBuffer.value.b.length, sampleRate.value.b);
 
                     fillAudioBuffer(leftBuffer, buf.getChannelData(0));
@@ -71,17 +71,19 @@ export const lib_audio = {
                     object.value.b = sourceNode;
                 },
 
-                "play": function(object){	
-                    if(audioContextNullOrUndefined.bind(this)()) return;
+                "play": function(object)
+                {	
+                    if(!hasAudioContext.call(this)) return;
                     object.value.b.start()	
                 },	
-                "pause": function(object){
-                    if(audioContextNullOrUndefined.bind(this)()) return;	
+                "pause": function(object)
+                {
+                    if(!hasAudioContext.call(this)) return;	
                     object.value.b.stop()	
                 },		
                 "setPlaybackRate":function(object, speed){	
                     if(! TScript.isDerivedFrom(speed.type, Typeid.typeid_real)) ErrorHelper.error("/argument-mismatch/am-1", ["speed", "audio.StereoAudio.setPlaybackRate", "real", TScript.displayname(speed)])	
-                    if(audioContextNullOrUndefined.bind(this)()) return;
+                    if(!hasAudioContext.call(this)) return;
 
                     object.value.b.playbackRate.value = speed.value.b;	
                 }
@@ -92,31 +94,26 @@ export const lib_audio = {
 
 //moves data from a tscript array of reals into a Float32 array returns false if the buffer contained invalid data
 let fillAudioBuffer = function(tscriptBuffer, array){
-    function clamp(v, min, max){
-        return v > max ? max : (v < min) ? min : v;
-    } 
+    function clamp(v, min, max)
+    { return v > max ? max : (v < min) ? min : v; } 
     
     for(let i=0; i < array.length; i++){
         //clip sample to [-1,1]
         array[i] = clamp(tscriptBuffer.value.b[i].value.b, -1, 1);;
     }
-
-    return true;
 }
 
 // returns false if the buffer contains invalid data.
 let checkAudioBufferCorrectness = function(tscriptBuffer){
     for(let i=0; i < tscriptBuffer.value.b.length; i++){
         //check if number is a real
-        if (! TScript.isDerivedFrom(tscriptBuffer.value.b[i].type, Typeid.typeid_real)){
-            return false;
-        }
+        if (! TScript.isDerivedFrom(tscriptBuffer.value.b[i].type, Typeid.typeid_real)) return false;
     }
     return true;
 }
 
-function audioContextNullOrUndefined(){
-    if(typeof this.service.audioContext === 'undefined') return true;
-    if(this.service.audioContext  === null) return true;
-    return false;
+function hasAudioContext(){
+    if(typeof this.service.audioContext === 'undefined') return false;
+    if(this.service.audioContext  === null) return false;
+    return true;
 }
