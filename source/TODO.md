@@ -1,5 +1,5 @@
 # TODO
-- fix export
+- Improve documentation
 - Separate GUI into classes
 - compiler option `"strictNullChecks": true `
 - compiler option `"noImplicitAny": true,`

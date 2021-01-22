@@ -921,7 +921,7 @@ export let ide = (function() {
 		tgui.startModal(dlg);
 	
 		// escape the TScript source code; prepare it to reside inside a single-quoted string
-		source = source.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/'/g, "\\'");
+		source = escape(source);
 	
 		// obtain the page itself as a string
 		{
@@ -935,26 +935,28 @@ export let ide = (function() {
 					// hide the IDE and let canvas or turtle run in full screen
 					let page = xhr.responseText;
 	
-					let key = '"export key"';
-					let pos = page.indexOf(key);
-					pos = page.indexOf(key, pos+1);
-					if (pos < 0) { alert("internal error during export"); return; }
-					pos += key.length + 1;
-					let title1 = page.indexOf("<title>") + 7;
-					let title2 = page.indexOf("</title>");
-	
-					let s1 = page.substr(0, title1);
-					let s2 = page.substr(title2, pos - title2);
-					let s3 = page.substr(pos);
-	
-					let s_init = "ide.sourcecode.setValue('" + source + "');\nide.prepare_run();\nif (ide.interpreter) ide.interpreter.run(); else { cv.innerHTML = ''; cv.appendChild(ide.messagecontainer); };\n";
-					let turtle = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nide.turtle.parentNode.removeChild(ide.turtle);\ndocument.body.appendChild(ide.turtle);\nide.turtle.style.width="100vh";\nide.turtle.style.height="100vh";\n' + s_init + '}, false);\n';
-					let canvas = 'window.addEventListener("load", function() {\ntgui.releaseAllHotkeys();\ndocument.body.innerHTML = "";\nlet cv = ide.canvas.parentNode;\ncv.parentNode.removeChild(cv);\ndocument.body.appendChild(cv);\ncv.style.width="100vw";\ncv.style.height="100vh";\ncv.style.top="0px";\nlet init = function() {\nif (cv.offsetWidth === 0 || cv.offsetHeight === 0) { window.setTimeout(init, 1); return; }\nide.canvas.width = cv.offsetWidth;\nide.canvas.height = cv.offsetHeight;\n' + s_init + 'cv.focus();\n};\nwindow.setTimeout(init, 1);\n}, false);\n';
-	
+					let headEnd = page.indexOf("<head>") + "<head>".length;
+					let header = page.substr(0, headEnd);
+					let footer = page.substr(headEnd);
+					
+					let scriptOpen = "window.TScript = {}; window.TScript.code = unescape(\"" + source + "\"); "
+					+ "window.TScript.mode = ";
+					let scriptClose = ";window.TScript.name = unescape(\""+escape(title)+"\")";
+
+					let genCode = function genCode(mode){
+						let s = document.createElement('script');
+						s.innerHTML = scriptOpen + "\""+escape(mode)+"\"" + scriptClose;
+						let script = s.outerHTML;
+						
+						let blob = new Blob([header + script + footer], {type: "text/html"});
+
+						return URL.createObjectURL(blob); //"data:text/html," + encodeURIComponent(header + script + footer);
+					}
+					
 					status.innerHTML = "status: ready for download";
-					download_turtle.href="data:text/html," + encodeURIComponent(s1 + title + s2 + turtle + s3);
+					download_turtle.href=genCode("turtle")
 					download_turtle.style.display = "block";
-					download_canvas.href="data:text/html," + encodeURIComponent(s1 + title + s2 + canvas + s3);
+					download_canvas.href=genCode("canvas");
 					download_canvas.style.display = "block";
 				}
 			}
@@ -2519,7 +2521,7 @@ export let ide = (function() {
 				"fallbackState": "right",
 				"onResize": function(w, h)
 						{
-							if (module.canvas)
+							if (!module.hasOwnProperty('standalone') && module.canvas)
 							{
 								module.canvas.width = w;
 								module.canvas.height = h;
