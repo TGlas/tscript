@@ -14,10 +14,12 @@
         
         "noFallthroughCasesInSwitch": true,
         "incremental": false,
+
         //"strictNullChecks": true //would be nice if all these would work.
         //"noImplicitAny": true,
         //"noImplicitReturns" : true,
         //"noImplicitThis": true,
+        
     },
     
     "include": ["./node_modules/"]

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "dev": "webpack --mode=development -w -c ./webpack.config.js",
-    "tsc": "webpack --mode=development -c ./webpack.config.interop.js",
+    "interop": "tsc ./src/interop.ts --outDir ../dist/interop",
     "test": "mocha -r ts-node/register src/mocha/*"
   },
   "devDependencies": {
