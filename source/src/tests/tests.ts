@@ -2,6 +2,7 @@
 // definition of all unit test
 
 import { Version } from "../version";
+import { test_lattice_craft } from "./test_lattice_craft";
 
 export type TscriptExpectation = any;
 export type TscriptEvents = any;
@@ -11,6 +12,10 @@ export interface _TscriptTest{
 	description:string,
 	code:string,
 	expectation:Array<TscriptExpectation> | object,
+}
+
+export interface TscriptParseTest extends _TscriptTest{
+	parseOnly:boolean;
 }
 
 export interface TscriptEventTest extends _TscriptTest{
@@ -25,7 +30,7 @@ export interface TscriptBrowserOnlyTest extends _TscriptTest{
 	browserOnly: boolean,
 }
 
-export type TscriptTest = _TscriptTest | TscriptEventTest | TscriptInputTest | TscriptBrowserOnlyTest;
+export type TscriptTest = _TscriptTest | TscriptEventTest | TscriptInputTest | TscriptBrowserOnlyTest | TscriptParseTest;
 
 export  const tests:Array<TscriptTest> = [
 	// lexer
@@ -4284,6 +4289,9 @@ export  const tests:Array<TscriptTest> = [
 				"error"],
 	},
 
+	test_lattice_craft,
+
 	// Checking internal errors is inherently impossible, and quite meaningless.
 	// Therefore we don't have unit tests for them.
 ];
+

@@ -38,6 +38,15 @@ function testCanOnlyRunInBrowser(test:TscriptTest):boolean{
     }
 }
 
+function testIsParseOnly(test:TscriptTest){
+    let t:any = test;
+    if(t.hasOwnProperty("parseOnly")){
+        return t.parseOnly;
+    }else{
+        return false;
+    }
+}
+
 export class TestRunner{
 
     public static async runTest(test:TscriptTest, cb:Callback, isBrowser):Promise<void>{
@@ -58,6 +67,10 @@ export class TestRunner{
         let parsed;
         try{
             parsed = Parser.parse(test.code);
+            if(testIsParseOnly(test)){
+                cb.suc(test);
+                return;
+            }
         }catch(ex){
             cb.fail(test, ex);
             return;
