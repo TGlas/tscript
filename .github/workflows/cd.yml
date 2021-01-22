@@ -37,7 +37,7 @@ jobs:
     - run: git config --local user.name "[bot]"
     - run: mv dist/* .
     - run: git reset
-    - run: git add index.html bundle.css bundle.js
+    - run: git add index.html
     - run: git commit -m "Compiled latest"
     - name: Push changes
       uses: ad-m/github-push-action@master
