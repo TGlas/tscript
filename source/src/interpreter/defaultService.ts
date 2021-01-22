@@ -1,3 +1,24 @@
+export const fakeLocalStorage = {
+    map: new Map(),
+    keys: function(){
+        let ar = new Array();
+        let key;
+        let iter = this.map.keys();
+
+        while(!(key = iter.next()).done){
+            ar.push(key.value);
+        }
+        return ar;
+    },
+    setItem: function(key, value){
+        this.map.set(key, value);
+    },
+    getItem: function(key){
+        let r = this.map.get(key);
+        return typeof r === "undefined" ? null : r;
+    }
+}
+
 export const defaultService = {
 turtle: {
     "x": 0.0,
@@ -241,4 +262,5 @@ canvas: {
     }
 },
     audioContext: undefined,
+    localStorage: undefined,
 };

@@ -5,8 +5,8 @@
   "main": "tscript.js",
   "scripts": {
     "build": "webpack --mode=production",
-    "dev": "webpack --mode=development -w",
-    "tsc": "tsc ./src/index.ts",
+    "dev": "webpack --mode=development -w -c ./webpack.config.js",
+    "tsc": "webpack --mode=development -c ./webpack.config.interop.js",
     "test": "mocha -r ts-node/register src/mocha/*"
   },
   "devDependencies": {

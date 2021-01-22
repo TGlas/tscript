@@ -1496,7 +1496,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "exists",
-		browserOnly: true,
 		description: "test function exists",
 		code: `
 			if exists("implausible-filename-19fe94e375c0b0a1749ad05f") then print("implausible");
@@ -1506,7 +1505,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "load and save",
-		browserOnly: true,
 		description: "test functions load and save",
 		code: `
 			save("unittest-data", {a:3,b:3.5});
@@ -3724,7 +3722,6 @@ export  const tests:Array<TscriptTest> = [
 	},
 	{
 		name: "am-38",
-		browserOnly: true,
 		description: "test of argument mismatch error am-38",
 		code: `
 			var x = load("unittest-data-9rhgmq9k2lmyxlcjl249vfnx92vmpis");

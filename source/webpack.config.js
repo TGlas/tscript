@@ -7,12 +7,12 @@ module.exports = [
   { //compile .ts and tsc
     entry: './src/index.ts',
     mode: 'development',
+    target: 'node',
     module: {
       rules: [
         {
           test: /\.tsx?$/,
           use: 'ts-loader',
-          //exclude: /node_modules/,
         },
       ],
     },
