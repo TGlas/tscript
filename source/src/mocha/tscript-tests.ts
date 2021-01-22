@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
 import 'mocha';
 import { TestRunner } from '../tests/testRunner';
-import { tests } from '../tests/tests';
+import { tests, TscriptTest } from '../tests/tests';
 
 let testcases = tests;
 
@@ -19,4 +19,21 @@ testcases.forEach( (test) =>{
         });
     });
 
+});
+
+
+let failTest:TscriptTest = {
+    description: "",
+    name: "",
+    code: "print(\"Hello\");",
+    expectation: [
+        {type: "print", message: "World"},
+        "finished"
+    ],
+}
+
+describe("tests can fail", ()=>{
+    it("should fail", async ()=>{
+        await TestRunner.runTest(failTest, {suc: cb.fail, fail: cb.suc}, false);
+    });
 });

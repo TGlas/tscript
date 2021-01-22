@@ -29,6 +29,15 @@ const sleep = (milliseconds) => {
     return copy;
 }
 
+function testCanOnlyRunInBrowser(test:TscriptTest):boolean{
+    let t:any = test;
+    if(t.hasOwnProperty("browserOnly")){
+        return t.browserOnly;
+    }else{
+        return false;
+    }
+}
+
 export class TestRunner{
 
     public static async runTest(test:TscriptTest, cb:Callback, isBrowser):Promise<void>{
@@ -37,7 +46,7 @@ export class TestRunner{
 		let input:any = test.hasOwnProperty("input") ? (test as TscriptInputTest).input : [];
         let events:any = test.hasOwnProperty("events") ? (test as TscriptEventTest).events : [];
         
-        if(!isBrowser || typeof document === "undefined" && (test.expectation as any).type === "turtle" || (test.expectation as any).type === "canvas"){
+        if((isBrowser === false && testCanOnlyRunInBrowser(test)) || typeof document === "undefined" && (test.expectation as any).type === "turtle" || (test.expectation as any).type === "canvas"){
             cb.suc(test);
             return;
         }
