@@ -1,7 +1,6 @@
 const path = require('path');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = [
@@ -48,12 +47,6 @@ module.exports = [
     output: {
       path: path.resolve(__dirname, '../dist'),
     },
-    optimization: {
-      minimize: true,
-      minimizer: [
-        new CssMinimizerPlugin(),
-      ],
-    }
   },
 
 ];
