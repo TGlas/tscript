@@ -81,7 +81,7 @@ export class Interpreter{
 		}
 
 		if(this.status !== "finished"){
-        	setTimeout(this.chunk.bind(this), 100);
+        	setTimeout(this.chunk.bind(this), 1);
 		}
 	}
     
