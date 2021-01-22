@@ -2169,7 +2169,7 @@ let lib_canvas = {
 	{
 		if (typeof this.service.audioContext === 'undefined') return false;
 		if (this.service.audioContext === null) return false;
-		return false;
+		return true;
 	}
 
 	let lib_audio = {
