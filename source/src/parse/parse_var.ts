@@ -3,7 +3,7 @@
 
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { get_function } from "../interpreter/runner_helper";
+import { get_function } from "../interpreter/interpreter_helper";
 import { TScript } from "../tscript";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";

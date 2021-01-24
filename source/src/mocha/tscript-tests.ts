@@ -10,7 +10,6 @@ let cb = {
     fail: function(ex){assert.fail(ex)}
 }
 
-//testcases.length = 1;
 
 testcases.forEach( (test) =>{
     describe(test.name, ()=>{

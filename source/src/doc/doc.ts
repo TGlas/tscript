@@ -251,8 +251,6 @@ function processCode(code, css_prefix, lex)
 						{
 							if (args === undefined) args = [];
 							let str = "documentation internal error in code: '" + this.source + "'";
-							console.log(str);
-							console.log(path, args);
 							throw new Error(str);
 						},
 				"current": function()

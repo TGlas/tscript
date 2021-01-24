@@ -1,6 +1,6 @@
 import { Lexer } from "./lexer";
 import { peek_keyword } from "./parser_helper";
-import { scopestep } from "../interpreter/runner_helper";
+import { scopestep } from "../interpreter/interpreter_helper";
 import { TScript } from "../tscript";
 import { simfalse } from "../helpers/sims";
 import { parse_assignment_or_expression } from "./parse_assignment_or_expression";

@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { ParseError } from "../errors/ParseError";
-import { create_breakpoint, scopestep } from "../interpreter/runner_helper";
+import { create_breakpoint, scopestep } from "../interpreter/interpreter_helper";
 import { core } from "../tscript-lang/core";
 import { lib_canvas } from "../tscript-lang/lib-canvas";
 import { lib_math } from "../tscript-lang/lib-math";

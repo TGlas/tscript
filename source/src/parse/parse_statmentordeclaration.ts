@@ -1,4 +1,4 @@
-import { create_breakpoint } from "../interpreter/runner_helper";
+import { create_breakpoint } from "../interpreter/interpreter_helper";
 import { parse_declaration } from "./parse_declaration";
 import { parse_statement } from "./parse_statment";
 

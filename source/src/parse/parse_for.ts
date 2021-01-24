@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { get_function } from "../interpreter/runner_helper";
+import { get_function } from "../interpreter/interpreter_helper";
 import { TScript } from "../tscript";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";

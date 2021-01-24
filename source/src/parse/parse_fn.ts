@@ -1,7 +1,7 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { assignments, binary_operator_impl, binary_operator_precedence, left_unary_operator_impl, left_unary_operator_precedence, peek_keyword} from "./parser_helper";
-import { create_breakpoint, get_context, get_function, get_program, get_type, scopestep } from "../interpreter/runner_helper";
+import { create_breakpoint, get_context, get_function, get_program, get_type, scopestep } from "../interpreter/interpreter_helper";
 import { TScript } from "../tscript";
 import { simfalse, simtrue } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";

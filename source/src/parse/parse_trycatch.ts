@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { get_function } from "../interpreter/runner_helper";
+import { get_function } from "../interpreter/interpreter_helper";
 import { simfalse } from "../helpers/sims";
 import { parse_statement } from "./parse_statment";
 

@@ -1,5 +1,4 @@
-//
-// definition of all unit test
+// definition of most unit test
 
 import { Version } from "../version";
 import { test_lattice_craft } from "./test_lattice_craft";

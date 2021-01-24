@@ -164,10 +164,6 @@ export class TScript{
         }else{
             program = this as any;
         }
-        
-        if(!program.hasOwnProperty('types')){
-            debugger;
-        }
 
         let t = typeof arg;
         if (arg === null)

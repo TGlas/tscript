@@ -1,7 +1,6 @@
 {
-    "compilerOptions": 
-    {
-        "target": "es5",
+    "compilerOptions": {
+        "target": "es6",
         "lib": ["DOM", "ES2018", "ESNext"],
         "module": "CommonJS",
         "removeComments": true,
@@ -10,7 +9,7 @@
         "noImplicitAny": false,
         "noImplicitThis": false,
         "esModuleInterop": true,
-        "moduleResolution": "Classic",
+        "moduleResolution": "Node",
         
         "noFallthroughCasesInSwitch": true,
         "incremental": false,
@@ -21,7 +20,5 @@
         //"noImplicitThis": true,
         
     },
-    
-    "include": ["./node_modules/"]
     
 }

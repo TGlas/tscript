@@ -1836,7 +1836,6 @@ export let ide = (function() {
 	
 		function download(filename, text, mime = "text/plain")
 		{
-	console.log(mime);
 			var element = document.createElement('a');
 			element.setAttribute('href', 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(text));
 			element.setAttribute('download', filename);

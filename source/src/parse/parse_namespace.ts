@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { scopestep } from "../interpreter/runner_helper";
+import { scopestep } from "../interpreter/interpreter_helper";
 import { TScript } from "../tscript";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
