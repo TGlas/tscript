@@ -3,7 +3,8 @@
 // namespace1.namespace2. [...] .name . The function looks up the name.
 // It returns the full name, the program element holding the entity as
 // a name, and the result of the lookup.
-// In addition, the function reports and error if the name refers to a
+// In addition, the function reports an error if the name refers to a
+// non-static member for which "this" is not available.
 
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
