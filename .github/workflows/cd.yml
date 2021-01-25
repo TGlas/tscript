@@ -33,7 +33,7 @@ jobs:
     - run: git config --local user.email "f6eae15e-09a6-45d4-b9a1-f694f50b9e21@example.com"
     - run: git config --local user.name "🤖"
     - run: git reset
-    - run: git add -f ./distribution/index.html
+    - run: git add -f ./distribution/index.html ./distribution/tscript.js
     - run: git commit -m "Compiled latest"
     - name: Push changes
       uses: ad-m/github-push-action@master
