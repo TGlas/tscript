@@ -1327,18 +1327,34 @@ export  const tests:Array<TscriptTest> = [
 				function me()
 				{ return this; }
 			}
+			class Foo
+			{
+			private:
+				var a;
+				constructor(a_) { a = a_; }
+			public:
+				static function create(x) { return Foo(x); }
+				function get() { return a; }
+			}
 
 			var c = C(3);
 			print(c.get_prot_a());
 			print(c.get_prot_b());
 			print(c.get_prot_c());
 			c.print_all_priv();
+			var f = Foo.create(42);
+			print(f.get());
+			var cls = Foo;
+			var g = cls.create(43);
+			print(g.get());
 		`,
 		expectation: [
 				{type: "print", message: "6"},
 				{type: "print", message: "7"},
 				{type: "print", message: "8"},
 				{type: "print", message: "3 3 3"},
+				{type: "print", message: "42"},
+				{type: "print", message: "43"},
 				"finished"],
 	},
 

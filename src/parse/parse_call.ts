@@ -91,7 +91,7 @@ export function parse_call(state, parent, base, options: Options)
 				let error = false;
 				if (cls.class_constructor.access === "private")
 				{
-					if (sub_cl === null || sub_cl !== cls.id) error = true;
+					if (sub_cl === null || sub_cl.id !== cls.id) error = true;
 				}
 				else if (cls.class_constructor.access === "protected")
 				{
