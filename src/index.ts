@@ -4,6 +4,10 @@ import { doc } from "./doc/doc";
 import { runTests } from "./tests/runtests_gui";
 import { handleCanvas, handleTurtle } from "./gui/standalone";
 
+import "./css/ide.css";
+import "./css/tgui.css";
+import "./css/codemirror.css";
+import "./css/documentation.css";
 
 window.addEventListener("load", function(event)
 {

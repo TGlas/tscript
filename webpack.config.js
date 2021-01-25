@@ -6,7 +6,7 @@ const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin").def
 
 
 module.exports = {
-  entry: ['./src/index.ts', './src/css/ide.css', './src/css/tgui.css', './src/css/codemirror.css', './src/css/documentation.css'],
+  entry: ['./src/index.ts'],
   module: {
     rules: [
       // compile typescript
