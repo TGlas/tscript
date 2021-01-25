@@ -20,7 +20,11 @@ const sleep = (milliseconds) => {
     var copy = obj.constructor();
     for (var attr in obj) {
         if(obj.hasOwnProperty(attr) && typeof obj[attr] === "object"){
-            copy[attr] = clone(obj[attr]);
+            if(obj[attr] instanceof Map){
+                copy[attr] = obj[attr];
+            }else{
+                copy[attr] = clone(obj[attr]);
+            }
         }else{
             copy[attr] = obj[attr];
         }
