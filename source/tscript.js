@@ -3089,22 +3089,16 @@ function create_breakpoint(parent, state)
 			"step": function()
 					{
 						let frame = this.stack[this.stack.length - 1];
-						if (active && frame.ip[frame.ip.length-1] === 0)
+						if (active)
 						{
-							frame.ip[frame.ip.length-1]++;
 							this.interrupt();
 							if (this.service.breakpoint) this.service.breakpoint();
-							return true;
 						}
 						frame.pe.pop();
 						frame.ip.pop();
 						return false;
 					},
-			"sim": function()
-					{
-						let frame = this.stack[this.stack.length - 1];
-						return active && frame.ip[frame.ip.length-1] === 0;
-					},
+			"sim": () => active,
 			};
 }
 
