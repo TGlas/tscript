@@ -1,6 +1,5 @@
 import { ide } from "./gui/ide";
 import { doc } from "./doc/doc";
-import { runTests } from "./tests/runtests_gui";
 import { handleCanvas, handleTurtle } from "./gui/standalone";
 
 import "./css/ide.css";
@@ -32,6 +31,15 @@ window.addEventListener("load", function(event)
 		switch(window.location.search.slice(1)){
 			case 'doc':
 				doc.create(container);
+				break;
+			case 'run':
+				fetch(decodeURI(window.location.hash.slice(1))).then(rsp =>rsp.text().then((data)=>{
+					ide.create(container);
+					ide.sourcecode.setValue(data);
+				})).catch((err)=>{
+					ide.create(container);
+					ide.sourcecode.setValue(err);
+				});
 				break;
 			default:
 				ide.create(container);

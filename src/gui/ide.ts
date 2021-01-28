@@ -19,7 +19,7 @@ let CodeMirror:any = cm;
 //
 
 export let ide = (function() {
-	if (window.location.search != "") return null;
+	if (window.location.search != "" && window.location.search !== "?run") return null;
 	
 	let module:any = {};
 	let options:any = {};
@@ -815,7 +815,6 @@ export let ide = (function() {
 	
 	let cmd_reset = function()
 	{
-		clear();
 		updateControls();
 	}
 	
