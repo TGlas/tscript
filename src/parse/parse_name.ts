@@ -1,11 +1,3 @@
-// Parse a name. This can be a simple identifier, or it can be
-// super.name, or it can be a name inside a namespace of the form
-// namespace1.namespace2. [...] .name . The function looks up the name.
-// It returns the full name, the program element holding the entity as
-// a name, and the result of the lookup.
-// In addition, the function reports an error if the name refers to a
-// non-static member for which "this" is not available.
-
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { Options } from "../helpers/options";
@@ -13,6 +5,12 @@ import { get_function, get_type } from "../interpreter/interpreter_helper";
 import { TScript } from "../tscript";
 import { resolve_name } from "./parse_fn";
 
+// Parse a name. This can be a simple identifier, or it can be
+// super.name, or it can be a name inside a namespace of the form
+// namespace1.namespace2. [...] .name . The function looks up the name.
+// It returns the full name, the program element holding the entity as
+// a name, and the result of the lookup.
+// In addition, the function reports an error if the name refers to a
 // non-static member for which "this" is not available.
 export function parse_name(state, parent, options:Options, errorname, allow_namespace:boolean = false)
 {

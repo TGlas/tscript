@@ -1,6 +1,3 @@
-// Parse a "var" statement. Even for multiple variables it is treated as
-// a single statement. The variables are placed into the container,
-
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { get_function } from "../interpreter/interpreter_helper";
@@ -10,6 +7,8 @@ import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
 import { Options } from "../helpers/options";
 
+// Parse a "var" statement. Even for multiple variables it is treated as
+// a single statement. The variables are placed into the container,
 // which defaults to the enclosing function or global scope.
 export function parse_var(state, parent, options: Options, container:any = undefined)
 {

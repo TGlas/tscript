@@ -6,22 +6,22 @@ import { Typeid } from "../helpers/typeIds";
 
 export class Interpreter{
 
-    public thread = false;      // state of the thread
-    public stop = false;        // request to stop the thread
-    public background = false;  // is the thread responsible for running the program?
+    public thread = false;          // state of the thread
+    public stop = false;            // request to stop the thread
+    public background = false;      // is the thread responsible for running the program?
     public halt:any = null;         // function testing whether the thread should be halted
-    public status = "";         // program status: "running", "waiting", "error", "finished"
-    public stack:Array<any> = [];          // full state of the program
-    public breakpoints = {};    // breakpoints for debugging, keys are lines
-    public stepcounter = 0;     // number of program steps already executed
-    public waittime = 0;        // time to wait before execution can continue
+    public status = "";             // program status: "running", "waiting", "error", "finished"
+    public stack:Array<any> = [];   // full state of the program
+    public breakpoints = {};        // breakpoints for debugging, keys are lines
+    public stepcounter = 0;         // number of program steps already executed
+    public waittime = 0;            // time to wait before execution can continue
     public eventqueue:any = [];     // queue of events, with entries of the form {type, event}.
-    public eventhandler = {};   // event handler by event type
-    public eventnames = { };    // registry of event types
-    public eventmode = false;   // is the program in event handling mode?
+    public eventhandler = {};       // event handler by event type
+    public eventnames = { };        // registry of event types
+    public eventmode = false;       // is the program in event handling mode?
     public hook:any = null;         // function to be called before each step with the interpreter as this argument
-    public program:any = null;  // the program to execute
-    public service:any = null;  // external services, mostly for communication with the IDE
+    public program:any = null;      // the program to execute
+    public service:any = null;      // external services, mostly for communication with the IDE
 	public timerEventEnqueued:boolean = false;
 	public options: Options;
 

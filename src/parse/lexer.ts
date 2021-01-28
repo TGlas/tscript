@@ -6,7 +6,6 @@
 //
 
 import { Options } from "../helpers/options";
-import { TScript } from "../tscript";
 
 export class Lexer{
     public static keywords = {

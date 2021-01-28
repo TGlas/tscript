@@ -1,3 +1,5 @@
+let atx = window.AudioContext || (window as any).webkitAudioContext;
+
 export const fakeLocalStorage = {
     map: new Map(),
     keys: function(){
@@ -261,6 +263,6 @@ canvas: {
         ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
     }
 },
-    audioContext: typeof AudioContext === "undefined" ? undefined : new AudioContext(),
+    audioContext: typeof atx === "undefined" ? undefined : new atx(),
     localStorage: typeof window === "undefined" ? fakeLocalStorage : (typeof window.localStorage === "undefined" ? fakeLocalStorage : window.localStorage),
 };

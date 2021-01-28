@@ -1,5 +1,4 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
-import { ParseError } from "../errors/ParseError";
 import { create_breakpoint, scopestep } from "../interpreter/interpreter_helper";
 import { core } from "../tscript-lang/core";
 import { lib_canvas } from "../tscript-lang/lib-canvas";
@@ -9,7 +8,6 @@ import { lib_audio } from "../tscript-lang/lib-audio";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
 import { defaultOptions, Options } from "../helpers/options";
-import { RuntimeError } from "../errors/RuntimeError";
 
 export class Parser{
     public static parse(sourcecode, options:Options = defaultOptions) : {program:any, errors:Array<any>}
