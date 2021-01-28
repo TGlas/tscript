@@ -714,7 +714,7 @@ export const doc_stdlib:Documentation = {
 				use namespace math;
 				use namespace audio;
 
-				var durationInSeconds = 2;
+				var durationInSeconds = 0.2;
 				var l_freq = 440; # frequency in Hz 
 				var r_freq = 554;
 				var sampleRate = 48000; # sampleRate in Hz
@@ -735,9 +735,9 @@ export const doc_stdlib:Documentation = {
 				
 				var a = StereoAudio(l_samples, r_samples, sampleRate);
 				
-				# only play 1 of the 2 seconds
+				# only play 0.1 of the 0.2 seconds
 				a.play();
-				wait(1000);
+				wait(100);
 				a.pause();
 				
 			</tscript>
