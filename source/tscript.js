@@ -3089,22 +3089,16 @@ function create_breakpoint(parent, state)
 			"step": function()
 					{
 						let frame = this.stack[this.stack.length - 1];
-						if (active && frame.ip[frame.ip.length-1] === 0)
+						if (active)
 						{
-							frame.ip[frame.ip.length-1]++;
 							this.interrupt();
 							if (this.service.breakpoint) this.service.breakpoint();
-							return true;
 						}
 						frame.pe.pop();
 						frame.ip.pop();
 						return false;
 					},
-			"sim": function()
-					{
-						let frame = this.stack[this.stack.length - 1];
-						return active && frame.ip[frame.ip.length-1] === 0;
-					},
+			"sim": () => active,
 			};
 }
 
@@ -7143,13 +7137,29 @@ module.Interpreter = function(program)
 		return start - this.stack.length;
 	}
 
-	// Run the next command. Steps are considered atomic from the
-	// perspective of the debugger, although under the hood they are of
-	// course not.
-	// The first step moves the instruction pointer to the first
-	// non-trivial command. All further steps execute one command and
-	// then move the instruction pointer to the next non-trivial
-	// command.
+	/**
+	 * Run the next command. Steps are considered atomic from the
+	 * perspective of the debugger, although under the hood they are of
+	 * course not.
+	 * 
+	 * The loop inside this function executes the current step and
+	 * advances the instruction pointer. This is then repeated until
+	 * a step reports that it would be done after the next iteration.
+	 * The loop is ended _before_ a step completes so that it can be
+	 * inspected in stepping mode. Otherwise, only the state _after_ its
+	 * completion could be seen.
+	 * 
+	 * Example:
+	 * ```
+	 * var x = 0;
+	 * x = 1;
+	 * ```
+	 * 
+	 * When step-debugging this, the debugger can't halt after the declaration
+	 * since the constant `0` is considered trivial. You can only see `x`
+	 * changing from `0` to `1` because it stops _just before_ completing the
+	 * assignment.
+	 */
 	this.exec_step = function()
 	{
 		if (this.status === "waiting")
@@ -7185,36 +7195,29 @@ module.Interpreter = function(program)
 
 		try
 		{
-			// execute a step that returns true
 			let frame = this.stack[this.stack.length - 1];
 			let pe = frame.pe[frame.pe.length - 1];
-			if (frame.ip.length !== 1 || frame.ip[0] !== 0)
-			{
-				// execute the current program element, and demand that it "did something"
-				let done = pe.step.call(this);
-				module.assert(done, "[Interpreter.exec_step] 'done' expected");
-
-				// progress the instruction pointer
-				this.stepcounter++;
-				progress.call(this);
-			}
-
-			// execute trivial steps
 			while (this.stack.length > 0 && (this.status === "running" || this.status === "waiting"))
 			{
-				let frame = this.stack[this.stack.length - 1];
-				let pe = frame.pe[frame.pe.length - 1];
+				// execute the current step and check whether it's done
+				if (pe.step.call(this))
+				{
+					// the step is done -> count it
+					this.stepcounter++;
+				}
 
-				// check whether we are done
-				let done = pe.sim.call(this);
-				if (done) break;
-
-				// execute the current program element
-				done = pe.step.call(this);
-				module.assert(! done, "[Interpreter.exec_step] 'not done' expected");
-
-				// progress the instruction pointer
+				// update the instruction pointer
 				progress.call(this);
+
+				// has the program ended? -> end the loop
+				if (this.stack.length === 0) break;
+
+				// update the current frame and program element
+				frame = this.stack[this.stack.length - 1];
+				pe = frame.pe[frame.pe.length - 1];
+
+				// end the loop before the step is done
+				if (pe.sim.call(this)) break;
 			}
 		}
 		catch (ex)
