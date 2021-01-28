@@ -1,4 +1,4 @@
-let atx = window.AudioContext || (window as any).webkitAudioContext;
+let atx = typeof window === "undefined" ? undefined : window.AudioContext || (window as any).webkitAudioContext;
 
 export const fakeLocalStorage = {
     map: new Map(),
