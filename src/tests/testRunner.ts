@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Typeid } from "../helpers/typeIds";
-import { defaultService, fakeLocalStorage } from "../interpreter/defaultService";
+import { defaultService } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
 import { Parser } from "../parse/parser";
 import { TScript } from "../tscript";
@@ -105,7 +105,6 @@ export class TestRunner{
         service.message = function (msg, line, ch, href) { result.push({ type: "error", href: href }); };
         service.turtle.dom = typeof document !== "undefined" ? document.createElement("canvas") : {};
         service.canvas.dom = typeof document !== "undefined" ? document.createElement("canvas") : {};
-        service.localStorage = fakeLocalStorage;
         
 
         if(typeof document !== "undefined"){

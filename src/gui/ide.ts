@@ -753,8 +753,6 @@ export let ide = (function() {
 		{
 			module.interpreter = new Interpreter(program, defaultService);
 			module.interpreter.service.documentation_mode = false;
-			module.interpreter.localStorage = window.localStorage;
-			module.interpreter.service.audioContext = new AudioContext();
 			module.interpreter.service.print = (function(msg) { module.addMessage("print", msg); });
 			module.interpreter.service.alert = (function(msg) { alert(msg); });
 			module.interpreter.service.confirm = (function(msg) { return confirm(msg); });
