@@ -39,8 +39,8 @@ jobs:
     - name: Commit distribution artifacts
       run: |
         git checkout --orphan dist
-        git config --local user.email "f6eae15e-09a6-45d4-b9a1-f694f50b9e21@example.com"
-        git config --local user.name "🤖"
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
         git reset
         git add -f ./distribution/index.html
         git commit -m "Deploy site"
