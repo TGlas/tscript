@@ -19,23 +19,31 @@ jobs:
         persist-credentials: false
         fetch-depth: 0
 
-# Compile and run tests
+# Set up environment
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run build
-    - run: npm run interop
-    - run: npm test
+    - name: Install dependencies
+      run: npm ci
 
-# Push dist/ to dist
-    - run: git checkout --orphan dist
-    - run: git config --local user.email "f6eae15e-09a6-45d4-b9a1-f694f50b9e21@example.com"
-    - run: git config --local user.name "🤖"
-    - run: git reset
-    - run: git add -f ./distribution/index.html
-    - run: git commit -m "Compiled latest"
+# Build and run tests
+    - name: Build IDE
+      run: npm run build
+    - name: Build interop
+      run: npm run interop
+    - name: Run tests
+      run: npm test
+
+# Deploy to GitHub Pages
+    - name: Commit distribution artifacts
+      run: |
+        git checkout --orphan dist
+        git config --local user.email "f6eae15e-09a6-45d4-b9a1-f694f50b9e21@example.com"
+        git config --local user.name "🤖"
+        git reset
+        git add -f ./distribution/index.html
+        git commit -m "Deploy site"
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
