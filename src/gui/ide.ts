@@ -815,6 +815,7 @@ export let ide = (function() {
 	
 	let cmd_reset = function()
 	{
+		clear();
 		updateControls();
 	}
 	
@@ -921,7 +922,7 @@ export let ide = (function() {
 	
 		// escape the TScript source code; prepare it to reside inside a single-quoted string
 		source = escape(source);
-	
+		
 		// obtain the page itself as a string
 		{
 			var xhr = new XMLHttpRequest();
