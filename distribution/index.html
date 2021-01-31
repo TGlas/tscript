@@ -5295,7 +5295,7 @@ function parse_function(state, parent, petype)
 		if (token.type === "operator" && token.value === '=')
 		{
 			module.get_token(state);
-			let defaultvalue = parse_expression(state, parent);
+			let defaultvalue = parse_expression(state, func);
 			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 			param.defaultvalue = defaultvalue.typedvalue;
 		}
@@ -5424,7 +5424,7 @@ function parse_constructor(state, parent)
 		if (token.type === "operator" && token.value === '=')
 		{
 			module.get_token(state);
-			let defaultvalue = parse_expression(state, parent);
+			let defaultvalue = parse_expression(state, func);
 			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 			param.defaultvalue = defaultvalue.typedvalue;
 		}
@@ -7514,13 +7514,29 @@ module.Interpreter = function(program)
 		return start - this.stack.length;
 	}
 
-	// Run the next command. Steps are considered atomic from the
-	// perspective of the debugger, although under the hood they are of
-	// course not.
-	// The first step moves the instruction pointer to the first
-	// non-trivial command. All further steps execute one command and
-	// then move the instruction pointer to the next non-trivial
-	// command.
+	/**
+	 * Run the next command. Steps are considered atomic from the
+	 * perspective of the debugger, although under the hood they are of
+	 * course not.
+	 * 
+	 * The loop inside this function executes the current step and
+	 * advances the instruction pointer. This is then repeated until
+	 * a step reports that it would be done after the next iteration.
+	 * The loop is ended _before_ a step completes so that it can be
+	 * inspected in stepping mode. Otherwise, only the state _after_ its
+	 * completion could be seen.
+	 * 
+	 * Example:
+	 * ```
+	 * var x = 0;
+	 * x = 1;
+	 * ```
+	 * 
+	 * When step-debugging this, the debugger can't halt after the declaration
+	 * since the constant `0` is considered trivial. You can only see `x`
+	 * changing from `0` to `1` because it stops _just before_ completing the
+	 * assignment.
+	 */
 	this.exec_step = function()
 	{
 		if (this.status === "waiting")

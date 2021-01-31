@@ -4918,7 +4918,7 @@ function parse_function(state, parent, petype)
 		if (token.type === "operator" && token.value === '=')
 		{
 			module.get_token(state);
-			let defaultvalue = parse_expression(state, parent);
+			let defaultvalue = parse_expression(state, func);
 			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 			param.defaultvalue = defaultvalue.typedvalue;
 		}
@@ -5047,7 +5047,7 @@ function parse_constructor(state, parent)
 		if (token.type === "operator" && token.value === '=')
 		{
 			module.get_token(state);
-			let defaultvalue = parse_expression(state, parent);
+			let defaultvalue = parse_expression(state, func);
 			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 			param.defaultvalue = defaultvalue.typedvalue;
 		}
