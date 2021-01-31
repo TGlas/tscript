@@ -51,5 +51,5 @@ Thanks to
 [Manuel Fischer](https://github.com/manuel-fischer),
 [TheHllm](https://github.com/TheHllm),
 and
-[Jartreg](https://github.com/Jartreg),
+[Jartreg](https://github.com/Jartreg)
 for contributions.
