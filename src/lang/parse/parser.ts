@@ -1,10 +1,10 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { create_breakpoint, scopestep } from "../interpreter/interpreter_helper";
-import { core } from "../tscript-lang/core";
-import { lib_canvas } from "../tscript-lang/lib-canvas";
-import { lib_math } from "../tscript-lang/lib-math";
-import { lib_turtle } from "../tscript-lang/lib-turtle";
-import { lib_audio } from "../tscript-lang/lib-audio";
+import { core } from "../tscript-lib/core";
+import { lib_canvas } from "../tscript-lib/lib-canvas";
+import { lib_math } from "../tscript-lib/lib-math";
+import { lib_turtle } from "../tscript-lib/lib-turtle";
+import { lib_audio } from "../tscript-lib/lib-audio";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
 import { defaultOptions, Options } from "../helpers/options";
