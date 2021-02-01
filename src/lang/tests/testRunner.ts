@@ -2,7 +2,7 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Typeid } from "../helpers/typeIds";
 import { defaultService } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
-import { Parser } from "../parse/parser";
+import { Parser } from "../parser";
 import { TScript } from "..";
 import { TscriptEventTest, TscriptInputTest, TscriptTest } from "./tests";
 

@@ -3,7 +3,7 @@
 import { Typeid } from "../lang/helpers/typeIds";
 import { TScript } from "../lang";
 import { tgui } from "./tgui";
-import { Parser } from "../lang/parse/parser";
+import { Parser } from "../lang/parser";
 import { Interpreter } from "../lang/interpreter/interpreter";
 import { defaultOptions } from "../lang/helpers/options";
 import { defaultService } from "../lang/interpreter/defaultService";
