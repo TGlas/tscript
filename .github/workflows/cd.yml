@@ -1,0 +1,44 @@
+name: CD
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [15.x]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+
+# Compile and run tests
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run build
+    - run: npm run interop
+    - run: npm test
+
+# Push dist/ to dist
+    - run: git checkout --orphan dist
+    - run: git config --local user.email "f6eae15e-09a6-45d4-b9a1-f694f50b9e21@example.com"
+    - run: git config --local user.name "🤖"
+    - run: git reset
+    - run: git add -f ./distribution/index.html
+    - run: git commit -m "Compiled latest"
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh-pages
+        force: true

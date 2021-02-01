@@ -1,2 +1,2 @@
-# Ignore generated zip files
-*.zip
+node_modules/
+distribution/
