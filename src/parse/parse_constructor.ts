@@ -1,7 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { constantstep, get_program } from "../interpreter/interpreter_helper";
-import { TScript } from "../tscript";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { callsim, callstep, parse_call } from "./parse_call";
@@ -55,7 +54,7 @@ export function parse_constructor(state, parent, options:Options)
 		if (token.type === "operator" && token.value === '=')
 		{
 			Lexer.get_token(state, options);
-			let defaultvalue = parse_expression(state, parent, options);
+			let defaultvalue = parse_expression(state, func, options);
 			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 			param.defaultvalue = defaultvalue.typedvalue;
 		}

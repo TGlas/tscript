@@ -64,7 +64,7 @@ export function parse_function(state, parent, options, petype:any = undefined)
 		if (token.type === "operator" && token.value === '=')
 		{
 			Lexer.get_token(state, options);
-			let defaultvalue = parse_expression(state, parent, options);
+			let defaultvalue = parse_expression(state, func, options);
 			if (defaultvalue.petype !== "constant") state.error("/syntax/se-38");
 			param.defaultvalue = defaultvalue.typedvalue;
 		}

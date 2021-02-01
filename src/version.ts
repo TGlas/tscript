@@ -1,10 +1,10 @@
 export const Version = {
         type: "beta",
         major: 0,
-        minor: 5,
-        patch: 43,
-        day: 7,
-        month: 1,
+        minor: 6,
+        patch: 2,
+        day: 1,
+        month: 2,
         year: 2021,
         full: function () {
                 let s = "TScript version " + this.major

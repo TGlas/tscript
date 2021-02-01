@@ -734,7 +734,6 @@ export const doc_stdlib:Documentation = {
 				}
 				
 				var a = StereoAudio(l_samples, r_samples, sampleRate);
-				
 				# only play 0.1 of the 0.2 seconds
 				a.play();
 				wait(100);

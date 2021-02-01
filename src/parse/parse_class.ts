@@ -1,7 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { constantstep, get_program } from "../interpreter/interpreter_helper";
-import { TScript } from "../tscript";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { callsim, callstep } from "./parse_call";

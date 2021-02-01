@@ -1327,6 +1327,7 @@ export  const tests:Array<TscriptTest> = [
 				function me()
 				{ return this; }
 			}
+
 			class Foo
 			{
 			private:
