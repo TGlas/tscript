@@ -1,7 +1,7 @@
 "use strict"
 
 import { ErrorHelper } from "../errors/ErrorHelper";
-import { tgui } from "../gui/tgui";
+import { tgui } from "./tgui";
 import { defaultOptions } from "../helpers/options";
 import { Interpreter } from "../interpreter/interpreter";
 import { Lexer } from "../parse/lexer";
@@ -9,7 +9,7 @@ import { Parser } from "../parse/parser";
 import { TScript } from "../tscript";
 import { Version } from "../version";
 import { searchengine } from "./search";
-import { documentationData } from "./doc-combined";
+import { documentationData } from "../doc";
 import { defaultService } from "../interpreter/defaultService";
 
 ///////////////////////////////////////////////////////////

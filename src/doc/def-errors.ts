@@ -1,4 +1,4 @@
-import { Documentation } from "./doc-combined";
+import { Documentation } from ".";
 
 export const doc_errors:Documentation = {
 "id": "errors",

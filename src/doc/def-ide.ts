@@ -1,6 +1,6 @@
 "use strict"
 
-import { Documentation } from "./doc-combined";
+import { Documentation } from ".";
 
 export const doc_ide:Documentation = {
 "id": "ide",

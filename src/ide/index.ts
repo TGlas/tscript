@@ -1,6 +1,6 @@
-import { ide } from "./gui/ide";
-import { doc } from "./doc/doc";
-import { handleCanvas, handleTurtle } from "./gui/standalone";
+import { ide } from "./ide";
+import { doc } from "./doc";
+import { handleCanvas, handleTurtle } from "./standalone";
 
 import "./css/ide.css";
 import "./css/tgui.css";

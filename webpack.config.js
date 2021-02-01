@@ -14,7 +14,7 @@ module.exports = (_, options) => {
     // create webpage
     new HtmlWebpackPlugin({
       inject: 'head',
-      template: './src/index.html'
+      template: './src/ide/index.html'
     }),
   ];
 
@@ -27,7 +27,7 @@ module.exports = (_, options) => {
   }
 
   return {
-    entry: ['./src/index.ts'],
+    entry: ['./src/ide/index.ts'],
     devtool: isProd ? false : "eval-cheap-module-source-map",
     module: {
       rules: [
