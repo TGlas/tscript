@@ -2,7 +2,7 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { binary_operator_impl, binary_operator_precedence, left_unary_operator_impl, left_unary_operator_precedence } from "./parser_helper";
 import { asConstant, constantstep, get_function, get_program, scopestep } from "../interpreter/interpreter_helper";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { parse_call } from "./parse_call";

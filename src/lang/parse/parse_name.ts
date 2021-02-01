@@ -2,7 +2,7 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { Options } from "../helpers/options";
 import { get_function, get_type } from "../interpreter/interpreter_helper";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { resolve_name } from "./parse_fn";
 
 // Parse a name. This can be a simple identifier, or it can be

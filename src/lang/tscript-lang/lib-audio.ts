@@ -1,5 +1,5 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { tscript_audio } from "./lib-audio.tscript";
 

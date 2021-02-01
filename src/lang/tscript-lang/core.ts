@@ -1,5 +1,5 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { Version } from "../version";
 import { simfalse, simtrue} from "../helpers/sims";

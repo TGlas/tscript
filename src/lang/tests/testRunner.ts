@@ -3,7 +3,7 @@ import { Typeid } from "../helpers/typeIds";
 import { defaultService } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
 import { Parser } from "../parse/parser";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { TscriptEventTest, TscriptInputTest, TscriptTest } from "./tests";
 
 interface Callback{

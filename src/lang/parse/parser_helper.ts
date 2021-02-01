@@ -1,5 +1,5 @@
 import { Lexer } from "./lexer";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 
 ///////////////////////////////////////////////////////////

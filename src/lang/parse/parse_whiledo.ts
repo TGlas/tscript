@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
 import { parse_statement } from "./parse_statment";

@@ -1,7 +1,7 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { get_function } from "../interpreter/interpreter_helper";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";

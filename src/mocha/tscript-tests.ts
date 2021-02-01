@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
 import 'mocha';
-import { TestRunner } from '../tests/testRunner';
-import { tests, TscriptTest } from '../tests/tests';
+import { TestRunner } from '../lang/tests/testRunner';
+import { tests, TscriptTest } from '../lang/tests/tests';
 
 let testcases = tests;
 

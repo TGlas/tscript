@@ -1,7 +1,7 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { RuntimeError } from "../errors/RuntimeError";
 import { Options } from "../helpers/options";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 
 export class Interpreter{

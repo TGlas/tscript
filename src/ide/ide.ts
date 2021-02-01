@@ -1,12 +1,12 @@
 "use strict";
 
-import { Typeid } from "../helpers/typeIds";
-import { TScript } from "../tscript";
+import { Typeid } from "../lang/helpers/typeIds";
+import { TScript } from "../lang";
 import { tgui } from "./tgui";
-import { Parser } from "../parse/parser";
-import { Interpreter } from "../interpreter/interpreter";
-import { defaultOptions } from "../helpers/options";
-import { defaultService } from "../interpreter/defaultService";
+import { Parser } from "../lang/parse/parser";
+import { Interpreter } from "../lang/interpreter/interpreter";
+import { defaultOptions } from "../lang/helpers/options";
+import { defaultService } from "../lang/interpreter/defaultService";
 import { default as cm } from "codemirror";
 import { cmtsmode } from './codemirror-tscriptmode';
 

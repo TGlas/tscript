@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { parse_expression } from "./parse_expression";
 
 export function parse_throw(state, parent, options)

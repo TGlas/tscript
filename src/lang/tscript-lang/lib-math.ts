@@ -1,4 +1,4 @@
-import { TScript } from "../tscript";
+import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { tscript_math } from "./lib-math.tscript";
 

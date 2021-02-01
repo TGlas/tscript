@@ -1,16 +1,16 @@
 "use strict"
 
-import { ErrorHelper } from "../errors/ErrorHelper";
+import { ErrorHelper } from "../lang/errors/ErrorHelper";
 import { tgui } from "./tgui";
-import { defaultOptions } from "../helpers/options";
-import { Interpreter } from "../interpreter/interpreter";
-import { Lexer } from "../parse/lexer";
-import { Parser } from "../parse/parser";
-import { TScript } from "../tscript";
-import { Version } from "../version";
+import { defaultOptions } from "../lang/helpers/options";
+import { Interpreter } from "../lang/interpreter/interpreter";
+import { Lexer } from "../lang/parse/lexer";
+import { Parser } from "../lang/parse/parser";
+import { TScript } from "../lang";
+import { Version } from "../lang/version";
 import { searchengine } from "./search";
 import { documentationData } from "../doc";
-import { defaultService } from "../interpreter/defaultService";
+import { defaultService } from "../lang/interpreter/defaultService";
 
 ///////////////////////////////////////////////////////////
 // TScript documentation
