@@ -28,6 +28,7 @@ module.exports = (_, options) => {
 
   return {
     entry: ['./src/index.ts'],
+    devtool: isProd ? false : "eval-cheap-module-source-map",
     module: {
       rules: [
         // compile typescript
