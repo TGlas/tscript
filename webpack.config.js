@@ -5,26 +5,10 @@ const HtmlInlineScriptPlugin = require('html-inline-script-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin").default;
 
 
-module.exports = {
-  entry: ['./src/index.ts'],
-  module: {
-    rules: [
-      // compile typescript
-      {
-        test: /\.tsx?$/i,
-        use: 'ts-loader',
-      },
-      // bundle css
-      {
-        test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      }
-    ],
-  },
-  resolve: {
-    extensions: ['.tsx', '.ts', '.css', '.html'],
-  },
-  plugins: [
+module.exports = (_, options) => {
+  const isProd = options.mode === "production";
+
+  const plugins = [
     // handle css
     new MiniCssExtractPlugin(),
     // create webpage
@@ -32,12 +16,39 @@ module.exports = {
       inject: 'head',
       template: './src/index.html'
     }),
+  ];
+
+  if (isProd) {
     // inline
-    new HtmlInlineScriptPlugin(),
-    new HTMLInlineCSSWebpackPlugin(),
-  ],
-  output: {
-    path: path.resolve(__dirname, './distribution'),
-    filename: '_.js'
-  },
+    plugins.push(
+      isProd && new HtmlInlineScriptPlugin(),
+      isProd && new HTMLInlineCSSWebpackPlugin(),
+    );
+  }
+
+  return {
+    entry: ['./src/index.ts'],
+    module: {
+      rules: [
+        // compile typescript
+        {
+          test: /\.tsx?$/i,
+          use: 'ts-loader',
+        },
+        // bundle css
+        {
+          test: /\.css$/i,
+          use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        }
+      ],
+    },
+    resolve: {
+      extensions: ['.tsx', '.ts', '.css', '.html'],
+    },
+    plugins,
+    output: {
+      path: path.resolve(__dirname, './distribution'),
+      filename: '[name].js'
+    },
+  }
 };
