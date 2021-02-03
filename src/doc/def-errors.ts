@@ -2183,6 +2183,39 @@ export const doc_errors:Documentation = {
 			</p>
 		`,
 		"children": []},
+		{"id": "ne-27",
+		"content": `
+			<p>
+			It was attempted to create an object of a class without knowing its
+			constructor. This happens when creating an object of a class from
+			within a method of the same class without explicitly declaring a
+			constructor first.
+			</p>
+			<p>
+			To fix this somewhat unintuitive problem, move the constructor
+			further up in the class definition so that it is found before the
+			offending constructor call. If the class does not have a constructor
+			then add one, usually a parameter-less empty public constructor,
+			like so:
+			</p>
+			<div>
+				<tscript>
+				class Something
+				{
+				public:
+					constructor() { }
+					# object constructor works from here onwards
+
+					function f()
+					{
+						# create an object, i.e., call the constructor
+						var obj = Something();
+					}
+				}
+				</tscript>
+			</div>
+		`,
+		"children": []},
 	]},
 	{"id": "logic",
 	"name": "Logic Errors",

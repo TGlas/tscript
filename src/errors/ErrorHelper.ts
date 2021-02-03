@@ -254,6 +254,7 @@ export let errors = {
 		"ne-24": "use of identifier '$$' conflicts with previous declaration; double use of the same name",
 		"ne-25": "error in constructor call; the constructor of type '$$' is declared $$",
 		"ne-26": "error in super class declaration; class '$$' inherits itself",
+		"ne-27": "error in object creation; class '$$' does not yet have its constructor declared",
 	},
 	"logic": {
 		"le-1": "too much recursion",

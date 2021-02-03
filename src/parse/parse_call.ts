@@ -84,22 +84,26 @@ export function parse_call(state, parent, base, options: Options)
 		else if (TScript.isDerivedFrom(base.typedvalue.type,Typeid.typeid_type))
 		{
 			let cls = base.typedvalue.value.b;
-			if (cls.class_constructor.access !== "public")
+			if (cls.class_constructor)
 			{
-				// check whether the constructor is accessible from the current context
-				let sub_cl = get_type(parent);
-				let error = false;
-				if (cls.class_constructor.access === "private")
+				if (cls.class_constructor.access !== "public")
 				{
-					if (sub_cl === null || sub_cl.id !== cls.id) error = true;
+					// check whether the constructor is accessible from the current context
+					let sub_cl = get_type(parent);
+					let error = false;
+					if (cls.class_constructor.access === "private")
+					{
+						if (sub_cl === null || sub_cl.id !== cls.id) error = true;
+					}
+					else if (cls.class_constructor.access === "protected")
+					{
+						if (sub_cl === null || ! TScript.isDerivedFrom(sub_cl, cls.id)) error = true;
+					}
+					else error = true;
+					if (error) state.error("/name/ne-25", [TScript.displayname(cls), cls.class_constructor.access]);
 				}
-				else if (cls.class_constructor.access === "protected")
-				{
-					if (sub_cl === null || ! TScript.isDerivedFrom(sub_cl, cls.id)) error = true;
-				}
-				else error = true;
-				if (error) state.error("/name/ne-25", [TScript.displayname(cls), cls.class_constructor.access]);
 			}
+			else state.error("/name/ne-27", [TScript.displayname(cls)]);
 			f = base.typedvalue.value.b.class_constructor;
 		}
 		else state.error("/syntax/se-16", [base.typedvalue.type]);
