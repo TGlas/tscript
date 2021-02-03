@@ -4238,6 +4238,16 @@ export  const tests:Array<TscriptTest> = [
 				{type: "error", href: "#/errors/name/ne-26"},
 				"parsing failed"],
 	},
+	{
+		name: "ne-27",
+		description: "test of name resolution error ne-27",
+		code: `
+			class A { public: function f() { var obj = A(); } }
+		`,
+		expectation: [
+				{type: "error", href: "#/errors/name/ne-27"},
+				"parsing failed"],
+	},
 
 	// logic errors
 	{
