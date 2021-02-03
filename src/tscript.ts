@@ -1,5 +1,6 @@
-import { Typeid } from './helpers/typeIds';
+import { ErrorHelper } from "./errors/ErrorHelper";
 import { recApply } from './helpers/recApply';
+import { Typeid } from './helpers/typeIds';
 import { Interpreter } from './interpreter/interpreter';
 
 export class TScript{
@@ -96,7 +97,7 @@ export class TScript{
                             s += "}";
                             return s;
                         }
-                        else (this as any).assert(false, "[TScript.toString] internal error");
+                        else ErrorHelper.assert(false, "[TScript.toString] internal error");
                     });
         }
         catch (ex)
@@ -211,7 +212,7 @@ export class TScript{
         return recApply.call(this, arg,
                 function(value)
                 {
-                    (this as any).assert(value.type.id === Typeid.typeid_null
+                    ErrorHelper.assert(value.type.id === Typeid.typeid_null
                             || value.type.id === Typeid.typeid_boolean
                             || value.type.id === Typeid.typeid_integer
                             || value.type.id === Typeid.typeid_real
@@ -474,7 +475,7 @@ export class TScript{
             let s = "<Function ";
             if (arg.value.b.hasOwnProperty("object"))
             {
-                (this as any).assert(arg.value.b.func.parent.petype === "type", "[previewValue] invalid method object");
+                ErrorHelper.assert(arg.value.b.func.parent.petype === "type", "[previewValue] invalid method object");
                 s += TScript.displayname(arg.value.b.func.parent) + ".";
             }
             if (arg.value.b.func.displayname) s += arg.value.b.func.displayname;
