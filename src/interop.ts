@@ -1,12 +1,12 @@
-import { ErrorHelper } from "./errors/ErrorHelper";
-import { defaultOptions } from "./helpers/options";
-import { Typeid } from "./helpers/typeIds";
-import { defaultService } from "./interpreter/defaultService";
-import { Interpreter as _Interpreter } from "./interpreter/interpreter"
-import { Lexer } from "./parse/lexer";
-import { Parser } from "./parse/parser"
-import { TScript } from "./tscript"
-import { Version } from "./version";
+import { ErrorHelper } from "./lang/errors/ErrorHelper";
+import { defaultOptions } from "./lang/helpers/options";
+import { Typeid } from "./lang/helpers/typeIds";
+import { defaultService } from "./lang/interpreter/defaultService";
+import { Interpreter as _Interpreter } from "./lang/interpreter/interpreter"
+import { Lexer } from "./lang/parser/lexer";
+import { Parser } from "./lang/parser"
+import { TScript } from "./lang"
+import { Version } from "./lang/version";
 
 class InteropInterpreter extends _Interpreter{
     constructor(program){
