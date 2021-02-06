@@ -1,7 +1,7 @@
 import { ErrorHelper } from "./lang/errors/ErrorHelper";
 import { defaultOptions } from "./lang/helpers/options";
 import { Typeid } from "./lang/helpers/typeIds";
-import { defaultService } from "./lang/interpreter/defaultService";
+import { createDefaultServices } from "./lang/interpreter/defaultService";
 import { Interpreter as _Interpreter } from "./lang/interpreter/interpreter"
 import { Lexer } from "./lang/parser/lexer";
 import { Parser } from "./lang/parser"
@@ -10,7 +10,7 @@ import { Version } from "./lang/version";
 
 class InteropInterpreter extends _Interpreter{
     constructor(program){
-        super(program, defaultService) 
+        super(program, createDefaultServices()) 
     }
 }
 

@@ -6,7 +6,7 @@ import { tgui } from "./tgui";
 import { Parser } from "../lang/parser";
 import { Interpreter } from "../lang/interpreter/interpreter";
 import { defaultOptions } from "../lang/helpers/options";
-import { defaultService } from "../lang/interpreter/defaultService";
+import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { default as cm } from "codemirror";
 import { cmtsmode } from './codemirror-tscriptmode';
 
@@ -748,10 +748,10 @@ export let ide = (function() {
 				module.addMessage(err.type, err.type + " in line " + err.line + ": " + err.message, err.line, err.ch, err.href);
 			}
 		}
-	
+
 		if (program)
 		{
-			module.interpreter = new Interpreter(program, defaultService);
+			module.interpreter = new Interpreter(program, createDefaultServices());
 			module.interpreter.service.documentation_mode = false;
 			module.interpreter.service.print = (function(msg) { module.addMessage("print", msg); });
 			module.interpreter.service.alert = (function(msg) { alert(msg); });

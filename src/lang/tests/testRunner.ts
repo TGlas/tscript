@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Typeid } from "../helpers/typeIds";
-import { defaultService } from "../interpreter/defaultService";
+import { createDefaultServices } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
 import { Parser } from "../parser";
 import { TScript } from "..";
@@ -85,7 +85,7 @@ export class TestRunner{
         }
 
         // create the service to run against
-        let service:any = clone(defaultService);
+        let service:any = clone(createDefaultServices());
         
         service.documentation_mode = false;
         service.print = function (msg) { result.push({ type: "print", message: msg }); };

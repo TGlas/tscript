@@ -10,7 +10,7 @@ import { TScript } from "../lang";
 import { Version } from "../lang/version";
 import { searchengine } from "./search";
 import { documentationData } from "../doc";
-import { defaultService } from "../lang/interpreter/defaultService";
+import { createDefaultServices } from "../lang/interpreter/defaultService";
 
 ///////////////////////////////////////////////////////////
 // TScript documentation
@@ -347,7 +347,7 @@ function checkCode(code)
 {
 	let result = Parser.parse(code);
 	if (result.hasOwnProperty("errors") && result.errors.length > 0) throw result.errors[0].message;
-	let interpreter = new Interpreter(result.program, defaultService);
+	let interpreter = new Interpreter(result.program, createDefaultServices());
 	interpreter.reset();
 	interpreter.service.message = function(msg) { throw msg; }
 	interpreter.service.documentation_mode = true;
