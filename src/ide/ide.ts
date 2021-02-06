@@ -709,7 +709,6 @@ export let ide = (function() {
 			ctx.setTransform(1, 0, 0, 1, 0, 0);
 			ctx.clearRect(0, 0, module.turtle.width, module.turtle.height);
 		}
-		if (module.interpreter) module.interpreter.service.turtle.reset.call(module.interpreter, 0, 0, 0, true);
 	
 		let ctx = module.canvas.getContext("2d");
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -775,7 +774,9 @@ export let ide = (function() {
 						updateControls();
 					};
 			module.interpreter.service.turtle.dom = module.turtle;
+			module.interpreter.service.turtle.reset.call(module.interpreter.service, 0, 0, 0, true);
 			module.interpreter.service.canvas.dom = module.canvas;
+			module.interpreter.service.canvas.font_size = 16;
 			module.interpreter.eventnames["canvas.resize"] = true;
 			module.interpreter.eventnames["canvas.mousedown"] = true;
 			module.interpreter.eventnames["canvas.mouseup"] = true;
