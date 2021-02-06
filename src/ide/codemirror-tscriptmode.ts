@@ -1,6 +1,5 @@
-import { default as cm } from "codemirror";
+import CodeMirror from "codemirror";
 
-let CodeMirror: any = cm;
 export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, parserConfig)
 {
 	const keywords = {
@@ -105,7 +104,7 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 			var s = "";
 			var type:any = null;
 			var err = false;
-			let c = stream.next();
+			let c = stream.next()!;
 			if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')
 			{
 				// parse an identifier or a keyword
@@ -113,7 +112,7 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 				s += c;
 				while (! stream.eol())
 				{
-					let c = stream.next();
+					let c = stream.next()!;
 					if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') s += c;
 					else { stream.backUp(1); break; }
 				}
@@ -127,7 +126,7 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 				s += c;
 				while (! stream.eol())
 				{
-					c = stream.next();
+					c = stream.next()!;
 					if (digits.indexOf(c) >= 0) s += c;
 					else { stream.backUp(1); break; }
 				}
@@ -135,7 +134,7 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 				{
 					if (! stream.eol())
 					{
-						c = stream.next();
+						c = stream.next()!;
 						if (c == '.')
 						{
 							// parse fractional part
@@ -144,12 +143,12 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 							if (stream.eol()) err = true;
 							else
 							{
-								c = stream.next();
+								c = stream.next()!;
 								if (digits.indexOf(c) >= 0) s += c;
 								else err = true;
 								while (! stream.eol())
 								{
-									c = stream.next();
+									c = stream.next()!;
 									if (digits.indexOf(c) >= 0) s += c;
 									else { stream.backUp(1); break; }
 								}
@@ -160,19 +159,19 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 
 					if (! stream.eol())
 					{
-						c = stream.next();
+						c = stream.next()!;
 						if (c == 'e' || c == 'E')
 						{
 							// parse exponent
 							s += c;
 							type = "number";
-							c = stream.next();
-							if (c == '+' || c == '-') { s += c; c = stream.next(); }
+							c = stream.next()!;
+							if (c == '+' || c == '-') { s += c; c = stream.next()!; }
 							if (digits.indexOf(c) < 0) err = true;
 							else if (c !== null) s += c;
 							while (! stream.eol())
 							{
-								c = stream.next();
+								c = stream.next()!;
 								if (digits.indexOf(c) >= 0) s += c;
 								else { stream.backUp(1); break; }
 							}
@@ -197,10 +196,10 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 				while (true)
 				{
 					if (stream.eol()) { err = true; break; }
-					c = stream.next();
+					c = stream.next()!;
 					if (c == '\\')
 					{
-						c = stream.next();
+						c = stream.next()!;
 						if (c == 'r') c = '\r';
 						else if (c == 'n') c = '\n';
 						else if (c == 't') c = '\t';
@@ -216,7 +215,7 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 				s += c;
 				while (! stream.eol())
 				{
-					c = stream.next();
+					c = stream.next()!;
 					if (operators.indexOf(c) >= 0) s += c;
 					else { stream.backUp(1); break; }
 				}
@@ -229,7 +228,7 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 					let star = false;
 					while (! stream.eol())
 					{
-						c = stream.next();
+						c = stream.next()!;
 						if (c == '#')
 						{
 							if (star) return type;
@@ -268,4 +267,4 @@ export const cmtsmode = CodeMirror.defineMode("text/tscript", function(config, p
 		lineComment: "#",
 		fold: "brace"
 	};
-}) + 1;
+});

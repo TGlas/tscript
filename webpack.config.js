@@ -44,7 +44,7 @@ module.exports = (_, options) => {
       ],
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.css', '.html'],
+      extensions: ['.tsx', '.ts', '.js', '.css', '.html'],
     },
     plugins,
     output: {

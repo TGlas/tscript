@@ -7,12 +7,20 @@ import { Parser } from "../lang/parser";
 import { Interpreter } from "../lang/interpreter/interpreter";
 import { defaultOptions } from "../lang/helpers/options";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
-import { default as cm } from "codemirror";
-import { cmtsmode } from './codemirror-tscriptmode';
 
+import CodeMirror from "codemirror";
 
-cmtsmode;// use the mode so it gets used somewhere
-let CodeMirror:any = cm; 
+// CodeMirror Addons
+import "codemirror/addon/selection/active-line";
+import "codemirror/addon/comment/comment";
+import "codemirror/addon/dialog/dialog";
+import "codemirror/addon/dialog/dialog.css";
+import "codemirror/addon/search/jump-to-line";
+import "codemirror/addon/search/search";
+import "codemirror/addon/search/searchcursor";
+import "codemirror/addon/edit/matchbrackets";
+import "codemirror/addon/edit/closebrackets";
+import "./codemirror-tscriptmode";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -2229,9 +2237,9 @@ export let ide = (function() {
 						"Ctrl-R": "replace",
 						"F3": "findNext",
 						"Shift-F3": "findPrev",
-						"Ctrl-Up": "scrollUp",
-						"Ctrl-Down": "scrollDown",
-						"Shift-Tab": "unindent",
+						"Ctrl-Up": "goDocEnd",
+						"Ctrl-Down": "goDocStart",
+						"Shift-Tab": "indentLess",
 					},
 			});
 		module.sourcecode.on("change", function(cm, changeObj)
