@@ -8,12 +8,12 @@ var interact = require('interactjs');
 
 export let tgui = (function() {
 	let module:any = {};
-	
-	
+
+
 	// global mapping of hotkeys to handlers
 	let hotkeys = {};
 	let hotkeyElement = null;
-	
+
 	// normalize the hotkey to lowercase
 	module.normalizeHotkey = function(hotkey)
 	{
@@ -22,11 +22,11 @@ export let tgui = (function() {
 		if (key.length == 1) return hotkey.substr(0, pos) + key.toLowerCase();
 		else return hotkey;
 	}
-	
+
 	// return true if the hotkey is in use
 	module.hotkey = function(hotkey)
 	{ return (hotkeys.hasOwnProperty(module.normalizeHotkey(hotkey))); }
-	
+
 	// register a new hotkey, check for conflicts
 	// * hotkey: key name, possibly preceded by a dash-separated list of the modifiers "shift", "control", and "alt", in this order; example: "shift-alt-a"
 	// * handler: event handler function with an "event" parameter
@@ -37,41 +37,41 @@ export let tgui = (function() {
 		if (hotkeys.hasOwnProperty(hotkey)) throw "[tgui.setHotkey] hotkey conflict; key '" + hotkey + "' is already taken";
 		hotkeys[hotkey] = handler;
 	}
-	
+
 	// remove a hotkey
 	module.releaseHotkey = function(hotkey)
 	{
 		if (! hotkey) return;
 		delete hotkeys[module.normalizeHotkey(hotkey)];
 	}
-	
+
 	// remove all hotkeys
 	module.releaseAllHotkeys = function()
 	{ hotkeys = {}; }
-	
+
 	// enable hotkeys only if the given element is visible
 	module.setHotkeyElement = function(element)
 	{ hotkeyElement = element; }
-	
+
 	module.setTooltip = function(element, tooltip = "", direction="left")
 	{
 		let tt = element.getElementsByClassName("tgui-tooltip");
 		for (let i=0; i<tt.length; i++) element.removeChild(tt[i]);
 		createControl("div", {"parent": element, "text": tooltip}, "tgui tgui-tooltip tgui-tooltip-" + direction);
 	}
-	
+
 	// Create a new DOM element, acting as the control's main DOM element.
 	// Several standard properties of the description are honored.
 	function createControl(type, description, classname)
 	{
 		let element = document.createElement(type);
-	
+
 		// set classes
 		if (classname) element.className = classname;
-	
+
 		// set ID
 		if (description.hasOwnProperty("id")) element.id = description.id;
-	
+
 		// add properties to the element
 		if (description.hasOwnProperty("properties"))
 		{
@@ -81,7 +81,7 @@ export let tgui = (function() {
 				element[key] = description.properties[key];
 			}
 		}
-	
+
 		// apply styles
 		if (description.hasOwnProperty("style"))
 		{
@@ -91,24 +91,24 @@ export let tgui = (function() {
 				element.style[key] = description.style[key];
 			}
 		}
-	
+
 		// add inner text
 		if (description.hasOwnProperty("text")) element.appendChild(document.createTextNode(description.text));
-	
+
 		// add inner html
 		if (description.hasOwnProperty("html")) element.innerHTML += description.html;
-	
+
 		// add a tooltip
 		if (description.hasOwnProperty("tooltip")) module.setTooltip(element, description.tooltip);
 		else if (description.hasOwnProperty("tooltip-right")) module.setTooltip(element, description["tooltip-right"], "right");
-	
+
 		// add a click handler
 		if (description.hasOwnProperty("click"))
 		{
 			element.addEventListener("click", description.click);
 			element.style.cursor = "pointer";
 		}
-	
+
 		// add a dblclick (double click) handler
 		if (description.hasOwnProperty("dblclick"))
 		{
@@ -124,19 +124,25 @@ export let tgui = (function() {
 				element.addEventListener(key, description.event[key]);
 			}
 		}
-	
+
+		// tabindex property to disable tab focus (tabindex: -1)
+		if (description.hasOwnProperty("tabindex"))
+		{
+			element.tabIndex = description.tabindex;
+		}
+
 		// add to a parent
 		if (description.parent) description.parent.appendChild(element);
-	
+
 		return element;
 	}
-	
+
 	// Remove all children from an element.
 	module.clearElement = function(element)
 	{
 		element.innerHTML = "";
 	}
-	
+
 	// Simplistic convenience function for creating an HTML text node.
 	// Fields of the description object:
 	// * parent - optionl DOM object containing the element
@@ -147,7 +153,7 @@ export let tgui = (function() {
 		if (parent) (parent as any).appendChild(element);
 		return element;
 	}
-	
+
 	// Convenience function for creating an HTML element.
 	// Fields of the description object:
 	// * type - HTML element type name, e.g., "div"
@@ -164,7 +170,7 @@ export let tgui = (function() {
 	{
 		return createControl(description.type, description, description.classname);
 	}
-	
+
 	// Create a new label. A label is a control with easily configurable
 	// read-only content.
 	// Fields of the #description object:
@@ -177,7 +183,7 @@ export let tgui = (function() {
 	{
 		// main DOM element with styling
 		let element = createControl("span", description, "tgui tgui-control tgui-label");
-	
+
 		// return the control
 		return {
 				"dom": element,
@@ -194,8 +200,8 @@ export let tgui = (function() {
 						},
 			};
 	};
-	
-	
+
+
 	// Create a canvas icon element with automaticly zoomed contents
 	// if the website is zoomed to 200% then the actual width of the
 	// canvas is twice as large. The draw function does not need to
@@ -213,7 +219,7 @@ export let tgui = (function() {
 		let canvas = module.createElement({
 			"type": "canvas", 
 			"parent": description.parent,
-			"classname": "tgui", 
+			"classname": description.hasOwnProperty("classname") ? description["classname"] : "tgui",
 			"style": style,
 		});
 		canvas.width = description.width;
@@ -234,7 +240,7 @@ export let tgui = (function() {
 		
 		return canvas;
 	}
-	
+
 	// Create a new button.
 	// Fields of the #description object:
 	// * click - event handler, taking an "event" argument
@@ -252,7 +258,7 @@ export let tgui = (function() {
 	{
 		// main DOM element with styling
 		let element = createControl("button", description, "tgui tgui-control tgui-button" + (description.text ? "-text" : "-canvas") + (description.classname ? (" " + description.classname) : ""));
-	
+
 		// create the actual content
 		if (description.draw)
 		{
@@ -260,14 +266,14 @@ export let tgui = (function() {
 			let canvas = module.createCanvasIcon({"parent": element, "draw": description.draw, "width": description.width, "height": description.height});
 		}
 		else if (! description.text) throw "[tgui.createButton] either .text or .draw are required";
-	
+
 		// add a hotkey
 		module.setHotkey(description.hotkey, description.click);
-	
+
 		// return the control
 		return { "dom": element };
 	};
-	
+
 	// Create a new tree control.
 	// The tree content is determined by the function description.info.
 	// On calling
@@ -295,7 +301,7 @@ export let tgui = (function() {
 	{
 		// control with styling
 		let element = createControl("div", description, "tgui tgui-control tgui-tree");
-	
+
 		// create the root state, serving as a dummy holding the tree's top-level nodes
 		// state object layout:
 		// .value: JS value represented by the tree node, or null for the root node
@@ -318,7 +324,7 @@ export let tgui = (function() {
 				"element": null,
 				"children": [],
 			};
-	
+
 		// create the control object
 		let control:any = {
 				"dom": element,
@@ -333,7 +339,7 @@ export let tgui = (function() {
 				"id2state": {},
 				"id2open": {},             // preserved across updates
 			};
-	
+
 		// recursively add elements to the reverse lookup
 		function updateLookup(state)
 		{
@@ -341,7 +347,7 @@ export let tgui = (function() {
 			if (state.id) this.id2state[state.id] = state;
 			for (let i=0; i<state.children.length; i++) updateLookup.call(this, state.children[i]);
 		}
-	
+
 		// As part of createInternalTree, this function creates the actual
 		// child nodes. It is called when the node is opened for the first
 		// time, or if the node is created in the opened state.
@@ -368,13 +374,13 @@ export let tgui = (function() {
 			}
 			state.expanded = true;
 		}
-	
+
 		// Recursively create a new state and DOM tree.
 		// The function assumes that #this is the control.
 		function createInternalTree(value, id)
 		{
 			let result = this.info(value, id);
-	
+
 			// create a new state
 			let state = {
 					"value": value,
@@ -387,7 +393,7 @@ export let tgui = (function() {
 					"element": (value === null) ? null : result.element,
 					"children": [],
 				};
-	
+
 			if (value !== null)
 			{
 				// create a table cell for the element
@@ -396,14 +402,14 @@ export let tgui = (function() {
 				let td2 = module.createElement({"type": "td", "parent": tr, "classname": "tgui tgui-tree-cell-content"});
 				td1.appendChild(state.toggle);
 				td2.appendChild(state.element);
-	
-				state.element.id = "tgui.id." + (Math.random() + 1);
+
+				state.element.id = "tgui.id." + (Math.random() + 1); // TODO: bad code
 				state.element.className = "tgui tgui-tree-element";
-	
+
 				// initialize the toggle button
 				let s = ((result.children.length > 0) ? (state.open ? "\u25be" : "\u25b8") : "\u25ab");
 				state.toggle.innerHTML = s;
-	
+
 				// make the toggle button clickable
 				if (result.children.length > 0)
 				{
@@ -426,7 +432,7 @@ export let tgui = (function() {
 										createChildNodes.call(control, state, result);
 										updateLookup.call(control, state);
 									}
-	
+
 									// open the node, i.e., remove the tgui-hidden class from all child rows
 									for (let i=0; i<state.childrows.length; i++) state.childrows[i].className = "tgui";
 								}
@@ -436,7 +442,7 @@ export let tgui = (function() {
 								state.toggle.innerHTML = s;
 							});
 				}
-	
+
 				// make the element clickable
 				if (this.nodeclick)
 				{
@@ -449,23 +455,23 @@ export let tgui = (function() {
 							});
 				}
 			}
-	
+
 			// honor the "visible" property
 			if (result.visible) this.visible = this.numberOfNodes;
-	
+
 			// count this node
 			this.numberOfNodes++;
-	
+
 			// process the children and recurse
 			if (state.open)
 			{
 				createChildNodes.call(this, state, result);
 				state.expanded = true;
 			}
-	
+
 			return state;
 		};
-	
+
 		// Update the tree to represent new data, i.e., replace the stored
 		// info function and apply the new function to obtain the tree.
 		control.update = function(info)
@@ -474,18 +480,18 @@ export let tgui = (function() {
 			this.info = info;
 			this.visible = null;
 			this.numberOfNodes = 0;
-	
+
 			// clear the root DOM element
 			module.clearElement(this.dom);
-	
+
 			// update the state and the DOM based on info
 			this.state = createInternalTree.call(this, null, "");
-	
+
 			// prepare reverse lookup
 			this.element2state = {};
 			this.id2state = {};
 			updateLookup.call(this, this.state);
-	
+
 			// scroll a specific element into view
 			if (this.visible !== null)
 			{
@@ -502,49 +508,49 @@ export let tgui = (function() {
 						}, 0);
 			}
 		};
-	
+
 		// obtain the value corresponding to a DOM element
 		control.value = function(element)
 		{
 			if (! this.element2state.hasOwnProperty(element.id)) throw "[tgui TreeControl.get] unknown element";
 			return this.element2state[element.id].value;
 		}
-	
+
 		// initialize the control
 		if (control.info) control.update.call(control, control.info);
-	
+
 		return control;
 	};
-	
-	
+
+
 	///////////////////////////////////////////////////////////
 	// Panels are window-like areas that can be arranged in
 	// various ways.
 	//
-	
+
 	// lists of panels
 	module.panels = [];
 	module.panels_left = [];
 	module.panels_right = [];
 	module.panels_float = [];
 	module.panel_max = null;
-	
+
 	// panel containers
 	module.panelcontainer = null;
 	module.iconcontainer = null;
-	
+
 	// load panel arrangement data from local storage
-	function loadPanelData(title)
+	function loadPanelData(panel_name)
 	{
 		let str = localStorage.getItem("tgui.panels");
 		if (str)
 		{
 			let paneldata = JSON.parse(str);
-			if (paneldata.hasOwnProperty(title)) return paneldata[title];
+			if (paneldata.hasOwnProperty(panel_name)) return paneldata[panel_name];
 		}
 		return null;
 	}
-	
+
 	// save panel arrangement data to local storage
 	module.savePanelData = function()
 	{
@@ -560,22 +566,22 @@ export let tgui = (function() {
 			d.floatingpos = p.floatingpos;
 			d.floatingsize = p.floatingsize;
 			d.dockedheight = p.dockedheight;
-			paneldata[p.title] = d;
+			paneldata[p.name] = d;
 		}
 		localStorage.setItem("tgui.panels", JSON.stringify(paneldata));
 	}
-	
+
 	module.preparePanels = function(panelcontainer, iconcontainer)
 	{
 		module.panelcontainer = panelcontainer;
 		module.iconcontainer = iconcontainer;
 	}
-	
+
 	// arrange a set of docked panels so that they fit
 	function arrangeDocked(list, left, width, height)
 	{
 		if (list.length == 0) return;
-	
+
 		// compute desired vertical space
 		const min_h = 100;
 		let desired = 0;
@@ -584,7 +590,7 @@ export let tgui = (function() {
 			let p = list[i];
 			desired += Math.max(min_h, p.dockedheight);
 		}
-	
+
 		// assign vertical space
 		let totalSlack = desired - min_h * list.length;
 		let targetSlack = height - min_h * list.length;
@@ -598,7 +604,7 @@ export let tgui = (function() {
 					: Math.round(targetSlack * oldslack / totalSlack);
 			if (newslack < 0) newslack = 0;
 			let new_h = min_h + newslack;
-	
+
 			p.dom.style.left = left + "px";
 			p.dom.style.top = y + "px";
 			p.dom.style.width = width + "px";
@@ -614,10 +620,10 @@ export let tgui = (function() {
 			y += new_h;
 		}
 	};
-	
+
 	// keep track of the current size
 	let currentW = 0, currentH = 0;
-	
+
 	// arrange all panels so that they fit
 	function arrange()
 	{
@@ -628,7 +634,7 @@ export let tgui = (function() {
 		currentH = h;
 		let w60 = Math.round(0.6 * w);
 		let w40 = w - w60;
-	
+
 		if (module.panel_max)
 		{
 			let p = module.panel_max;
@@ -644,7 +650,7 @@ export let tgui = (function() {
 			}
 			p.onArrange();
 		}
-	
+
 		for (let i=0; i<module.panels_float.length; i++)
 		{
 			let p = module.panels_float[i];
@@ -673,13 +679,13 @@ export let tgui = (function() {
 			}
 			p.onArrange();
 		}
-	
+
 		arrangeDocked(module.panels_left, 0, (module.panels_right.length > 0) ? w60 : w, h);
 		arrangeDocked(module.panels_right, (module.panels_left.length > 0) ? w60 : 0, (module.panels_left.length > 0) ? w40 : w, h);
-	
+
 		module.savePanelData();
 	}
-	
+
 	let arrangerequest = (new Date()).getTime();
 	module.arrangePanels = function()
 	{
@@ -693,7 +699,7 @@ export let tgui = (function() {
 					arrange();
 				}, delta);
 	}
-	
+
 	// Monitor size changes and propagate them to the panels.
 	// We use two mechanisms: window size changes and container
 	// size changes. The latter are polled in a 5Hz loop.
@@ -715,23 +721,29 @@ export let tgui = (function() {
 		window.setTimeout(poll, 200);
 	}
 	window.setTimeout(poll, 1000);   // start with a short delay
-	
-	
+
+
 	// Create a panel.
 	// The description object has the following fields:
-	// title: text in the title bar
-	// floatingpos: [left, top] floating position
-	// floatingsize: [width, height] size in floating state
-	// dockedheight: height in left or right state
-	// state: current state, i.e., "left", "right", "max", "float", "icon", "disabled"
-	// icondraw: draw function for the icon representing the panel in "icon" mode
-	// onResize: callback function(width, height) on resize
-	// onArrange: callback function() on arranging (possible position/size change)
+	// - name:         a string that identifies the window, used to restore window positions
+	// - title:        text in the title bar
+	// - floatingpos:  [left, top] floating position
+	// - floatingsize: [width, height] size in floating state
+	// - dockedheight: height in left or right state
+	// - state:        current state, i.e., "left", "right", "max", "float", "icon", "disabled"
+	// - icondraw:     draw function for the icon representing the panel in "icon" mode, also drawn in the titlebar of the panel
+	// - onResize:     callback function(width, height) on resize
+	// - onArrange:    callback function() on arranging (possible position/size change)
+	// those properties are carried over to the returned object
+	// and the following fields are contained in the returned object:
+	// - content:      a DOM element, that represents the content of the panel
+	// - dom:          a DOM element, that represents the whole panel
+	// - and others, mainly the titlebar components
 	let free_panel_id = 1;
 	module.createPanel = function(description)
 	{
 		// load state from local storage if possible
-		let stored = loadPanelData(description.title);
+		let stored = loadPanelData(description.name);
 		if (stored)
 		{
 			// load position and size
@@ -755,10 +767,10 @@ export let tgui = (function() {
 			description.size = description.floatingsize;
 			if (description.hasOwnProperty("dockedheight") && (description.state == "left" || description.state == "right")) description.size[1] = description.dockedheight;
 		}
-	
+
 		// create the main objects
 		let control = Object.assign({}, description);
-		control.state = "disabled";
+		control.state = "disabled"; // Later overwritten by a call to control.dock
 		let panel = tgui.createElement({"type": "div", "classname": "tgui-panel-container"});
 		control.dom = panel;
 		control.panelID = free_panel_id;
@@ -780,10 +792,10 @@ export let tgui = (function() {
 						ctx.stroke();
 				};
 		
-	
+
 		// register the panel
 		module.panels.push(control);
-	
+
 		// create the title bar with buttons
 		control.titlebar_container = tgui.createElement({
 					"type": "div",
@@ -795,13 +807,14 @@ export let tgui = (function() {
 				"draw": control.icondraw,
 				"width": 20,
 				"height": 20,
+				"classname": "tgui-panel-titlebar-icon",
 				"style": {"left": "1px", "top": "1px", "cursor": "pointer"},
 		});
 		control.titlebar_icon.addEventListener("dblclick", function (event) { control.dock("icon"); return false; });
 		
 		// title bar text only
-		control.titlebar = tgui.createElement({
-					"type": "span",
+		control.titlebar = tgui.createElement({ // TODO
+					"type": "label",
 					"dblclick": function (event) { 
 						control.dock(control.state == "max" ? control.fallbackState : "max");
 						return false;
@@ -809,6 +822,7 @@ export let tgui = (function() {
 					"parent": control.titlebar_container,
 					"text": control.title,
 					"classname": "tgui-panel-titlebar-title",
+					"style": {"height": "20px", "line-height": "20px"},
 			});
 			
 		control.button_left = tgui.createButton({
@@ -834,7 +848,7 @@ export let tgui = (function() {
 					},
 					"parent": control.titlebar_container,
 					"classname": "tgui-panel-dockbutton",
-					"tooltip-right": "dock left",
+					"tooltip-right": "Dock left",
 				});
 		control.button_right = tgui.createButton({
 					"click": function () { control.dock("right"); return false; },
@@ -859,7 +873,7 @@ export let tgui = (function() {
 					},
 					"parent": control.titlebar_container,
 					"classname": "tgui-panel-dockbutton",
-					"tooltip-right": "dock right",
+					"tooltip-right": "Dock right",
 				});
 		control.button_max = tgui.createButton({
 					"click": function () { control.dock("max"); return false; },
@@ -880,7 +894,7 @@ export let tgui = (function() {
 					},
 					"parent": control.titlebar_container,
 					"classname": "tgui-panel-dockbutton",
-					"tooltip-right": "maximize",
+					"tooltip-right": "Maximize",
 				});
 		control.button_float = tgui.createButton({
 					"click": function () { control.dock("float"); return false; },
@@ -905,7 +919,7 @@ export let tgui = (function() {
 					},
 					"parent": control.titlebar_container,
 					"classname": "tgui-panel-dockbutton",
-					"tooltip-right": "floating",
+					"tooltip-right": "Floating",
 				});
 		control.button_icon = tgui.createButton({
 					"click": function (event) { control.dock("icon"); return false; },
@@ -923,12 +937,16 @@ export let tgui = (function() {
 					},
 					"parent": control.titlebar_container,
 					"classname": "tgui-panel-dockbutton",
-					"tooltip-right": "minimize",
+					"tooltip-right": "Minimize",
 				});
-	
+
 		// create the content div
-		control.content = tgui.createElement({"type": "div", parent: panel, "classname": "tgui tgui-panel-content"});
-	
+		control.content = tgui.createElement({
+			"type":       "div", 
+			"parent":     panel, 
+			"classname":  "tgui tgui-panel-content"
+		});
+
 		// create the icon
 		control.icon = tgui.createButton({
 					"click": function() { control.dock(control.fallbackState); return false; },
@@ -944,11 +962,11 @@ export let tgui = (function() {
 						},
 				});
 		let icon = control.icon.dom;
-	
+
 		if (! control.hasOwnProperty("onResize")) control.onResize = function(w, h) { };
 		if (! control.hasOwnProperty("onArrange")) control.onArrange = function() { };
-	
-	
+
+
 		
 		// when a floating panel is clicked on, then the panel should move to the top of the panel stack
 		var mousedown_focus = function(e) {
@@ -963,14 +981,14 @@ export let tgui = (function() {
 		panel.addEventListener("focusin", mousedown_focus);
 		panel.addEventListener("mousedown", mousedown_focus);
 		
-	
+
 		// dock function for changing docking state
 		control.dock = function(state, create = false)
 				{
 					if (! create)
 					{
 						if (state == this.state) return;
-	
+
 						// disable
 						interact(panel).unset(); // remove all event listeners set by interact
 						panel.style.zIndex = 0;
@@ -983,7 +1001,7 @@ export let tgui = (function() {
 						
 						panel.classList.remove("tgui-panel-float");
 					}
-	
+
 					// enable again
 					if (state == "left")
 					{
@@ -1124,18 +1142,18 @@ export let tgui = (function() {
 					{ }
 					else throw "[createPanel] invalid state: " + state;
 					control.state = state;
-	
+
 					module.arrangePanels();
-	
+
 					if (create) control.onResize(control.size[0], Math.max(0, control.size[1] - 22));
 				};
-	
+
 		if (description.state != "disabled") control.dock(description.state, true);
-	
+
 		return control;
 	}
-	
-	
+
+
 	let separator = module.createElement({
 			"type": "div",
 			"id": "tgui-separator",
@@ -1146,14 +1164,325 @@ export let tgui = (function() {
 						return false;   // important: consume clicks
 					},
 			});
+
+	// See `createModal` for a detailed description of the objects
+	// that are stored here
 	let modal = new Array();
-	
+
+	function roundToPhysicalPixel(virtual_px)
+	{
+		return (virtual_px*window.devicePixelRatio | 0)/window.devicePixelRatio;
+	}
+
+	// Center a dialog at the center of the window
+	// Dialogs are aligned at integral pixel coordinates to
+	// avoid pixel-jittering
+	function centerModalDialog(dlg)
+	{
+		let dlg_width, dlg_height;
+		let scr_width = window.innerWidth, scr_height = window.innerHeight;
+		if(dlg.hasOwnProperty("minsize") && dlg.hasOwnProperty("scalesize"))
+		{
+			dlg_width = roundToPhysicalPixel(Math.min(Math.max(dlg.minsize[0], dlg.scalesize[0]*scr_width), scr_width));
+			dlg_height = roundToPhysicalPixel(Math.min(Math.max(dlg.minsize[1], dlg.scalesize[1]*scr_height), scr_height));
+			
+			dlg.dom.style["width"] = dlg_width+"px";
+			dlg.dom.style["height"] = dlg_height+"px";
+		}
+		else
+		{
+			let rect = dlg.dom.getBoundingClientRect();
+			dlg_width = rect.width;
+			dlg_height = rect.height;
+		}
+		dlg.dom.style["left"] = roundToPhysicalPixel((scr_width-dlg_width)/2)+"px";
+		dlg.dom.style["top"]  = roundToPhysicalPixel((scr_height-dlg_height)/2)+"px";
+	}
+
+	// Center all dialogs whenever the window changed
+	function centerAllModalDialogs()
+	{
+		for(let i = 0; i < modal.length; ++i) centerModalDialog(modal[i]);
+	}
+
+	// TODO: merge this with arrangePanels, that is also installed as a "resize"-callback
+	window.addEventListener("resize", centerAllModalDialogs);
+
+	function nodeListContains(nodeList, element)
+	{
+		for (let i = 0; i < nodeList.length; i++) {
+			let item = nodeList[i];
+			if (item === element) return true;
+		}
+		return false;
+	}
+
+	// Create a modal dialog. Similar to createPanel
+	// The description object has the following fields:
+	// - title:             text in the title bar
+	// - scalesize:         [width, heigth] scaled size of the dialog
+	// - minsize:           [width, height] minimum size of the dialog, 
+	//                      when the whole viewport is smaller, the viewport size is used
+	// - contentstyle:      object to add/override some styles to/of the content element
+	// - onClose:           callback function() that is called when the dialog is closed by the user
+	// - buttons:           list of strings like ["Okay", "Cancel"], each button is connected to
+	//                      an eventhandler that is named on<Button>, if it is not available,
+	//                      onClose is used instead, if this is not given, there is no button bar
+	//                      at the bottom.
+	// - default_button     the name of the button in buttons, that is defaulted; it gets highlighted in blue
+	//
+	// those properties are carried over to the returned object
+	// and the following fields are contained in the returned object:
+	// - content:           a DOM element, that represents the content of the dialog
+	// - dom:               a DOM element, that represents the whole dialog
+	// - button_doms:       dictionary of DOM elements, that represents the buttons in the button bar
+	// - and others, mainly the titlebar components
+	//
+	// TODO: Support undecorated elements via a boolean property `decorated`, in this case
+	//       control.dom might be the same as control.content.
+	module.createModal = function(description)
+	{
+		let control = Object.assign({}, description);
+		// handle default fields
+		if (! control.hasOwnProperty("onClose")) control.onClose = function() { };
+		
+		// create dialog	
+		let dialog = tgui.createElement({
+			"type": "div",
+			"className": "tgui tgui-modal",
+			"style": {"background": "#eee", "overflow": "hidden", "display": "block", "zIndex": 100},
+		});
+		control.dom = dialog;
+		
+		dialog.addEventListener("keydown", function(event)
+		{
+			if(event.keyCode === 9) // TAB characterSet
+			{			
+				//let focus_query = 'button, [href], input, select, textarea, [tabIndex]:not([tabIndex="-1"])';
+				let focus_query = 'button, [href], input, select, textarea';
+				var focusable = Array(...control.content.querySelectorAll(focus_query));
+				if(control.hasOwnProperty("div_buttons"))
+				{
+					focusable.push(...control.div_buttons.querySelectorAll(focus_query));
+				}			
+				
+				if(focusable.length === 0)
+				{
+					(document.activeElement as any)?.blur();
+				}
+				else
+				{
+					let focusIndex = focusable.indexOf(document.activeElement);
+					let n = focusable.length;
+					if(focusIndex == -1 || (!event.shiftKey && focusIndex == n-1))
+					{
+						focusable[0].focus();
+						event.preventDefault();
+					}
+					else if(event.shiftKey && focusIndex === 0)
+					{
+						focusable[n-1].focus();
+						event.preventDefault();
+					}
+				}
+			}
+		});
+
+		control.handleClose = handleDialogCloseWith(control.onClose);
+		control.titlebar = createTitleBar(dialog, control.title, control.handleClose);
+
+		// create the content div
+		let contentHeight = control.hasOwnProperty("buttons") ? "calc(100% - 63px)" : "calc(100% - 24px)";
+		let contentstyle = {"height": contentHeight};
+		if(control.hasOwnProperty("contentstyle")) Object.assign(contentstyle, control.contentstyle);
+		control.content = tgui.createElement({
+			"type":       "div", 
+			"parent":     dialog,
+			"classname":  "tgui tgui-modal-content",
+			"style":      contentstyle,
+		});
+		
+		
+		
+		if(control.hasOwnProperty("buttons"))
+		{
+			control.div_buttons = tgui.createElement({
+				"parent": control.dom,
+				"type": "div",
+				"classname": "tgui tgui-modal-buttonbar",
+			});
+			control.button_doms = {};
+				
+			let default_button = null;
+			if(control.hasOwnProperty("default_button")) default_button = control.default_button;
+				
+			for(let i = 0; i < control.buttons.length; ++i)
+			{
+				let buttonName = control.buttons[i];
+				let event_handler = control.onClose;
+				if(control.hasOwnProperty("on"+buttonName))
+					event_handler = control["on"+buttonName];
+					
+				control.button_doms[buttonName] = tgui.createElement({
+					"parent":     control.div_buttons,
+					"type":       "button",
+					"style":      {"width": "100px", "height": "100%", "margin-right": "10px"},
+					"text":       buttonName,
+					"classname":  (default_button == buttonName ? "tgui-modal-default-button" : "tgui-modal-button"),
+					"click":      handleDialogCloseWith(event_handler),
+				});
+			}
+		}
+		
+
+		return control;
+		
+		// --- Local function definitions ---
+
+		// creates an event handler for a dialog, whenever it is going to be closed.
+		// - onClose:  a cleanup callback, use null for no cleanup
+		function handleDialogCloseWith(onClose)
+		{
+			return function(event)
+			{
+				let ret = undefined;
+				// by closing the current dialog before calling onClose,
+				// onClose itself is able to open additional dialogs in place
+				// of the current one
+				// if the onClose returns true, the dialog is reopened, note
+				// that the content keeps being the same, stopModal and addModal
+				// do not invalidate the control object, thus the control object
+				// can simply be reused
+				tgui.stopModal(); // removes current dialog
+				if(onClose!=null) ret = onClose();
+				if(event)
+				{
+					event.preventDefault();
+					event.stopPropagation();
+				}
+				if(ret) tgui.startModal(control); // reopen current dialog
+				return false;
+			}
+		}
+
+
+		function createTitleBar(dlg, title, handleClose)
+		{
+			let titlebar = tgui.createElement({
+					"parent": dlg,
+					"type": "div",
+					"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0"},
+					"classname": "tgui-modal-titlebar",
+				});
+
+			let titlebar_title = tgui.createElement({ // TODO similar to panel titlebars
+					"parent": titlebar,
+					"type": "span",
+					"text": title,
+					"classname": "tgui-modal-titlebar-title",
+					"style": {"height": "20px", "line-height": "20px"},
+				});
+
+			if(0)
+			{
+				// TODO Show help to the current dialog
+				let help = tgui.createButton({
+						"parent": titlebar,
+						"click": function ()
+								{
+									// TODO Open help/documentation here
+								},
+						"width": 20,
+						"height": 20,
+						"draw": function(canvas)
+								{
+									let ctx = canvas.getContext("2d");
+									ctx.lineWidth = 2;
+									ctx.strokeStyle = "#000";
+									ctx.beginPath();
+									ctx.arc(9, 6, 4, 1*Math.PI, 2.5*Math.PI, false);
+									
+									ctx.lineTo(9, 13);
+									ctx.stroke();
+									ctx.beginPath();
+									ctx.moveTo( 9, 15);
+									ctx.lineTo(9,  17);
+									ctx.stroke();
+								},
+						"classname": "tgui-panel-dockbutton",
+						"tooltip-right": "Help",
+						"tabindex": "-1",
+					});
+			}
+
+			let close = tgui.createButton({
+					"parent": titlebar,
+					"click": function ()
+							{
+								return handleClose(null);
+							},
+					"width": 20,
+					"height": 20,
+					"draw": function(canvas)
+							{
+								let ctx = canvas.getContext("2d");
+								ctx.lineWidth = 2;
+								ctx.strokeStyle = "#000";
+								ctx.beginPath();
+								ctx.moveTo( 4,  4);
+								ctx.lineTo(14, 14);
+								ctx.stroke();
+								ctx.beginPath();
+								ctx.moveTo( 4, 14);
+								ctx.lineTo(14,  4);
+								ctx.stroke();
+							},
+					"classname": "tgui-panel-dockbutton",
+					"tooltip-right": "Close",
+					"tabindex": "-1",
+				});
+
+			return titlebar;
+		}
+	}
+
+	// Properties of description: prompt, [buttons], [default_button], title, on<ButtonName>...
+	module.msgBox = function(description)
+	{
+		let default_description = {"buttons": ["Okay"], "default_button": null}
+		description = Object.assign(default_description, description);
+		
+		let dlg = tgui.createModal(Object.assign({
+			"scalesize":      [0.20, 0.15], 
+			"minsize":        [300, 150],
+		}, description));
+		tgui.createElement({
+			"parent": dlg.content,
+			"type": "div",
+			"style": {
+				"margin-top": "10px",
+				"white-space": "pre-wrap", // do linebreaks
+			},
+			"text": description.prompt,
+		});
+
+		tgui.startModal(dlg);
+	};
+
+
+	// Show a (newly created) modal dialog, that was created by createModal.
+	// Modal dialogs can be stacked. The dialog should not have been shown yet.
+	// The window appears at the center of the screen, aligned to physical
+	// screen pixels.
+	// THE FOLLOWING BEHAVIOR IS DEPRECATED/NOT SUPPORTED ANYMORE:
 	// Show a (newly created) element as a modal dialog. Modal dialogs can
 	// be stacked. The element should not have been added to a parent yet.
 	// It has "fixed" positioning and hence is expected to have been styled
 	// with top, left, width, and height.
-	module.startModal = function(element)
+	module.startModal = function(element: any)
 	{
+		// TODO: disable elements behind the separator.
+		//       - if some elements are focused, it might lead to issues
 		if (modal.length == 0)
 		{
 			// activate the separator
@@ -1162,31 +1491,46 @@ export let tgui = (function() {
 		else
 		{
 			// move the old topmost dialog below the separator
-			modal[modal.length - 1].style.zIndex = 0;
+			modal[modal.length - 1].dom.style.zIndex = 0;
 		}
-	
+
+		// save previous active element to be restored later
+		element.prevActiveElement = document.activeElement;
+		(document.activeElement as any)?.blur();
+		
+		
 		// add the new modal dialog
-		element.style.display = "block";
-		element.style.zIndex = 100;
-		element.className += " tgui tgui-modal";
-		document.body.appendChild(element);
+		// TODO: remove following 3 lines
+		element.dom.style.display = "block";
+		element.dom.style.zIndex = 100;
+		element.dom.className += " tgui tgui-modal";
+		document.body.appendChild(element.dom);
+		centerModalDialog(element);
 		modal.push(element);
+			
+		if(element.hasOwnProperty("default_button"))
+			element.button_doms[element.default_button].focus();
+		else
+			element.content.focus();
 	}
-	
+
 	// Discard the topmost modal dialog.
 	module.stopModal = function()
 	{
 		if (modal.length == 0) throw "[tgui.stopModel] no modal dialog to close";
-	
+
 		// remove the topmost modal element
 		let element = modal.pop();
-		document.body.removeChild(element);
-	
+		document.body.removeChild(element.dom);
+		
+		// restore previous active element
+		if(element.prevActiveElement !== null) element.prevActiveElement.focus();
+
 		// remove the separator after the last modal dialog was closed
 		if (modal.length == 0) document.body.removeChild(separator);
-		else modal[modal.length - 1].style.zIndex = 100;
+		else modal[modal.length - 1].dom.style.zIndex = 100;
 	}
-	
+
 	// check whether an element is currently visible to the user
 	// https://stackoverflow.com/a/7557433
 	function isElementInViewport(element)
@@ -1199,14 +1543,19 @@ export let tgui = (function() {
 		if (rect.right < 0) return false;
 		return true;
 	}
-	
+
 	// register a global key listener for hotkey events
 	document.addEventListener("keydown", function(event)
 	{
 		if (modal.length > 0)
 		{
 			// redirect key events to the topmost dialog
-			let dlg:any = modal[modal.length - 1];
+			let dlg = modal[modal.length - 1];
+			if (!dlg.onKeyDownOverride && event.key == "Escape")
+			{
+				return dlg.handleClose(event);
+			}
+			
 			if (dlg.hasOwnProperty("onKeyDown"))
 			{
 				dlg.onKeyDown(event);
@@ -1216,14 +1565,14 @@ export let tgui = (function() {
 		else
 		{
 			if (hotkeyElement && ! isElementInViewport(hotkeyElement)) return true;
-	
+
 			// compose the key code string
 			let key = event.key;
 			if (event.altKey) key = "alt-" + key;
 			if (event.ctrlKey) key = "control-" + key;
 			if (event.shiftKey) key = "shift-" + key;
 			key = module.normalizeHotkey(key);
-	
+
 			// handle global hotkeys
 			if (hotkeys.hasOwnProperty(key))
 			{
@@ -1235,7 +1584,7 @@ export let tgui = (function() {
 		}
 		return true;
 	});
-	
-	
+
+
 	return module;
-	}());
+}());
