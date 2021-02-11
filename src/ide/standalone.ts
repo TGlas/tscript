@@ -20,8 +20,16 @@ export function handleCanvas(){
     cv.style.width = "100vw";
     cv.style.height = "100vh";
     cv.style.top = "0px";
-    setTimeout( ()=>{
-        cv.width = 250;
-        cv.height = 250;
-    }, 100);
+    ide.canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    ide.canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	window.addEventListener("resize", function(event)
+	{
+		let w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+		let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	    ide.canvas.width = w;
+	    ide.canvas.height = h;
+		let e:any = {"width": w, "height": h};
+		e = ide.createTypedEvent("canvas.ResizeEvent", e);
+		ide.interpreter.enqueueEvent("canvas.resize", e);
+	});
 }
