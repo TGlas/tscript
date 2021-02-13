@@ -270,6 +270,7 @@
 {
 	background: #eee;
 	position: absolute;
+	overflow: auto;
 	padding: 0px 10px;
 	left: 0;
 	top: 24px;
