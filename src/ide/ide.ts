@@ -1611,6 +1611,7 @@ export let ide = (function() {
 			"onOkay":         doFileConfirmation,
 			"buttons":        ["Okay", "Cancel"],
 			"default_button": "Okay",
+			"enter_confirms": true,
 			"contentstyle":   {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
 		});
 
@@ -1719,26 +1720,6 @@ export let ide = (function() {
 			tgui.stopModal();
 			return false;
 		});
-
-		let oldKeyDown = dlg.onKeyDown; // TODO: add event listener instead of override
-		dlg.onKeyDown = function(event)
-				{
-					if (event.key === "Enter")
-					{
-						event.preventDefault();
-						event.stopPropagation();
-						let fn = name.value;
-						if (fn != "")
-						{
-							if (allowNewFilename || files.indexOf(fn) >= 0)
-							{
-								tgui.stopModal();
-								onOkay(fn);
-							}
-						}
-						return false;
-					}
-				};
 
 		tgui.startModal(dlg);
 		(allowNewFilename ? name : list).focus();

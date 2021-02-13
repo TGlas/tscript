@@ -813,7 +813,7 @@ export let tgui = (function() {
 		control.titlebar_icon.addEventListener("dblclick", function (event) { control.dock("icon"); return false; });
 		
 		// title bar text only
-		control.titlebar = tgui.createElement({ // TODO
+		control.titlebar = tgui.createElement({
 					"type": "label",
 					"dblclick": function (event) { 
 						control.dock(control.state == "max" ? control.fallbackState : "max");
@@ -1230,6 +1230,7 @@ export let tgui = (function() {
 	//                      onClose is used instead, if this is not given, there is no button bar
 	//                      at the bottom.
 	// - default_button     the name of the button in buttons, that is defaulted; it gets highlighted in blue
+	// - enter_confirms     boolean flag, if pressing [Enter] is like clicking on the default button
 	//
 	// those properties are carried over to the returned object
 	// and the following fields are contained in the returned object:
@@ -1323,13 +1324,16 @@ export let tgui = (function() {
 				if(control.hasOwnProperty("on"+buttonName))
 					event_handler = control["on"+buttonName];
 					
+				let handler = handleDialogCloseWith(event_handler);
+				if(default_button == buttonName) control.handleDefault = handler;
+
 				control.button_doms[buttonName] = tgui.createElement({
 					"parent":     control.div_buttons,
 					"type":       "button",
 					"style":      {"width": "100px", "height": "100%", "margin-right": "10px"},
 					"text":       buttonName,
 					"classname":  (default_button == buttonName ? "tgui-modal-default-button" : "tgui-modal-button"),
-					"click":      handleDialogCloseWith(event_handler),
+					"click":      handler,
 				});
 			}
 		}
@@ -1551,9 +1555,16 @@ export let tgui = (function() {
 		{
 			// redirect key events to the topmost dialog
 			let dlg = modal[modal.length - 1];
-			if (!dlg.onKeyDownOverride && event.key == "Escape")
+			if (!dlg.onKeyDownOverride)
 			{
-				return dlg.handleClose(event);
+				if(event.key == "Escape")
+				{
+					return dlg.handleClose(event);
+				}
+				else if(event.key == "Enter" && dlg.hasOwnProperty("enter_confirms") && dlg.enter_confirms)
+				{
+					return dlg.handleDefault(event);
+				}
 			}
 			
 			if (dlg.hasOwnProperty("onKeyDown"))
