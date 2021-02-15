@@ -1169,7 +1169,7 @@ export let tgui = (function() {
 	// that are stored here
 	let modal = new Array();
 
-	function roundToPhysicalPixel(virtual_px)
+	function roundToPhysicalPixel(virtual_px: number)
 	{
 		return (virtual_px*window.devicePixelRatio | 0)/window.devicePixelRatio;
 	}
@@ -1208,14 +1208,6 @@ export let tgui = (function() {
 	// TODO: merge this with arrangePanels, that is also installed as a "resize"-callback
 	window.addEventListener("resize", centerAllModalDialogs);
 
-	function nodeListContains(nodeList, element)
-	{
-		for (let i = 0; i < nodeList.length; i++) {
-			let item = nodeList[i];
-			if (item === element) return true;
-		}
-		return false;
-	}
 
 	// Create a modal dialog. Similar to createPanel
 	// The description object has the following fields:
@@ -1229,6 +1221,10 @@ export let tgui = (function() {
 	//                      an eventhandler that is named on<Button>, if it is not available,
 	//                      onClose is used instead, if this is not given, there is no button bar
 	//                      at the bottom.
+	//                      If the text of a button is not a fixed word, a name-text pair should be used
+	//                      [["Open", "Open File"], "Cancel"], the first is used to refer to on<Button> and 
+	//                      in default_button. The second is only used as the button text. Note that a,
+	//                      object/dictionary is not used, because the order of the elements is important
 	// - default_button     the name of the button in buttons, that is defaulted; it gets highlighted in blue
 	// - enter_confirms     boolean flag, if pressing [Enter] is like clicking on the default button
 	//
@@ -1261,6 +1257,7 @@ export let tgui = (function() {
 			{			
 				//let focus_query = 'button, [href], input, select, textarea, [tabIndex]:not([tabIndex="-1"])';
 				let focus_query = 'button, [href], input, select, textarea';
+				// collect all focusable elements inside the dialog, except titlebar buttons
 				var focusable = Array(...control.content.querySelectorAll(focus_query));
 				if(control.hasOwnProperty("div_buttons"))
 				{
@@ -1269,6 +1266,7 @@ export let tgui = (function() {
 				
 				if(focusable.length === 0)
 				{
+					// Nothing inside the dialog focusable, so keep focus away from other elements
 					(document.activeElement as any)?.blur();
 				}
 				else
@@ -1317,9 +1315,14 @@ export let tgui = (function() {
 			let default_button = null;
 			if(control.hasOwnProperty("default_button")) default_button = control.default_button;
 				
-			for(let i = 0; i < control.buttons.length; ++i)
+			for (let button of control.buttons as Array<string|[string, string]>)
 			{
-				let buttonName = control.buttons[i];
+				let buttonName: string, buttonText: string;
+				if(typeof button == "string")
+					buttonName = buttonText = button;
+				else
+					[buttonName, buttonText] = button as [string, string];
+
 				let event_handler = control.onClose;
 				if(control.hasOwnProperty("on"+buttonName))
 					event_handler = control["on"+buttonName];
@@ -1331,7 +1334,7 @@ export let tgui = (function() {
 					"parent":     control.div_buttons,
 					"type":       "button",
 					"style":      {"width": "100px", "height": "100%", "margin-right": "10px"},
-					"text":       buttonName,
+					"text":       buttonText,
 					"classname":  (default_button == buttonName ? "tgui-modal-default-button" : "tgui-modal-button"),
 					"click":      handler,
 				});

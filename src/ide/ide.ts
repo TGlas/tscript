@@ -990,23 +990,23 @@ export let ide = (function() {
 		}
 	}
 
-	// onConfirmed might be called after confirmFileDiscard has returned, that happens, when the confirm
+	// onConfirm might be called after confirmFileDiscard has returned, that happens, when the confirm
 	// dialog has opened
-	function confirmFileDiscard(title, onConfirmed)
+	function confirmFileDiscard(title, onConfirm)
 	{
 		if (module.document.dirty)
 		{
 			tgui.msgBox({
 				prompt:         "The document may have unsaved changes.\nDo you want to discard the code?",
 				title:          title,
-				buttons:        ["Yes", "No"],
-				default_button: "Yes",
-				onYes:          onConfirmed,
+				buttons:        ["Discard", "Cancel"],
+				default_button: "Discard",
+				onDiscard:      onConfirm,
 			});
 		}
 		else
 		{
-			onConfirmed();
+			onConfirm();
 		}
 	}
 
@@ -1029,7 +1029,7 @@ export let ide = (function() {
 	let cmd_load = function()
 	{
 		confirmFileDiscard("Open document", () => {
-			fileDlg("Load file", module.document.filename, false, function(filename)
+			fileDlg("Load file", module.document.filename, false, "Load", function(filename)
 				{
 					clear();
 
@@ -1061,7 +1061,7 @@ export let ide = (function() {
 
 	let cmd_save_as = function()
 	{
-		let dlg = fileDlg("Save file as ...", module.document.filename, true, function(filename)
+		let dlg = fileDlg("Save file as ...", module.document.filename, true, "Save", function(filename)
 				{
 					module.editor_title.innerHTML = "Editor &mdash; ";
 					tgui.createText(filename, module.editor_title);
@@ -1577,7 +1577,7 @@ export let ide = (function() {
 		tgui.startModal(dlg);
 	}
 
-	function fileDlg(title, filename, allowNewFilename, onOkay)
+	function fileDlg(title:string, filename, allowNewFilename:boolean, confirmText:string, onOkay)
 	{
 		// 10px horizontal spacing
 		//  7px vertical spacing
@@ -1608,9 +1608,9 @@ export let ide = (function() {
 			"title":          title, 
 			"scalesize":      [0.50, 0.70], 
 			"minsize":        [440, 260],
-			"onOkay":         doFileConfirmation,
-			"buttons":        ["Okay", "Cancel"],
-			"default_button": "Okay",
+			"onConfirm":      doFileConfirmation,
+			"buttons":        [["Confirm", confirmText], "Cancel"],
+			"default_button": "Confirm",
 			"enter_confirms": true,
 			"contentstyle":   {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
 		});
@@ -1733,9 +1733,9 @@ export let ide = (function() {
 				tgui.msgBox({
 					title:          "Delete file",
 					prompt:         "Delete file \"" + filename + "\"\nAre you sure?",
-					buttons:        ["Yes", "No"],
-					default_button: "Yes",
-					onYes: () => {
+					buttons:        ["Delete", "Cancel"],
+					default_button: "Delete",
+					onDelete: () => {
 						localStorage.removeItem("tscript.code." + filename);
 						files.splice(index, 1);
 						list.remove(index);
@@ -2053,9 +2053,9 @@ export let ide = (function() {
 						"title":          "Open documentation", 
 						"scalesize":      [0.20, 0.15], 
 						"minsize":        [300, 150],
-						"onOkay":         () => showdoc(href),
-						"buttons":        ["Okay", "Cancel"],
-						"default_button": "Okay"
+						"onOpen":         () => showdoc(href),
+						"buttons":        [["Open", "Open tab"], "Cancel"],
+						"default_button": "Open"
 					});
 					tgui.createElement({
 						"parent": dlg.content,
