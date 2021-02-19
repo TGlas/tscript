@@ -4087,6 +4087,19 @@ export  const tests:Array<TscriptTest> = [
 				"parsing failed"],
 	},
 	{
+		name: "ne-14 in for loops",
+		description: "tests that for loop variables cannot redefine variables",
+		code: `
+			class A{}
+			for var A in 1:2 do {
+				
+			}
+		`,
+		expectation: [
+			{type: "error", href: "#/errors/name/ne-14"},
+			"parsing failed"],
+	},
+	{
 		name: "ne-15-1",
 		description: "test of name resolution error ne-15, case 1",
 		code: `

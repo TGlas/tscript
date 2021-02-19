@@ -119,8 +119,9 @@ export function parse_for(state, parent, options)
 	{
 		// create and register a new variable
 		// Note: the program element does *not* need a step function, it is only there to define the variable's id
-		Lexer.get_token(state, options);
+		Lexer.get_token(state, options); // consume the var keyword
 		token = Lexer.get_token(state, options);
+		if (parent.names.hasOwnProperty(token.value)) state.error("/name/ne-14", [token.value]); // the name of the variable is not already used
 		if (token.type !== "identifier") state.error("/syntax/se-70");
 		let fn = get_function(parent);
 		let id = fn.variables.length;
