@@ -1,6 +1,4 @@
-import { ErrorHelper } from "../errors/ErrorHelper";
 import { binary_operator_impl, left_unary_operator_impl } from "../parser/parser_helper";
-import { TScript } from "..";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 

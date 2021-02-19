@@ -1,35 +1,27 @@
-// definition of most unit test
-
 import { Version } from "../version";
 import { test_lattice_craft } from "./test_lattice_craft";
 
-export type TscriptExpectation = any;
-export type TscriptEvents = any;
+export type TscriptExpectation = object;
+export interface TscriptEvent{
+	name:string;
+	type:string;
+	attr: object;
+}
 
-export interface _TscriptTest{
+export interface TscriptTest{
 	name:string,
 	description:string,
 	code:string,
+
 	expectation:Array<TscriptExpectation> | object,
+	events?: Array<TscriptEvent>;
+	parseOnly?:boolean;
+	input?: Array<any>,
+	browserOnly?:boolean;
+	timeout?:number;
 }
 
-export interface TscriptParseTest extends _TscriptTest{
-	parseOnly:boolean;
-}
-
-export interface TscriptEventTest extends _TscriptTest{
-	events: undefined | Array<TscriptEvents>;
-}
-
-export interface TscriptInputTest extends _TscriptTest{
-	input: Array<any>,
-}
-
-export interface TscriptBrowserOnlyTest extends _TscriptTest{
-	browserOnly: boolean,
-}
-
-export type TscriptTest = _TscriptTest | TscriptEventTest | TscriptInputTest | TscriptBrowserOnlyTest | TscriptParseTest;
+// definition of most unit test
 
 export  const tests:Array<TscriptTest> = [
 	// lexer
