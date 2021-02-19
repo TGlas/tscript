@@ -2066,6 +2066,16 @@ export  const tests:Array<TscriptTest> = [
 `,
 		expectation: [{type: "error", href: "#/errors/argument-mismatch/am-44"}, "error"],
 	},
+	{
+		name: "range size limits",
+		description: "checks that ranges may only have a size representable by an integer",
+		code: `
+		Range(-2, 2147483646);
+		`,
+		expectation:[
+			{type: "error", href: "#/errors/argument-mismatch/am-45"}, "error"
+		]
+	},
 
 	// syntax errors
 	{

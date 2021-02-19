@@ -414,6 +414,9 @@ export const core = {
                 else if (TScript.isDerivedFrom(end.type, Typeid.typeid_real) && TScript.isInt32(end.value.b)) { }
                 else this.error("/argument-mismatch/am-1", ["end", "Range.constructor", "integer", TScript.displayname(end.type)]);
                 object.value.b = {"begin": begin.value.b, "end": end.value.b};
+
+                if(!TScript.isInt32(object.value.b.end - object.value.b.begin)) this.error("/argument-mismatch/am-45", ["Arguments", "of Integers"]);
+                
             },
             "size": function(object) {
                 return {"type": this.program.types[Typeid.typeid_integer], "value": {"b": Math.max(0, object.value.b.end - object.value.b.begin)}};

@@ -228,6 +228,7 @@ export let errors = {
 		"am-42": "deepcopy failed due to $$",
 		"am-43": "infinite recursion due to recursive data structure",
 		"am-44": "array '$$' contains unexpected data expected values of type '$$'",
+		"am-45": "$$ exceeded allowed range $$",
 	},
 	"name": {
 		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",
