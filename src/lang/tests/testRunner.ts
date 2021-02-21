@@ -4,7 +4,7 @@ import { createDefaultServices } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
 import { Parser } from "../parser";
 import { TScript } from "..";
-import { TscriptEventTest, TscriptInputTest, TscriptTest } from "./tests";
+import { TscriptTest } from "./tests";
 
 interface Callback{
     suc:(test:TscriptTest)=>any,
@@ -33,33 +33,15 @@ const sleep = (milliseconds) => {
     return copy;
 }
 
-function testCanOnlyRunInBrowser(test:TscriptTest):boolean{
-    let t:any = test;
-    if(t.hasOwnProperty("browserOnly")){
-        return t.browserOnly;
-    }else{
-        return false;
-    }
-}
-
-function testIsParseOnly(test:TscriptTest){
-    let t:any = test;
-    if(t.hasOwnProperty("parseOnly")){
-        return t.parseOnly;
-    }else{
-        return false;
-    }
-}
-
 export class TestRunner{
 
     public static async runTest(test:TscriptTest, cb:Callback, isBrowser):Promise<void>{
 
-        let timeout = test.hasOwnProperty("timeout") ? (test as any).timeout : 10.0;
-		let input:any = test.hasOwnProperty("input") ? (test as TscriptInputTest).input : [];
-        let events:any = test.hasOwnProperty("events") ? (test as TscriptEventTest).events : [];
+        let timeout:number = test.timeout ? test.timeout : 10;
+		let input = test.input ? test.input : [];
+        let events = test.events ? test.events : [];
         
-        if((isBrowser === false && testCanOnlyRunInBrowser(test)) || typeof document === "undefined" && (test.expectation as any).type === "turtle" || (test.expectation as any).type === "canvas"){
+        if((isBrowser === false && test.browserOnly) || typeof document === "undefined" && (test.expectation as any).type === "turtle" || (test.expectation as any).type === "canvas"){
             cb.suc(test);
             return;
         }
@@ -71,7 +53,7 @@ export class TestRunner{
         let parsed;
         try{
             parsed = Parser.parse(test.code);
-            if(testIsParseOnly(test)){
+            if(test.parseOnly){
                 cb.suc(test);
                 return;
             }
