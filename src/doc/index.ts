@@ -1,11 +1,11 @@
-import { doc_cheatsheet } from "./def-cheatsheet";
-import { doc_concepts } from "./def-concepts";
-import { doc_errors } from "./def-errors";
-import { doc_examples } from "./def-examples";
-import { doc_ide } from "./def-ide";
-import { doc_language } from "./def-language";
-import { doc_legal } from "./def-legal";
-import { doc_stdlib } from "./def-stdlib";
+import { doc_cheatsheet } from "./cheatsheet";
+import { doc_concepts } from "./concepts";
+import { doc_errors } from "./errors";
+import { doc_examples } from "./examples";
+import { doc_ide } from "./ide";
+import { doc_language } from "./language";
+import { doc_legal } from "./legal";
+import { doc_stdlib } from "./stdlib";
 
 export type Documentation = _Documentation | ErrorDocumentation;
 
