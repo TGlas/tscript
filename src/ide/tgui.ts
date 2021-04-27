@@ -1,4 +1,7 @@
 "use strict";
+
+import { doc_legal } from "../doc/def-legal";
+
 var interact = require('interactjs');
 
 ///////////////////////////////////////////////////////////
@@ -1216,17 +1219,23 @@ export let tgui = (function() {
 	// - minsize:           [width, height] minimum size of the dialog, 
 	//                      when the whole viewport is smaller, the viewport size is used
 	// - contentstyle:      object to add/override some styles to/of the content element
-	// - onClose:           callback function() that is called when the dialog is closed by the user
-	// - buttons:           list of strings like ["Okay", "Cancel"], each button is connected to
-	//                      an eventhandler that is named on<Button>, if it is not available,
-	//                      onClose is used instead, if this is not given, there is no button bar
+	// - buttons:           list of strings like ["Okay", "Cancel"], if this is not given, there is no button bar
 	//                      at the bottom.
 	//                      If the text of a button is not a fixed word, a name-text pair should be used
-	//                      [["Open", "Open File"], "Cancel"], the first is used to refer to on<Button> and 
-	//                      in default_button. The second is only used as the button text. Note that a,
-	//                      object/dictionary is not used, because the order of the elements is important
-	// - default_button     the name of the button in buttons, that is defaulted; it gets highlighted in blue
-	// - enter_confirms     boolean flag, if pressing [Enter] is like clicking on the default button
+	//                      [["Open", "Open File"], "Cancel"], the first is passed to onChoice and 
+	//                      might be referred to in the default_button attribute.
+	//                      The second is only used as the visible button text.
+	//                      Note that an object/a dictionary is not used, because the order of the elements
+	//                      is important.
+	// - default_button     The name of the default button in buttons. It gets highlighted in blue.
+	// - enter_confirms     Boolean flag, true if pressing [Enter] should behave like clicking on the default button
+	// - onChoice           Handler function, that takes exactly one argument: the name of the button
+	//                      on the buttonbar that has been pressed.
+	//                      It is also called if the close-button on the titlebar is clicked or [Escape]
+	//                      has been pressed.
+	//                      In this case the string "DefaultClose" is passed as a parameter.
+	//                      Return true if the dialog should be kept opened, otherwise return false or nothing at all.
+	//                      
 	//
 	// those properties are carried over to the returned object
 	// and the following fields are contained in the returned object:
@@ -1239,9 +1248,33 @@ export let tgui = (function() {
 	//       control.dom might be the same as control.content.
 	module.createModal = function(description)
 	{
+		// control -- description object returned from this function and stored in the tgui.modal array
+		// dialog  -- the DOM object of the dialog contents
 		let control = Object.assign({}, description);
 		// handle default fields
-		if (! control.hasOwnProperty("onClose")) control.onClose = function() { };
+		if(!control.hasOwnProperty("onChoice")) control.onChoice = function(button) {};
+
+		let handleChoice = function(event, button)
+		{	
+			// by closing the current dialog before calling onChoice,
+			// onChoice itself is able to open additional dialogs in place
+			// of the current one
+			// if the onChoice returns true, the dialog is reopened, note
+			// that the content keeps being the same, stopModal and addModal
+			// do not invalidate the control object, thus the control object
+			// can simply be reused
+			// TODO: move stopModal to the bottom and call it conditionally
+			// with this dialog
+			tgui.stopModal(); // removes current dialog
+			let ret = control.onChoice(button);
+			if(event)
+			{
+				event.preventDefault();
+				event.stopPropagation();
+			}
+			if(ret) tgui.startModal(control); // reopen current dialog
+			return false;
+		}
 		
 		// create dialog	
 		let dialog = tgui.createElement({
@@ -1287,7 +1320,8 @@ export let tgui = (function() {
 			}
 		});
 
-		control.handleClose = handleDialogCloseWith(control.onClose);
+		control.handleClose = (event) => handleChoice(event, "DefaultClose");
+		// createTitleBar defined below
 		control.titlebar = createTitleBar(dialog, control.title, control.handleClose);
 
 		// create the content div
@@ -1315,7 +1349,7 @@ export let tgui = (function() {
 			let default_button = null;
 			if(control.hasOwnProperty("default_button")) default_button = control.default_button;
 				
-			for (let button of control.buttons as Array<string|[string, string]>)
+			for(let button of control.buttons as Array<string|[string, string]>)
 			{
 				let buttonName: string, buttonText: string;
 				if(typeof button == "string")
@@ -1323,12 +1357,9 @@ export let tgui = (function() {
 				else
 					[buttonName, buttonText] = button as [string, string];
 
-				let event_handler = control.onClose;
-				if(control.hasOwnProperty("on"+buttonName))
-					event_handler = control["on"+buttonName];
-					
-				let handler = handleDialogCloseWith(event_handler);
-				if(default_button == buttonName) control.handleDefault = handler;
+				let event_handler = (event) => handleChoice(event, buttonName);
+
+				if(default_button == buttonName) control.handleDefault = event_handler;
 
 				control.button_doms[buttonName] = tgui.createElement({
 					"parent":     control.div_buttons,
@@ -1336,7 +1367,7 @@ export let tgui = (function() {
 					"style":      {"width": "100px", "height": "100%", "margin-right": "10px"},
 					"text":       buttonText,
 					"classname":  (default_button == buttonName ? "tgui-modal-default-button" : "tgui-modal-button"),
-					"click":      handler,
+					"click":      event_handler,
 				});
 			}
 		}
@@ -1346,33 +1377,9 @@ export let tgui = (function() {
 		
 		// --- Local function definitions ---
 
-		// creates an event handler for a dialog, whenever it is going to be closed.
-		// - onClose:  a cleanup callback, use null for no cleanup
-		function handleDialogCloseWith(onClose)
-		{
-			return function(event)
-			{
-				let ret = undefined;
-				// by closing the current dialog before calling onClose,
-				// onClose itself is able to open additional dialogs in place
-				// of the current one
-				// if the onClose returns true, the dialog is reopened, note
-				// that the content keeps being the same, stopModal and addModal
-				// do not invalidate the control object, thus the control object
-				// can simply be reused
-				tgui.stopModal(); // removes current dialog
-				if(onClose!=null) ret = onClose();
-				if(event)
-				{
-					event.preventDefault();
-					event.stopPropagation();
-				}
-				if(ret) tgui.startModal(control); // reopen current dialog
-				return false;
-			}
-		}
-
-
+		// dlg         -- parent dialog
+		// title       -- titlebar text
+		// handleClose -- "event" handler, that gets called with null, whenever the x-button is pressed
 		function createTitleBar(dlg, title, handleClose)
 		{
 			let titlebar = tgui.createElement({
@@ -1453,7 +1460,8 @@ export let tgui = (function() {
 		}
 	}
 
-	// Properties of description: prompt, [buttons], [default_button], title, on<ButtonName>...
+	// Properties of description: prompt, [buttons], [default_button], title, onChoice...
+	// See `createModal` for more information about these properties
 	module.msgBox = function(description)
 	{
 		let default_description = {"buttons": ["Okay"], "default_button": null}
@@ -1522,6 +1530,9 @@ export let tgui = (function() {
 	}
 
 	// Discard the topmost modal dialog.
+	// TODO: add parameter that identifies the modal to close,
+	//       which would allow to close dialogs inbetween, useful for the
+	//       buttonbars
 	module.stopModal = function()
 	{
 		if (modal.length == 0) throw "[tgui.stopModel] no modal dialog to close";

@@ -1001,7 +1001,10 @@ export let ide = (function() {
 				title:          title,
 				buttons:        ["Discard", "Cancel"],
 				default_button: "Discard",
-				onDiscard:      onConfirm,
+				onChoice:       (button) =>
+				{
+					if(button === "Discard") onConfirm();
+				}
 			});
 		}
 		else
@@ -1459,15 +1462,15 @@ export let ide = (function() {
 			"title":          "Configuration", 
 			"scalesize":      [0.50, 0.50], 
 			"minsize":        [370, 270],
-			"onClose":        saveConfig,
 			"buttons":        ["Done"],
 			"default_button": "Done",
+			"onChoice":       (button) => { saveConfig(); }
 		});
 		let div_hotkey = tgui.createElement({parent: dlg.content, type: "div"});
 		let h3_hotkey = tgui.createElement({parent: div_hotkey, type: "h3", text: "Configure Hotkeys"});
 		let p_hotkey = tgui.createElement({parent: div_hotkey, type: "p", text: "Click a button to configure its hotkey."});
 		
-		let dlg_buttons = new Array();;
+		let dlg_buttons = new Array();
 		let div_buttons = tgui.createElement({parent: div_hotkey, type: "div", "classname": "ide-toolbar"});
 		for (let i=0; i<buttons.length; i++)
 		{
@@ -1486,8 +1489,8 @@ export let ide = (function() {
 								"title":      "Set hotkey", 
 								"scalesize":  [0.30, 0.30], 
 								"minsize":    [340, 220],
-								"onClose":    saveConfig,
 								"buttons":    ["Cancel"],
+								"onChoice":   (button) => { saveConfig(); }
 							});
 							let icon = tgui.createCanvasIcon({
 								"parent": dlg.content,
@@ -1608,10 +1611,10 @@ export let ide = (function() {
 			"title":          title, 
 			"scalesize":      [0.50, 0.70], 
 			"minsize":        [440, 260],
-			"onConfirm":      doFileConfirmation,
 			"buttons":        [["Confirm", confirmText], "Cancel"],
 			"default_button": "Confirm",
 			"enter_confirms": true,
+			"onChoice":       (button) => { if(button === "Confirm") return doFileConfirmation(); },
 			"contentstyle":   {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
 		});
 
@@ -1735,11 +1738,15 @@ export let ide = (function() {
 					prompt:         "Delete file \"" + filename + "\"\nAre you sure?",
 					buttons:        ["Delete", "Cancel"],
 					default_button: "Delete",
-					onDelete: () => {
-						localStorage.removeItem("tscript.code." + filename);
-						files.splice(index, 1);
-						list.remove(index);
-					},
+					onChoice:       (button) =>
+					{
+						if(button === "Delete")
+						{
+							localStorage.removeItem("tscript.code." + filename);
+							files.splice(index, 1);
+							list.remove(index);
+						}
+					}
 				});
 			}
 		}
@@ -2053,9 +2060,9 @@ export let ide = (function() {
 						"title":          "Open documentation", 
 						"scalesize":      [0.20, 0.15], 
 						"minsize":        [300, 150],
-						"onOpen":         () => showdoc(href),
 						"buttons":        [["Open", "Open tab"], "Cancel"],
-						"default_button": "Open"
+						"default_button": "Open",
+						"onChoice":       (button) => { if(button === "Open") showdoc(href); },
 					});
 					tgui.createElement({
 						"parent": dlg.content,
