@@ -1222,14 +1222,14 @@ export let tgui = (function() {
 	// - buttons:           list of strings like ["Okay", "Cancel"], if this is not given, there is no button bar
 	//                      at the bottom.
 	//                      If the text of a button is not a fixed word, a name-text pair should be used
-	//                      [["Open", "Open File"], "Cancel"], the first is passed to onChoice and 
+	//                      [["Open", "Open File"], "Cancel"], the first is passed to onButton and 
 	//                      might be referred to in the default_button attribute.
 	//                      The second is only used as the visible button text.
 	//                      Note that an object/a dictionary is not used, because the order of the elements
 	//                      is important.
 	// - default_button     The name of the default button in buttons. It gets highlighted in blue.
 	// - enter_confirms     Boolean flag, true if pressing [Enter] should behave like clicking on the default button
-	// - onChoice           Handler function, that takes exactly one argument: the name of the button
+	// - onButton           Handler function, that takes exactly one argument: the name of the button
 	//                      on the buttonbar that has been pressed.
 	//                      It is also called if the close-button on the titlebar is clicked or [Escape]
 	//                      has been pressed.
@@ -1252,27 +1252,18 @@ export let tgui = (function() {
 		// dialog  -- the DOM object of the dialog contents
 		let control = Object.assign({}, description);
 		// handle default fields
-		if(!control.hasOwnProperty("onChoice")) control.onChoice = function(button) {};
+		if(!control.hasOwnProperty("onButton")) control.onButton = function(button) {};
 
 		let handleChoice = function(event, button)
 		{	
-			// by closing the current dialog before calling onChoice,
-			// onChoice itself is able to open additional dialogs in place
-			// of the current one
-			// if the onChoice returns true, the dialog is reopened, note
-			// that the content keeps being the same, stopModal and addModal
-			// do not invalidate the control object, thus the control object
-			// can simply be reused
-			// TODO: move stopModal to the bottom and call it conditionally
-			// with this dialog
-			tgui.stopModal(); // removes current dialog
-			let ret = control.onChoice(button);
+			// if the onButton returns true, the dialog is kept opened
+			let ret = control.onButton(button);
 			if(event)
 			{
 				event.preventDefault();
 				event.stopPropagation();
 			}
-			if(ret) tgui.startModal(control); // reopen current dialog
+			if(!ret) tgui.stopModal(control); // close current dialog
 			return false;
 		}
 		
@@ -1460,7 +1451,7 @@ export let tgui = (function() {
 		}
 	}
 
-	// Properties of description: prompt, [buttons], [default_button], title, onChoice...
+	// Properties of description: prompt, [buttons], [default_button], title, onButton...
 	// See `createModal` for more information about these properties
 	module.msgBox = function(description)
 	{
@@ -1471,6 +1462,7 @@ export let tgui = (function() {
 			"scalesize":      [0.20, 0.15], 
 			"minsize":        [300, 150],
 		}, description));
+
 		tgui.createElement({
 			"parent": dlg.content,
 			"type": "div",
@@ -1529,20 +1521,38 @@ export let tgui = (function() {
 			element.content.focus();
 	}
 
-	// Discard the topmost modal dialog.
-	// TODO: add parameter that identifies the modal to close,
-	//       which would allow to close dialogs inbetween, useful for the
-	//       buttonbars
-	module.stopModal = function()
+	// Discard a modal dialog.
+	// dialog -- Optional parameter of the dialog to close.
+	//           The default is the topmost dialog.
+	module.stopModal = function(dialog?)
 	{
-		if (modal.length == 0) throw "[tgui.stopModel] no modal dialog to close";
+		if(modal.length == 0) throw "[tgui.stopModal] no modal dialog to close";
 
-		// remove the topmost modal element
-		let element = modal.pop();
-		document.body.removeChild(element.dom);
-		
-		// restore previous active element
-		if(element.prevActiveElement !== null) element.prevActiveElement.focus();
+		if(dialog === undefined || dialog === modal[modal.length - 1])
+		{
+			// remove the topmost modal element
+			let element = modal.pop();
+			document.body.removeChild(element.dom);
+			
+			// restore previous active element
+			if(element.prevActiveElement !== null) element.prevActiveElement.focus();
+		}
+		else
+		{
+			let index = modal.findIndex(e => e === dialog);
+			if(index == -1) throw "[tgui.stopModal] not a modal dialog";
+
+			// The previous active element of the dialog above the current one
+			// is usually pointing to an element in this dialog to be removed.
+			// The next dialog inherits the previous active element. Such that,
+			// if all the dialogs would have been closed normally, the same active
+			// element gets focused, when the dialogs are closed out of order.
+			modal[index+1].prevActiveElement = modal[index].prevActiveElement;
+
+			// remove the modal element
+			modal.splice(index, 1);
+			document.body.removeChild(dialog.dom);
+		}
 
 		// remove the separator after the last modal dialog was closed
 		if (modal.length == 0) document.body.removeChild(separator);

@@ -1001,7 +1001,7 @@ export let ide = (function() {
 				title:          title,
 				buttons:        ["Discard", "Cancel"],
 				default_button: "Discard",
-				onChoice:       (button) =>
+				onButton:       (button) =>
 				{
 					if(button === "Discard") onConfirm();
 				}
@@ -1464,7 +1464,7 @@ export let ide = (function() {
 			"minsize":        [370, 270],
 			"buttons":        ["Done"],
 			"default_button": "Done",
-			"onChoice":       (button) => { saveConfig(); }
+			"onButton":       (button) => { saveConfig(); }
 		});
 		let div_hotkey = tgui.createElement({parent: dlg.content, type: "div"});
 		let h3_hotkey = tgui.createElement({parent: div_hotkey, type: "h3", text: "Configure Hotkeys"});
@@ -1490,7 +1490,7 @@ export let ide = (function() {
 								"scalesize":  [0.30, 0.30], 
 								"minsize":    [340, 220],
 								"buttons":    ["Cancel"],
-								"onChoice":   (button) => { saveConfig(); }
+								"onButton":   (button) => { saveConfig(); }
 							});
 							let icon = tgui.createCanvasIcon({
 								"parent": dlg.content,
@@ -1614,7 +1614,7 @@ export let ide = (function() {
 			"buttons":        [["Confirm", confirmText], "Cancel"],
 			"default_button": "Confirm",
 			"enter_confirms": true,
-			"onChoice":       (button) => { if(button === "Confirm") return doFileConfirmation(); },
+			"onButton":       (button) => { if(button === "Confirm") return doFileConfirmation(); },
 			"contentstyle":   {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
 		});
 
@@ -1738,7 +1738,7 @@ export let ide = (function() {
 					prompt:         "Delete file \"" + filename + "\"\nAre you sure?",
 					buttons:        ["Delete", "Cancel"],
 					default_button: "Delete",
-					onChoice:       (button) =>
+					onButton:       (button) =>
 					{
 						if(button === "Delete")
 						{
@@ -2062,7 +2062,7 @@ export let ide = (function() {
 						"minsize":        [300, 150],
 						"buttons":        [["Open", "Open tab"], "Cancel"],
 						"default_button": "Open",
-						"onChoice":       (button) => { if(button === "Open") showdoc(href); },
+						"onButton":       (button) => { if(button === "Open") showdoc(href); },
 					});
 					tgui.createElement({
 						"parent": dlg.content,
