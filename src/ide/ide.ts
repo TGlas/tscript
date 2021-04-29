@@ -898,7 +898,16 @@ export let ide = (function() {
 			"title":      "Export program as webpage", 
 			"scalesize":  [0.50, 0.50], 
 			"minsize":    [400, 260],
+			"helpEnabled":true,
 			"buttons":    [["close", "Close"]],
+			"onButton":   (button) =>
+			{
+				if(button === tgui.modalHelp)
+				{
+					showdoc("#/ide/exportdialog")
+					return true; // keep dialog open
+				}
+			}
 		});
 		
 		let status = tgui.createElement({

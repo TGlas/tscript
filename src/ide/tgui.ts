@@ -1211,7 +1211,8 @@ export let tgui = (function() {
 	// TODO: merge this with arrangePanels, that is also installed as a "resize"-callback
 	window.addEventListener("resize", centerAllModalDialogs);
 
-
+	module.modalClose = "tgui.modalClose";
+	module.modalHelp  = "tgui.modalHelp";
 	// Create a modal dialog. Similar to createPanel
 	// The description object has the following fields:
 	// - title:             text in the title bar
@@ -1219,6 +1220,7 @@ export let tgui = (function() {
 	// - minsize:           [width, height] minimum size of the dialog, 
 	//                      when the whole viewport is smaller, the viewport size is used
 	// - contentstyle:      object to add/override some styles to/of the content element
+	// - helpEnabled:       enables help button in the titlebar, TODO: also open Help with [F1]
 	// - buttons:           list of [name, text] pairs like [["delete", "Delete File"], ["cancel", "Cancel"]],
 	//                      if this is not given, there is no button bar
 	//                      at the bottom. The first element, the name, is passed to onButton and
@@ -1233,7 +1235,10 @@ export let tgui = (function() {
 	//                      on the buttonbar that has been pressed.
 	//                      It is also called if the close-button on the titlebar is clicked or [Escape]
 	//                      has been pressed.
-	//                      In this case the string "defaultClose" is passed as a parameter.
+	//                      In this case the string "tgui.modalClose" is passed as a parameter.
+	//                      If the help button is enabled, then "tgui.modalHelp" is passed as a parameter, whenever
+	//                      [F1] or the help button was pressed.
+	//                      
 	//                      Return true if the dialog should be kept opened, otherwise return false or nothing at all.
 	//                      
 	//
@@ -1254,7 +1259,7 @@ export let tgui = (function() {
 		// handle default fields
 		if(!control.hasOwnProperty("onButton")) control.onButton = function(button) {};
 
-		let handleChoice = function(event, button)
+		let handleButton = function(event, button)
 		{	
 			// if the onButton returns true, the dialog is kept opened
 			let ret = control.onButton(button);
@@ -1311,9 +1316,10 @@ export let tgui = (function() {
 			}
 		});
 
-		control.handleClose = (event) => handleChoice(event, "defaultClose");
+		control.handleClose = (event) => handleButton(event, tgui.modalClose);
 		// createTitleBar defined below
-		control.titlebar = createTitleBar(dialog, control.title, control.handleClose);
+		let handleHelp = control.hasOwnProperty("helpEnabled") ? (event) => handleButton(event, tgui.modalHelp) : null;
+		control.titlebar = createTitleBar(dialog, control.title, control.handleClose, handleHelp);
 
 		// create the content div
 		let contentHeight = control.hasOwnProperty("buttons") ? "calc(100% - 63px)" : "calc(100% - 24px)";
@@ -1344,7 +1350,7 @@ export let tgui = (function() {
 			{
 				let[buttonName, buttonText]: [string, string] = button;
 
-				let event_handler = (event) => handleChoice(event, buttonName);
+				let event_handler = (event) => handleButton(event, buttonName);
 
 				if(defaultButton == buttonName) control.handleDefault = event_handler;
 
@@ -1367,7 +1373,7 @@ export let tgui = (function() {
 		// dlg         -- parent dialog
 		// title       -- titlebar text
 		// handleClose -- "event" handler, that gets called with null, whenever the x-button is pressed
-		function createTitleBar(dlg, title, handleClose)
+		function createTitleBar(dlg, title, handleClose, handleHelp)
 		{
 			let titlebar = tgui.createElement({
 					"parent": dlg,
@@ -1384,14 +1390,14 @@ export let tgui = (function() {
 					"style": {"height": "20px", "line-height": "20px"},
 				});
 
-			if(0)
+			if(handleHelp !== null)
 			{
 				// TODO Show help to the current dialog
 				let help = tgui.createButton({
 						"parent": titlebar,
 						"click": function ()
 								{
-									// TODO Open help/documentation here
+									handleHelp(null);
 								},
 						"width": 20,
 						"height": 20,
@@ -1401,8 +1407,8 @@ export let tgui = (function() {
 									ctx.lineWidth = 2;
 									ctx.strokeStyle = "#000";
 									ctx.beginPath();
-									ctx.arc(9, 6, 4, 1*Math.PI, 2.5*Math.PI, false);
-									
+									ctx.arc(9, 6, 4, 1*Math.PI, 2.25*Math.PI, false);
+									ctx.lineTo(9, 11.5);
 									ctx.lineTo(9, 13);
 									ctx.stroke();
 									ctx.beginPath();
@@ -1510,7 +1516,8 @@ export let tgui = (function() {
 
 		ctx.strokeStyle = "#fff";
 		ctx.beginPath();
-		ctx.arc(20, 15, 7, 1*Math.PI, 2.5*Math.PI, false);
+		ctx.arc(20, 15, 7, 1*Math.PI, 2.25*Math.PI, false);
+		ctx.lineTo(20, 25);
 		
 		ctx.lineTo(20, 28);
 		ctx.stroke();
