@@ -2392,7 +2392,7 @@ export let ide = (function() {
 		};
 		panel_turtle.onArrange = makeSquare;
 		panel_turtle.onResize = makeSquare;
-
+	
 		let createTypedEvent = function(displayname, dict)
 		{
 			if (! module.interpreter) throw new Error("[createTypedEvent] internal error");
