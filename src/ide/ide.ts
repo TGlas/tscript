@@ -2393,7 +2393,7 @@ export let ide = (function() {
 		panel_turtle.onArrange = makeSquare;
 		panel_turtle.onResize = makeSquare;
 
-		function createTypedEvent(displayname, dict)
+		let createTypedEvent = function(displayname, dict)
 		{
 			if (! module.interpreter) throw new Error("[createTypedEvent] internal error");
 			let p = module.interpreter.program;
@@ -2418,6 +2418,7 @@ export let ide = (function() {
 			}
 			throw new Error("[createTypedEvent] unknown type " + displayname);
 		}
+		module.createTypedEvent = createTypedEvent;
 
 		// prepare canvas output panel
 		let panel_canvas = tgui.createPanel({
