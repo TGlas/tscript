@@ -1219,21 +1219,21 @@ export let tgui = (function() {
 	// - minsize:           [width, height] minimum size of the dialog, 
 	//                      when the whole viewport is smaller, the viewport size is used
 	// - contentstyle:      object to add/override some styles to/of the content element
-	// - buttons:           list of strings like ["Okay", "Cancel"], if this is not given, there is no button bar
-	//                      at the bottom.
-	//                      If the text of a button is not a fixed word, a name-text pair should be used
-	//                      [["Open", "Open File"], "Cancel"], the first is passed to onButton and 
-	//                      might be referred to in the default_button attribute.
-	//                      The second is only used as the visible button text.
+	// - buttons:           list of [name, text] pairs like [["delete", "Delete File"], ["cancel", "Cancel"]],
+	//                      if this is not given, there is no button bar
+	//                      at the bottom. The first element, the name, is passed to onButton and
+	//                      might be referred to in the defaultButton attribute.
+	//                      The second is only used as the text displayed on the button.
+	//                      It might be a translated text.
 	//                      Note that an object/a dictionary is not used, because the order of the elements
 	//                      is important.
-	// - default_button     The name of the default button in buttons. It gets highlighted in blue.
-	// - enter_confirms     Boolean flag, true if pressing [Enter] should behave like clicking on the default button
+	// - defaultButton      The name of the default button in buttons. It gets highlighted in blue.
+	// - enterConfirms      Boolean flag, true if pressing [Enter] should behave like clicking on the default button
 	// - onButton           Handler function, that takes exactly one argument: the name of the button
 	//                      on the buttonbar that has been pressed.
 	//                      It is also called if the close-button on the titlebar is clicked or [Escape]
 	//                      has been pressed.
-	//                      In this case the string "DefaultClose" is passed as a parameter.
+	//                      In this case the string "defaultClose" is passed as a parameter.
 	//                      Return true if the dialog should be kept opened, otherwise return false or nothing at all.
 	//                      
 	//
@@ -1311,7 +1311,7 @@ export let tgui = (function() {
 			}
 		});
 
-		control.handleClose = (event) => handleChoice(event, "DefaultClose");
+		control.handleClose = (event) => handleChoice(event, "defaultClose");
 		// createTitleBar defined below
 		control.titlebar = createTitleBar(dialog, control.title, control.handleClose);
 
@@ -1337,27 +1337,23 @@ export let tgui = (function() {
 			});
 			control.button_doms = {};
 				
-			let default_button = null;
-			if(control.hasOwnProperty("default_button")) default_button = control.default_button;
+			let defaultButton = null;
+			if(control.hasOwnProperty("defaultButton")) defaultButton = control.defaultButton;
 				
-			for(let button of control.buttons as Array<string|[string, string]>)
+			for(let button of control.buttons as Array<[string, string]>)
 			{
-				let buttonName: string, buttonText: string;
-				if(typeof button == "string")
-					buttonName = buttonText = button;
-				else
-					[buttonName, buttonText] = button as [string, string];
+				let[buttonName, buttonText]: [string, string] = button;
 
 				let event_handler = (event) => handleChoice(event, buttonName);
 
-				if(default_button == buttonName) control.handleDefault = event_handler;
+				if(defaultButton == buttonName) control.handleDefault = event_handler;
 
 				control.button_doms[buttonName] = tgui.createElement({
 					"parent":     control.div_buttons,
 					"type":       "button",
 					"style":      {"width": "100px", "height": "100%", "margin-right": "10px"},
 					"text":       buttonText,
-					"classname":  (default_button == buttonName ? "tgui-modal-default-button" : "tgui-modal-button"),
+					"classname":  (defaultButton == buttonName ? "tgui-modal-default-button" : "tgui-modal-button"),
 					"click":      event_handler,
 				});
 			}
@@ -1451,11 +1447,13 @@ export let tgui = (function() {
 		}
 	}
 
-	// Properties of description: prompt, [buttons], [default_button], title, onButton...
+	// Properties of description: prompt, [icon], [buttons], [defaultButton], title, onButton...
+	// prompt -- the displayed text message
+	// icon   -- an optional canvas drawing function to display the appropriate icon to the message
 	// See `createModal` for more information about these properties
 	module.msgBox = function(description)
 	{
-		let default_description = {"buttons": ["Okay"], "default_button": null}
+		let default_description = {"buttons": [["okay", "Okay"]], "defaultButton": null}
 		description = Object.assign(default_description, description);
 		
 		let dlg = tgui.createModal(Object.assign({
@@ -1463,12 +1461,34 @@ export let tgui = (function() {
 			"minsize":        [300, 150],
 		}, description));
 
+		let icon = description.icon;
+		if(icon)
+		{
+			tgui.createCanvasIcon({
+				parent: 	dlg.content,
+				draw: 		icon,
+				width: 		40,
+				height: 	40,
+				classname: 	"tgui-panel-titlebar-icon",
+				//style: 		{"left": "10px", "top": "10px"},
+				style:      {
+					"margin": "13px",
+					"float": "left",
+					//"clear": "left"
+					"background-clip": "content-box",
+				}
+			});
+		}
+
 		tgui.createElement({
 			"parent": dlg.content,
 			"type": "div",
 			"style": {
-				"margin-top": "10px",
+				"margin-top": "13px",
 				"white-space": "pre-wrap", // do linebreaks
+				//"margin-left": icon ? "60px" : "10px",
+				//"float": "left"
+				//"display": "inline-block"
 			},
 			"text": description.prompt,
 		});
@@ -1476,6 +1496,58 @@ export let tgui = (function() {
 		tgui.startModal(dlg);
 	};
 
+	module.msgBoxQuestion = function(canvas)
+	{
+		let ctx = canvas.getContext("2d");
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#04d";
+		ctx.fillStyle = "#16f";
+		ctx.beginPath();
+		ctx.arc(20, 20, 18.5, 0, 2*Math.PI);
+		ctx.closePath();
+		ctx.fill();
+		ctx.stroke();
+
+		ctx.strokeStyle = "#fff";
+		ctx.beginPath();
+		ctx.arc(20, 15, 7, 1*Math.PI, 2.5*Math.PI, false);
+		
+		ctx.lineTo(20, 28);
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.moveTo(20, 31);
+		ctx.lineTo(20, 34);
+		ctx.stroke();
+	}
+
+	module.msgBoxExclamation = function(canvas)
+	{
+		let ctx = canvas.getContext("2d");
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = "#a91";
+		ctx.fillStyle = "#ec2";
+		ctx.beginPath();
+		//ctx.arc(20, 20, 18.5, 0, 2*Math.PI);
+		ctx.lineTo(19, 2);
+		ctx.lineTo(21, 2);
+		ctx.lineTo(38, 36);
+		ctx.lineTo(37, 38);
+		ctx.lineTo( 3, 38);
+		ctx.lineTo( 2, 36);
+		ctx.closePath();
+		ctx.fill();
+		ctx.stroke();
+
+		ctx.strokeStyle = "#000";
+		ctx.beginPath();
+		ctx.moveTo(20, 10);
+		ctx.lineTo(20, 28);
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.moveTo(20, 31);
+		ctx.lineTo(20, 34);
+		ctx.stroke();
+	}
 
 	// Show a (newly created) modal dialog, that was created by createModal.
 	// Modal dialogs can be stacked. The dialog should not have been shown yet.
@@ -1515,8 +1587,8 @@ export let tgui = (function() {
 		centerModalDialog(element);
 		modal.push(element);
 			
-		if(element.hasOwnProperty("default_button"))
-			element.button_doms[element.default_button].focus();
+		if(element.hasOwnProperty("defaultButton"))
+			element.button_doms[element.defaultButton].focus();
 		else
 			element.content.focus();
 	}
@@ -1585,7 +1657,7 @@ export let tgui = (function() {
 				{
 					return dlg.handleClose(event);
 				}
-				else if(event.key == "Enter" && dlg.hasOwnProperty("enter_confirms") && dlg.enter_confirms)
+				else if(event.key == "Enter" && dlg.hasOwnProperty("enterConfirms") && dlg.enterConfirms)
 				{
 					return dlg.handleDefault(event);
 				}

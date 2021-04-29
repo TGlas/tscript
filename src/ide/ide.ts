@@ -898,7 +898,7 @@ export let ide = (function() {
 			"title":      "Export program as webpage", 
 			"scalesize":  [0.50, 0.50], 
 			"minsize":    [400, 260],
-			"buttons":    ["Close"],
+			"buttons":    [["close", "Close"]],
 		});
 		
 		let status = tgui.createElement({
@@ -990,20 +990,23 @@ export let ide = (function() {
 		}
 	}
 
-	// onConfirm might be called after confirmFileDiscard has returned, that happens, when the confirm
-	// dialog has opened
+	// Check if the document has been changed and when this is the case, ask the user to discard the changes,
+	// by opening a dialog. In this case the confirmFileDiscard returns directly after creating the dialog.
+	// When the document was not changed, or the user allows to discard the changes the function onConfirm is
+	// called.
 	function confirmFileDiscard(title, onConfirm)
 	{
 		if (module.document.dirty)
 		{
 			tgui.msgBox({
 				prompt:         "The document may have unsaved changes.\nDo you want to discard the code?",
+				icon:           tgui.msgBoxQuestion,
 				title:          title,
-				buttons:        ["Discard", "Cancel"],
-				default_button: "Discard",
+				buttons:        [["discard", "Discard"], ["cancel", "Cancel"]],
+				defaultButton:  "discard",
 				onButton:       (button) =>
 				{
-					if(button === "Discard") onConfirm();
+					if(button === "discard") onConfirm();
 				}
 			});
 		}
@@ -1462,8 +1465,8 @@ export let ide = (function() {
 			"title":          "Configuration", 
 			"scalesize":      [0.50, 0.50], 
 			"minsize":        [370, 270],
-			"buttons":        ["Done"],
-			"default_button": "Done",
+			"buttons":        [["done", "Done"]],
+			"defaultButton":  "done",
 			"onButton":       (button) => { saveConfig(); }
 		});
 		let div_hotkey = tgui.createElement({parent: dlg.content, type: "div"});
@@ -1489,7 +1492,7 @@ export let ide = (function() {
 								"title":      "Set hotkey", 
 								"scalesize":  [0.30, 0.30], 
 								"minsize":    [340, 220],
-								"buttons":    ["Cancel"],
+								"buttons":    [["cancel", "Cancel"]],
 								"onButton":   (button) => { saveConfig(); }
 							});
 							let icon = tgui.createCanvasIcon({
@@ -1611,10 +1614,10 @@ export let ide = (function() {
 			"title":          title, 
 			"scalesize":      [0.50, 0.70], 
 			"minsize":        [440, 260],
-			"buttons":        [["Confirm", confirmText], "Cancel"],
-			"default_button": "Confirm",
-			"enter_confirms": true,
-			"onButton":       (button) => { if(button === "Confirm") return doFileConfirmation(); },
+			"buttons":        [["confirm", confirmText], ["cancel", "Cancel"]],
+			"defaultButton":  "confirm",
+			"enterConfirms":  true,
+			"onButton":       (button) => { if(button === "confirm") return doFileConfirmation(); },
 			"contentstyle":   {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
 		});
 
@@ -1735,12 +1738,13 @@ export let ide = (function() {
 			{
 				tgui.msgBox({
 					title:          "Delete file",
+					icon:           tgui.msgBoxExclamation,
 					prompt:         "Delete file \"" + filename + "\"\nAre you sure?",
-					buttons:        ["Delete", "Cancel"],
-					default_button: "Delete",
+					buttons:        [["delete", "Delete"], ["cancel", "Cancel"]],
+					defaultButton:  "delete",
 					onButton:       (button) =>
 					{
-						if(button === "Delete")
+						if(button === "delete")
 						{
 							localStorage.removeItem("tscript.code." + filename);
 							files.splice(index, 1);
@@ -2060,9 +2064,9 @@ export let ide = (function() {
 						"title":          "Open documentation", 
 						"scalesize":      [0.20, 0.15], 
 						"minsize":        [300, 150],
-						"buttons":        [["Open", "Open tab"], "Cancel"],
-						"default_button": "Open",
-						"onButton":       (button) => { if(button === "Open") showdoc(href); },
+						"buttons":        [["open", "Open tab"], ["cancel", "Cancel"]],
+						"defaultButton":  "open",
+						"onButton":       (button) => { if(button === "open") showdoc(href); },
 					});
 					tgui.createElement({
 						"parent": dlg.content,
