@@ -1221,20 +1221,24 @@ export let tgui = (function() {
 	// - buttons?:          buttons of the buttonbar
 	//                      list of objects with the following fields:
 	//                      - text: string                  The text displayed on the button
-	//                      - onClick?: function(dialog)    The handler, that is called, when the button has 
+	//                      - onClick?: function()          The handler, that is called, when the button has 
 	//                                                      been clicked, default: a no-op function
+	//                                                      return a true value to keep the dialog open
+	//                                                      return a false value/nothing to close the dialog
 	//                      - isDefault?: boolean           Flag if the button is the default button of the
 	//                                                      dialog, default: false
 	//                      If this list is not given, there will be no button bar.
 	//                      Example:    buttons: [{text: "Okay", onClick: dlg => executeTask()}, {text: "Cancel"}]
 	//                      When a button has been clicked and onClick has been executed completely, onClose is
-	//                      called and the dialog gets closed, unless dialog.keepOpen has been set to true.
+	//                      called and the dialog gets closed, unless a handler has returned true.
 	// - onClose?:          The handler, whenever the dialog gets closed, it gets called after one of the following happens:
 	//                      - [Escape] has been pressed
 	//                      - The [x] button on the titlebar has been clicked
-	//                      - A button on the button bar has been clicked and dialog.keepOpen was not set to true
-	//                      if the handler returns the dialog closes, unless dialog.keepOpen was set to true
+	//                      - A button on the button bar has been clicked and onClick of that button did not return true
+	//                      if the handler returns a false value the dialog closes
 	//                      default: a no-op function
+	//                      return a true value to keep the dialog open
+	//                      return a false value/nothing to close the dialog
 	// - onHelp?:           null or a function, that takes no arguments.
 	//                      If this is not null, an additional help button is created in the titlebar.
 	//                      The function gets called, whenever one of the following happens:
@@ -1249,8 +1253,6 @@ export let tgui = (function() {
 	// - content:           a DOM element, that represents the content of the dialog
 	// - dom:               a DOM element, that represents the whole dialog
 	// - and others, mainly the titlebar components
-	// - keepOpen:          a boolean that can be set to true from any handler function above,
-	//                      to keep the dialog open after the handler finishes
 	// methods in the returned object:
 	//
 	// TODO: Support undecorated elements via a boolean property `decorated`, in this case
@@ -1269,16 +1271,17 @@ export let tgui = (function() {
 				event.stopPropagation();
 			}
 
-			control.keepOpen = false;
-
-			if(button)
+			if(button && button.onClick) 
 			{
-				if(button.onClick) button.onClick(control);
-				if(control.keepOpen) return false;
+				let keepOpen = button.onClick();
+				if(keepOpen) return false;
 			}
 
-			if(control.onClose) control.onClose(control);
-			if(control.keepOpen) return false;
+			if(control.onClose) 
+			{
+				let keepOpen = control.onClose();
+				if(keepOpen) return false;
+			}
 
 			tgui.stopModal(control); // close current dialog
 			return false;
