@@ -1211,8 +1211,6 @@ export let tgui = (function() {
 	// TODO: merge this with arrangePanels, that is also installed as a "resize"-callback
 	window.addEventListener("resize", centerAllModalDialogs);
 
-	module.modalClose = "tgui.modalClose";
-	module.modalHelp  = "tgui.modalHelp";
 	// Create a modal dialog. Similar to createPanel
 	// The description object has the following fields:
 	// - title:             text in the title bar
@@ -1220,34 +1218,40 @@ export let tgui = (function() {
 	// - minsize:           [width, height] minimum size of the dialog, 
 	//                      when the whole viewport is smaller, the viewport size is used
 	// - contentstyle:      object to add/override some styles to/of the content element
-	// - helpEnabled:       enables help button in the titlebar, TODO: also open Help with [F1]
-	// - buttons:           list of [name, text] pairs like [["delete", "Delete File"], ["cancel", "Cancel"]],
-	//                      if this is not given, there is no button bar
-	//                      at the bottom. The first element, the name, is passed to onButton and
-	//                      might be referred to in the defaultButton attribute.
-	//                      The second is only used as the text displayed on the button.
-	//                      It might be a translated text.
-	//                      Note that an object/a dictionary is not used, because the order of the elements
-	//                      is important.
-	// - defaultButton      The name of the default button in buttons. It gets highlighted in blue.
+	// - buttons?:          buttons of the buttonbar
+	//                      list of objects with the following fields:
+	//                      - text: string                  The text displayed on the button
+	//                      - onClick?: function(dialog)    The handler, that is called, when the button has 
+	//                                                      been clicked, default: a no-op function
+	//                      - isDefault?: boolean           Flag if the button is the default button of the
+	//                                                      dialog, default: false
+	//                      If this list is not given, there will be no button bar.
+	//                      Example:    buttons: [{text: "Okay", onClick: dlg => executeTask()}, {text: "Cancel"}]
+	//                      When a button has been clicked and onClick has been executed completely, onClose is
+	//                      called and the dialog gets closed, unless dialog.keepOpen has been set to true.
+	// - onClose?:          The handler, whenever the dialog gets closed, it gets called after one of the following happens:
+	//                      - [Escape] has been pressed
+	//                      - The [x] button on the titlebar has been clicked
+	//                      - A button on the button bar has been clicked and dialog.keepOpen was not set to true
+	//                      if the handler returns the dialog closes, unless dialog.keepOpen was set to true
+	//                      default: a no-op function
+	// - onHelp?:           null or a function, that takes no arguments.
+	//                      If this is not null, an additional help button is created in the titlebar.
+	//                      The function gets called, whenever one of the following happens:
+	//                      - [F1] has been pressed <--- TODO: currently not implemented
+	//                      - The [?] button on the titlebar has been clicked
+	//                      default: null
 	// - enterConfirms      Boolean flag, true if pressing [Enter] should behave like clicking on the default button
-	// - onButton           Handler function, that takes exactly one argument: the name of the button
-	//                      on the buttonbar that has been pressed.
-	//                      It is also called if the close-button on the titlebar is clicked or [Escape]
-	//                      has been pressed.
-	//                      In this case the string "tgui.modalClose" is passed as a parameter.
-	//                      If the help button is enabled, then "tgui.modalHelp" is passed as a parameter, whenever
-	//                      [F1] or the help button was pressed.
-	//                      
-	//                      Return true if the dialog should be kept opened, otherwise return false or nothing at all.
 	//                      
 	//
 	// those properties are carried over to the returned object
 	// and the following fields are contained in the returned object:
 	// - content:           a DOM element, that represents the content of the dialog
 	// - dom:               a DOM element, that represents the whole dialog
-	// - button_doms:       dictionary of DOM elements, that represents the buttons in the button bar
 	// - and others, mainly the titlebar components
+	// - keepOpen:          a boolean that can be set to true from any handler function above,
+	//                      to keep the dialog open after the handler finishes
+	// methods in the returned object:
 	//
 	// TODO: Support undecorated elements via a boolean property `decorated`, in this case
 	//       control.dom might be the same as control.content.
@@ -1256,20 +1260,47 @@ export let tgui = (function() {
 		// control -- description object returned from this function and stored in the tgui.modal array
 		// dialog  -- the DOM object of the dialog contents
 		let control = Object.assign({}, description);
-		// handle default fields
-		if(!control.hasOwnProperty("onButton")) control.onButton = function(button) {};
 
 		let handleButton = function(event, button)
 		{	
-			// if the onButton returns true, the dialog is kept opened
-			let ret = control.onButton(button);
 			if(event)
 			{
 				event.preventDefault();
 				event.stopPropagation();
 			}
-			if(!ret) tgui.stopModal(control); // close current dialog
+
+			control.keepOpen = false;
+
+			if(button)
+			{
+				if(button.onClick) button.onClick(control);
+				if(control.keepOpen) return false;
+			}
+
+			if(control.onClose) control.onClose(control);
+			if(control.keepOpen) return false;
+
+			tgui.stopModal(control); // close current dialog
 			return false;
+		};
+
+		let handleHelp;
+		if(control.onHelp)
+		{
+			handleHelp = function(event)
+			{
+				if(event)
+				{
+					event.preventDefault();
+					event.stopPropagation();
+				}
+				control.onHelp();
+				return false;
+			};
+		}
+		else
+		{
+			handleHelp = null;
 		}
 		
 		// create dialog	
@@ -1316,9 +1347,8 @@ export let tgui = (function() {
 			}
 		});
 
-		control.handleClose = (event) => handleButton(event, tgui.modalClose);
+		control.handleClose = (event) => handleButton(event, null);
 		// createTitleBar defined below
-		let handleHelp = control.hasOwnProperty("helpEnabled") ? (event) => handleButton(event, tgui.modalHelp) : null;
 		control.titlebar = createTitleBar(dialog, control.title, control.handleClose, handleHelp);
 
 		// create the content div
@@ -1334,6 +1364,8 @@ export let tgui = (function() {
 		
 		
 		
+		control.focusControl = control.content;
+
 		if(control.hasOwnProperty("buttons"))
 		{
 			control.div_buttons = tgui.createElement({
@@ -1341,27 +1373,23 @@ export let tgui = (function() {
 				"type": "div",
 				"classname": "tgui tgui-modal-buttonbar",
 			});
-			control.button_doms = {};
 				
-			let defaultButton = null;
-			if(control.hasOwnProperty("defaultButton")) defaultButton = control.defaultButton;
-				
-			for(let button of control.buttons as Array<[string, string]>)
+			for(let button of control.buttons)
 			{
-				let[buttonName, buttonText]: [string, string] = button;
+				let eventHandler = (event) => handleButton(event, button);
 
-				let event_handler = (event) => handleButton(event, buttonName);
+				if(button.isDefault) control.handleDefault = eventHandler;
 
-				if(defaultButton == buttonName) control.handleDefault = event_handler;
-
-				control.button_doms[buttonName] = tgui.createElement({
+				let buttonDom = tgui.createElement({
 					"parent":     control.div_buttons,
 					"type":       "button",
 					"style":      {"width": "100px", "height": "100%", "margin-right": "10px"},
-					"text":       buttonText,
-					"classname":  (defaultButton == buttonName ? "tgui-modal-default-button" : "tgui-modal-button"),
-					"click":      event_handler,
+					"text":       button.text,
+					"classname":  (button.isDefault ? "tgui-modal-default-button" : "tgui-modal-button"),
+					"click":      eventHandler,
 				});
+				if(button.isDefault)
+					control.focusControl = buttonDom;
 			}
 		}
 		
@@ -1453,13 +1481,13 @@ export let tgui = (function() {
 		}
 	}
 
-	// Properties of description: prompt, [icon], [buttons], [defaultButton], title, onButton...
+	// Properties of description: prompt, [icon], [buttons], title, [onClose]...
 	// prompt -- the displayed text message
 	// icon   -- an optional canvas drawing function to display the appropriate icon to the message
 	// See `createModal` for more information about these properties
 	module.msgBox = function(description)
 	{
-		let default_description = {"buttons": [["okay", "Okay"]], "defaultButton": null}
+		let default_description = {buttons: [{text: "Okay"}]}
 		description = Object.assign(default_description, description);
 		
 		let dlg = tgui.createModal(Object.assign({
@@ -1583,6 +1611,9 @@ export let tgui = (function() {
 		// save previous active element to be restored later
 		element.prevActiveElement = document.activeElement;
 		(document.activeElement as any)?.blur();
+		// ^^ if element.focusControl is not focusable,
+		//    such that element.focusControl.focus() has no effect,
+		//    the old control should not keep the focus
 		
 		
 		// add the new modal dialog
@@ -1594,10 +1625,7 @@ export let tgui = (function() {
 		centerModalDialog(element);
 		modal.push(element);
 			
-		if(element.hasOwnProperty("defaultButton"))
-			element.button_doms[element.defaultButton].focus();
-		else
-			element.content.focus();
+		element.focusControl.focus();
 	}
 
 	// Discard a modal dialog.

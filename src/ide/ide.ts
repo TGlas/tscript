@@ -898,16 +898,8 @@ export let ide = (function() {
 			"title":      "Export program as webpage", 
 			"scalesize":  [0.50, 0.50], 
 			"minsize":    [400, 260],
-			"helpEnabled":true,
-			"buttons":    [["close", "Close"]],
-			"onButton":   (button) =>
-			{
-				if(button === tgui.modalHelp)
-				{
-					showdoc("#/ide/exportdialog")
-					return true; // keep dialog open
-				}
-			}
+			"onHelp":     () => showdoc("#/ide/exportdialog"),
+			"buttons":    [{text: "Close"}],
 		});
 		
 		let status = tgui.createElement({
@@ -1011,12 +1003,8 @@ export let ide = (function() {
 				prompt:         "The document may have unsaved changes.\nDo you want to discard the code?",
 				icon:           tgui.msgBoxQuestion,
 				title:          title,
-				buttons:        [["discard", "Discard"], ["cancel", "Cancel"]],
-				defaultButton:  "discard",
-				onButton:       (button) =>
-				{
-					if(button === "discard") onConfirm();
-				}
+				buttons:        [{text: "Discard", onClick: (dialog) => onConfirm(), isDefault: true},
+								 {text: "Cancel"}],
 			});
 		}
 		else
@@ -1474,9 +1462,8 @@ export let ide = (function() {
 			"title":          "Configuration", 
 			"scalesize":      [0.50, 0.50], 
 			"minsize":        [370, 270],
-			"buttons":        [["done", "Done"]],
-			"defaultButton":  "done",
-			"onButton":       (button) => { saveConfig(); }
+			"buttons":        [{text: "Done", isDefault: true}],
+			"onClose":		  (dialog) => saveConfig(),
 		});
 		let div_hotkey = tgui.createElement({parent: dlg.content, type: "div"});
 		let h3_hotkey = tgui.createElement({parent: div_hotkey, type: "h3", text: "Configure Hotkeys"});
@@ -1501,8 +1488,8 @@ export let ide = (function() {
 								"title":      "Set hotkey", 
 								"scalesize":  [0.30, 0.30], 
 								"minsize":    [340, 220],
-								"buttons":    [["cancel", "Cancel"]],
-								"onButton":   (button) => { saveConfig(); }
+								"buttons":    [{text: "Cancel"}],
+								"onClose":    (dialog) => saveConfig()
 							});
 							let icon = tgui.createCanvasIcon({
 								"parent": dlg.content,
@@ -1604,7 +1591,7 @@ export let ide = (function() {
 		}
 		files.sort();
 
-		// create controls
+		// return true on success
 		let doFileConfirmation = function()
 		{
 			let fn = name.value;
@@ -1613,20 +1600,20 @@ export let ide = (function() {
 				if (allowNewFilename || files.indexOf(fn) >= 0)
 				{
 					onOkay(fn);
-					return;
+					return true;
 				}
 			}
-			return true; // do not close dialog
+			return false;
 		};
 		
+		// create dialog and its controls
 		let dlg = tgui.createModal({
 			"title":          title, 
 			"scalesize":      [0.50, 0.70], 
 			"minsize":        [440, 260],
-			"buttons":        [["confirm", confirmText], ["cancel", "Cancel"]],
-			"defaultButton":  "confirm",
+			"buttons":        [{text: confirmText, onClick: (dialog) => { dialog.keepOpen = !doFileConfirmation(); }, isDefault: true},
+			                   {text: "Cancel"}],
 			"enterConfirms":  true,
-			"onButton":       (button) => { if(button === "confirm") return doFileConfirmation(); },
 			"contentstyle":   {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
 		});
 
@@ -1731,8 +1718,8 @@ export let ide = (function() {
 		{
 			event.preventDefault();
 			event.stopPropagation();
-			if(doFileConfirmation()) return false;
-			tgui.stopModal();
+			if(doFileConfirmation())
+				tgui.stopModal();
 			return false;
 		});
 
@@ -1749,17 +1736,19 @@ export let ide = (function() {
 					title:          "Delete file",
 					icon:           tgui.msgBoxExclamation,
 					prompt:         "Delete file \"" + filename + "\"\nAre you sure?",
-					buttons:        [["delete", "Delete"], ["cancel", "Cancel"]],
-					defaultButton:  "delete",
-					onButton:       (button) =>
-					{
-						if(button === "delete")
+					buttons:        [
 						{
-							localStorage.removeItem("tscript.code." + filename);
-							files.splice(index, 1);
-							list.remove(index);
-						}
-					}
+							text: "Delete",
+							isDefault: true,
+							onClick: (dialog) =>
+							{
+								localStorage.removeItem("tscript.code." + filename);
+								files.splice(index, 1);
+								list.remove(index);
+							},
+						},
+						{text: "Cancel"}
+					]
 				});
 			}
 		}
@@ -2073,9 +2062,8 @@ export let ide = (function() {
 						"title":          "Open documentation", 
 						"scalesize":      [0.20, 0.15], 
 						"minsize":        [300, 150],
-						"buttons":        [["open", "Open tab"], ["cancel", "Cancel"]],
-						"defaultButton":  "open",
-						"onButton":       (button) => { if(button === "open") showdoc(href); },
+						"buttons":        [{text: "Open tab", onClick: (dialog) => showdoc(href), isDefault: true},
+						                   {text: "Cancel"}],
 					});
 					tgui.createElement({
 						"parent": dlg.content,
