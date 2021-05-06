@@ -1339,7 +1339,6 @@ export let tgui = (function() {
 				{
 					// Nothing inside the dialog focusable, so keep focus away from other elements
 					// similar handling as when opening dialog
-					(document.activeElement as any)?.blur?.();
 					control.focusControl.focus();
 					event.preventDefault();
 				}
