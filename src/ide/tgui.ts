@@ -1247,7 +1247,7 @@ export let tgui = (function() {
 	//                      default: a no-op function
 	//                      return a true value to keep the dialog open
 	//                      return a false value/nothing to close the dialog
-	// - onHelp?:           null or a function, that takes no arguments.
+	// - onHelp?:           null or a function, that takes a bool argument, the boolean is true if it is initiated by a key.
 	//                      If this is not null, an additional help button is created in the titlebar.
 	//                      The function gets called, whenever one of the following happens:
 	//                      - [F1] has been pressed <--- TODO: currently not implemented
@@ -1295,24 +1295,21 @@ export let tgui = (function() {
 			return false;
 		};
 
-		let handleHelp;
 		if(control.onHelp)
 		{
-			handleHelp = function(event)
+			control.handleHelp = function(event)
 			{
 				if(event)
 				{
 					event.preventDefault();
 					event.stopPropagation();
 				}
-				control.onHelp();
+				control.onHelp?.(event instanceof KeyboardEvent);
 				return false;
 			};
 		}
 		else
-		{
-			handleHelp = null;
-		}
+			control.handleHelp = null;
 		
 		// create dialog	
 		let dialog = tgui.createElement({
@@ -1362,7 +1359,7 @@ export let tgui = (function() {
 
 		control.handleClose = (event) => handleButton(event, null);
 		// createTitleBar defined below
-		control.titlebar = createTitleBar(dialog, control.title, control.handleClose, handleHelp);
+		control.titlebar = createTitleBar(dialog, control.title, control.handleClose, control.handleHelp);
 
 		// create the content div
 		let contentHeight = control.hasOwnProperty("buttons") ? "calc(100% - 63px)" : "calc(100% - 24px)";
@@ -1705,6 +1702,10 @@ export let tgui = (function() {
 				if(event.key == "Escape")
 				{
 					return dlg.handleClose(event);
+				}
+				if(event.key == "F1")
+				{
+					return dlg.handleHelp(event);
 				}
 				else if(event.key == "Enter" && dlg.hasOwnProperty("enterConfirms") && dlg.enterConfirms)
 				{

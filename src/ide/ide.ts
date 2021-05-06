@@ -82,6 +82,37 @@ export let ide = (function() {
 		}
 	}
 
+	function showdocConfirm(path : string, search_string : string = "")
+	{
+		// The dialog is added here, because some browsers disallow
+		// that a new tab/window is created, when not initiated by a button press.
+		// In this case the user would simply press [Enter] which should be no problem.
+		let dlg = tgui.createModal({
+			"title":          "Open documentation", 
+			"scalesize":      [0.20, 0.15], 
+			"minsize":        [300, 150],
+			"buttons":        [{text: "Open tab", onClick: () => showdoc(path), isDefault: true},
+								{text: "Cancel"}],
+		});
+		tgui.createElement({
+			"parent": dlg.content,
+			"type": "div",
+			"style": {"margin-top": "10px"},
+			"text": "Open the documentation in another tab?",
+		});
+
+		tgui.createElement({
+			"parent": dlg.content,
+			"type": "div",
+			"style": {"margin-top": "10px"},
+			"text": (search_string ? "Search for \"" + search_string + "\"?" 
+			                       : "Go to \"" + path + "\"?"),
+		});
+
+		tgui.startModal(dlg);
+		
+	}
+
 
 	// document properties
 	module.document = {
@@ -898,7 +929,7 @@ export let ide = (function() {
 			"title":      "Export program as webpage", 
 			"scalesize":  [0.50, 0.50], 
 			"minsize":    [400, 260],
-			"onHelp":     () => showdoc("#/ide/exportdialog"),
+			"onHelp":     (initiatedByKey) => (initiatedByKey ? showdocConfirm : showdoc)("#/ide/exportdialog"),
 			"buttons":    [{text: "Close"}],
 		});
 		
@@ -2054,31 +2085,7 @@ export let ide = (function() {
 						href = "#search/"+words.join("/");
 					}
 
-					let dlg = tgui.createModal({
-						"title":          "Open documentation", 
-						"scalesize":      [0.20, 0.15], 
-						"minsize":        [300, 150],
-						"buttons":        [{text: "Open tab", onClick: () => showdoc(href), isDefault: true},
-						                   {text: "Cancel"}],
-					});
-					tgui.createElement({
-						"parent": dlg.content,
-						"type": "div",
-						"style": {"margin-top": "10px"},
-						"text": "Open the documentation in another tab?",
-					});
-
-					if(words)
-					{
-						tgui.createElement({
-							"parent": dlg.content,
-							"type": "div",
-							"style": {"margin-top": "10px"},
-							"text": "Search for \"" + words.join(" ") + "\"?",
-						});
-					}
-
-					tgui.startModal(dlg);
+					showdocConfirm(href, words.join(" "));
 				});
 		}
 
