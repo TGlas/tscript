@@ -1157,6 +1157,11 @@ export let tgui = (function() {
 	}
 
 
+	// See `createModal` for a detailed description of the objects
+	// that are stored here
+	let modal = new Array();
+
+
 	let separator = module.createElement({
 			"type": "div",
 			"id": "tgui-separator",
@@ -1166,11 +1171,14 @@ export let tgui = (function() {
 						// TODO: close popups, but not modal dialogs...?
 						return false;   // important: consume clicks
 					},
-			});
+			"tabindex": -1, // focusable, not by tab
+	});
+	separator.addEventListener("focusin", (event) =>
+	{
+		modal[modal.length-1]?.focusControl.focus();
+		return false;
+	});
 
-	// See `createModal` for a detailed description of the objects
-	// that are stored here
-	let modal = new Array();
 
 	function roundToPhysicalPixel(virtual_px: number)
 	{
@@ -1330,7 +1338,10 @@ export let tgui = (function() {
 				if(focusable.length === 0)
 				{
 					// Nothing inside the dialog focusable, so keep focus away from other elements
-					(document.activeElement as any)?.blur();
+					// similar handling as when opening dialog
+					(document.activeElement as any)?.blur?.();
+					control.focusControl.focus();
+					event.preventDefault();
 				}
 				else
 				{
@@ -1359,10 +1370,11 @@ export let tgui = (function() {
 		let contentstyle = {"height": contentHeight};
 		if(control.hasOwnProperty("contentstyle")) Object.assign(contentstyle, control.contentstyle);
 		control.content = tgui.createElement({
-			"type":       "div", 
+			"type":       "div",
 			"parent":     dialog,
 			"classname":  "tgui tgui-modal-content",
 			"style":      contentstyle,
+			"tabindex":   -1, // focusable by script, but not by tab
 		});
 		
 		
@@ -1613,7 +1625,7 @@ export let tgui = (function() {
 
 		// save previous active element to be restored later
 		element.prevActiveElement = document.activeElement;
-		(document.activeElement as any)?.blur();
+		(document.activeElement as any)?.blur?.();
 		// ^^ if element.focusControl is not focusable,
 		//    such that element.focusControl.focus() has no effect,
 		//    the old control should not keep the focus
