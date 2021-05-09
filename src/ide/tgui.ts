@@ -1180,44 +1180,6 @@ export let tgui = (function() {
 	});
 
 
-	function roundToPhysicalPixel(virtual_px: number)
-	{
-		return (virtual_px*window.devicePixelRatio | 0)/window.devicePixelRatio;
-	}
-
-	// Center a dialog at the center of the window
-	// Dialogs are aligned at integral pixel coordinates to
-	// avoid pixel-jittering
-	function centerModalDialog(dlg)
-	{
-		let dlg_width, dlg_height;
-		let scr_width = window.innerWidth, scr_height = window.innerHeight;
-		if(dlg.hasOwnProperty("minsize") && dlg.hasOwnProperty("scalesize"))
-		{
-			dlg_width = roundToPhysicalPixel(Math.min(Math.max(dlg.minsize[0], dlg.scalesize[0]*scr_width), scr_width));
-			dlg_height = roundToPhysicalPixel(Math.min(Math.max(dlg.minsize[1], dlg.scalesize[1]*scr_height), scr_height));
-			
-			dlg.dom.style["width"] = dlg_width+"px";
-			dlg.dom.style["height"] = dlg_height+"px";
-		}
-		else
-		{
-			let rect = dlg.dom.getBoundingClientRect();
-			dlg_width = rect.width;
-			dlg_height = rect.height;
-		}
-		dlg.dom.style["left"] = roundToPhysicalPixel((scr_width-dlg_width)/2)+"px";
-		dlg.dom.style["top"]  = roundToPhysicalPixel((scr_height-dlg_height)/2)+"px";
-	}
-
-	// Center all dialogs whenever the window changed
-	function centerAllModalDialogs()
-	{
-		for(let i = 0; i < modal.length; ++i) centerModalDialog(modal[i]);
-	}
-
-	// TODO: merge this with arrangePanels, that is also installed as a "resize"-callback
-	window.addEventListener("resize", centerAllModalDialogs);
 
 	// Create a modal dialog. Similar to createPanel
 	// The description object has the following fields:
@@ -1315,7 +1277,15 @@ export let tgui = (function() {
 		let dialog = tgui.createElement({
 			"type": "div",
 			"className": "tgui tgui-modal",
-			"style": {"background": "#eee", "overflow": "hidden", "display": "block", "zIndex": 100},
+			"style": {
+				"background": "#eee", "overflow": "hidden", "display": "block", "zIndex": 100,
+				"position": "absolute",
+				"left": "0", "right": "0",
+				"top": "0", "bottom": "0",
+				"margin": "auto",
+				"width":  "calc(min(max(" + control.minsize[0] + "px, " + control.scalesize[0]*100 + "%), 100%))",
+				"height": "calc(min(max(" + control.minsize[1] + "px, " + control.scalesize[1]*100 + "%), 100%))",
+			},
 		});
 		control.dom = dialog;
 		
@@ -1592,8 +1562,7 @@ export let tgui = (function() {
 
 	// Show a (newly created) modal dialog, that was created by createModal.
 	// Modal dialogs can be stacked. The dialog should not have been shown yet.
-	// The window appears at the center of the screen, aligned to physical
-	// screen pixels.
+	// The window appears at the center of the screen
 	// THE FOLLOWING BEHAVIOR IS DEPRECATED/NOT SUPPORTED ANYMORE:
 	// Show a (newly created) element as a modal dialog. Modal dialogs can
 	// be stacked. The element should not have been added to a parent yet.
@@ -1628,7 +1597,6 @@ export let tgui = (function() {
 		element.dom.style.zIndex = 100;
 		element.dom.className += " tgui tgui-modal";
 		document.body.appendChild(element.dom);
-		centerModalDialog(element);
 		modal.push(element);
 			
 		element.focusControl.focus();
