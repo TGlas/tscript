@@ -107,6 +107,11 @@
 	border-color: #fff;
 }
 
+.tgui-button-text:focus
+{
+	border-color: #222;
+}
+
 .tgui-button-text:active
 {
 	background: #bbb;	
@@ -133,6 +138,11 @@
 {
 	background: #eee;
 	border-color: #fff;
+}
+
+.tgui-button-canvas:focus
+{
+	border-color: #222;
 }
 
 .tgui-button-canvas:active
@@ -411,6 +421,7 @@
 	width: auto;
 }
 
+/* .tgui-panel-dockbutton is also used in modal dialogs */
 .tgui-panel-dockbutton {
 	padding: 0;
 	width: 20px;
@@ -430,6 +441,12 @@
 	
 	border-radius: 1.5px;
 }
+
+.tgui-panel-dockbutton:focus {
+	border-color: #77f;
+	box-shadow: inset 0px 0px 0.5px 0.5px #7777ff30;
+}
+
 .tgui-panel-dockbutton:active {
 	background: #bbb;	
 	border-color: #777;

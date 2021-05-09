@@ -1323,14 +1323,11 @@ export let tgui = (function() {
 		{
 			if(event.keyCode === 9) // TAB characterSet
 			{			
-				//let focus_query = 'button, [href], input, select, textarea, [tabIndex]:not([tabIndex="-1"])';
 				let focus_query = 'button, [href], input, select, textarea';
 				// collect all focusable elements inside the dialog, except titlebar buttons
-				var focusable = Array(...control.content.querySelectorAll(focus_query));
-				if(control.hasOwnProperty("div_buttons"))
-				{
-					focusable.push(...control.div_buttons.querySelectorAll(focus_query));
-				}			
+				var focusable = Array(...control.dom.querySelectorAll(focus_query));
+				focusable = focusable.filter(element => element.tabIndex !== -1);
+				console.log(focusable);
 				
 				if(focusable.length === 0)
 				{
@@ -1457,8 +1454,7 @@ export let tgui = (function() {
 								},
 						"classname": "tgui-panel-dockbutton",
 						"tooltip-right": "Help",
-						"tabindex": "-1",
-					});
+				});
 			}
 
 			let close = tgui.createButton({
@@ -1485,7 +1481,6 @@ export let tgui = (function() {
 							},
 					"classname": "tgui-panel-dockbutton",
 					"tooltip-right": "Close",
-					"tabindex": "-1",
 				});
 
 			return titlebar;
