@@ -1297,7 +1297,6 @@ export let tgui = (function() {
 				// collect all focusable elements inside the dialog, except titlebar buttons
 				var focusable = Array(...control.dom.querySelectorAll(focus_query));
 				focusable = focusable.filter(element => element.tabIndex !== -1);
-				console.log(focusable);
 				
 				if(focusable.length === 0)
 				{
