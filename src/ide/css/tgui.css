@@ -71,18 +71,16 @@
 /* used for program status on the toolbar */
 .tgui-label
 {
-	background: #ddd;
-
-	border-width: 1px;
-	border-style: solid;
-	border-color: #999;
-
+	background: #ccc;
 	box-shadow: inset 0px  1px 4px #00000030,
-				inset 0px -1px 4px #ffffff50;
+				inset 0px -1px 4px #ffffff50,
+				0px 0px 1px 0px #000000a0,
+				0px 2px 1px 0px #ffffffc0;
 	
 	text-align: center;
+	vertical-align: middle;
 	padding: 2px 10px 2px 10px;
-	border-radius: 2px;
+	border-radius: 1px;
 }
 
 .tgui-button-text
@@ -99,6 +97,7 @@
 	border-radius: 1.5px;
 
 	text-align: center;
+	vertical-align: middle;
 	padding: 2px 10px 2px 10px;
 }
 
@@ -106,6 +105,11 @@
 {
 	background: #eee;
 	border-color: #fff;
+}
+
+.tgui-button-text:focus
+{
+	border-color: #222;
 }
 
 .tgui-button-text:active
@@ -136,6 +140,11 @@
 	border-color: #fff;
 }
 
+.tgui-button-canvas:focus
+{
+	border-color: #222;
+}
+
 .tgui-button-canvas:active
 {
 	background: #bbb;	
@@ -145,47 +154,12 @@
 }
 
 
-
-.tgui-dialog-button
-{
-	cursor: pointer;
-	
-	background: #eee;
-	border-width: 1px;
-	border-color: #000;
-	box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
-	
-	border-radius: 2px;
-}
-.tgui-dialog-button:focus
-{
-	background: #eee;
-	border-width: 2px;
-}
-
-.tgui-dialog-button:hover
-{
-	background: #fff;
-	border-width: 2px;
-}
-
-.tgui-dialog-button:active
-{
-	background: #bbb;
-	border-width: 2px;
-	box-shadow: inset 0px 0px 3px rgba(0,0,0,0.4);
-}
-
 /* used in file dialog */
 .tgui-status-box
 {
-	background: #eee;
-	
-	font-size: 10pt;
-	
-	padding: 4px
+	vertical-align: middle;
+	padding: 4px;
 }
-
 
 .tgui-list-box
 {
@@ -271,19 +245,11 @@
 
 .tgui-modal
 {
-	position: absolute;
-	margin: auto;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-	
+	position: absolute;	
 	box-sizing: border-box;
-	background: #fff;
 	color: #000;
 	font-family: sans-serif;
 	font-size: 10pt;
-	padding: 10px;
 	border: 5px solid #888;
 	overflow-y: scroll;
 }
@@ -299,7 +265,6 @@
 	
 	font-weight: bold;
 	font-size: 10pt;
-	line-height: 24px;
 	user-select: none;
 }
 
@@ -308,22 +273,100 @@
 	color: #fff;
 	font-family: sans-serif;
 	vertical-align: middle;
-	padding: 2px;
-	height: 100%;
 	width: auto;
 }
 
 .tgui-modal-content
 {
+	background: #eee;
 	position: absolute;
+	overflow: auto;
+	padding: 0px 10px;
 	left: 0;
 	top: 24px;
 	width: 100%;
-	height: calc(100% - 24px)
+	/*height: calc(100% - 24px);*/
+}
+
+.tgui-modal-buttonbar
+{
+	position: absolute;
+	box-shadow: inset 0px  2px 3px -1px #00000040;
+	/*background: #0000ff60; /**/
+	background: #e5e5e5;
+	width: 100%; height: 39px;
+	padding: 7px 0px;
+	bottom: 0px; 
+	display: flex; justify-content: flex-end;
 }
 
 
+.tgui-modal-button
+{
+	cursor: pointer;
+	
+	background: #eee;
+	border-width: 1px;
+	border-color: #000;
+	box-shadow: 0px 1px 3px #00000033;
+	
+	border-radius: 2px;
+	color: #000;
+}
+.tgui-modal-button:focus
+{
+	background: #eee;
+	border-width: 2px;
+}
 
+.tgui-modal-button:hover
+{
+	background: #fff;
+	border-width: 2px;
+}
+
+.tgui-modal-button:active
+{
+	background: #bbb;
+	border-width: 2px;
+	box-shadow: inset 0px 0px 3px #00000066;
+	color: #000;
+}
+
+.tgui-modal-default-button
+{
+	cursor: pointer;
+	
+	font-weight: bold;
+	
+	background: #16f;
+	border-width: 1px;
+	border-color: #04d;
+	box-shadow: 0px 1px 3px #00000033;
+	
+	border-radius: 2px;
+	color: #fff;
+}
+.tgui-modal-default-button:focus
+{	
+	background: #16f;
+	border-width: 2px;
+	border-color: #027;
+}
+
+.tgui-modal-default-button:hover
+{
+	background: #27f;
+	border-width: 2px;
+}
+
+.tgui-modal-default-button:active
+{
+	background: #139;
+	border-width: 2px;
+	border-color: #000;
+	box-shadow: inset 0px 0px 3px #00000066;
+}
 
 .tgui-panel-container {
 	overflow: hidden;
@@ -351,8 +394,9 @@
 	background: #00c;
 	color: #fff;
 	font-family: sans-serif;
+	vertical-align: middle;
 	/*old style on browsers like firefox: font-family: serif; -- "sans" does not work and leads to "serif"*/
-	font-weight: 600;
+	font-weight: bold;
 	font-size: 10pt;
 
 	-webkit-touch-callout: none;
@@ -363,16 +407,21 @@
 	user-select: none;
 }
 
+.tgui-panel-titlebar-icon
+{
+	margin-right: 1px;
+}
+
 .tgui-panel-titlebar-title {
 	flex: auto;
 	color: #fff;
 	font-family: sans-serif;
 	vertical-align: middle;
-	padding: 1px;
-	height: 100%;
+	padding-left: 1px;
 	width: auto;
 }
 
+/* .tgui-panel-dockbutton is also used in modal dialogs */
 .tgui-panel-dockbutton {
 	padding: 0;
 	width: 20px;
@@ -392,6 +441,12 @@
 	
 	border-radius: 1.5px;
 }
+
+.tgui-panel-dockbutton:focus {
+	border-color: #77f;
+	box-shadow: inset 0px 0px 0.5px 0.5px #7777ff30;
+}
+
 .tgui-panel-dockbutton:active {
 	background: #bbb;	
 	border-color: #777;

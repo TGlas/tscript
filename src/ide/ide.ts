@@ -31,14 +31,14 @@ export let ide = (function() {
 	
 	let module:any = {};
 	let options:any = {};
-	
+
 	function guid()
 	{
 		return (((1 + Math.random()) * 0x10000000000) | 0).toString(16).substring(1)
 				+ "-"
 				+ (((new Date()).getTime() * 1000 | 0) % 0x1000000 + 0x1000000).toString(16).substring(1);
 	}
-	
+
 	function makeMarker()
 	{
 		let marker = document.createElement("span");
@@ -46,7 +46,7 @@ export let ide = (function() {
 		marker.innerHTML = "\u25CF";
 		return marker;
 	};
-	
+
 	function relpos(element, x, y)
 	{
 		while (element)
@@ -57,7 +57,7 @@ export let ide = (function() {
 		}
 		return {"x": x, "y": y};
 	}
-	
+
 	// manage documentation container or window
 	module.onDocumentationClick = null;
 	module.documentationWindow = null;
@@ -81,19 +81,50 @@ export let ide = (function() {
 			module.documentationWindow = window.open(fn + "?doc" + path, 'TScript documentation');
 		}
 	}
-	
-	
+
+	function showdocConfirm(path : string, search_string : string = "")
+	{
+		// The dialog is added here, because some browsers disallow
+		// that a new tab/window is created, when not initiated by a button press.
+		// In this case the user would simply press [Enter] which should be no problem.
+		let dlg = tgui.createModal({
+			"title":          "Open documentation", 
+			"scalesize":      [0.20, 0.15], 
+			"minsize":        [300, 150],
+			"buttons":        [{text: "Open tab", onClick: () => showdoc(path), isDefault: true},
+								{text: "Cancel"}],
+		});
+		tgui.createElement({
+			"parent": dlg.content,
+			"type": "div",
+			"style": {"margin-top": "10px"},
+			"text": "Open the documentation in another tab?",
+		});
+
+		tgui.createElement({
+			"parent": dlg.content,
+			"type": "div",
+			"style": {"margin-top": "10px"},
+			"text": (search_string ? "Search for \"" + search_string + "\"?" 
+			                       : "Go to \"" + path + "\"?"),
+		});
+
+		tgui.startModal(dlg);
+		
+	}
+
+
 	// document properties
 	module.document = {
 				filename: "",     // name in local storage, or empty string
 				dirty: false,     // does the state differ from the last saved state?
 			},
-	
-	
+
+
 	// current interpreter, non-null after successful parsing
 	module.interpreter = null;
-	
-	
+
+
 	// set the cursor in the editor; line is 1-based, ch (char within the line) is 0-based
 	let setCursorPosition = function(line, ch)
 	{
@@ -110,7 +141,7 @@ export let ide = (function() {
 			module.sourcecode.scrollTo(null, y);
 		}
 	};
-	
+
 	let text2html = function(s)
 	{
 		return s.replace(/&/g, "&amp;")
@@ -119,15 +150,15 @@ export let ide = (function() {
 				.replace(/"/g, "&quot;")
 				.replace(/'/g, "&#039;");
 	}
-	
+
 	const type2css = ["ide-keyword", "ide-keyword", "ide-integer", "ide-real", "ide-string", "ide-collection", "ide-collection", "ide-builtin", "ide-builtin", "ide-builtin", "ide-builtin"];
-	
+
 	// This function defines the stack trace tree.
 	function stackinfo(value, node_id)
 	{
 		let ret:any = { "children": [], "ids": [] };
 		if (! module.interpreter) return ret;
-	
+
 		if (value === null)
 		{
 			for (let i=module.interpreter.stack.length-1; i>=0; i--)
@@ -154,25 +185,25 @@ export let ide = (function() {
 						"text": "[" + value.index + "] ",
 						"classname": "ide-index",
 					});
-					
+
 				let frame_head = tgui.createText(func.petype + " " + TScript.displayname(func), ret.element);
-				
+
 				let inner_element = value.frame.pe[value.frame.pe.length-1];
 				if(inner_element.hasOwnProperty("where"))
 				{
 					// on click, jump to line where the call into the next frame happened
 					let where = inner_element.where;
 					let where_str = " (" + where.line + ":" + where.ch + ")";
-					
+
 					tgui.createElement({"type": "span", "parent": ret.element, "text": " (" + where.line + ":" + where.ch + ")", "classname": "ide-index"});
-			
+
 					ret.element.addEventListener("click", function(event)
 					{
 						setCursorPosition(where.line, where.ch);
 						return false;
 					});
 				}
-				
+
 				if (value.frame.object)
 				{
 					ret.children.push({
@@ -206,7 +237,7 @@ export let ide = (function() {
 			{
 				ret.opened = false;
 				ret.element = document.createElement("span");
-	
+
 				let s = ret.opened ? value.typedvalue.type.name : TScript.previewValue(value.typedvalue);
 				if (value.typedvalue.type.id === Typeid.typeid_array)
 				{
@@ -317,19 +348,19 @@ export let ide = (function() {
 		}
 		return ret;
 	}
-	
+
 	// This function defines the program tree.
 	function programinfo(value, node_id)
 	{
 		let ret:any = { "children": [], "ids": [] };
 		if (! module.interpreter) return ret;
 		if (module.interpreter.stack.length === 0) return ret;
-	
+
 		let frame = module.interpreter.stack[module.interpreter.stack.length - 1];
 		let current_pe = frame.pe[frame.pe.length - 1];
 		let current_pes = new Set();
 		for (let i=0; i<frame.pe.length; i++) current_pes.add(frame.pe[i]);
-	
+
 		if (value === null)
 		{
 			ret.children.push(module.interpreter.program);
@@ -338,17 +369,17 @@ export let ide = (function() {
 		else
 		{
 			ret.opened = true;
-	
+
 			let pe = value;
 			if (pe.petype === "expression") pe = pe.sub;
 			while (pe.petype === "group") pe = pe.sub;
-	
+
 			ret.element = document.createElement("div");
 			let s = "";
 			let css = "";
 			s += pe.petype;
 			if (pe.name) s += " " + pe.name;
-	
+
 			let petype = String(pe.petype);
 			if (petype === "global scope" || petype === "scope" || petype === "namespace")
 			{
@@ -574,7 +605,7 @@ export let ide = (function() {
 			{
 				throw "[programinfo] petype '" + petype + "' not covered";
 			}
-	
+
 			if (current_pes.has(pe))
 			{
 				if (pe === current_pe)
@@ -584,7 +615,7 @@ export let ide = (function() {
 				}
 				else css += " ide-program-ancestor";
 			}
-	
+
 			tgui.createElement({
 					"type": "span",
 					"parent": ret.element,
@@ -593,10 +624,10 @@ export let ide = (function() {
 				});
 			if (pe.where) tgui.createElement({"type": "span", "parent": ret.element, "text": " (" + pe.where.line + ":" + pe.where.ch + ")", "classname": "ide-index"});
 		}
-	
+
 		return ret;
 	}
-	
+
 	// visually indicate the interpreter state
 	function updateStatus()
 	{
@@ -618,7 +649,7 @@ export let ide = (function() {
 			if (module.messages.innerHTML != "") module.programstate.error();
 			else module.programstate.unchecked();
 		}
-	
+
 		// update read-only state of the editor
 		if (module.sourcecode)
 		{
@@ -632,7 +663,7 @@ export let ide = (function() {
 			}
 		}
 	}
-	
+
 	// update the controls to reflect the interpreter state
 	function updateControls()
 	{
@@ -653,16 +684,16 @@ export let ide = (function() {
 				//setCursorPosition(module.sourcecode.lineCount(), 1000000);
 			}
 		}
-	
+
 		// show the current stack state
 		module.stacktree.update(stackinfo);
-	
+
 		// show the current program tree
 		module.programtree.update(programinfo);
-	
+
 		updateStatus();
 	}
-	
+
 	// add a message to the message panel
 	module.addMessage = function(type, text, line, ch, href)
 	{
@@ -703,14 +734,14 @@ export let ide = (function() {
 		module.messagecontainer.scrollTop = module.messagecontainer.scrollHeight;
 		if (href) module.sourcecode.focus();
 	}
-	
+
 	// Stop the interpreter and clear all output,
 	// put the IDE into "not yet checked" mode.
 	function clear()
 	{
 		if (module.interpreter) module.interpreter.stopthread();
 		module.interpreter = null;
-	
+
 		tgui.clearElement(module.messages);
 		{
 			let ctx = module.turtle.getContext("2d");
@@ -718,7 +749,7 @@ export let ide = (function() {
 			ctx.clearRect(0, 0, module.turtle.width, module.turtle.height);
 		}
 		if (module.interpreter) module.interpreter.service.turtle.reset.call(module.interpreter, 0, 0, 0, true);
-	
+
 		let ctx = module.canvas.getContext("2d");
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.clearRect(0, 0, module.canvas.width, module.canvas.height);
@@ -729,13 +760,13 @@ export let ide = (function() {
 		ctx.textAlign = "left";
 		ctx.textBaseline = "top";
 	}
-	
+
 	// Prepare everything for the program to start running,
 	// put the IDE into stepping mode at the start of the program.
 	module.prepare_run = function()
 	{
 		clear();
-	
+
 		// make sure that there is a trailing line for the "end" breakpoint
 		let source = module.sourcecode.getValue();
 		if (source.length != 0 && source[source.length - 1] != '\n')
@@ -743,7 +774,7 @@ export let ide = (function() {
 			source += '\n';
 			module.sourcecode.getDoc().replaceRange('\n', CodeMirror.Pos(module.sourcecode.lastLine()));
 		}
-	
+
 		let result = Parser.parse(source, options);
 		let program = result.program;
 		let html = "";
@@ -793,7 +824,7 @@ export let ide = (function() {
 			module.interpreter.eventnames["canvas.keyup"] = true;
 			module.interpreter.eventnames["timer"] = true;
 			module.interpreter.reset();
-	
+
 			// set and correct breakpoints
 			let br = new Array();
 			for (let i=1; i<=module.sourcecode.lineCount(); i++)
@@ -818,13 +849,13 @@ export let ide = (function() {
 			}
 		}
 	};
-	
+
 	let cmd_reset = function()
 	{
 		clear();
 		updateControls();
 	}
-	
+
 	let cmd_run = function()
 	{
 		if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
@@ -832,13 +863,13 @@ export let ide = (function() {
 		module.interpreter.run();
 		module.canvas.parentElement.focus();
 	};
-	
+
 	let cmd_interrupt = function()
 	{
 		if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) return;
 		module.interpreter.interrupt();
 	};
-	
+
 	let cmd_step_into = function()
 	{
 		if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
@@ -846,7 +877,7 @@ export let ide = (function() {
 		if (module.interpreter.running) return;
 		module.interpreter.step_into();
 	};
-	
+
 	let cmd_step_over = function()
 	{
 		if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
@@ -854,7 +885,7 @@ export let ide = (function() {
 		if (module.interpreter.running) return;
 		module.interpreter.step_over();
 	};
-	
+
 	let cmd_step_out = function()
 	{
 		if (! module.interpreter || (module.interpreter.status != "running" && module.interpreter.status != "waiting")) module.prepare_run();
@@ -862,7 +893,7 @@ export let ide = (function() {
 		if (module.interpreter.running) return;
 		module.interpreter.step_out();
 	};
-	
+
 	let cmd_export = function()
 	{
 		// don't interrupt a running program
@@ -870,7 +901,7 @@ export let ide = (function() {
 		{
 			if (module.interpreter.status === "running" || module.interpreter.status === "waiting") return;
 		}
-	
+
 		// check that the code at least compiles
 		let source = ide.sourcecode.getValue();
 		clear();
@@ -887,48 +918,47 @@ export let ide = (function() {
 			return;
 		}
 		if (! program) { alert("internal error during export"); return; }
-	
+
 		// create a filename for the file download from the title
 		let title = module.document.filename;
 		if (! title || title === "") title = "tscript-export";
 		let fn = title;
 		if (! fn.endsWith("html") && ! fn.endsWith("HTML") && ! fn.endsWith("htm") && ! fn.endsWith("HTM")) fn += ".html";
-		let dlg = createDialog("export program as webpage", {"width": "calc(max(400px, 50vw))", "height": "calc(max(260px, 50vh))"});
+
+		let dlg = tgui.createModal({
+			"title":      "Export program as webpage", 
+			"scalesize":  [0.50, 0.50], 
+			"minsize":    [400, 260],
+			"onHelp":     (initiatedByKey) => (initiatedByKey ? showdocConfirm : showdoc)("#/ide/exportdialog"),
+			"buttons":    [{text: "Close"}],
+		});
+		
 		let status = tgui.createElement({
-				"parent": dlg,
+				"parent": dlg.content,
 				"type": "div",
 				"text": "status: preparing ...",
-				"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "40px", "color": "#000", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000"},
+				"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "20px", "color": "#000", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000"},
 			});
 		let download_turtle = tgui.createElement({
-				"parent": dlg,
+				"parent": dlg.content,
 				"type": "a",
 				"properties": {"target": "_blank", "download": fn},
 				"text": "download standalone turtle application",
-				"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "100px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
+				"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "80px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
 			});
 		let download_canvas = tgui.createElement({
-				"parent": dlg,
+				"parent": dlg.content,
 				"type": "a",
 				"properties": {"target": "_blank", "download": fn},
 				"text": "download standalone canvas application",
-				"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "160px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
+				"style": {"position": "absolute", "width": "80%", "left": "10%", "height": "40px", "line-height": "35px", "top": "140px", "background": "#fff", "color": "#44c", "font-decoration": "underline", "padding": "2px 10px", "vertical-align": "middle", "border": "1px solid #000", "display": "none"},
 			});
-	
-		let close = tgui.createElement({
-				"parent": dlg,
-				"type": "button",
-				"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
-				"text": "Close",
-				"classname": "tgui-dialog-button"
-			});
-		close.addEventListener("click", handleDialogCloseWith(null));
-	
+
 		tgui.startModal(dlg);
-	
+
 		// escape the TScript source code; prepare it to reside inside a single-quoted string
 		source = escape(source);
-		
+
 		// obtain the page itself as a string
 		{
 			var xhr = new XMLHttpRequest();
@@ -940,7 +970,7 @@ export let ide = (function() {
 				{
 					// hide the IDE and let canvas or turtle run in full screen
 					let page = xhr.responseText;
-	
+
 					let headEnd = page.indexOf("<head>") + "<head>".length;
 					let header = page.substr(0, headEnd);
 					let footer = page.substr(headEnd);
@@ -969,7 +999,7 @@ export let ide = (function() {
 			xhr.send();
 		}
 	}
-	
+
 	let cmd_toggle_breakpoint = function()
 	{
 		let cm = module.sourcecode;
@@ -991,50 +1021,66 @@ export let ide = (function() {
 			cm.setGutterMarker(line, "breakpoints", cm.lineInfo(line).gutterMarkers ? null : makeMarker());
 		}
 	}
-	
-	let cmd_new = function()
+
+	// Check if the document has been changed and when this is the case, ask the user to discard the changes,
+	// by opening a dialog. In this case the confirmFileDiscard returns directly after creating the dialog.
+	// When the document was not changed, or the user allows to discard the changes the function onConfirm is
+	// called.
+	function confirmFileDiscard(title, onConfirm)
 	{
 		if (module.document.dirty)
 		{
-			if (! confirm("The document may have unsaved changes.\nDo you want to discard the code?")) return;
+			tgui.msgBox({
+				prompt:         "The document may have unsaved changes.\nDo you want to discard the code?",
+				icon:           tgui.msgBoxQuestion,
+				title:          title,
+				buttons:        [{text: "Discard", onClick: onConfirm, isDefault: true},
+								 {text: "Cancel"}],
+			});
 		}
-	
-		clear();
-	
-		module.editor_title.innerHTML = "editor";
-		module.document.filename = "";
-		module.sourcecode.setValue("");
-		module.sourcecode.getDoc().clearHistory();
-		module.document.dirty = false;
-	
-		updateControls();
-		module.sourcecode.focus();
+		else
+		{
+			onConfirm();
+		}
 	}
-	
+
+	let cmd_new = function()
+	{	
+		confirmFileDiscard("New document", () => {
+			clear();
+
+			module.editor_title.innerHTML = "Editor";
+			module.document.filename = "";
+			module.sourcecode.setValue("");
+			module.sourcecode.getDoc().clearHistory();
+			module.document.dirty = false;
+
+			updateControls();
+			module.sourcecode.focus();
+		});
+	}
+
 	let cmd_load = function()
 	{
-		if (module.document.dirty)
-		{
-			if (! confirm("The document has unsaved changes.\nDo you want to discard the code?")) return;
-		}
-	
-		let dlg = fileDlg("load file", module.document.filename, false, function(filename)
+		confirmFileDiscard("Open document", () => {
+			fileDlg("Load file", module.document.filename, false, "Load", function(filename)
 				{
 					clear();
-	
-					module.editor_title.innerHTML = "editor &mdash; ";
+
+					module.editor_title.innerHTML = "Editor &mdash; ";
 					tgui.createText(filename, module.editor_title);
 					module.document.filename = filename;
 					module.sourcecode.setValue(localStorage.getItem("tscript.code." + filename));
 					module.sourcecode.getDoc().setCursor({line: 0, ch: 0}, );
 					module.sourcecode.getDoc().clearHistory();
 					module.document.dirty = false;
-	
+
 					updateControls();
 					module.sourcecode.focus();
 				});
+		});
 	}
-	
+
 	let cmd_save = function()
 	{
 		if (module.document.filename === "")
@@ -1042,30 +1088,30 @@ export let ide = (function() {
 			cmd_save_as();
 			return;
 		}
-	
+
 		localStorage.setItem("tscript.code." + module.document.filename, module.sourcecode.getValue());
 		module.document.dirty = false;
 	}
-	
+
 	let cmd_save_as = function()
 	{
-		let dlg = fileDlg("save file as ...", module.document.filename, true, function(filename)
+		let dlg = fileDlg("Save file as ...", module.document.filename, true, "Save", function(filename)
 				{
-					module.editor_title.innerHTML = "editor &mdash; ";
+					module.editor_title.innerHTML = "Editor &mdash; ";
 					tgui.createText(filename, module.editor_title);
 					module.document.filename = filename;
 					cmd_save();
 					module.sourcecode.focus();
 				});
 	}
-	
-	
-	
+
+
+
 	// Toolbar icons
 	// icon parts used several times are written as a function,
 	// the 2d context of the canvas is passed as a parameter,
 	// resulting in less code
-	
+
 	function draw_icon_paper(ctx)
 	{
 		ctx.strokeStyle = "#333";
@@ -1080,14 +1126,14 @@ export let ide = (function() {
 		ctx.closePath();
 		ctx.fill();
 		ctx.stroke();
-	
+
 		ctx.beginPath();
 		ctx.moveTo(4.5, 7.5);
 		ctx.lineTo(8.5, 7.5);
 		ctx.lineTo(8.5, 3.5);
 		ctx.stroke();
 	}
-	
+
 	function draw_icon_floppy_disk(ctx)
 	{
 		ctx.fillStyle = "#36d";
@@ -1101,16 +1147,16 @@ export let ide = (function() {
 		ctx.closePath();
 		ctx.fill();
 		ctx.stroke();
-	
+
 		ctx.fillStyle = "#eef";
 		ctx.fillRect(7, 11, 6, 5);
 		ctx.fillStyle = "#36d";
 		ctx.fillRect(8, 12, 2, 3);
-	
+
 		ctx.fillStyle = "#fff";
 		ctx.fillRect(6, 4, 8, 5);
 	}
-	
+
 	function draw_icon_pencil_overlay(ctx)
 	{
 		// draw pencil
@@ -1121,59 +1167,59 @@ export let ide = (function() {
 		ctx.moveTo(8, 8);
 		ctx.lineTo(8+10, 8+10);
 		ctx.stroke();
-	
-	
+
+
 		ctx.fillStyle = "#fc9";
 		ctx.beginPath();
 		ctx.moveTo( 8,  6);
 		ctx.lineTo(11,  7);
 		ctx.lineTo( 9,  9);
 		ctx.fill();
-	
+
 		ctx.fillStyle = "#000";
 		ctx.beginPath();
 		ctx.moveTo( 8,      6);
 		ctx.lineTo( 9.5,  6.5);
 		ctx.lineTo( 8.5,  7.5);
 		ctx.fill();
-	
+
 		ctx.strokeStyle = "#000";
 		ctx.lineWidth = 3;
 		ctx.beginPath();
 		ctx.moveTo(10, 8);
 		ctx.lineTo(18, 16);
 		ctx.stroke();
-	
+
 		ctx.strokeStyle = "#dd0";
 		ctx.lineWidth = 2;
 		ctx.beginPath();
 		ctx.moveTo(10, 8);
 		ctx.lineTo(18, 16);
 		ctx.stroke();
-	
+
 		ctx.fillStyle = "#000";
 		ctx.beginPath();
 		ctx.arc(18, 16, 1.5, 1.75*Math.PI, 2.75*Math.PI, false);
 		ctx.fill();
-	
+
 		ctx.fillStyle = "#f33";
 		ctx.beginPath();
 		ctx.arc(18, 16, 1, 0, 2*Math.PI, false);
 		ctx.fill();
-		
+
 	}
-	
-	
-	
+
+
+	// TODO: disable toolbar focus?
 	let buttons:any = [
 			{
 				"click": cmd_new,
 				"draw": function(canvas)
 						{
 							let ctx = canvas.getContext("2d");
-	
+
 							draw_icon_paper(ctx);
-	
+
 							ctx.strokeStyle = "#030";
 							ctx.fillStyle = "#0a0";
 							ctx.beginPath();
@@ -1181,7 +1227,7 @@ export let ide = (function() {
 							ctx.closePath();
 							ctx.fill();
 							ctx.stroke();
-	
+
 							ctx.strokeStyle = "#fff";
 							ctx.lineWidth = 2;
 							ctx.beginPath();
@@ -1193,7 +1239,7 @@ export let ide = (function() {
 							ctx.lineTo(17, 14);
 							ctx.stroke();
 						},
-				"tooltip": "new document",
+				"tooltip": "New document",
 				"hotkey": "shift-control-n",
 			},
 			{
@@ -1201,7 +1247,7 @@ export let ide = (function() {
 				"draw": function(canvas)
 						{
 							let ctx = canvas.getContext("2d");
-	
+
 							ctx.fillStyle = "#ec5";
 							ctx.strokeStyle = "#330";
 							ctx.lineWidth = 1;
@@ -1215,7 +1261,7 @@ export let ide = (function() {
 							ctx.closePath();
 							ctx.fill();
 							ctx.stroke();
-	
+
 							ctx.fillStyle = "#fd6";
 							ctx.strokeStyle = "#330";
 							ctx.lineWidth = 1;
@@ -1228,7 +1274,7 @@ export let ide = (function() {
 							ctx.fill();
 							ctx.stroke();
 						},
-				"tooltip": "open document",
+				"tooltip": "Open document",
 				"hotkey": "control-o",
 			},
 			{
@@ -1236,10 +1282,10 @@ export let ide = (function() {
 				"draw": function(canvas)
 						{
 							let ctx = canvas.getContext("2d");
-	
+
 							draw_icon_floppy_disk(ctx);
 						},
-				"tooltip": "save document",
+				"tooltip": "Save document",
 				"hotkey": "control-s",
 			},
 			{
@@ -1247,11 +1293,11 @@ export let ide = (function() {
 				"draw": function(canvas)
 						{
 							let ctx = canvas.getContext("2d");
-	
+
 							draw_icon_floppy_disk(ctx);
 							draw_icon_pencil_overlay(ctx);
 						},
-				"tooltip": "save document as ...",
+				"tooltip": "Save document as ...",
 				"hotkey": "shift-control-s",
 			},
 			{
@@ -1266,7 +1312,7 @@ export let ide = (function() {
 							ctx.lineTo(5, 15);
 							ctx.fill();
 						},
-				"tooltip": "run/continue program",
+				"tooltip": "Run/continue program",
 				"hotkey": "F7",
 			},
 			{
@@ -1278,7 +1324,7 @@ export let ide = (function() {
 							ctx.fillRect(5, 5, 4, 10);
 							ctx.fillRect(11, 5, 4, 10);
 						},
-				"tooltip": "interrupt program",
+				"tooltip": "Interrupt program",
 				"hotkey": "shift-F7",
 			},
 			{
@@ -1289,7 +1335,7 @@ export let ide = (function() {
 							ctx.fillStyle = "#c00";
 							ctx.fillRect(5, 5, 10, 10);
 						},
-				"tooltip": "abort program",
+				"tooltip": "Abort program",
 				"hotkey": "F10",
 			},
 			{
@@ -1318,7 +1364,7 @@ export let ide = (function() {
 							ctx.lineTo(9.5, 10);
 							ctx.fill();
 						},
-				"tooltip": "run current command, step into function calls",
+				"tooltip": "Run current command, step into function calls",
 				"hotkey": "shift-control-F11",
 			},
 			{
@@ -1347,7 +1393,7 @@ export let ide = (function() {
 							ctx.lineTo(9.5, 16);
 							ctx.fill();
 						},
-				"tooltip": "run current line of code, do no step into function calls",
+				"tooltip": "Run current line of code, do no step into function calls",
 				"hotkey": "control-F11",
 			},
 			{
@@ -1376,7 +1422,7 @@ export let ide = (function() {
 							ctx.lineTo(9.5, 16);
 							ctx.fill();
 						},
-				"tooltip": "step out of current function",
+				"tooltip": "Step out of current function",
 				"hotkey": "shift-F11",
 			},
 			{
@@ -1388,7 +1434,7 @@ export let ide = (function() {
 							ctx.arc(10, 10, 3.9, 0, 2 * Math.PI, false);
 							ctx.fill();
 						},
-				"tooltip": "toggle breakpoint",
+				"tooltip": "Toggle breakpoint",
 				"hotkey": "F8",
 			},
 			/*{
@@ -1405,7 +1451,7 @@ export let ide = (function() {
 				"tooltip": "Search",
 			},*/
 		];
-	
+
 	// load hotkeys
 	function loadConfig()
 	{
@@ -1429,7 +1475,7 @@ export let ide = (function() {
 		return null;
 	}
 	loadConfig();
-	
+
 	// save hotkeys
 	function saveConfig()
 	{
@@ -1440,153 +1486,80 @@ export let ide = (function() {
 		}
 		localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 	}
-	
-	
-	// TODO move to tgui.js
-	// creates an event handler for a dialog, whenever it is going to be closed.
-	// * onClose - a cleanup callback, use null for no cleanup
-	function handleDialogCloseWith(onClose)
-	{
-		return function(event)
-		{
-			if(onClose!=null) onClose();
-			tgui.stopModal();
-			if(event)
-			{
-				event.preventDefault();
-				event.stopPropagation();
-			}
-			return false;
-		}
-	}
-	
-	// TODO move to tgui.js
-	function createTitleBar(dlg, title, onClose)
-	{
-		let titlebar = tgui.createElement({
-				"parent": dlg,
-				"type": "div",
-				"style": {"position": "absolute", "width": "100%", "left": "0", "height": "24px", "top": "0"},
-				"classname": "tgui-modal-titlebar",
-			});
-			
-		let titlebar_title = tgui.createElement({
-				"parent": titlebar,
-				"type": "span",
-				"style": {},
-				"classname": "tgui-modal-titlebar-title",
-				"text": title,
-			});
-			
-		let close = tgui.createButton({
-				"parent": titlebar,
-				"click": function ()
-						{
-							return handleDialogCloseWith(onClose)(null);
-						},
-				"width": 20,
-				"height": 20,
-				"draw": function(canvas)
-						{
-							let ctx = canvas.getContext("2d");
-							ctx.lineWidth = 2;
-							ctx.strokeStyle = "#000";
-							ctx.beginPath();
-							ctx.moveTo( 4,  4);
-							ctx.lineTo(14, 14);
-							ctx.stroke();
-							ctx.beginPath();
-							ctx.moveTo( 4, 14);
-							ctx.lineTo(14,  4);
-							ctx.stroke();
-						},
-				"classname": "tgui-panel-dockbutton",
-				"tooltip-right": "close",
-			});
-			
-		return titlebar;
-	}
-	
-	// TODO move to tgui.js
-	function createDialog(title, size, onClose:any = undefined)
-	{
-		let dlg = tgui.createElement({
-				"type": "div",
-				"style": {"width": size["width"], "height": size["height"], "background": "#eee", "overflow": "hidden"},
-			});
-		let titlebar = createTitleBar(dlg, title, onClose);
-	
-		dlg.onKeyDown = function(event)
-			{
-				if (event.key == "Escape")
-				{
-					return handleDialogCloseWith(onClose)(event);
-				}
-			};
-	
-		return dlg;
-	}
-	
+
 	function configDlg()
 	{
-		let dlg = createDialog("configuration", {"width": "calc(max(370px, 50vw))", "left": "25vw", "height": "calc(max(270px, 50vh))", "top": "25vh"}, saveConfig);
-		let content = tgui.createElement({
-				"parent": dlg,
-				"type": "div",
-				"html": "<h3 style=\"margin-top: 20px;\">Configure Hotkeys</h3><p>Click a button to configure its hotkey.</p>",
-			});
-		let dlg_buttons:any = [];
-		let div = tgui.createElement({parent: dlg, type: "div"});
+		let dlg = tgui.createModal({
+			"title":          "Configuration", 
+			"scalesize":      [0.50, 0.50], 
+			"minsize":        [370, 270],
+			"buttons":        [{text: "Done", isDefault: true}],
+			"onClose":		  saveConfig,
+		});
+		let div_hotkey = tgui.createElement({parent: dlg.content, type: "div"});
+		let h3_hotkey = tgui.createElement({parent: div_hotkey, type: "h3", text: "Configure Hotkeys"});
+		let p_hotkey = tgui.createElement({parent: div_hotkey, type: "p", text: "Click a button to configure its hotkey."});
+		
+		let dlg_buttons = new Array();
+		let div_buttons = tgui.createElement({parent: div_hotkey, type: "div", "classname": "ide-toolbar"});
 		for (let i=0; i<buttons.length; i++)
 		{
-			let description:any = Object.assign({}, buttons[i]);
+			let description = Object.assign({}, buttons[i]);
 			description.width = 20;
 			description.height = 20;
 			description.style = {"height": "22px"};
 			if (description.hotkey) description.tooltip += " (" + description.hotkey + ")";
 			delete description.hotkey;
-			description.parent = div;
+			description.parent = div_buttons;
 			{
 				let btn = i;
 				description.click = function()
 						{
-							let dlg = createDialog("set hotkey", {"width": "calc(max(340px, 30vw))", "height": "calc(max(220px, 30vh))"});
+							let dlg = tgui.createModal({
+								"title":      "Set hotkey", 
+								"scalesize":  [0.30, 0.30], 
+								"minsize":    [340, 220],
+								"buttons":    [{text: "Cancel"}],
+								"onClose":    saveConfig
+							});
 							let icon = tgui.createCanvasIcon({
-								"parent": dlg, 
-								"width": 20, "height": 20, 
-								"draw": buttons[btn].draw, 
-								"style": {"position": "absolute", "left": "15px", "top": "40px"}
+								"parent": dlg.content,
+								"width": 20, "height": 20,
+								"draw": buttons[btn].draw,
+								"style": {"position": "absolute", "left": "15px", "top": "16px"}
+							});
+
+							tgui.createElement({
+								parent: dlg.content,
+								type: "label",
+								"text":buttons[btn].tooltip,
+								"style":{"position": "absolute", "left": "50px", "top": "16px", "right": "15px"}
+							});
+							tgui.createElement({
+								parent: dlg.content,
+								type: "label",
+								"text": "Current hotkey: " + (buttons[btn].hotkey ? buttons[btn].hotkey : "<None>"),
+								"style":{"position": "absolute", "left": "50px", "top": "46px", "right": "15px"}
+							});
+							tgui.createElement({
+								parent: dlg.content,
+								type: "label",
+								"text":"Press the hotkey to assign, or press escape to remove the current hotkey",
+								"style":{"position": "absolute", "left": "15px", "top": "106px", "right": "15px"}
 							});
 							
-							tgui.createElement({
-								parent: dlg, 
-								type: "label", 
-								"text":buttons[btn].tooltip, 
-								"style":{"position": "absolute", "left": "50px", "top": "40px"}
-							});
-							tgui.createElement({
-								parent: dlg, 
-								type: "label", 
-								"text": "current hotkey: " + (buttons[btn].hotkey ? buttons[btn].hotkey : "<None>"),
-								"style":{"position": "absolute", "left": "50px", "top": "70px"}
-							});
-							tgui.createElement({
-								parent: dlg, 
-								type: "label", 
-								"text":"press the hotkey to assign, or press escape to remove the current hotkey", 
-								"style":{"position": "absolute", "left": "15px", "top": "130px"}
-							});
+							dlg.onKeyDownOverride = true; // Do not handle [escape]
 							dlg.onKeyDown = function(event)
 									{
 										event.preventDefault();
 										event.stopPropagation();
-	
+
 										let key = event.key;
 										if (key === "Shift" || key === "Control" || key === "Alt" || key === "OS" || key === "Meta") return;
 										if (buttons[btn].hotkey)
 										{
 											tgui.setTooltip(buttons[btn].control.dom, buttons[btn].tooltip);
-											tgui.setTooltip(dlg_buttons[btn].dom, buttons[btn].tooltip);
+											tgui.setTooltip(dlg_buttons[btn].dom as any, buttons[btn].tooltip);
 											tgui.releaseHotkey(buttons[btn].hotkey);
 											delete buttons[btn].hotkey;
 										}
@@ -1595,12 +1568,12 @@ export let ide = (function() {
 											tgui.stopModal();
 											return false;
 										}
-	
+
 										if (event.altKey) key = "alt-" + key;
 										if (event.ctrlKey) key = "control-" + key;
 										if (event.shiftKey) key = "shift-" + key;
 										key = tgui.normalizeHotkey(key);
-	
+
 										if (tgui.hotkey(key))
 										{
 											alert("hotkey " + key + " is already in use");
@@ -1615,46 +1588,29 @@ export let ide = (function() {
 										}
 										return false;
 									};
-								
-							let cancel = tgui.createElement({
-									"parent": dlg,
-									"type": "button",
-									"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
-									"text": "Cancel",
-									"classname": "tgui-dialog-button"
-								});
-							cancel.addEventListener("click", handleDialogCloseWith(saveConfig));
+									
 							tgui.startModal(dlg);
 						};
 			}
 			dlg_buttons.push(tgui.createButton(description));
 		}
-	
+
 		let checked = "";
-	
-		div = tgui.createElement({parent: dlg, type: "div"});
-		let h3 = tgui.createElement({parent: div, type: "h3", style: {"margin-top": "20px"}, text: "Coding Style"});
-		let p = tgui.createElement({parent: div, type: "p"});
-		let lbl = tgui.createElement({parent: p, type: "label", "html":" enable style errors "});
+
+		let div_codingStyle = tgui.createElement({parent: dlg.content, type: "div"});
+		let h3_codingStyle = tgui.createElement({parent: div_codingStyle, type: "h3", style: {"margin-top": "20px"}, text: "Coding Style"});
+		let p_codingStyle = tgui.createElement({parent: div_codingStyle, type: "p"});
+		let lbl = tgui.createElement({parent: p_codingStyle, type: "label", "html":" Enable style errors "});
 		let checkbox = tgui.createElement({parent: lbl, type: "input", properties: {type: "checkbox"},
 					click: function(event)
 					{ options.checkstyle = checkbox.checked; },
 				});
 		if (options.checkstyle) checkbox.checked = true;
-	
-		let close = tgui.createElement({
-				"parent": dlg,
-				"type": "button",
-				"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
-				"text": "Close",
-				"classname": "tgui-dialog-button"
-			});
-		close.addEventListener("click", handleDialogCloseWith(saveConfig));
-	
+
 		tgui.startModal(dlg);
 	}
-	
-	function fileDlg(title, filename, allowNewFilename, onOkay)
+
+	function fileDlg(title:string, filename, allowNewFilename:boolean, confirmText:string, onOkay)
 	{
 		// 10px horizontal spacing
 		//  7px vertical spacing
@@ -1665,103 +1621,115 @@ export let ide = (function() {
 			if (key.substr(0, 13) === "tscript.code.") files.push(key.substr(13));
 		}
 		files.sort();
-	
-		// create controls
-		let dlg = createDialog(title, {"width": "calc(max(440px, 50vw))", "left": "25vw", "height": "calc(max(260px, 70vh))", "top": "15vh"});
-		let dlgContent = tgui.createElement({
-			"parent": dlg,
-			"type": "div",
-			"classname": "tgui-modal-content",
-			"style": {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
+
+		// return true on failure, that is when the dialog should be kept open
+		let onFileConfirmation = function()
+		{
+			let fn = name.value;
+			if (fn != "")
+			{
+				if (allowNewFilename || files.indexOf(fn) >= 0)
+				{
+					onOkay(fn);
+					return false; // close dialog
+				}
+			}
+			return true; // keep dialog open
+		};
+		
+		// create dialog and its controls
+		let dlg = tgui.createModal({
+			"title":          title, 
+			"scalesize":      [0.50, 0.70], 
+			"minsize":        [440, 260],
+			"buttons":        [{text: confirmText, isDefault: true, onClick: onFileConfirmation},
+			                   {text: "Cancel"}],
+			"enterConfirms":  true,
+			"contentstyle":   {"display": "flex", "flex-direction": "column", "justify-content": "space-between"}
 		});
-		
+
 		let toolbar = tgui.createElement({
-				"parent": dlgContent,
+				"parent": dlg.content,
 				"type": "div",
-				"style": {"width": "100%", "height": "25px", "margin-top": "7px"},
+				"style": {
+					"display": "flex", "flex-direction": "row", "justify-content": "space-between", 
+					"width": "100%", "height": "25px", "margin-top": "7px"
+				},
 			});
-		// Toolbar contents
-		let deleteBtn = tgui.createElement({
-				"parent": toolbar,
-				"type": "button",
-				"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
-				"text": "Delete file",
-				"click": () => deleteFile(name.value),
-				"classname": "tgui-dialog-button"
-			});
-	
-		let exportBtn = tgui.createElement({
-				"parent": toolbar,
-				"type": "button",
-				"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
-				"text": "Export",
-				"click": () => exportFile(name.value),
-				"classname": "tgui-dialog-button"
-			});
-		
-		let importBtn = tgui.createElement({
-				"parent": toolbar,
-				"type": "button",
-				"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
-				"text": "Import",
-				"click": () => importFile(),
-				"classname": "tgui-dialog-button"
-			});
-	
-		let status = tgui.createElement({
-				"parent": toolbar,
-				"type": "label",
-				"style": {"width": "100px", "height": "100%", "margin-left": "10px"},
-				"text": (files.length > 0 ? files.length : "No") + " document"+(files.length == 1?"":"s"),
-				"classname": "tgui-status-box"
-			});
-		// end Toolbar contents
-		
+		// toolbar
+		{
+			let deleteBtn = tgui.createElement({
+					"parent": toolbar,
+					"type": "button",
+					"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
+					"text": "Delete file",
+					"click": () => deleteFile(name.value),
+					"classname": "tgui-modal-button"
+				});
+
+			let importBtn = tgui.createElement({
+					"parent": toolbar,
+					"type": "button",
+					"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
+					"text": "Import",
+					"click": () => importFile(),
+					"classname": "tgui-modal-button"
+				});
+
+			let exportBtn = tgui.createElement({
+					"parent": toolbar,
+					"type": "button",
+					"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
+					"text": "Export",
+					"click": () => exportFile(name.value),
+					"classname": "tgui-modal-button"
+				});
+
+			// allow multiple selection: export selected
+			// TODO: allow to export all TScript files at once to a zip file
+			// TODO: allow to export whole TScript local storage
+
+			let status = tgui.createElement({
+					"parent": toolbar,
+					"type": "label",
+					"style": {
+						"flex": 1,
+						"height": "100%",
+						"white-space": "nowrap",
+					},
+					"text": (files.length > 0 ? files.length : "No") + " document"+(files.length == 1?"":"s"),
+					"classname": "tgui-status-box",
+				});
+		}
+		// end toolbar
+
 		let list = tgui.createElement({
-				"parent": dlgContent,
-				"type": files.length > 0 ? "select" : "text",
-				"properties": {"size": Math.max(2, files.length)},
+				"parent": dlg.content,
+				"type": "select",
+				"properties": {"size": Math.max(2, files.length), "multiple": false},
 				"classname": "tgui-list-box",
-				"style": {"flex": "auto", "background": "#fff", "margin": "7px 10px", "overflow": "scroll"}
+				"style": {"flex": "auto", "background": "#fff", "margin": "7px 0px", "overflow": "scroll"}
 			});
 		let name = {value: filename};
 		if (allowNewFilename)
 		{
 			name = tgui.createElement({
-					"parent": dlgContent,
+					"parent": dlg.content,
 					"type": "input",
-					"style": {"height": "25px", "background": "#fff", "margin": "0 10px 7px 10px"},
+					"style": {"height": "25px", "background": "#fff", "margin": "0 0px 7px 0px"},
 					"classname": "tgui-text-box",
 					"text": filename,
 					"properties": {type:"text", placeholder:"Filename"}
 				});
 		}
-		let buttons = tgui.createElement({
-				"parent": dlgContent,
-				"type": "div",
-				"style": {"width": "100%", "height": "25px", "margin-bottom": "7px", "display": "flex", "justify-content": "flex-end"},
-			});
-		let okay = tgui.createElement({
-				"parent": buttons,
-				"type": "button",
-				"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
-				"text": "Okay",
-				"classname": "tgui-dialog-button"
-			});
-		let cancel = tgui.createElement({
-				"parent": buttons,
-				"type": "button",
-				"style": {"width": "100px", "height": "100%", "margin-right": "10px"},
-				"text": "Cancel",
-				"classname": "tgui-dialog-button"
-			});
+		
 		// populate options
 		for (let i=0; i<files.length; i++)
 		{
 			let option = new Option(files[i], files[i]);
 			list.options[i] = option;
 		}
-	
+
 		// event handlers
 		list.addEventListener("change", function(event)
 				{
@@ -1777,89 +1745,61 @@ export let ide = (function() {
 						return false;
 					}
 				})
-		let handleFileConfirmation = function(event)
-				{
-					event.preventDefault();
-					event.stopPropagation();
-					let fn = name.value;
-					if (fn != "")
-					{
-						if (allowNewFilename || files.indexOf(fn) >= 0)
-						{
-							tgui.stopModal();
-							onOkay(fn);
-						}
-					}
-					return false;
-				};
-		list.addEventListener("dblclick", handleFileConfirmation);
-		okay.addEventListener("click", handleFileConfirmation);
-		cancel.addEventListener("click", handleDialogCloseWith(null));
-	
-		dlg.onKeyDown = function(event)
-				{
-					if (event.key === "Escape")
-					{
-						tgui.stopModal();
-						event.preventDefault();
-						event.stopPropagation();
-						return false;
-					}
-					else if (event.key === "Enter")
-					{
-						event.preventDefault();
-						event.stopPropagation();
-						let fn = name.value;
-						if (fn != "")
-						{
-							if (allowNewFilename || files.indexOf(fn) >= 0)
-							{
-								tgui.stopModal();
-								onOkay(fn);
-							}
-						}
-						return false;
-					}
-				};
-	
+		list.addEventListener("dblclick", function(event)
+		{
+			event.preventDefault();
+			event.stopPropagation();
+			if(!onFileConfirmation())
+				tgui.stopModal();
+			return false;
+		});
+
 		tgui.startModal(dlg);
 		(allowNewFilename ? name : list).focus();
 		return dlg;
-	
+
 		function deleteFile(filename)
 		{
 			let index = files.indexOf(filename);
 			if (index >= 0)
 			{
-				if (confirm("Delete file \"" + filename + "\"\nAre you sure?"))
+				let onDelete = () =>
 				{
 					localStorage.removeItem("tscript.code." + filename);
 					files.splice(index, 1);
 					list.remove(index);
-				}
+				};
+
+				tgui.msgBox({
+					title:          "Delete file",
+					icon:           tgui.msgBoxExclamation,
+					prompt:         "Delete file \"" + filename + "\"\nAre you sure?",
+					buttons:        [{text: "Delete", isDefault: true, onClick: onDelete},
+					                 {text: "Cancel"}]
+				});
 			}
 		}
-	
+
 		function download(filename, text, mime = "text/plain")
 		{
 			var element = document.createElement('a');
 			element.setAttribute('href', 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(text));
 			element.setAttribute('download', filename);
-	
+
 			element.style.display = 'none';
 			document.body.appendChild(element);
-	
+
 			element.click();
-	
+
 			document.body.removeChild(element);
 		}
-	
+
 		function exportFile(filename)
 		{
 			let data = localStorage.getItem("tscript.code." + filename);
 			download(filename + ".tscript", data);
 		}
-	
+
 		function importFile()
 		{
 			let fileImport = document.createElement('input');
@@ -1867,7 +1807,7 @@ export let ide = (function() {
 			fileImport.multiple = true;
 			fileImport.style.display = "none";
 			fileImport.accept = ".tscript";
-	
+
 			fileImport.addEventListener('change', async (event:any) =>
 			{
 				if(event.target.files){
@@ -1892,23 +1832,23 @@ export let ide = (function() {
 					}
 				}
 			});
-	
+
 			fileImport.click();
 		}
 	}
-	
+
 	module.create = function(container, options)
 	{
 		if (! options) options = {"export-button": true, "documentation-button": true};
-	
+
 		tgui.releaseAllHotkeys();
-	
+
 		// create HTML elements of the GUI
 		module.main = tgui.createElement({"type": "div", "parent": container, "classname": "ide ide-main"});
 		tgui.setHotkeyElement(module.main);
-	
+
 		module.toolbar = tgui.createElement({"type": "div", "parent": module.main, "classname": "ide ide-toolbar"});
-	
+
 		// add the export button on demand
 		if (options["export-button"])
 		{
@@ -1931,11 +1871,11 @@ export let ide = (function() {
 								ctx.closePath();
 								ctx.stroke();
 							},
-					"tooltip": "export program as webpage",
+					"tooltip": "Export program as webpage",
 				},
 			);
 		}
-	
+
 		// prepare menu bar
 		let sep = [false, false, false, true, false, false, true, false, false, false, true, true];
 		for (let i=0; i<buttons.length; i++)
@@ -1947,7 +1887,7 @@ export let ide = (function() {
 			if (description.hotkey) description.tooltip += " (" + description.hotkey + ")";
 			description.parent = module.toolbar;
 			buttons[i].control = tgui.createButton(description);
-	
+
 			if (sep[i])
 			{
 				tgui.createElement({
@@ -1957,7 +1897,7 @@ export let ide = (function() {
 						});
 			}
 		}
-	
+
 		tgui.createButton({
 				"click": function ()
 						{
@@ -1991,27 +1931,27 @@ export let ide = (function() {
 						},
 				"parent": module.toolbar,
 				"style": {"float": "left"},
-				"tooltip": "configuration",
+				"tooltip": "Configuration",
 			});
-	
+
 		tgui.createElement({
 					"type": "div",
 					"parent": module.toolbar,
 					"classname": "tgui tgui-control tgui-toolbar-separator"
 				});
-	
+
 		module.programstate = tgui.createLabel({
 					"parent": module.toolbar,
 					"style": {
 						"float": "left",
 						"width": "calc(min(250px, max(20px, 50vw - 270px)))",
-						"height": "23px",
+						"height": "22px",
 						// clipping
 						"white-space": "nowrap",
 						"overflow": "hidden",
 						"direction": "rtl",
 						"text-overflow": "ellipsis clip",
-						
+
 						"text-align": "center",
 						"background": "#fff"
 						}
@@ -2024,20 +1964,20 @@ export let ide = (function() {
 		module.programstate.stepping  = function() { this.setText("program is in stepping mode").setBackground("#8ee"); }
 		module.programstate.finished  = function() { this.setText("program has finished").setBackground("#88e"); }
 		module.programstate.unchecked();
-	
+
 		tgui.createElement({
 					"type": "div",
 					"parent": module.toolbar,
 					"classname": "tgui tgui-control tgui-toolbar-separator"
 				});
-	
+
 		tgui.createButton({
 				"click": function ()
 						{
 							for (let i=0; i<tgui.panels.length; i++)
 							{
 								let p = tgui.panels[i];
-								if (p.title === "editor" || p.title === "messages")
+								if (p.name === "editor" || p.name === "messages")
 									p.dock("left");
 								else
 									p.dock("right");
@@ -2053,26 +1993,26 @@ export let ide = (function() {
 							ctx.lineWidth = 1;
 							ctx.fillStyle = "#fff";
 							ctx.strokeStyle = "#aaa";
-							
+
 							ctx.beginPath();
 							ctx.rect(2.5, 2.5, 15, 15);
 							ctx.fill();
 							ctx.stroke();
-							
+
 							ctx.fillStyle = "#ccc";
 							ctx.fillRect(11, 3, 1, 14);
-							
+
 							ctx.fillStyle = "#77f";
 							ctx.fillRect(3, 3, 14, 1);
 							ctx.fillRect(3, 12, 8, 1);
-							
-							
+
+
 							ctx.strokeStyle = "#222";
 							ctx.lineWidth = 1.7;
 							ctx.beginPath();
 							ctx.arc( 9.5, 10.5, 4, 1.25*Math.PI, 2.6*Math.PI);
 							ctx.stroke();
-							
+
 							ctx.fillStyle = "#222";
 							ctx.beginPath();
 							ctx.moveTo( 5,  5);
@@ -2082,15 +2022,15 @@ export let ide = (function() {
 						},
 				"parent": module.toolbar,
 				"style": {"float": "left"},
-				"tooltip": "restore panels",
+				"tooltip": "Restore panels",
 			});
-	
+
 		tgui.createElement({
 					"type": "div",
 					"parent": module.toolbar,
 					"classname": "tgui tgui-control tgui-toolbar-separator"
 				});
-	
+
 		module.iconlist = tgui.createElement({
 				"type": "div",
 				"parent": module.toolbar,
@@ -2103,28 +2043,26 @@ export let ide = (function() {
 							"margin": "3px",
 						},
 			});
-	
+
 		tgui.createElement({
 					"type": "div",
 					"parent": module.toolbar,
 					"classname": "tgui tgui-control tgui-toolbar-separator"
 				});
-	
+
 		if (options["documentation-button"])
 		{
 			tgui.createButton({
 					"click": () => showdoc(""),
-					"text": "documentation",
+					"text": "Documentation",
 					"parent": module.toolbar,
-					"style": {"position": "absolute", "right": "0px"},
+					"style": {"position": "absolute", "height": "22px", "right": "0px"},
 				});
-				
-			
-			// pressing F1 
+
+
+			// pressing F1
 			tgui.setHotkey("F1", function()
-				{
-					let dlg = createDialog("open documentation", {"width": "calc(max(300px, 20vw))", "height": "calc(max(150px, 15vh))"});
-					
+				{				
 					let selection = module.sourcecode.getSelection();
 					// maximum limit of 30 characters
 					// so that there is no problem, when accedentially everything
@@ -2133,76 +2071,33 @@ export let ide = (function() {
 					{
 						// get current word under the cursor
 						let cursor = module.sourcecode.getCursor();
-						
+
 						let word = module.sourcecode.findWordAt(cursor);
-	
+
 						selection = module.sourcecode.getRange(word.anchor, word.head);
 					}
 					selection = selection.substr(0, 30);
 					let words = selection.match(/[a-z]+/gi); // global case insensitive
 					let href = "";
-					
+
 					if(words)
 					{
 						href = "#search/"+words.join("/");
 					}
-						
-					tgui.createElement({
-						"parent": dlg,
-						"type": "div",
-						"style": {"margin-top": "20px"},
-						"text": "Open the documentation in another tab?",
-					});
-						
-					if(words)
-					{
-						tgui.createElement({
-							"parent": dlg,
-							"type": "div",
-							"style": {"margin-top": "10px"},
-							"text": "Search for \"" + words.join(" ") + "\"?",
-						});
-					}
-					
-					let okay = tgui.createElement({
-							"parent": dlg,
-							"type": "button",
-							"style": {"position": "absolute", "right": "120px", "bottom": "10px", "width": "100px", "height": "25px"},
-							"text": "Okay",
-							"classname": "tgui-dialog-button"
-						});
-					okay.addEventListener("click", (event) => 
-						{
-							tgui.stopModal();
-							event.preventDefault();
-							event.stopPropagation();
-							showdoc(href)
-							return false;
-						});
-						
-					let cancel = tgui.createElement({
-							"parent": dlg,
-							"type": "button",
-							"style": {"position": "absolute", "right": "10px", "bottom": "10px", "width": "100px", "height": "25px"},
-							"text": "Cancel",
-							"classname": "tgui-dialog-button"
-						});
-					cancel.addEventListener("click", handleDialogCloseWith(null));
-							
-					tgui.startModal(dlg);
-					
-					okay.focus();
+
+					showdocConfirm(href, words.join(" "));
 				});
 		}
-	
+
 		// area containing all panels
 		let area = tgui.createElement({"type": "div", "parent": module.main, "classname": "ide ide-panel-area"});
-	
+
 		// prepare tgui panels
 		tgui.preparePanels(area, module.iconlist);
-	
+
 		let panel_editor = tgui.createPanel({
-				"title": "editor",
+				"name": "editor",
+				"title": "Editor",
 				"state": "left",
 				"fallbackState": "float",
 				"dockedheight": 600,
@@ -2211,7 +2106,7 @@ export let ide = (function() {
 						{
 							let ctx = canvas.getContext("2d");
 							draw_icon_paper(ctx);
-	
+
 							ctx.fillStyle = "#777";
 							ctx.fillRect(10, 5, 3, 1);
 							ctx.fillRect(10, 7, 2, 1);
@@ -2270,16 +2165,18 @@ export let ide = (function() {
 						cm.setGutterMarker(line, "breakpoints", cm.lineInfo(line).gutterMarkers ? null : makeMarker());
 					}
 				});
-		module.editor_title = panel_editor.titlebar;
-	
+		module.editor_title = panel_editor.titlebar; // TODO: remove this, this is only used to update the title
+													 //       - add functionality to update title in tgui.js
+
 		let panel_messages = tgui.createPanel({
-				"title": "messages",
+				"name": "messages",
+				"title": "Messages",
 				"state": "left",
 				"dockedheight": 200,
 				"icondraw": function(canvas)
 						{
 							let ctx = canvas.getContext("2d");
-	
+
 							ctx.fillStyle = "#fff";
 							ctx.strokeStyle = "#222";
 							ctx.beginPath();
@@ -2288,7 +2185,7 @@ export let ide = (function() {
 							ctx.closePath();
 							ctx.fill();
 							ctx.stroke();
-	
+
 							ctx.fillStyle = "#777";
 							ctx.fillRect(8,  6, 3, 1);
 							ctx.fillRect(6,  8, 2, 1);
@@ -2298,19 +2195,20 @@ export let ide = (function() {
 			});
 		module.messagecontainer = tgui.createElement({"type": "div", "parent": panel_messages.content, "classname": "ide ide-messages"});
 		module.messages = tgui.createElement({"type": "table", "parent": module.messagecontainer, "classname": "ide", "style": {"width": "100%"}});
-	
+
 		// prepare stack tree control
 		let panel_stackview = tgui.createPanel({
-				"title": "stack",
+				"name": "stack",
+				"title": "Stack",
 				"state": "icon",
 				"fallbackState": "right",
 				"icondraw": function(canvas)
 						{
 							let ctx = canvas.getContext("2d");
-	
+
 							ctx.strokeStyle = "#222";
 							ctx.lineWidth = 0.6;
-	
+
 							// white top
 							ctx.fillStyle = "#fff";
 							ctx.beginPath();
@@ -2319,7 +2217,7 @@ export let ide = (function() {
 							ctx.lineTo(16,  5.5);
 							ctx.lineTo(10,  2.5);
 							ctx.fill();
-	
+
 							// shaded lower pages
 							ctx.fillStyle = "#bbb";
 							ctx.beginPath();
@@ -2328,7 +2226,7 @@ export let ide = (function() {
 							ctx.lineTo(10, 17.5);
 							ctx.lineTo(10,  8.5);
 							ctx.fill();
-							
+
 							ctx.fillStyle = "#999";
 							ctx.beginPath();
 							ctx.moveTo(10, 17.5);
@@ -2336,8 +2234,8 @@ export let ide = (function() {
 							ctx.lineTo(16,  5.5);
 							ctx.lineTo(10,  8.5);
 							ctx.fill();
-	
-	
+
+
 							for(let i = 8; i < 17; i+=3)
 							{
 								ctx.beginPath();
@@ -2346,7 +2244,7 @@ export let ide = (function() {
 								ctx.lineTo(17, i + 0.5);
 								ctx.stroke();
 							}
-	
+
 							// top frame
 							ctx.beginPath();
 							ctx.moveTo( 3.5, 5.3);
@@ -2360,16 +2258,17 @@ export let ide = (function() {
 						}
 			});
 		module.stacktree = tgui.createTreeControl({"parent": panel_stackview.content});
-	
+
 		// prepare program tree control
 		let panel_programview = tgui.createPanel({
-				"title": "program",
+				"name": "program",
+				"title": "Program",
 				"state": "icon",
 				"fallbackState": "right",
 				"icondraw": function(canvas)
 						{
 							let ctx = canvas.getContext("2d");
-							
+
 							// Outline
 							ctx.fillStyle = "#eeeeeec0";
 							ctx.moveTo( 3,  2);
@@ -2393,7 +2292,7 @@ export let ide = (function() {
 							ctx.lineTo( 5,  6);
 							ctx.lineTo( 3,  6);
 							ctx.fill();
-							
+
 							// Black boxes
 							ctx.fillStyle = "#000";
 							ctx.fillRect(4,  3,  8, 2);
@@ -2413,50 +2312,51 @@ export let ide = (function() {
 							}
 						},
 			});
-	
+
 		// prepare turtle output panel
 		let panel_turtle = tgui.createPanel({
-				"title": "turtle",
+				"name": "turtle",
+				"title": "Turtle",
 				"state": "right",
 				"fallbackState": "float",
 				"icondraw": function(canvas)
 						{
 							// draws literally a turtle
 							let ctx = canvas.getContext("2d");
-	
+
 							ctx.fillStyle = "#2c3";
 							ctx.strokeStyle = "#070";
-	
+
 							// head
 							ctx.beginPath();
 							ctx.ellipse(9.5, 5, 2, 2.5, 0, 0*Math.PI, 2*Math.PI, false);
 							ctx.closePath();
 							ctx.fill();
 							ctx.stroke();
-	
+
 							// legs
 							ctx.lineWidth = 1.6;
-	
+
 							ctx.beginPath();
 							ctx.moveTo(3.5, 6);
 							ctx.lineTo(9.5, 11);
 							ctx.lineTo(15.5, 6);
 							ctx.stroke();
-	
+
 							ctx.beginPath();
 							ctx.moveTo(4.5, 17);
 							ctx.lineTo(9.5, 10);
 							ctx.lineTo(14.5, 17);
 							ctx.stroke();
-	
+
 							// tail
 							ctx.lineWidth = 1.3;
-	
+
 							ctx.beginPath();
 							ctx.moveTo(9.5, 17);
 							ctx.lineTo(8.5, 19);
 							ctx.stroke();
-	
+
 							// main body
 							ctx.lineWidth = 1;
 							ctx.beginPath();
@@ -2464,7 +2364,7 @@ export let ide = (function() {
 							ctx.closePath();
 							ctx.fill();
 							ctx.stroke();
-	
+
 							ctx.strokeStyle = "#0709";
 							ctx.beginPath();
 							ctx.ellipse(8.7, 10.7, 4, 5, 0, -0.3*Math.PI, 0.8*Math.PI, false);
@@ -2478,7 +2378,7 @@ export let ide = (function() {
 				"classname": "ide ide-turtle",
 			});
 		module.turtle.addEventListener("contextmenu", function(event) { event.preventDefault(); return false; });
-	
+
 		// ensure that the turtle area remains square and centered
 		let makeSquare = function()
 		{
@@ -2506,7 +2406,7 @@ export let ide = (function() {
 					let obj:any = { "type": t, "value": { "a": [] } };
 					let n = {"type": p.types[module.typeid_null], "value": {"b": null}};
 					for (let i=0; i<t.objectsize; i++) obj.value.a.push(n);
-	
+
 					// fill its attributes
 					for (let key in t.members)
 					{
@@ -2522,7 +2422,8 @@ export let ide = (function() {
 
 		// prepare canvas output panel
 		let panel_canvas = tgui.createPanel({
-				"title": "canvas",
+				"name": "canvas",
+				"title": "Canvas",
 				"state": "icon",
 				"fallbackState": "right",
 				"onResize": function(w, h)
@@ -2542,7 +2443,7 @@ export let ide = (function() {
 				"icondraw": function(canvas)
 						{
 							let ctx = canvas.getContext("2d");
-	
+
 							ctx.fillStyle = "#333";
 							ctx.fillRect(3, 2, 14, 16);
 							ctx.fillStyle = "#fff";
@@ -2665,13 +2566,13 @@ export let ide = (function() {
 					module.interpreter.enqueueEvent("canvas.keyup", e);
 				});
 		tgui.arrangePanels();
-	
+
 		module.sourcecode.focus();
 	}
-	
+
 	return module;
 	}());
-	
+
 	window.onbeforeunload = function(event){
 	if (String(document.title).startsWith("TScript IDE")) { event.preventDefault(); event.returnValue = ''; }
-	};
+};

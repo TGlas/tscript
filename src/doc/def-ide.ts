@@ -243,5 +243,16 @@ export const doc_ide:Documentation = {
 		</p>
 	`,
 	"children": []},
+	{"id": "exportdialog",
+	"name": "Export dialog",
+	"title": "Export dialog",
+	"content": `
+		<p>
+		The export dialog allows to create a standalone webpage from the current TScript code.
+		It is either a turtle application or a canvas application, that means that only one of these is shown
+		in the final webpage.
+		</p>
+	`,
+	"children": []},
 ]
 };
