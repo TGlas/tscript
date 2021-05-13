@@ -1,5 +1,5 @@
-export enum Typeid{
-    typeid_null = 0,
+export enum Typeid {
+	typeid_null = 0,
 	typeid_boolean = 1,
 	typeid_integer = 2,
 	typeid_real = 3,

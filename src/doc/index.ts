@@ -9,28 +9,26 @@ import { doc_stdlib } from "./def-stdlib";
 
 export type Documentation = _Documentation | ErrorDocumentation;
 
-interface _Documentation{
-	id:string;
-	content:string;
-	name:string;
-	title:string;
+interface _Documentation {
+	id: string;
+	content: string;
+	name: string;
+	title: string;
 	children: Array<Documentation>;
 }
 
-interface ErrorDocumentation{
-	id:string;
-	content:string;
+interface ErrorDocumentation {
+	id: string;
+	content: string;
 	children: Array<Documentation>;
 }
 
-
-let doc:Documentation = { 
-	"id": "", 
-	"name": "TScript Documentation", 
-	"title": "TScript Documentation",
-	 "children": new Array(), 
-	 "content":
-`
+let doc: Documentation = {
+	id: "",
+	name: "TScript Documentation",
+	title: "TScript Documentation",
+	children: new Array(),
+	content: `
 <p>
 Welcome to TScript!
 </p>
@@ -53,7 +51,7 @@ programming languages, the section
 important bits in compact form, and for the impatient there are a few
 <a href="?doc#/examples">examples</a>.
 </p>
-`
+`,
 };
 
 doc.children.push(doc_concepts);
@@ -64,6 +62,5 @@ doc.children.push(doc_examples);
 doc.children.push(doc_errors);
 doc.children.push(doc_cheatsheet);
 doc.children.push(doc_legal);
-
 
 export const documentationData = doc;

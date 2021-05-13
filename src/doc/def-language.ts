@@ -1,21 +1,22 @@
 import { Documentation } from ".";
 
-export const doc_language:Documentation = {
-"id": "language",
-"name": "The TScript Language",
-"title": "Reference Documentation for the TScript Programming Language",
-"content": `
+export const doc_language: Documentation = {
+	id: "language",
+	name: "The TScript Language",
+	title: "Reference Documentation for the TScript Programming Language",
+	content: `
 	<p>
 	This is the reference documentation of the TScript programming
 	language. It covers all language features in great detail and with
 	precision.
 	</p>
 `,
-"children": [
-	{"id": "syntax",
-	"name": "Syntax",
-	"title": "Syntax",
-	"content": `
+	children: [
+		{
+			id: "syntax",
+			name: "Syntax",
+			title: "Syntax",
+			content: `
 		<p>
 		The syntax of the TScript language specifies whether a text is
 		a well-formed (valid) or ill-formed (invalid) program. A
@@ -31,11 +32,12 @@ export const doc_language:Documentation = {
 		<a href="?doc#/language/syntax/EBNF-syntax">complete formal EBNF definition of the TScript syntax</a>.
 		</p>
 	`,
-	"children": [
-		{"id": "character-set",
-		"name": "Character Set",
-		"title": "Character Set",
-		"content": `
+			children: [
+				{
+					id: "character-set",
+					name: "Character Set",
+					title: "Character Set",
+					content: `
 			<p>
 			TScript source code consists of unicode characters from the
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane">Basic Multilingual Plane</a> (BMP).
@@ -79,11 +81,13 @@ export const doc_language:Documentation = {
 			recommended to restrict string contents to the BMP.
 			</p>
 		`,
-		"children": []},
-		{"id": "tokens",
-		"name": "Tokens",
-		"title": "Tokens",
-		"content": `
+					children: [],
+				},
+				{
+					id: "tokens",
+					name: "Tokens",
+					title: "Tokens",
+					content: `
 			<p>
 			A TScript program consists of a sequence of tokens. Each
 			token is a meaningful and often short string of characters
@@ -200,11 +204,13 @@ export const doc_language:Documentation = {
 				separator = "," | "." | ";" ;
 			</ebnf>
 		`,
-		"children": []},
-		{"id": "keywords",
-		"name": "Keywords",
-		"title": "List of Keywords",
-		"content": `
+					children: [],
+				},
+				{
+					id: "keywords",
+					name: "Keywords",
+					title: "List of Keywords",
+					content: `
 			<p>
 			Certain identifier names are disallowed, namely the
 			so-called keywords. Here is a complete list of all TScript
@@ -259,11 +265,13 @@ export const doc_language:Documentation = {
 			some are reserved for future extensions.
 			</p>
 		`,
-		"children": []},
-		{"id": "comments",
-		"name": "Comments",
-		"title": "Line and Block Comments",
-		"content": `
+					children: [],
+				},
+				{
+					id: "comments",
+					name: "Comments",
+					title: "Line and Block Comments",
+					content: `
 			<p>
 			Comments are pieces of program code without any semantic
 			meaning. In other words, comments are ignored when running
@@ -300,11 +308,13 @@ export const doc_language:Documentation = {
 			line comment.
 			</p>
 		`,
-		"children": []},
-		{"id": "lexical-blocks",
-		"name": "Lexical Blocks and Separators",
-		"title": "Lexical Blocks and Separators",
-		"content": `
+					children: [],
+				},
+				{
+					id: "lexical-blocks",
+					name: "Lexical Blocks and Separators",
+					title: "Lexical Blocks and Separators",
+					content: `
 			<p>
 			In TScript, whitespace is useful for separating tokens, but
 			it is insignificant for separating language constructs like
@@ -327,11 +337,14 @@ export const doc_language:Documentation = {
 			encountering <code class="code">}</code> first indicates a syntax error.
 			</p>
 		`,
-		"children": []},
-		{"id": "EBNF-syntax",
-		"name": "Complete EBNF Syntax",
-		"title": "Complete Formal EBNF Definition of the TScript Syntax",
-		"content": `
+					children: [],
+				},
+				{
+					id: "EBNF-syntax",
+					name: "Complete EBNF Syntax",
+					title:
+						"Complete Formal EBNF Definition of the TScript Syntax",
+					content: `
 			<p>
 			This section collects all syntax rules for reference.
 			</p>
@@ -479,12 +492,15 @@ export const doc_language:Documentation = {
 			program = { declaration | statement | directive } ;
 			</ebnf>
 		`,
-		"children": []},
-	]},
-	{"id": "declarations",
-	"name": "Declarations",
-	"title": "Declarations",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "declarations",
+			name: "Declarations",
+			title: "Declarations",
+			content: `
 		<p>
 		A declaration defines a named entity. Possible entities are variables,
 		functions, classes, and namespaces. Hence, a declaration is defined
@@ -499,11 +515,12 @@ export const doc_language:Documentation = {
 		sub-sections.
 		</p>
 	`,
-	"children": [
-		{"id": "variables",
-		"name": "Variables",
-		"title": "Variables",
-		"content": `
+			children: [
+				{
+					id: "variables",
+					name: "Variables",
+					title: "Variables",
+					content: `
 			<p>
 			A variable is a named entity referencing a value.
 			</p>
@@ -596,11 +613,13 @@ export const doc_language:Documentation = {
 			</tscript>
 			</p>
 		`,
-		"children": []},
-		{"id": "functions",
-		"name": "Functions",
-		"title": "Functions",
-		"content": `
+					children: [],
+				},
+				{
+					id: "functions",
+					name: "Functions",
+					title: "Functions",
+					content: `
 			<p>
 			A function is a named block of code that can be invoked arbitrarily
 			often, possibly with different parameter values.
@@ -647,11 +666,13 @@ export const doc_language:Documentation = {
 			functions</a>.
 			</p>
 		`,
-		"children": []},
-		{"id": "classes",
-		"name": "Classes",
-		"title": "Classes",
-		"content": `
+					children: [],
+				},
+				{
+					id: "classes",
+					name: "Classes",
+					title: "Classes",
+					content: `
 			<p>
 			A class declaration adds a new type to the program. Values or objects
 			of this type can be instantiated by calling the type like a function.
@@ -881,11 +902,13 @@ export const doc_language:Documentation = {
 			</tscript>
 			</p>
 		`,
-		"children": []},
-		{"id": "namespaces",
-		"name": "Namespaces",
-		"title": "Namespaces",
-		"content": `
+					children: [],
+				},
+				{
+					id: "namespaces",
+					name: "Namespaces",
+					title: "Namespaces",
+					content: `
 			<p>
 			A namespace is a named scope designed to organize declarations.
 			</p>
@@ -952,12 +975,15 @@ export const doc_language:Documentation = {
 			collisions are still rate.
 			</p>
 		`,
-		"children": []},
-	]},
-	{"id": "directives",
-	"name": "Directives",
-	"title": "Directives",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "directives",
+			name: "Directives",
+			title: "Directives",
+			content: `
 		<p>
 		A directive is an instruction to the TScript language that is
 		not directly related to the program flow itself. It is neither a
@@ -971,11 +997,12 @@ export const doc_language:Documentation = {
 		in the future.
 		</p>
 	`,
-	"children": [
-		{"id": "use",
-		"name": "Using Names from Namespaces with Use Directives",
-		"title": "Using Names from Namespaces with Use Directives",
-		"content": `
+			children: [
+				{
+					id: "use",
+					name: "Using Names from Namespaces with Use Directives",
+					title: "Using Names from Namespaces with Use Directives",
+					content: `
 			<p>
 			A <keyword>use</keyword> directive imports names declared in a
 			namespace directly into the current scope. This allows for
@@ -1046,12 +1073,15 @@ export const doc_language:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-	]},
-	{"id": "expressions",
-	"name": "Expressions",
-	"title": "Expressions",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "expressions",
+			name: "Expressions",
+			title: "Expressions",
+			content: `
 		<p>
 		An expression is a computation that produces a value. The simplest atomic
 		expressions are constants and names referring to declarations. Expressions
@@ -1087,11 +1117,12 @@ export const doc_language:Documentation = {
 		statements</a>.
 		</p>
 	`,
-	"children": [
-		{"id": "literals",
-		"name": "Literals",
-		"title": "Literals",
-		"content": `
+			children: [
+				{
+					id: "literals",
+					name: "Literals",
+					title: "Literals",
+					content: `
 		<p>
 		TScript knows five types of atomic literals. From these,
 		container-valued composite literals can be created. In addition,
@@ -1108,11 +1139,12 @@ export const doc_language:Documentation = {
 		</ebnf>
 		</p>
 		`,
-		"children": [
-			{"id": "null",
-			"name": "The Null Literal",
-			"title": "The Null Literal",
-			"content": `
+					children: [
+						{
+							id: "null",
+							name: "The Null Literal",
+							title: "The Null Literal",
+							content: `
 				<p>
 				There is only one value of type
 				<a href="?doc#/language/types/null">Null</a>,
@@ -1132,11 +1164,13 @@ export const doc_language:Documentation = {
 					</tscript>
 				</div>
 			`,
-			"children": []},
-			{"id": "booleans",
-			"name": "Boolean Literals",
-			"title": "Boolean Literals",
-			"content": `
+							children: [],
+						},
+						{
+							id: "booleans",
+							name: "Boolean Literals",
+							title: "Boolean Literals",
+							content: `
 				<p>
 				The <a href="?doc#/language/types/boolean">Boolean</a> type represent the
 				logical values <keyword>true</keyword> and <keyword>false</keyword>,
@@ -1159,11 +1193,13 @@ export const doc_language:Documentation = {
 					</tscript>
 				</div>
 			`,
-			"children": []},
-			{"id": "integers",
-			"name": "Integer Literals",
-			"title": "Integer Literals",
-			"content": `
+							children: [],
+						},
+						{
+							id: "integers",
+							name: "Integer Literals",
+							title: "Integer Literals",
+							content: `
 				<p>
 				An Integer literal represents a constant of type
 				<a href="?doc#/language/types/integer">Integer</a>. It is denoted by
@@ -1182,11 +1218,13 @@ export const doc_language:Documentation = {
 					</tscript>
 				</div>
 			`,
-			"children": []},
-			{"id": "reals",
-			"name": "Real Literals",
-			"title": "Real Literals",
-			"content": `
+							children: [],
+						},
+						{
+							id: "reals",
+							name: "Real Literals",
+							title: "Real Literals",
+							content: `
 				<p>
 				A Real literal represents a constant of type
 				<a href="?doc#/language/types/real">Real</a>. It is denoted by a
@@ -1219,11 +1257,13 @@ export const doc_language:Documentation = {
 					</tscript>
 				</div>
 			`,
-			"children": []},
-			{"id": "strings",
-			"name": "String Literals",
-			"title": "String Literals",
-			"content": `
+							children: [],
+						},
+						{
+							id: "strings",
+							name: "String Literals",
+							title: "String Literals",
+							content: `
 				<p>A <a href="?doc#/language/types/string">String</a>
 				literal consists of a sequence of
 				<a href="?doc#/language/syntax/tokens">string tokens</a>,
@@ -1267,11 +1307,13 @@ export const doc_language:Documentation = {
 					</tscript>
 				</div>
 			`,
-			"children": []},
-			{"id": "arrays",
-			"name": "Array Literals",
-			"title": "Array Literals",
-			"content": `
+							children: [],
+						},
+						{
+							id: "arrays",
+							name: "Array Literals",
+							title: "Array Literals",
+							content: `
 				<p><a href="?doc#/language/types/array">Array</a>
 				literals are comma-separated sequences of expressions enclosed
 				in square brackets. The results of evaluating the expressions
@@ -1295,11 +1337,13 @@ export const doc_language:Documentation = {
 				If all items are constants, then the whole array is a constant.
 				</p>
 			`,
-			"children": []},
-			{"id": "dictionaries",
-			"name": "Dictionary Literals",
-			"title": "Dictionary Literals",
-			"content": `
+							children: [],
+						},
+						{
+							id: "dictionaries",
+							name: "Dictionary Literals",
+							title: "Dictionary Literals",
+							content: `
 				<p><a href="?doc#/language/types/dictionary">Dictionary</a>
 				literals are comma-separated sequences of key-value pairs enclosed
 				in curly braces. A key-value pair consists of a key, which is either
@@ -1346,11 +1390,13 @@ export const doc_language:Documentation = {
 				If all values are constants, then the whole dictionary is a constant.
 				</p>
 			`,
-			"children": []},
-			{"id": "anonymous-functions",
-			"name": "Anonymous Functions",
-			"title": "Anonymous Functions",
-			"content": `
+							children: [],
+						},
+						{
+							id: "anonymous-functions",
+							name: "Anonymous Functions",
+							title: "Anonymous Functions",
+							content: `
 				<p>
 				An anonymous function or lambda function follows the syntax:
 				<ebnf>
@@ -1433,22 +1479,26 @@ export const doc_language:Documentation = {
 				execution.
 				</p>
 			`,
-			"children": []},
-		]},
-		{"id": "unary-operators",
-		"name": "Unary Operators",
-		"title": "Unary Operators",
-		"content": `
+							children: [],
+						},
+					],
+				},
+				{
+					id: "unary-operators",
+					name: "Unary Operators",
+					title: "Unary Operators",
+					content: `
 			<p>
 			There are three unary operators, all of which are left-unary operators
 			binding to an argument on their right-hand side.
 			</p>
 		`,
-		"children": [
-			{"id": "not",
-			"name": "Logical or Bitwise Negation",
-			"title": "Logical or Bitwise Negation",
-			"content": `
+					children: [
+						{
+							id: "not",
+							name: "Logical or Bitwise Negation",
+							title: "Logical or Bitwise Negation",
+							content: `
 				<p>
 				<code class="code">operator not</code> performs a logical or bitwise
 				negation of its argument. For <keyword>true</keyword> it returns
@@ -1464,11 +1514,13 @@ export const doc_language:Documentation = {
 				equivalent to <code class="code">(-1 - x)</code>.
 				</p>
 			`,
-			"children": []},
-			{"id": "plus",
-			"name": "Arithmetic Positive",
-			"title": "Arithmetic Positive",
-			"content": `
+							children: [],
+						},
+						{
+							id: "plus",
+							name: "Arithmetic Positive",
+							title: "Arithmetic Positive",
+							content: `
 				<p>
 				The unary <code class="code">operator +</code> represents "no sign
 				change". In other words, it returns its argument unaltered.
@@ -1478,11 +1530,13 @@ export const doc_language:Documentation = {
 				error.
 				</p>
 			`,
-			"children": []},
-			{"id": "minus",
-			"name": "Arithmetic Negation",
-			"title": "Arithmetic Negation",
-			"content": `
+							children: [],
+						},
+						{
+							id: "minus",
+							name: "Arithmetic Negation",
+							title: "Arithmetic Negation",
+							content: `
 				<p>
 				The unary <code class="code">operator -</code> represents algebraic
 				negation, which is a change of sign; it returns "minus" its argument.
@@ -1502,23 +1556,27 @@ export const doc_language:Documentation = {
 				</tscript>
 				</p>
 			`,
-			"children": []},
-		]},
-		{"id": "binary-operators",
-		"name": "Binary Operators",
-		"title": "Binary Operators",
-		"content": `
+							children: [],
+						},
+					],
+				},
+				{
+					id: "binary-operators",
+					name: "Binary Operators",
+					title: "Binary Operators",
+					content: `
 			<p>
 			TScript defines a total of 17 binary operators. There are seven
 			arithmetic operators, six comparison operators, three logical
 			operators, and the range operator.
 			</p>
 		`,
-		"children": [
-			{"id": "addition",
-			"name": "Addition",
-			"title": "Addition",
-			"content": `
+					children: [
+						{
+							id: "addition",
+							name: "Addition",
+							title: "Addition",
+							content: `
 				<p>
 				The binary <code class="code">operator +</code> returns the sum of
 				its arguments. If at least one argument is a string, then the
@@ -1543,11 +1601,13 @@ export const doc_language:Documentation = {
 				result.
 				</p>
 			`,
-			"children": []},
-			{"id": "subtraction",
-			"name": "Subtraction",
-			"title": "Subtraction",
-			"content": `
+							children: [],
+						},
+						{
+							id: "subtraction",
+							name: "Subtraction",
+							title: "Subtraction",
+							content: `
 				<p>
 				The binary <code class="code">operator -</code> returns the
 				difference between its arguments.
@@ -1563,11 +1623,13 @@ export const doc_language:Documentation = {
 				overflow rules apply.
 				</p>
 			`,
-			"children": []},
-			{"id": "multiplication",
-			"name": "Multiplication",
-			"title": "Multiplication",
-			"content": `
+							children: [],
+						},
+						{
+							id: "multiplication",
+							name: "Multiplication",
+							title: "Multiplication",
+							content: `
 				<p>
 				The binary <code class="code">operator *</code> returns the
 				product of its arguments.
@@ -1583,11 +1645,13 @@ export const doc_language:Documentation = {
 				overflow rules apply.
 				</p>
 			`,
-			"children": []},
-			{"id": "real-division",
-			"name": "Real Division",
-			"title": "Real Division",
-			"content": `
+							children: [],
+						},
+						{
+							id: "real-division",
+							name: "Real Division",
+							title: "Real Division",
+							content: `
 				<p>
 				The binary <code class="code">operator /</code> returns the
 				quotient of its arguments.
@@ -1601,11 +1665,13 @@ export const doc_language:Documentation = {
 				is always a real, which can have a fractional part.
 				</p>
 			`,
-			"children": []},
-			{"id": "integer-division",
-			"name": "Integer Division",
-			"title": "Integer Division",
-			"content": `
+							children: [],
+						},
+						{
+							id: "integer-division",
+							name: "Integer Division",
+							title: "Integer Division",
+							content: `
 				<p>
 				The binary <code class="code">operator //</code> returns the
 				quotient of its arguments, rounded down to the nearest integer.
@@ -1627,11 +1693,13 @@ export const doc_language:Documentation = {
 				as reals, and the result is real.
 				</p>
 			`,
-			"children": []},
-			{"id": "modulo",
-			"name": "Modulo",
-			"title": "Modulo",
-			"content": `
+							children: [],
+						},
+						{
+							id: "modulo",
+							name: "Modulo",
+							title: "Modulo",
+							content: `
 				<p>
 				The binary <code class="code">operator %</code> returns the
 				remainder of the
@@ -1651,11 +1719,13 @@ export const doc_language:Documentation = {
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="code">0 <= a % b < math.abs(b)</code></br>
 				</p>
 			`,
-			"children": []},
-			{"id": "power",
-			"name": "Power",
-			"title": "Power",
-			"content": `
+							children: [],
+						},
+						{
+							id: "power",
+							name: "Power",
+							title: "Power",
+							content: `
 				<p>
 				The binary <code class="code">operator ^</code> returns its
 				left argument to the power of its right arguments.
@@ -1676,11 +1746,13 @@ export const doc_language:Documentation = {
 				applies floating point arithmetics.
 				</p>
 			`,
-			"children": []},
-			{"id": "equality",
-			"name": "Comparison for Equality",
-			"title": "Comparison for Equality",
-			"content": `
+							children: [],
+						},
+						{
+							id: "equality",
+							name: "Comparison for Equality",
+							title: "Comparison for Equality",
+							content: `
 				<p>
 				Two values can be compared for equality with
 				<code class="code">operator ==</code>. Given two arbitrary values, the
@@ -1732,11 +1804,13 @@ export const doc_language:Documentation = {
 				</tscript>
 				</p>
 			`,
-			"children": []},
-			{"id": "order",
-			"name": "Comparison for Order",
-			"title": "Comparison for Order",
-			"content": `
+							children: [],
+						},
+						{
+							id: "order",
+							name: "Comparison for Order",
+							title: "Comparison for Order",
+							content: `
 				<p>
 				Two values can be compared for order with
 				<code class="code">operator &lt;</code>. Given two arbitrary values, the
@@ -1773,11 +1847,13 @@ export const doc_language:Documentation = {
 				</tscript>
 				</p>
 			`,
-			"children": []},
-			{"id": "and",
-			"name": "Conjunction",
-			"title": "Conjunction",
-			"content": `
+							children: [],
+						},
+						{
+							id: "and",
+							name: "Conjunction",
+							title: "Conjunction",
+							content: `
 				<p>
 				The binary <code class="code">operator and</code> returns the
 				logical or bitwise conjunction of its arguments. Both arguments
@@ -1792,11 +1868,13 @@ export const doc_language:Documentation = {
 				It applies to all 32 bits of an integer accordingly.
 				</p>
 			`,
-			"children": []},
-			{"id": "or",
-			"name": "Disjunction",
-			"title": "Disjunction",
-			"content": `
+							children: [],
+						},
+						{
+							id: "or",
+							name: "Disjunction",
+							title: "Disjunction",
+							content: `
 				<p>
 				The binary <code class="code">operator or</code> returns the
 				(non-exclusive) logical or bitwise disjunction of its arguments.
@@ -1812,11 +1890,13 @@ export const doc_language:Documentation = {
 				It applies to all 32 bits of an integer accordingly.
 				</p>
 			`,
-			"children": []},
-			{"id": "xor",
-			"name": "Exclusive Disjunction",
-			"title": "Exclusive Disjunction",
-			"content": `
+							children: [],
+						},
+						{
+							id: "xor",
+							name: "Exclusive Disjunction",
+							title: "Exclusive Disjunction",
+							content: `
 				<p>
 				The binary <code class="code">operator xor</code> returns the
 				exclusive logical or bitwise disjunction of its arguments. Both
@@ -1835,11 +1915,13 @@ export const doc_language:Documentation = {
 				<code class="code">operator !=</code>.
 				</p>
 			`,
-			"children": []},
-			{"id": "range",
-			"name": "Range Operator",
-			"title": "Range Operator",
-			"content": `
+							children: [],
+						},
+						{
+							id: "range",
+							name: "Range Operator",
+							title: "Range Operator",
+							content: `
 				<p>
 				The binary <code class="code">operator :</code> constructs a
 				<a href="?doc#/language/types/range">Range</a> from its arguments.
@@ -1850,12 +1932,15 @@ export const doc_language:Documentation = {
 				the <a href="?doc#/language/types/range">Range</a> constructor.
 				</p>
 			`,
-			"children": []},
-		]},
-		{"id": "function-calls",
-		"name": "Function Calls",
-		"title": "Function Calls",
-		"content": `
+							children: [],
+						},
+					],
+				},
+				{
+					id: "function-calls",
+					name: "Function Calls",
+					title: "Function Calls",
+					content: `
 			<h2>Syntax</h2>
 			<p>
 			A function call is an expression with the following syntax:
@@ -1915,11 +2000,13 @@ export const doc_language:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "item-access",
-		"name": "Item Access",
-		"title": "Item Access",
-		"content": `
+					children: [],
+				},
+				{
+					id: "item-access",
+					name: "Item Access",
+					title: "Item Access",
+					content: `
 			<p>
 			An item access is an expression with the following syntax:
 			<ebnf>
@@ -1955,11 +2042,13 @@ export const doc_language:Documentation = {
 			</ul>
 			</p>
 		`,
-		"children": []},
-		{"id": "member-access",
-		"name": "Member Access",
-		"title": "Member Access",
-		"content": `
+					children: [],
+				},
+				{
+					id: "member-access",
+					name: "Member Access",
+					title: "Member Access",
+					content: `
 			<p>
 			A member access is an expression with the following syntax:
 			<ebnf>
@@ -1980,11 +2069,13 @@ export const doc_language:Documentation = {
 			<a href="?doc#/language/declarations/classes">super</a>.
 			</p>
 		`,
-		"children": []},
-		{"id": "names",
-		"name": "Names and Name Lookup",
-		"title": "Names and Name Lookup",
-		"content": `
+					children: [],
+				},
+				{
+					id: "names",
+					name: "Names and Name Lookup",
+					title: "Names and Name Lookup",
+					content: `
 			<p>
 			A name has the syntax
 			<ebnf>
@@ -2198,11 +2289,13 @@ export const doc_language:Documentation = {
 			</tscript>
 			</p>
 		`,
-		"children": []},
-		{"id": "precedence",
-		"name": "Precedence of Operations",
-		"title": "Precedence of Operations",
-		"content": `
+					children: [],
+				},
+				{
+					id: "precedence",
+					name: "Precedence of Operations",
+					title: "Precedence of Operations",
+					content: `
 			<h2>Order of Evaluation of Expressions and Operators</h2>
 			<p>
 			Different operators have different precedence, i.e., binding
@@ -2268,11 +2361,13 @@ export const doc_language:Documentation = {
 			</tscript>
 			</p>
 		`,
-		"children": []},
-		{"id": "constants",
-		"name": "Constants",
-		"title": "Constants",
-		"content": `
+					children: [],
+				},
+				{
+					id: "constants",
+					name: "Constants",
+					title: "Constants",
+					content: `
 			<p>
 			Constants are expressions that do not depend on the values
 			of variables. Their main uses are as immediate values within
@@ -2312,12 +2407,15 @@ export const doc_language:Documentation = {
 			and which ones do not.
 			</p>
 		`,
-		"children": []},
-	]},
-	{"id": "statements",
-	"name": "Statements",
-	"title": "Statements",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "statements",
+			name: "Statements",
+			title: "Statements",
+			content: `
 		<p>
 		Statements are instructions that change the state of the
 		program. For example, they can modify a variable or change the
@@ -2342,11 +2440,12 @@ export const doc_language:Documentation = {
 		</ebnf>
 		</p>
 	`,
-	"children": [
-		{"id": "blocks",
-		"name": "Blocks of Statements",
-		"title": "Blocks of Statements",
-		"content": `
+			children: [
+				{
+					id: "blocks",
+					name: "Blocks of Statements",
+					title: "Blocks of Statements",
+					content: `
 			<p>
 			A block of statements has the following syntax:
 			<ebnf>
@@ -2368,11 +2467,13 @@ export const doc_language:Documentation = {
 			same holds for objects of locally declared classes.
 			</p>
 		`,
-		"children": []},
-		{"id": "assignments",
-		"name": "Assignments",
-		"title": "Assignments",
-		"content": `
+					children: [],
+				},
+				{
+					id: "assignments",
+					name: "Assignments",
+					title: "Assignments",
+					content: `
 			<p>
 			Assignments have the following form:
 			<ebnf>
@@ -2429,11 +2530,13 @@ export const doc_language:Documentation = {
 			</tscript>
 			</p>
 		`,
-		"children": []},
-		{"id": "expressions",
-		"name": "Expressions",
-		"title": "Expressions",
-		"content": `
+					children: [],
+				},
+				{
+					id: "expressions",
+					name: "Expressions",
+					title: "Expressions",
+					content: `
 			<p>
 			An expression followed by a semicolon is a valid statement.
 			For many expressions this is rather pointless:
@@ -2454,11 +2557,13 @@ export const doc_language:Documentation = {
 			become arbitrarily complex.
 			</p>
 		`,
-		"children": []},
-		{"id": "if-then-else",
-		"name": "Conditions with if then else",
-		"title": "Conditions with if then else",
-		"content": `
+					children: [],
+				},
+				{
+					id: "if-then-else",
+					name: "Conditions with if then else",
+					title: "Conditions with if then else",
+					content: `
 			<p>
 			A conditional control structure is denoted as follows:
 			<ebnf>
@@ -2475,11 +2580,13 @@ export const doc_language:Documentation = {
 			the statements are <a href="?doc#/language/statements/blocks">blocks</a>.
 			</p>
 		`,
-		"children": []},
-		{"id": "for-loops",
-		"name": "For-Loops",
-		"title": "For-Loops",
-		"content": `
+					children: [],
+				},
+				{
+					id: "for-loops",
+					name: "For-Loops",
+					title: "For-Loops",
+					content: `
 			<p>
 			A for-loop has the following syntax:
 			<ebnf>
@@ -2605,11 +2712,13 @@ export const doc_language:Documentation = {
 			can be used.
 			</p>
 		`,
-		"children": []},
-		{"id": "while-do-loops",
-		"name": "While-Do-Loops",
-		"title": "While-Do-Loops",
-		"content": `
+					children: [],
+				},
+				{
+					id: "while-do-loops",
+					name: "While-Do-Loops",
+					title: "While-Do-Loops",
+					content: `
 			<p>
 			The while-do-loop syntax is as follows:
 			<ebnf>
@@ -2649,11 +2758,13 @@ export const doc_language:Documentation = {
 			<keyword>break</keyword> statement.
 			</p>
 		`,
-		"children": []},
-		{"id": "do-while-loops",
-		"name": "Do-While-Loops",
-		"title": "Do-While-Loops",
-		"content": `
+					children: [],
+				},
+				{
+					id: "do-while-loops",
+					name: "Do-While-Loops",
+					title: "Do-While-Loops",
+					content: `
 			<p>
 			The do-while-loop syntax is as follows:
 			<ebnf>
@@ -2694,11 +2805,13 @@ export const doc_language:Documentation = {
 			<keyword>break</keyword> statement.
 			</p>
 		`,
-		"children": []},
-		{"id": "break-continue",
-		"name": "Break and Continue",
-		"title": "Break and Continue",
-		"content": `
+					children: [],
+				},
+				{
+					id: "break-continue",
+					name: "Break and Continue",
+					title: "Break and Continue",
+					content: `
 			<p>
 			The <keyword>break</keyword> and <keyword>continue</keyword> statements
 			change the control flow of the current innermost loop within the current
@@ -2741,11 +2854,13 @@ export const doc_language:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "return",
-		"name": "Return",
-		"title": "Return",
-		"content": `
+					children: [],
+				},
+				{
+					id: "return",
+					name: "Return",
+					title: "Return",
+					content: `
 			<p>
 			The return statement immediately returns from a function.
 			Its syntax is as follows:
@@ -2768,11 +2883,13 @@ export const doc_language:Documentation = {
 			contain a return value.
 			</p>
 		`,
-		"children": []},
-		{"id": "throw",
-		"name": "Throw",
-		"title": "Throw",
-		"content": `
+					children: [],
+				},
+				{
+					id: "throw",
+					name: "Throw",
+					title: "Throw",
+					content: `
 			<h2>Syntax and Effect</h2>
 			<p>
 			An exception is thrown with the following syntax:
@@ -2811,11 +2928,13 @@ export const doc_language:Documentation = {
 			exception can be caught, examined, and possibly re-thrown.
 			</p>
 		`,
-		"children": []},
-		{"id": "try-catch",
-		"name": "Try and Catch",
-		"title": "Try and Catch",
-		"content": `
+					children: [],
+				},
+				{
+					id: "try-catch",
+					name: "Try and Catch",
+					title: "Try and Catch",
+					content: `
 			<h2>Syntax</h2>
 			<p>
 			The syntax of a <keyword>try</keyword>-<keyword>catch</keyword>
@@ -2867,12 +2986,15 @@ export const doc_language:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-	]},
-	{"id": "types",
-	"name": "The Type System",
-	"title": "The Type System",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "types",
+			name: "The Type System",
+			title: "The Type System",
+			content: `
 		<p>
 		A type defines a set of values, which are of similar nature.
 		They are associated with operations acting on the value, i.e.,
@@ -2912,11 +3034,12 @@ export const doc_language:Documentation = {
 		capabilities of operators must therefore be emulated with functions.
 		</p>
 	`,
-	"children": [
-		{"id": "null",
-		"name": "Null",
-		"title": "The Type <i>Null</i>",
-		"content": `
+			children: [
+				{
+					id: "null",
+					name: "Null",
+					title: "The Type <i>Null</i>",
+					content: `
 			<p>
 			The Null type has only a single value, the
 			<a href="?doc#/language/expressions/literals/null">null literal</a>.
@@ -2939,11 +3062,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "boolean",
-		"name": "Boolean",
-		"title": "The Type <i>Boolean</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "boolean",
+					name: "Boolean",
+					title: "The Type <i>Boolean</i>",
+					content: `
 			<p>
 			The type Boolean represents the two logical values, denoted by the
 			<a href="?doc#/language/expressions/literals/booleans">literals</a>
@@ -2978,11 +3103,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "integer",
-		"name": "Integer",
-		"title": "The Type <i>Integer</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "integer",
+					name: "Integer",
+					title: "The Type <i>Integer</i>",
+					content: `
 			<p>
 			There exist <i>2<sup>32</sup></i> values of type Integer, namely
 			the whole numbers in the range <i>-2147483648 = -2<sup>31</sup></i>
@@ -3136,11 +3263,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "real",
-		"name": "Real",
-		"title": "The Type <i>Real</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "real",
+					name: "Real",
+					title: "The Type <i>Real</i>",
+					content: `
 			<p>
 			The type Real represents floating point numbers according to the
 			<a target="_blank" href="https://de.wikipedia.org/wiki/IEEE_754">IEEE 754 standard</a>.
@@ -3262,11 +3391,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "string",
-		"name": "String",
-		"title": "The Type <i>String</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "string",
+					name: "String",
+					title: "The Type <i>String</i>",
+					content: `
 			<p>
 			The type String represents text. A string is a sequence of
 			<a href="?doc#/language/syntax/character-set">characters</a> of
@@ -3360,11 +3491,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "array",
-		"name": "Array",
-		"title": "The Type <i>Array</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "array",
+					name: "Array",
+					title: "The Type <i>Array</i>",
+					content: `
 			<p>
 			The type Array is a container capable of holding multiple values,
 			called items of the array. Items are arranged in a sequence. They
@@ -3473,11 +3606,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "dictionary",
-		"name": "Dictionary",
-		"title": "The Type <i>Dictionary</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "dictionary",
+					name: "Dictionary",
+					title: "The Type <i>Dictionary</i>",
+					content: `
 			<p>
 			The type Dictionary is a container capable of holding multiple
 			values, called items of the dictionary. Items are accessed with
@@ -3567,11 +3702,13 @@ export const doc_language:Documentation = {
 			</table>
 			</table>
 		`,
-		"children": []},
-		{"id": "function",
-		"name": "Function",
-		"title": "The Type <i>Function</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "function",
+					name: "Function",
+					title: "The Type <i>Function</i>",
+					content: `
 			<p>
 			The Function type represents
 			<a href="?doc#/language/declarations/functions">function declarations</a>,
@@ -3608,11 +3745,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "range",
-		"name": "Range",
-		"title": "The Type <i>Range</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "range",
+					name: "Range",
+					title: "The Type <i>Range</i>",
+					content: `
 			<p>
 			The Range type represents a range of integers. It is defined by
 			two integers, <i>begin</i> and <i>end</i>. They define the half-open
@@ -3681,11 +3820,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "type",
-		"name": "Type",
-		"title": "The Type <i>Type</i>",
-		"content": `
+					children: [],
+				},
+				{
+					id: "type",
+					name: "Type",
+					title: "The Type <i>Type</i>",
+					content: `
 			<p>
 			The values of type Type represent types, i.e., built-in types and
 			classes. They are immutable. A type value can be constructed from
@@ -3776,11 +3917,13 @@ export const doc_language:Documentation = {
 			</td></tr>
 			</table>
 		`,
-		"children": []},
-		{"id": "class",
-		"name": "Classes",
-		"title": "Classes",
-		"content": `
+					children: [],
+				},
+				{
+					id: "class",
+					name: "Classes",
+					title: "Classes",
+					content: `
 			<p>
 			A Class is a user-defined type. It is created through a
 			<a href="?doc#/language/declarations/classes">class declaration</a>;
@@ -3941,7 +4084,9 @@ export const doc_language:Documentation = {
 				print("Newyear's day 1991 was " + ny.prettyString());
 			</tscript>
 		`,
-		"children": []},
-	]},
-]
+					children: [],
+				},
+			],
+		},
+	],
 };

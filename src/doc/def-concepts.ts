@@ -1,10 +1,10 @@
 import { Documentation } from ".";
 
-export const doc_concepts:Documentation = {
-"id": "concepts",
-"name": "Core Concepts",
-"title": "Core Concepts of the TScript Programming Language",
-"content": `
+export const doc_concepts: Documentation = {
+	id: "concepts",
+	name: "Core Concepts",
+	title: "Core Concepts of the TScript Programming Language",
+	content: `
 	<p>
 	The TScript language is carefully designed with the goal to create
 	an ideal programming language for programming beginners. This
@@ -97,11 +97,12 @@ export const doc_concepts:Documentation = {
 	</ul>
 	</p>
 `,
-"children": [
-	{"id": "overview",
-	"name": "The Language at a Glance",
-	"title": "The Language at a Glance",
-	"content": `
+	children: [
+		{
+			id: "overview",
+			name: "The Language at a Glance",
+			title: "The Language at a Glance",
+			content: `
 		<p>
 		TScript is an imperative and object oriented language. In many
 		aspects it has similarities to "scripting" languages like Python
@@ -223,11 +224,13 @@ export const doc_concepts:Documentation = {
 		for demonstrations.
 		</p>
 	`,
-	"children": []},
-	{"id": "design",
-	"name": "Design Decisions",
-	"title": "Design Decisions",
-	"content": `
+			children: [],
+		},
+		{
+			id: "design",
+			name: "Design Decisions",
+			title: "Design Decisions",
+			content: `
 		<p>
 		Most programming languages in common use exist for an extended
 		period of time and underwent significant changes. Such changes
@@ -294,11 +297,13 @@ export const doc_concepts:Documentation = {
 		programming language out there.
 		</p>
 	`,
-	"children": []},
-	{"id": "arithmetics",
-	"name": "Arithmetics",
-	"title": "Arithmetics",
-	"content": `
+			children: [],
+		},
+		{
+			id: "arithmetics",
+			name: "Arithmetics",
+			title: "Arithmetics",
+			content: `
 		<p>
 		TScript has two fundamental arithmetic types: Integer and Real.
 		At first glance, they seem to be rather similar, to the extent
@@ -391,11 +396,13 @@ export const doc_concepts:Documentation = {
 		<a href="?doc#/library/math">math.pow</a> is provided as an alternative.
 		</p>
 	`,
-	"children": []},
-	{"id": "style",
-	"name": "Style",
-	"title": "Coding Style",
-	"content": `
+			children: [],
+		},
+		{
+			id: "style",
+			name: "Style",
+			title: "Coding Style",
+			content: `
 		<p>
 		Also beyond its basic syntax, the TScript language aims to teach
 		good coding style. Therefore there exists an official style
@@ -469,6 +476,7 @@ export const doc_concepts:Documentation = {
 			var T = Integer;      # this is borderline, but should be "t"
 		</tscript>
 	`,
-	"children": []},
-]
+			children: [],
+		},
+	],
 };

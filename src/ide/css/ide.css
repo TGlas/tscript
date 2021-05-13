@@ -15,8 +15,7 @@ body {
 a:link,
 a:visited,
 a:active,
-a:hover
-{
+a:hover {
 	color: #44c;
 	text-decoration: underline;
 }
@@ -111,53 +110,62 @@ button {
 	box-sizing: border-box;
 }
 
-.ide-message
-{
+.ide-message {
 	width: 100%;
 	white-space: pre;
 }
 
-.ide-message:hover
-{
+.ide-message:hover {
 	background: #cdf;
 }
 
-.ide-errormessage
-{
+.ide-errormessage {
 	cursor: pointer;
 	color: #f00;
 	text-decoration: underline;
 }
 
-.ide-errormessage:hover
-{
+.ide-errormessage:hover {
 	font-weight: bold;
 }
 
-.ide-program-ancestor
-{
+.ide-program-ancestor {
 	background: #fc8;
 }
 
-.ide-program-current
-{
+.ide-program-current {
 	background: #fa4;
 	font-weight: bold;
 }
 
-.ide-turtle
-{
+.ide-turtle {
 	background: #eee;
 	width: 100%;
 	height: 100%;
 }
 
-.ide-index { color: #00f; }
+.ide-index {
+	color: #00f;
+}
 
-.ide-integer { color: #088; }
-.ide-real { color: #480; }
-.ide-string { color: #c00; }
-.ide-collection { color: #c60; }
-.ide-keyword { color: #00c; }
-.ide-builtin { color: #808; }
-.ide-userclass { color: #000; }
+.ide-integer {
+	color: #088;
+}
+.ide-real {
+	color: #480;
+}
+.ide-string {
+	color: #c00;
+}
+.ide-collection {
+	color: #c60;
+}
+.ide-keyword {
+	color: #00c;
+}
+.ide-builtin {
+	color: #808;
+}
+.ide-userclass {
+	color: #000;
+}
