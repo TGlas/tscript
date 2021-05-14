@@ -1,10 +1,10 @@
 import { Documentation } from ".";
 
-export const doc_stdlib:Documentation = {
-"id": "library",
-"name": "The TScript Standard Library",
-"title": "Reference Documentation for the TScript Standard Library",
-"content": `
+export const doc_stdlib: Documentation = {
+	id: "library",
+	name: "The TScript Standard Library",
+	title: "Reference Documentation for the TScript Standard Library",
+	content: `
 	<p>
 	This is the reference documentation of the TScript standard library.
 	Its core consists of a hand full of general utility functions and a set
@@ -12,11 +12,12 @@ export const doc_stdlib:Documentation = {
 	turtle and canvas graphics.
 	</p>
 `,
-"children": [
-	{"id": "core",
-	"name": "Core Functions",
-	"title": "Core Functions",
-	"content": `
+	children: [
+		{
+			id: "core",
+			name: "Core Functions",
+			title: "Core Functions",
+			content: `
 		<p>
 		The functions described in this section perform essential core tasks.
 		Instead of being library functions, they could equally well be
@@ -198,12 +199,13 @@ export const doc_stdlib:Documentation = {
 		</td></tr>
 		</table>
 	`,
-	"children": [
-	]},
-	{"id": "math",
-	"name": "Math Functions",
-	"title": "Math Functions",
-	"content": `
+			children: [],
+		},
+		{
+			id: "math",
+			name: "Math Functions",
+			title: "Math Functions",
+			content: `
 		<p>
 		The <code class="code">namespace math</code> contains a number
 		of functions computing powers, logarithms, trigonometric and
@@ -356,12 +358,13 @@ export const doc_stdlib:Documentation = {
 		</td></tr>
 		</table>
 	`,
-	"children": [
-	]},
-	{"id": "turtle",
-	"name": "Turtle Graphics",
-	"title": "Turtle Graphics",
-	"content": `
+			children: [],
+		},
+		{
+			id: "turtle",
+			name: "Turtle Graphics",
+			title: "Turtle Graphics",
+			content: `
 		<p>
 		The functions in this section control the "turtle", an imaginary robot
 		equipped with a pen that can move around and draw lines. The turtle
@@ -409,12 +412,13 @@ export const doc_stdlib:Documentation = {
 		</td></tr>
 		</table>
 	`,
-	"children": [
-	]},
-	{"id": "canvas",
-	"name": "Canvas Graphics",
-	"title": "Canvas Graphics",
-	"content": `
+			children: [],
+		},
+		{
+			id: "canvas",
+			name: "Canvas Graphics",
+			title: "Canvas Graphics",
+			content: `
 		<p>
 		The functions in this section control the "canvas", a rectangular
 		surface for drawing geometric shapes and text. Canvas graphics is
@@ -679,14 +683,14 @@ export const doc_stdlib:Documentation = {
 		original canvas coordinates.
 		</p>
 	`,
-	"children": [
-	]},
+			children: [],
+		},
 
-	{
-		"id": "audio",
-		"name": "Audio playback",
-		"title": "Audio playback",
-		"content": `
+		{
+			id: "audio",
+			name: "Audio playback",
+			title: "Audio playback",
+			content: `
 			<p>TScript supports playback of audio. The classes <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code> allow the playback of arbitrary buffers consisting of reals with values from -1 to 1.
 			The playback is performed asynchronously, meaning that a call to <code class="code">play()</code> will return immediately regardless of sound duration.
 			</p>
@@ -741,7 +745,7 @@ export const doc_stdlib:Documentation = {
 				
 			</tscript>
 		`,
-		"children":[],
-	}
-]
+			children: [],
+		},
+	],
 };

@@ -1,12 +1,12 @@
-"use strict"
+"use strict";
 
 import { Documentation } from ".";
 
-export const doc_ide:Documentation = {
-"id": "ide",
-"name": "The TScript IDE",
-"title": "The TScript Integrated Development Environment (IDE)",
-"content": `
+export const doc_ide: Documentation = {
+	id: "ide",
+	name: "The TScript IDE",
+	title: "The TScript Integrated Development Environment (IDE)",
+	content: `
 	<p>
 	TScript is not only a programming language, it also comes with a
 	fully fledged integrated development environment (IDE). The IDE
@@ -29,11 +29,12 @@ export const doc_ide:Documentation = {
 	panel. Panels can be resized by dragging the lower and right edges.
 	</p>
 `,
-"children": [
-	{"id": "toolbar",
-	"name": "Toolbar",
-	"title": "Toolbar",
-	"content": `
+	children: [
+		{
+			id: "toolbar",
+			name: "Toolbar",
+			title: "Toolbar",
+			content: `
 		<p>
 		The IDE has a toolbar at the top. It features a number of central
 		controls.
@@ -93,11 +94,13 @@ export const doc_ide:Documentation = {
 		this very collection of documents) in a new window or browser tab.
 		</p>
 	`,
-	"children": []},
-	{"id": "editor",
-	"name": "Source Code Editor",
-	"title": "Source Code Editor",
-	"content": `
+			children: [],
+		},
+		{
+			id: "editor",
+			name: "Source Code Editor",
+			title: "Source Code Editor",
+			content: `
 		<p>
 		The source code editor is the most important panel. It consists
 		of a modern browser-based text editor with syntax highlighting
@@ -129,11 +132,13 @@ export const doc_ide:Documentation = {
 		On MacOS, use the command key instead of the control key.
 		</p>
 	`,
-	"children": []},
-	{"id": "messages",
-	"name": "Message Area",
-	"title": "Message Area",
-	"content": `
+			children: [],
+		},
+		{
+			id: "messages",
+			name: "Message Area",
+			title: "Message Area",
+			content: `
 		<p>
 		The message area contains two types of entities: text printed by
 		the program with the <a href="?doc#/library/core">print</a> function,
@@ -143,11 +148,13 @@ export const doc_ide:Documentation = {
 		error.
 		</p>
 	`,
-	"children": []},
-	{"id": "debugging",
-	"name": "Debugging Facilities",
-	"title": "Debugging Facilities",
-	"content": `
+			children: [],
+		},
+		{
+			id: "debugging",
+			name: "Debugging Facilities",
+			title: "Debugging Facilities",
+			content: `
 		<p>
 		The debugger is firmly integrated into the IDE. It consists of
 		several elements. The most prominent ones are stack and program
@@ -202,11 +209,13 @@ export const doc_ide:Documentation = {
 		valuable debugging aid.
 		</p>
 	`,
-	"children": []},
-	{"id": "program",
-	"name": "Program IO Panels",
-	"title": "Program IO Panels",
-	"content": `
+			children: [],
+		},
+		{
+			id: "program",
+			name: "Program IO Panels",
+			title: "Program IO Panels",
+			content: `
 		<p>
 		There are two panels dedicated to input and output of the program:
 		one for turtle graphics, and one for a proper graphical user interface.
@@ -242,17 +251,20 @@ export const doc_ide:Documentation = {
 		create interactive applications.
 		</p>
 	`,
-	"children": []},
-	{"id": "exportdialog",
-	"name": "Export dialog",
-	"title": "Export dialog",
-	"content": `
+			children: [],
+		},
+		{
+			id: "exportdialog",
+			name: "Export dialog",
+			title: "Export dialog",
+			content: `
 		<p>
 		The export dialog allows to create a standalone webpage from the current TScript code.
 		It is either a turtle application or a canvas application, that means that only one of these is shown
 		in the final webpage.
 		</p>
 	`,
-	"children": []},
-]
+			children: [],
+		},
+	],
 };

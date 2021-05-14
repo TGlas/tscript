@@ -6,7 +6,6 @@ on:
 
 jobs:
   build-and-test:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -14,30 +13,52 @@ jobs:
         node-version: [15.x]
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        persist-credentials: false
-        fetch-depth: 0
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
 
-# Set up environment
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Set up NPM cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: npm-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          npm-
-    - name: Install dependencies
-      run: npm ci
+      # Set up environment
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Set up NPM cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
+      - name: Install dependencies
+        run: npm ci
 
-# Build and run tests
-    - name: Build IDE
-      run: npm run build
-    - name: Build interop
-      run: npm run interop
-    - name: Run tests
-      run: npm test
+      # Build and run tests
+      - name: Build IDE
+        run: npm run build
+      - name: Build interop
+        run: npm run interop
+      - name: Run tests
+        run: npm test
+
+  check-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Use Node.js 15.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15.x
+      - name: Set up NPM cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
+      - run: npm ci
+      - run: npm run test:fmt

@@ -5651,4 +5651,4 @@ namespace main
 	enterEventMode();
 	renderCredits();
 }
-`
+`;

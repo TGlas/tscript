@@ -1,8 +1,8 @@
-export class Options{
-    public checkstyle:boolean = false;
-    public maxstacksize:number = 10000;
+export class Options {
+	public checkstyle: boolean = false;
+	public maxstacksize: number = 10000;
 
-    public constructor(){}
+	public constructor() {}
 }
 
 export const defaultOptions = new Options();

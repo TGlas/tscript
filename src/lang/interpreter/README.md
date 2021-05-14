@@ -1,5 +1,5 @@
-
 # Interpreter
+
 The "interpreter" class executes a parsed program.
 
 The interpreter is built around a call stack. This stack

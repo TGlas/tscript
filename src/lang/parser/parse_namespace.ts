@@ -6,22 +6,24 @@ import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
 
 // Parse a namespace declaration.
-export function parse_namespace(state, parent, options)
-{
+export function parse_namespace(state, parent, options) {
 	// handle "namespace" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(token.type === "keyword" && token.value === "namespace", "[parse_namespace] internal error");
+	ErrorHelper.assert(
+		token.type === "keyword" && token.value === "namespace",
+		"[parse_namespace] internal error"
+	);
 
 	// check the parent
-	if (parent.petype !== "global scope" && parent.petype !== "namespace") state.error("/syntax/se-63");
+	if (parent.petype !== "global scope" && parent.petype !== "namespace")
+		state.error("/syntax/se-63");
 
 	// display name prefix
 	let prefix = "";
 	{
 		let p = parent;
-		while (p.petype === "namespace")
-		{
+		while (p.petype === "namespace") {
 			prefix = p.name + "." + prefix;
 			p = p.parent;
 		}
@@ -33,45 +35,63 @@ export function parse_namespace(state, parent, options)
 	let nname = token.value;
 
 	// check namespace name
-	if (options.checkstyle && ! state.builtin() && nname[0] >= 'A' && nname[0] <= 'Z')
-	{
+	if (
+		options.checkstyle &&
+		!state.builtin() &&
+		nname[0] >= "A" &&
+		nname[0] <= "Z"
+	) {
 		state.error("/style/ste-3", ["namespace", nname]);
 	}
 
 	// obtain the named object corresponding to the namespace globally across instances
-	let global_nspace:any = null;
-	if (parent.names.hasOwnProperty(nname))
-	{
+	let global_nspace: any = null;
+	if (parent.names.hasOwnProperty(nname)) {
 		// extend the existing namespace
 		global_nspace = parent.names[nname];
-		if (global_nspace.petype !== "namespace") state.error("/name/ne-19", [nname]);
-	}
-	else
-	{
+		if (global_nspace.petype !== "namespace")
+			state.error("/name/ne-19", [nname]);
+	} else {
 		// create the namespace
-		global_nspace = { "petype": "namespace", "parent": parent, "name": nname, "displayname": prefix + nname, "names": {}, "declaration": true };
+		global_nspace = {
+			petype: "namespace",
+			parent: parent,
+			name: nname,
+			displayname: prefix + nname,
+			names: {},
+			declaration: true,
+		};
 		parent.names[nname] = global_nspace;
 	}
 
 	// create the local namespace PE instance containing the commands
-	let local_nspace = { "petype": "namespace", "where": where, "parent": parent, "names": global_nspace.names, "commands": new Array(), "name": nname, "displayname": prefix + nname, "step": scopestep, "sim": simfalse };
+	let local_nspace = {
+		petype: "namespace",
+		where: where,
+		parent: parent,
+		names: global_nspace.names,
+		commands: new Array(),
+		name: nname,
+		displayname: prefix + nname,
+		step: scopestep,
+		sim: simfalse,
+	};
 
 	// parse the namespace body
 	token = Lexer.get_token(state, options);
-	if (token.type !== "grouping" || token.value !== '{') state.error("/syntax/se-40", ["namespace declaration"]);
+	if (token.type !== "grouping" || token.value !== "{")
+		state.error("/syntax/se-40", ["namespace declaration"]);
 	state.indent.push(-1 - token.line);
-	while (true)
-	{
+	while (true) {
 		// check for end-of-body
 		token = Lexer.get_token(state, options, true);
-		if (token.type === "grouping" && token.value === '}')
-		{
+		if (token.type === "grouping" && token.value === "}") {
 			state.indent.pop();
-			if (options.checkstyle && ! state.builtin())
-			{
+			if (options.checkstyle && !state.builtin()) {
 				let indent = state.indentation();
 				let topmost = state.indent[state.indent.length - 1];
-				if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
+				if (topmost >= 0 && topmost !== indent)
+					state.error("/style/ste-2");
 			}
 			Lexer.get_token(state, options);
 			break;
@@ -79,7 +99,8 @@ export function parse_namespace(state, parent, options)
 
 		// parse sub-declarations
 		let sub = parse_statement_or_declaration(state, local_nspace, options);
-		if (sub.hasOwnProperty("name")) sub.displayname = prefix + nname + "." + sub.name;
+		if (sub.hasOwnProperty("name"))
+			sub.displayname = prefix + nname + "." + sub.name;
 		local_nspace.commands.push(sub);
 	}
 

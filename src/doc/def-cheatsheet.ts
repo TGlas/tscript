@@ -1,10 +1,10 @@
 import { Documentation } from ".";
 
-export const doc_cheatsheet:Documentation = {
-"id": "cheatsheet",
-"name": "Cheat Sheet",
-"title": "Cheat Sheet",
-"content": `
+export const doc_cheatsheet: Documentation = {
+	id: "cheatsheet",
+	name: "Cheat Sheet",
+	title: "Cheat Sheet",
+	content: `
 	<div class="flex">
 	<table class="nicetable">
 	<tr><th><a href="?doc#/language/expressions/literals">literals</a></th><th>example</th></tr>
@@ -92,5 +92,5 @@ export const doc_cheatsheet:Documentation = {
 	</table>
 	</div>
 `,
-"children": [],
+	children: [],
 };
