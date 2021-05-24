@@ -526,8 +526,8 @@ export const doc_language:Documentation = {
 			<p>
 			Variables are declared with following syntax:
 			<ebnf>
-				var-decl = "var" single-var { "," single-var } ";" ;
-				  single-var = identifier [ "=" expression ] ;
+				var-decl = "var" single-var { "," single-var } ";" ;    "# var ex, am, ple;"
+				  single-var = identifier [ "=" expression ] ;          "# ex = 1, am, ple"
 			</ebnf>
 			They are referenced by their name.
 			</p>
@@ -545,7 +545,7 @@ export const doc_language:Documentation = {
 			can change during runtime.
             <tscript>
                 var a = "this is a string";
-                a = 45;                         #this is now an integer
+                a = 45;                         # a is now an integer
             </tscript>
 			If a variable is not initialized (like <code class="code">a</code>
 			in the above example), then it is implicitly set to
@@ -568,8 +568,22 @@ export const doc_language:Documentation = {
 			appear on the right hand side, referring to the old value before
 			the actual assignment takes place:
 			<tscript>
-				var x = 3;       # initialization
-				x = 2 * x + 1;   # assignment
+				var x = 3;              # initialization
+				x = 2 * x + 1;          # assignment
+
+                var a = [0, 1, 2];
+                var b = a;
+
+                print(b);               # prints [0, 1, 2]
+                a.push(3);
+                print(b);               # prints [0, 1, 2, 3] ==> b is a reference to a, not a copy
+
+                var c = [0, 1, 2];
+                var d = deepcopy(c);
+
+                print(d);               # prints [0, 1, 2]
+                c.push(3);
+                print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			</tscript>
 			</p>
 			<p>
@@ -579,12 +593,32 @@ export const doc_language:Documentation = {
 			They are initialized to a value provided by the function
 			call or to their default value, if present. Default values
 			are limited to constant expressions.
+            <tscript>
+            function example(a = 2) {       # 2 is the default value for a
+                return a;
+            }
+
+            print(example());               # prints 2
+
+            print(example(3));              # prints 3
+            </tscript>
 			</p>
 			<p>
 			Variables inside classes are called attributes. These variables
 			can be initialized, but the initializer must evaluate to a
 			constant. Variable that should be initialized to a value
 			computed at runtime can be set in the constructor.
+            <tscript>
+            class example {
+                private:
+                    var x = 2;              # has to be a constant
+                    var y;
+                public:
+                    constructor(a) {
+                        y = a;              # if you want to enable dynamic initialisation of y
+                    }
+            }
+            </tscript>
 			</p>
 			<p>
 			Closure parameters are somewhere in between the above two cases.
@@ -601,6 +635,14 @@ export const doc_language:Documentation = {
 				<li>Local variables are declared in a non-global non-class scope, or as parameters of a function or closure. They are available inside their defining scope, or for closure parameters, inside the function body. After the scope is left they "go out of scope" and cannot be accessed any more.</li>
 				<li>Attributes are declared in a class scope. Non-static attributes are part of an object, and hence their lifetime is bound to the lifetime of the object.</li>
 			</ul>
+            <tscript do-not-run>
+            var x = 1;                      # global declaration
+            {
+                print(x);                   # works
+                var y = 2;                  # local declaration
+            }
+            print(y);                       # does not work
+            </tscript>
 			It may seem at first glance that binding a variable to a closure extends its lifetime to the lifetime of the closure. This is not the case. Instead, values are <i>copied</i> into closure parameters, which are independent variables, as demonstrated here:
 			<tscript>
 				function f()
@@ -628,11 +670,11 @@ export const doc_language:Documentation = {
 			<p>
 			Functions are declared with the following syntax:
 			<ebnf>
-				func-decl = "function" identifier "(" param-list ")" func-body ;
-				  param-list = [ param-decl { "," param-decl } ] ;
-				  param-decl = identifier [ "=" constant-ex ] ;
-				  constant-ex = $ expression that evaluates to a constant $ ;
-				  func-body = "{" { declaration | statement | directive } "}" ;
+				func-decl = "function" identifier "(" param-list ")" func-body ;    "# function example() {}"
+				  param-list = [ param-decl { "," param-decl } ] ;                  "# (ex, am, ple)"
+				  param-decl = identifier [ "=" constant-ex ] ;                     "# ex or ex = 1"
+				  constant-ex = $ expression that evaluates to a constant $ ;       
+				  func-body = "{" { declaration | statement | directive } "}" ;     "# { . . . }"
 			</ebnf>
 			It is referenced by its name, and invoked by
 			<a href="?doc#/language/expressions/function-calls">providing
@@ -679,8 +721,8 @@ export const doc_language:Documentation = {
 			<p>
 			A class is declared with the following syntax:
 			<ebnf>
-				class-decl = "class" identifier [ ":" name ] class-body ;
-				  class-body = "{" "}" | "{" visibility { visibility
+				class-decl = "class" identifier [ ":" name ] class-body ;               
+				  class-body = "{" "}" | "{" visibility { visibility                    
 				                                        | constructor
 				                                        | [ "static" ] declaration
 				                                        | directive }
@@ -704,8 +746,13 @@ export const doc_language:Documentation = {
 						var m_radius = 0;
 
 					public:
-						constructor(radius)
-						{ m_radius = radius; }
+                        # constructor() {                             # standard constructor, gets called by "var c = Circle()" and sets m_radius by default to 1
+                        #    m_radius = 1;       
+                        # }
+						constructor(radius)                           # alternate constructor, gets called by "var c = Circle(5)" and sets m_radius to handed value
+						{ 
+                            m_radius = radius; 
+                        }
 						function radius()
 						{ return m_radius; }
 						function area()
