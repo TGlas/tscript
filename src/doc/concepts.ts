@@ -160,8 +160,15 @@ export const doc_concepts:Documentation = {
 		denoted with square brackets and dictionaries with curly braces.
 		Dictionary keys can be identifiers or strings:
 		<tscript>
-			var a = [2, 3, 5, 7, 11];         # an array
-			var d = {name: "John", age: 25};  #* a dictionary *#
+            var n = null;                                       # null
+            var i = 25;                                         # an integer
+            var r = 2.0;                                        # a real
+            var b = false;                                      # a boolean
+            var s = "string";                                   # a string
+            var g = 1:10;                                       # a range
+            function add(a, b) { return a+b; }; var f = add;    # a function
+			var a = [2, 3, 5, 7, 11];                           # an array
+			var d = {name: "John", age: 25};                    #* a dictionary *#
 		</tscript>
 		The above example also demonstrates line and block
 		<a href="?doc#/language/syntax/comments">comments</a>.
@@ -196,6 +203,11 @@ export const doc_concepts:Documentation = {
 				function id()
 				{ return m_id; }
 			}
+
+        
+        var name = "Dennis";
+        var age = 85;
+        var p = Person(name, age);  # p is now an instance of the data type Person
 		</tscript>
 		In contrast to many other scripting languages, TScript
 		constructors are easily recognizable as such, and classes
@@ -327,6 +339,8 @@ export const doc_concepts:Documentation = {
 		<code class="code">y=i//w</code>, which justifies the way
 		integer division and modulo are defined. By induction, this
 		argument extends to <i>n</i>-dimensional grids.
+        <br>
+        <img src="images/test.png" style = "width:500px; height:200px;"/>
 		</p>
 		<p>
 		The differences between integer and floating point arithmetics
@@ -340,7 +354,7 @@ export const doc_concepts:Documentation = {
 		clear a-priori that the program will not have to handle very
 		large values. Rounding errors can cause
 		<a target="_blank" href="https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">problems</a>
-		in floating point arithmetics, but it tends to occur is contexts
+		in floating point arithmetics, but it tends to occur in contexts
 		where it is clear that we deal with reals, and experienced
 		programmers of numerically sensitive algorithms are usually
 		aware of it. Division is problematic as follows:
@@ -383,6 +397,10 @@ export const doc_concepts:Documentation = {
 		frequent and hard-to-find division bugs. This solution is of
 		course inspired by Python3.
 		</p>
+        <tscript>
+			print(1 / 3);       # prints 0.3333...
+			print(1 // 3);      # prints 0
+		</tscript>
 		<p>
 		The power operator <code class="code">^</code> is particularly
 		prone to integer overflow. However, it is rarely applied with
@@ -417,6 +435,16 @@ export const doc_concepts:Documentation = {
 		reported as errors. The mode can be enabled/disables in the
 		configuration dialog accessible through the toolbar.
 		</p>
+        <p>
+        <center>
+        <img src="images/style1.png">
+        </center>
+        </p>
+        <p>
+        <center>
+        <img src="images/style2.png">
+        </center>
+        </p>
 		<h3>Indentation</h3>
 		<p>
 		The language syntax does not enforce indentation. Quite the

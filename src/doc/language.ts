@@ -90,7 +90,12 @@ export const doc_language:Documentation = {
 			with clear semantics. Tokens can be separated by whitespace,
 			comments, other terminals, or they can be self-delimiting.
 			A sequence of input characters that does not match any of
-			the token types results in a syntax error.
+			the token types results in a syntax error. In this documentation 
+            the red-written expressions need to be replaced by the corresponding 
+            tokens. The "|" denote the logical or, "()" enclose connected tokens. 
+            "[]" express that the inner expressions are optional and therefore can 
+            be chosen zero or one times, "{}" express that the inner expressions can 
+            be chosen zero or n times.
 			</p>
 
 			<h2>Whitespace and Comments</h2>
@@ -106,9 +111,9 @@ export const doc_language:Documentation = {
 				line-feed = $ U+000D $ ;
 				comment = line-comment | block-comment ;
 				line-comment = "#" (unicode-char - "*" - line-feed)
-				                   { unicode-char - line-feed } ;
-				block-comment = "#*" { (unicode-char - "*")
-				                       | ("*" { "*" } (unicode-char - "#"))
+				                   { unicode-char - line-feed } ;                           "example: # this is a comment       "
+				block-comment = "#*" { (unicode-char - "*")                                 "example: #* this is a              "
+				                       | ("*" { "*" } (unicode-char - "#"))                 "            multiline comment *#   " 
 				                     } "*#" ;
 				unicode-char = $ any Unicode character U+0000 to U+FFFF $ ;
 			</ebnf>
@@ -118,8 +123,8 @@ export const doc_language:Documentation = {
 			<p>
 			An identifier is defined as follows:
 			<ebnf>
-				identifier = id_or_key - keyword ;
-				id_or_key = (letter | "_") { letter | digit | "_" } ;
+				identifier = id_or_key - keyword ;                                          "example: _x, x, X, x2 are correct identifiers  "
+				id_or_key = (letter | "_") { letter | digit | "_" } ;                       "example: 2X, 3x, var  are incorrect identifiers"
 				letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
 				       | "H" | "I" | "J" | "K" | "L" | "M" | "N"
 				       | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
@@ -155,9 +160,9 @@ export const doc_language:Documentation = {
 			<p>
 			A real must contain a fractional part, or an exponent, or both:
 			<ebnf>
-				real = integer "." integer
-					 | integer ("e" | "E") [ "+" | "-" ] integer
-				     | integer "." integer ("e" | "E") [ "+" | "-" ] integer ;
+				real = integer "." integer                                                  "example: 2.523                     "
+					 | integer ("e" | "E") [ "+" | "-" ] integer                            "example: 1e2, 1e-5                 "
+				     | integer "." integer ("e" | "E") [ "+" | "-" ] integer ;              "example: 1.5e3                     "
 			</ebnf>
 			</p>
 
@@ -325,8 +330,17 @@ export const doc_language:Documentation = {
 			For example, when encountering the sequence of tokens
 			<code class="code">{(</code> then <code class="code">)</code> is fine, while
 			encountering <code class="code">}</code> first indicates a syntax error.
-			</p>
-		`,
+			<tscript do-not-run>
+{
+    ()
+}           # this is okay
+
+{
+    (
+} )         # this is not
+			</tscript>
+            </p>
+        `,
 		"children": []},
 		{"id": "EBNF-syntax",
 		"name": "Complete EBNF Syntax",
@@ -529,6 +543,10 @@ export const doc_language:Documentation = {
 			At each time, a variable references exactly one value. Variables
 			are untyped; they can refer to a values of any type, and the type
 			can change during runtime.
+            <tscript>
+                var a = "this is a string";
+                a = 45;                         #this is now an integer
+            </tscript>
 			If a variable is not initialized (like <code class="code">a</code>
 			in the above example), then it is implicitly set to
 			<keyword>null</keyword>. Therefore the following two statements
