@@ -738,31 +738,30 @@ export const doc_language:Documentation = {
 			<div class="example">
 				<h3>Example</h3>
 				<tscript>
-					class Circle
-					{
-						use namespace math;
+class Circle
+{
+    use namespace math;
 
-					private:
-						var m_radius = 0;
+	private:
+		var m_radius = 0;
 
-					public:
-                        # constructor() {                             # standard constructor, gets called by "var c = Circle()" and sets m_radius by default to 1
-                        #    m_radius = 1;       
-                        # }
-						constructor(radius)                           # alternate constructor, gets called by "var c = Circle(5)" and sets m_radius to handed value
-						{ 
-                            m_radius = radius; 
-                        }
-						function radius()
-						{ return m_radius; }
-						function area()
-						{ return pi() * m_radius * m_radius; }
-					}
+    public:
+        # constructor() {                             # standard constructor, gets called by "var c = Circle()" and sets m_radius by default to 1
+        #    m_radius = 1;       
+        # }
+		constructor(radius)                           # alternate constructor, gets called by "var c = Circle(5)" and sets m_radius to handed value
+		{ 
+            m_radius = radius; 
+        }
+		function radius()
+		{ return m_radius; }
+		function area()
+    	{ return pi() * m_radius * m_radius; }
+}
 
-					var c = Circle(3);
-					print("The circle has radius " + c.radius() +
-							" and area " + c.area() + ".");
-				</tscript>
+var c = Circle(3);
+print("The circle has radius " + c.radius() + " and area " + c.area() + ".");
+    			</tscript>
 			</div>
 
 			<h2>The Constructor</h2>
@@ -910,40 +909,48 @@ export const doc_language:Documentation = {
 			This can be achieved with a special syntax for the constructor and for
 			names based on the <keyword>super</keyword> keyword, as follows:
 			<tscript>
-				class Person
-				{
-				private:
-					var m_name;
-					var m_address;
+class Person
+{
+	private:                                                            
+		var m_name;         
+		var m_address;                                                      # m_name and m_address can only be accessed in Person
 
-				public:
-					constructor(name, address)
-					{
-						m_name = name;
-						m_address = address;
-					}
+    protected:
+        var m_example = 1;                                                  # m_example can be accessed in Person and in Person's heirs
 
-					function description()
-					{ return "name: " + m_name + "\\naddress: " + m_address + "\\n"; }
-				}
+	public:
+		constructor(name, address)
+		{
+			m_name = name;
+			m_address = address;
+		}
 
-				class Customer : Person
-				{
-				private:
-					var m_customerID;
+		function description()
+		{ return "name: " + m_name + "\\naddress: " + m_address + "\\n"; }  # the constructor and the function description can be accessed from anywhere
+}
 
-				public:
-					constructor(id, name, address)
-					: super(name, address)
-					{ m_customerID = id; }
+class Customer : Person
+{
+	private:
+		var m_customerID;
 
-					function description()
-					{ return "id: " + m_customerID + "\\n" + super.description(); }
-				}
+    public:
+		constructor(id, name, address):super(name, address)
+		{ m_customerID = id; }
 
-				var c = Customer("1357", "Joe", "city center");
-				print(c.description());
-			</tscript>
+		function description()
+		{
+            # print(super.m_name);                                            # this does not work, since m_name is not visible in this slope
+
+            print(super.m_example);                                           # this does work, since m_example is protected and therefore visible for Customer
+
+            return "id: " + m_customerID + "\\n" + super.description(); 
+        }
+}
+
+var c = Customer("1357", "Joe", "city center");
+print(c.description());
+            </tscript>
 			</p>
 		`,
 		"children": []},
@@ -959,8 +966,8 @@ export const doc_language:Documentation = {
 			Namespaces are declared with the following syntax:
 			<p>
 			<ebnf>
-				namespace-decl = "namespace" identifier namespace-body ;
-				  namespace-body = "{" { declaration | statement | directive } "}" ;
+				namespace-decl = "namespace" identifier namespace-body ;                    "# namespace example {}"
+				  namespace-body = "{" { declaration | statement | directive } "}" ;        "# { . . . }"
 			</ebnf>
 			Namespaces can only be declared at global scope or within other
 			namespaces. However, the same namespace can be declared multiple
