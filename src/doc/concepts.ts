@@ -340,7 +340,9 @@ export const doc_concepts:Documentation = {
 		integer division and modulo are defined. By induction, this
 		argument extends to <i>n</i>-dimensional grids.
         <br>
-        <img src="images/test.png" style = "width:500px; height:200px;"/>
+        <center>
+        <img src="images/arrays.png"/>
+        </center>
 		</p>
 		<p>
 		The differences between integer and floating point arithmetics

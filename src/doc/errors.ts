@@ -126,7 +126,14 @@ export const doc_errors:Documentation = {
 			must end within a single line. This error indicates that the
 			closing double quotes character was not found before the end
 			of the line.
-			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript do-not-run>
+# var s = "This string should have ended
+# in the line before";                         # error
+            </tscript>
+        </div>
+            </p>
 		`,
 		"children": []},
 		{"id": "se-3",
@@ -240,7 +247,7 @@ export const doc_errors:Documentation = {
 			an identifier is missing at the end.
 			</p>
 		`,
-		"children": []},
+//		"children": []},
 //		{"id": "se-12",
 //		"content": `
 //			<p>
@@ -249,7 +256,7 @@ export const doc_errors:Documentation = {
 //			of the inner class is unrelated.
 //			</p>
 //		`,
-//		"children": []},
+		"children": []},
 		{"id": "se-13",
 		"content": `
 			<p>
@@ -304,7 +311,7 @@ export const doc_errors:Documentation = {
 			<div class="example">
 				<h3>Example</h3>
 				<tscript>
-				function f(a, b=0, c=0) { /*...*/ }
+				function f(a, b=0, c=0) {  }
 				f(7, c=2);      # okay
 				# f(b=2, 6);    # error
 				</tscript>
@@ -482,6 +489,17 @@ export const doc_errors:Documentation = {
 			enclosed in square brackets. In other words, a comma or a closing bracket
 			must follow each variable or expression, otherwise this error is reported.
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript do-not-run>
+var array = [0, 1, 2, 3, 4, 5];
+function example(index) {
+    return function [index () {         # here the error occurs, because behind index a comma or closing bracket is expected
+        return array[index];
+    };
+}
+            </tscript>
+        </div>
 		`,
 		"children": []},
 		{"id": "se-32",
@@ -515,6 +533,16 @@ export const doc_errors:Documentation = {
 			variables enclosed in square brackets or by a parameter list in
 			enclosed parentheses, otherwise this error is emitted.
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript do-not-run>
+var array = [0, 1, 2, 3, 4, 5];
+function example(index) {
+    return function index] () {         # here the error occurs, because behind index a comma or closing bracket is expected
+        return array[index];
+    };
+}
+            </tsc
 		`,
 		"children": []},
 		{"id": "se-36",
@@ -814,7 +842,8 @@ export const doc_errors:Documentation = {
 		"content": `
 			<p>
 			The <a href="?doc#/language/declarations/classes">constructor of a class</a>
-			must be unique, it cannot be overloaded. Remove all but one constructor
+			must be unique, it cannot be overloaded. This is explicitely different from other
+            languages Remove all but one constructor
 			to fix this error.
 			</p>
 		`,
@@ -1487,6 +1516,28 @@ export const doc_errors:Documentation = {
 			Array.sort. Given two items as arguments, this function must
 			return a numeric value. If the value is non-numeric, then this
 			error is reported.
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var arr = [1, 4, 2, 3];
+
+function order1(a, b) {
+    if (a<=b) then return -1; 
+}
+
+function order2(a, b) {
+    if (a<=b) then return -1; else return 1;
+}
+
+function order3(a, b) {
+    if (a<=b) then return "-1"; else return "1";
+}
+
+# print(arr.sort(order1));                      # error - if a>b the order function returns Null, but sort expects a number
+print(arr.sort(order2));                        # works fine
+# print(arr.sort(order3));                      # error - the order function returns String, but sort expects a number
+            </tscript>
+        </div>
 			</p>
 		`,
 		"children": []},
@@ -2266,6 +2317,14 @@ export const doc_errors:Documentation = {
 			The library function <a href="?doc#/library/core">assert</a> can be
 			called in order to report an error in case a condition is violated.
 			The error is reported by user or library code, not by the core language.
+            <div class="example">
+            <h3>Example</h3>
+            <tscript do-not-run>
+var a = 1;
+
+assert(a==2);           # this throws a runtime-assertion failed error
+            </tscript>
+        </div>
 			</p>
 		`,
 		"children": []},
@@ -2275,6 +2334,13 @@ export const doc_errors:Documentation = {
 			The library function <a href="?doc#/library/core">error</a> can be
 			called in order to report an error. The error is reported by user
 			or library code, not by the core language.
+            <div class="example">
+            <h3>Example</h3>
+            <tscript do-not-run>
+if (not ... ) then 
+    error("condition was not fulfilled");           # this throws a runtime error
+            </tscript>
+        </div>
 			</p>
 		`,
 		"children": []},
@@ -2286,6 +2352,22 @@ export const doc_errors:Documentation = {
 			the program stops and this error message is reported. This is often
 			unintended by the programmer and hints at an internal error that
 			should be fixed.
+            <div class="example">
+            <h3>Example</h3>
+            <tscript do-not-run>
+var arr = [0, 1, 2, 3, 4, 5, 6];
+
+try {
+    for var i in 0:10 do {
+        if (i >= arr.size())
+            then throw(i);
+    }
+}
+catch var ex do {                               # an error occurs if this catch block'd be missing
+    print(ex + " is too big for array!");
+}
+            </tscript>
+        </div>
 			</p>
 		`,
 		"children": []},

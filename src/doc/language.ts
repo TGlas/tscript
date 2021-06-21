@@ -568,22 +568,22 @@ export const doc_language:Documentation = {
 			appear on the right hand side, referring to the old value before
 			the actual assignment takes place:
 			<tscript>
-				var x = 3;              # initialization
-				x = 2 * x + 1;          # assignment
+var x = 3;              # initialization
+x = 2 * x + 1;          # assignment
 
-                var a = [0, 1, 2];
-                var b = a;
+var a = [0, 1, 2];
+var b = a;
 
-                print(b);               # prints [0, 1, 2]
-                a.push(3);
-                print(b);               # prints [0, 1, 2, 3] ==> b is a reference to a, not a copy
+print(b);               # prints [0, 1, 2]
+a.push(3);
+print(b);               # prints [0, 1, 2, 3] ==> b is a reference to a, not a copy
 
-                var c = [0, 1, 2];
-                var d = deepcopy(c);
+var c = [0, 1, 2];
+var d = deepcopy(c);
 
-                print(d);               # prints [0, 1, 2]
-                c.push(3);
-                print(d);               # prints [0, 1, 2] ==> d only copied the value of c
+print(d);               # prints [0, 1, 2]
+c.push(3);
+print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			</tscript>
 			</p>
 			<p>
@@ -1279,15 +1279,22 @@ print(c.description());
 				<div class="example">
 					<h3>Example</h3>
 					<tscript>
-						var a = 4;             # not a real, but an integer
-						var b = 4.0;           # real literal representing 4
-						var c = 4e0;           # real literal representing 4
-						var d = 400e-2;        # real literal representing 4
-						var e = 0.04e2;        # real literal representing 4
-						var f = -123.456e+78;  # negated literal 123.456e+78
-						var g = 1E1000;        # overflow to infinity
-						var h = 1E-1000;       # underflow to zero
-						var pi = 3.1415926535897931;   # full precision literal
+var a = 4;                      # not a real, but an integer
+var b = 4.0;                    # real literal representing 4
+var c = 4e0;                    # real literal representing 4
+var d = 400e-2;                 # real literal representing 4
+var e = 0.04e2;                 # real literal representing 4
+var f = -123.456e+78;           # negated literal 123.456e+78
+var g = 1E1000;                 # overflow to infinity
+var h = 1E-1000;                # underflow to zero
+var pi = 3.1415926535897931;    # full precision literal
+
+var inf = Real.inf();           # sets inf to Infinite
+var nan = Real.nan();           # sets nan to NaN
+
+print(inf.isInfinite());        # prints true
+print(nan.isNan());             # prints true
+
 					</tscript>
 				</div>
 			`,
@@ -1308,7 +1315,7 @@ print(c.description());
 				<a href="?doc#/language/syntax/character-set">character</a>
 				in between the double quotes is a part of the text
 				belonging to the string literal, with one exception: the
-				backslash '\' acts as a so-called escape character. This
+				backslash '\\' acts as a so-called escape character. This
 				character introduces an escape sequence with a special
 				meaning, as follows:
 				</p>
@@ -1326,16 +1333,17 @@ print(c.description());
 				<div class="example">
 					<h3>Example</h3>
 					<tscript>
-						print("hello world");
-						print("this string prints "
-						        "on a single line");
-						print("this string prints\\non two lines");
-						print("a quote \\"Alea iacta est!\\" inside a string");
-						print("escaped Euro sign: \\u20AC");
-						print("multi "
-						      "line "
-						      "string "
-						      "literal");
+print("hello world");                                       # prints: hello world
+print("this string prints "                                 # prints: this string prints on a single line
+        "on a single line");
+print("this string prints\\non two lines");                 # prints: this string prints
+                                                            #         on two lines
+print("a quote \\"Alea iacta est!\\" inside a string");     # prints: a quote "Alea iacta est!" inside a string
+print("escaped Euro sign: \\u20AC");                        # prints: escaped Euro sign: \u20AC
+print("multi "                                              # prints: multi line string literal
+      "line "
+      "string "
+      "literal");
 					</tscript>
 				</div>
 			`,
@@ -1363,6 +1371,11 @@ print(c.description());
 						var d = [c, 7*b[0], 2^10];
 					</tscript>
 				</div>
+                <p>
+                <center>
+                <img src="images/arrayLiterals.png">
+                </center>
+                </p>
 				<p>
 				If all items are constants, then the whole array is a constant.
 				</p>
@@ -1455,16 +1468,24 @@ print(c.description());
 				<div class="example">
 					<h3>Example</h3>
 					<tscript>
-						function createAreaCalculator(radius)
-						{
-							var square = radius * radius;
-							return function [square] ()
-								{
-									return math.pi() * square;
-								};  # the semicolon terminates the first return statement
-						}
-						var lambda = createAreaCalculator(3);
-						print(lambda());   # prints 9*pi = 28.2743...
+function createAreaCalculator(radius)
+{
+	var square = radius * radius;
+	return function [square] ()                 # this is the anonymous function
+		{
+			return math.pi() * square;
+		};  # the semicolon terminates the first return statement
+}
+var lambda = createAreaCalculator(3);
+print(lambda());   # prints 9*pi = 28.2743...
+
+# function doesNotWork()
+# {
+#    return function [square] ()                # square is unknown
+#       {
+#           return math.pi() * square;
+#       };
+# }
 					</tscript>
 				</div>
 				<p>
@@ -1535,6 +1556,13 @@ print(c.description());
 				Note: For an integer x, <code class="code">(not x)</code> is
 				equivalent to <code class="code">(-1 - x)</code>.
 				</p>
+                <div class="example">
+					<h3>Example</h3>
+					<tscript do-not-run>
+20 in binary:       00000000 00000000 00000000 00010100
+not 20 in binary:   11111111 11111111 11111111 11101011
+                    </tscript>
+				</div>
 			`,
 			"children": []},
 			{"id": "plus",
@@ -1549,6 +1577,16 @@ print(c.description());
 				<a href="?doc#/language/types/real">Real</a>, the operator reports an
 				error.
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript>
+var example = 5;
+print(+example);    # prints 5
+
+example = 2.5;
+print(+example);    # prints 2.5
+                </tscript>
+            </div>
 			`,
 			"children": []},
 			{"id": "minus",
@@ -1568,9 +1606,15 @@ print(c.description());
 				then the operator is subject to integer overflow. Overflow happens
 				only in a single case:
 				<tscript>
-					var a = -2^31;
-					print(a);        # -2147483648
-					print(-a);       # -2147483648 due to overflow
+var example = 5;
+print(-example);    # prints -5;
+
+example = -2.5;
+print(-example);    # prints 2.5;
+
+example = -2^31;
+print(example);        # -2147483648
+print(-example);       # -2147483648 due to overflow
 				</tscript>
 				</p>
 			`,
@@ -1614,6 +1658,18 @@ print(c.description());
 				and dictionary containers and ranges this usually gives the desired
 				result.
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript do-not-run>
+print("ex" + "ample");          # prints "example"
+print("ex" + 4 + "mple");       # prints "ex4mple"
+print("this is " + true);       # prints "this is true"
+print(3 + 4);                   # prints 7
+print(3.5 + 2.5);               # prints 6
+print(3.5 + 4);                 # prints 7.5
+print(5.5 + true);              # error
+                </tscript>
+            </div>
 			`,
 			"children": []},
 			{"id": "subtraction",
@@ -1634,6 +1690,15 @@ print(c.description());
 				only in the first case the result is an integer. The corresponding
 				overflow rules apply.
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript do-not-run>
+print(4 - 3);                   # prints 1
+print(3.5 - 2.5);               # prints 1.0
+print(4.5 - 4);                 # prints 0.5
+print(5.5 - true);              # error
+                </tscript>
+            </div>
 			`,
 			"children": []},
 			{"id": "multiplication",
@@ -1654,6 +1719,15 @@ print(c.description());
 				only in the first case the result is an integer. The corresponding
 				overflow rules apply.
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript do-not-run>
+print(4 * 3);                   # prints 12
+print(3.5 * 2.5);               # prints 8.75
+print(4.5 * 4);                 # prints 20
+print(5.5 * true);              # error
+                </tscript>
+            </div>
 			`,
 			"children": []},
 			{"id": "real-division",
@@ -1672,6 +1746,15 @@ print(c.description());
 				The arguments are always treated as reals. This means that the result
 				is always a real, which can have a fractional part.
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript do-not-run>
+print(4 / 2);                   # prints 2.0
+print(6.5 / 3.25);              # prints 2.0
+print(5.2 / 4);                 # prints 1.3
+print(5.5 / true);              # error
+                </tscript>
+            </div>
 			`,
 			"children": []},
 			{"id": "integer-division",
@@ -1689,11 +1772,16 @@ print(c.description());
 				<p>
 				If both arguments are integers then the result of the division is an
 				integer. Integer division overflows only in a single case:
-				<tscript>
-					var a = -2^31;
-					print(a);        # -2147483648
-					print(a / -1);   # 2147483648 (real)
-					print(a // -1);  # -2147483648 due to overflow
+				<tscript do-not-run>
+print(4 // 3);                  # prints 1
+print(6.5 // 3.1);              # prints 2.0
+print(5.2 // 4);                # prints 1.0
+print(5.5 // true);             # error
+
+var a = -2^31;
+print(a);                       # -2147483648
+print(a / -1);                  # 2147483648 (real)
+print(a // -1);                 # -2147483648 due to overflow
 				</tscript>
 				If at least one argument is a real then the arguments are treated
 				as reals, and the result is real.
@@ -1722,6 +1810,15 @@ print(c.description());
 				operation is always in the range<br>
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="code">0 <= a % b < math.abs(b)</code></br>
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript do-not-run>
+print(5 % 2);                   # prints 1
+print(6.5 % 3.15);              # prints 0.2
+print(5.2 % 4);                 # prints 1.2
+print(5.5 % true);              # error
+                </tscript>
+            </div>
 			`,
 			"children": []},
 			{"id": "power",
@@ -1747,6 +1844,17 @@ print(c.description());
 				<a href="?doc#/library/math">math.pow</a> performs the same operation, but it always
 				applies floating point arithmetics.
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript do-not-run>
+print(2^3);                 # prints 8
+print(2^(-3));              # prints 0.125
+print(2.5^2);               # prints 6.25
+print(4^0.5);               # prints 2.0
+print(1.5^2.5);             # prints 2.75567596..
+print(5.5 / true);          # error
+                </tscript>
+            </div>
 			`,
 			"children": []},
 			{"id": "equality",
@@ -1791,6 +1899,27 @@ print(c.description());
 				built-in types are compares like these, while their attributes are
 				ignored.
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript>
+print(2 == 2.0);                        # prints true
+print(2 == "2");                        # prints false
+
+var r = [1, 2, 3];
+var s = [1.0, 2, 3];
+var t = [3, 2, 1];
+
+print(r == s);                          # prints true
+print(r == t);                          # prints false
+print(s == t);                          # prints false
+
+function a() {var a = 1; return a;}
+function b() {var b = 1; return b;}
+
+print(a == b);                          # prints false
+print(a() == b());                      # prints true
+                </tscript>
+            </div>
 
 				<h2>A Note on Infinite Recursion</h2>
 				<p>
@@ -1823,7 +1952,18 @@ print(c.description());
 				<code class="code">b &gt; a</code>, and
 				<code class="code">not a &gt;= b</code>.
 				</p>
+                <div class="example">
+                <h3>Example</h3>
+                <tscript>
+print(2 > 1.0);                         # prints true
+# print(2 > "1");                       # error
 
+var r = [1, 2, 3];
+var s = [0, 3, 4, 5, 6, 7, 8];
+
+print(r > s);                           # prints true, as the first comparison that isn't equal is >
+                </tscript>
+            </div>
 				<h2>Definition of Order and Applicability</h2>
 				<p>
 				The definition of value order depends on the type. Booleans cannot be
@@ -1932,8 +2072,8 @@ print(c.description());
 			<p>
 			A function call is an expression with the following syntax:
 			<ebnf>
-				function-call = expression "(" argument { "," argument } ")" ";" ;
-				argument = [ identifier "=" ] expression ;
+				function-call = expression "(" argument { "," argument } ")" ";" ;          # example("example");
+				argument = [ identifier "=" ] expression ;                                 
 			</ebnf>
 			The first expression must resolve to a callable object, hereafter
 			referred to as the function for short, which is a
@@ -2026,6 +2166,26 @@ print(c.description());
 			range.</li>
 			</ul>
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var s = "hello";
+print(s[2]);                    # prints 108
+print(s[1:3]);                  # prints "el"
+
+var a = [1, 2, 3, 4];
+print(a[1]);                    # prints 2
+print(a[0:3]);                  # prints [1,2,3]
+
+var d = {"example": [1,2,3]};
+print(d["example"]);            # prints [1,2,3]
+
+var r = 1:4;
+print(r[2]);                    # prints 3
+print(r[1:2]);                  # prints 2:3
+
+            </tscript>
+        </div>
 		`,
 		"children": []},
 		{"id": "member-access",
@@ -2051,6 +2211,26 @@ print(c.description());
 			<ebnf>identifier</ebnf> alone), or with
 			<a href="?doc#/language/declarations/classes">super</a>.
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+class example {
+    private:
+        var ample = "ample";
+
+    public:
+        var ex = "ex";
+        function example() {
+            print(this.ex);         # ex is public - works fine
+            print(this.ample);      # ample is private - error
+        }
+}
+
+var e = example();
+print(e.ex);                        # works fine
+# print(e.ample);                   # error
+            </tscript>
+        </div>
 		`,
 		"children": []},
 		{"id": "names",
@@ -2413,6 +2593,19 @@ print(c.description());
 			          | try-catch
 		</ebnf>
 		</p>
+        <div class="example">
+        <h3>Example</h3>
+        <tscript>
+var a = 1;      # statement
+
+for 0:3 do      # statement
+{ 
+    print(a);   # statement
+    break;      # statement
+}
+
+        </tscript>
+    </div>
 	`,
 	"children": [
 		{"id": "blocks",
@@ -2439,6 +2632,22 @@ print(c.description());
 			assigned to variables declared outside the block, and the
 			same holds for objects of locally declared classes.
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var example;
+if (true) then {
+    function ex() {
+        print("Hello World");
+    }
+
+    example = ex;
+}
+
+example();                      # works fine
+# ex();                         # does not work, since ex() is only known inside of the if then block
+            </tscript>
+        </div>
 		`,
 		"children": []},
 		{"id": "assignments",
@@ -2448,7 +2657,7 @@ print(c.description());
 			<p>
 			Assignments have the following form:
 			<ebnf>
-				assignment = lhs assign-op expression ";" ;
+				assignment = lhs assign-op expression ";" ;                         "example: var example = 28;"
 				  lhs = name
 				        | expression "[" expression "]"
 				        | expression "." identifier ;
@@ -2546,6 +2755,16 @@ print(c.description());
 			<keyword>else</keyword> is executed, if present. It is common that
 			the statements are <a href="?doc#/language/statements/blocks">blocks</a>.
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+if (true) then {}              # works
+if (3 < 5) then {}             # works
+# if (1) then {}                 # does not work
+# if ("true") then {}            # does not work
+            </tscript>
+        </div>
+            
 		`,
 		"children": []},
 		{"id": "for-loops",
@@ -2839,6 +3058,23 @@ print(c.description());
 			value. Therefore, in these contexts, a return statement must not
 			contain a return value.
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+function example() {
+    var e = 1;
+    return e+1;
+}
+
+print(example());               # prints 2, since the e+1 gets first evaluated and then returned
+
+# return 1;                     # error, since one tries to return an integer from the global scope
+
+return;                         # terminates the program
+
+print("example");               # will not be executed
+            </tscript>
+        </div>
 		`,
 		"children": []},
 		{"id": "throw",
@@ -3002,6 +3238,15 @@ print(c.description());
 			value of <keyword>null</keyword> to indicate that it was not
 			able to complete its task (for whatever reason).
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var example;
+
+if (example == null) then print("example");     # prints "example"
+# if (test == null) then print("test");         # error, since test is not defined - non defined variables are therefore not the same as null
+            </tscript>
+        </div>
 
 			<h2>Methods</h2>
 			<table class="methods">
@@ -3041,6 +3286,41 @@ print(c.description());
 			loops. Furthermore, they are frequently used as flags, and they
 			can be used to represent single bits.
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var a = true;
+var b = false;
+
+print(not a);           # prints false;
+
+print(a and a);         # prints true;
+print(a and b);         # prints false;
+print(b and b); 	    # prints true;
+
+print(a or b);          # prints true;
+print(a or a);          # prints true;
+print(b or b);          # prints false;
+
+print(a xor b);         # prints true;
+print(a xor a);         # prints false;
+print(b xor b);         # prints false;
+
+
+
+var FLAG_FOUNDITEM = false;                                     # this flag indicates if an item is already found in a search 
+
+var example_array = Array(10);
+example_array[4] = 1;
+
+for var i in 0:10 do {
+    if (example_array[i] == 1) then FLAG_FOUNDITEM = true;      # the flag is set to true, once a specific condition - in this case finding a specific item - is met
+
+    if (FLAG_FOUNDITEM) then break;                             # the flag can be checked at any location (in this example a flag isn't needed, though)
+}
+
+            </tscript>
+        </div>
 
 			<h2>Methods</h2>
 			<table class="methods">
@@ -3333,6 +3613,17 @@ print(c.description());
 				<code class="code">static nan()</code> returns not-a-number.
 			</td></tr>
 			</table>
+
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var infiniteR = Real.inf();
+
+print(infiniteR.isInfinite());      # prints true
+print(infiniteR.isFinite());        # prints false
+
+            </tscript>
+        </div>
 		`,
 		"children": []},
 		{"id": "string",
@@ -3544,6 +3835,30 @@ print(c.description());
 				concatenates two arrays. It returns the concatenated array.
 			</td></tr>
 			</table>
+
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var arr = [2, 3, 1, 4, 5, 7, 6, 8, 9];
+
+function ascending(a, b) {
+    if (a<=b) then return -1; else return 1;
+}
+
+function descending(a, b) {
+    if (a<=b) then return 1; else return -1;
+}
+
+arr.sort();
+print(arr);                                     # prints [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+arr.sort(descending);                           
+print(arr);                                     # prints [9, 8, 7, 6, 5, 4, 3, 2, 1]
+
+arr.sort(ascending);
+print(arr);                                     # prints [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            </tscript>
+        </div>
 		`,
 		"children": []},
 		{"id": "dictionary",
@@ -3638,6 +3953,16 @@ print(c.description());
 			</td></tr>
 			</table>
 			</table>
+
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var dict1 = {a: 1, b: 1};
+var dict2 = {b: 2, c: 2};
+
+print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
+            </tscript>
+        </div>
 		`,
 		"children": []},
 		{"id": "function",

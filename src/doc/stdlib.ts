@@ -48,6 +48,20 @@ export const doc_stdlib:Documentation = {
 		<tr><th>same</th><td>
 			The <code class="code">function same(first, second)</code> tests
 			whether its arguments refer to the same object.
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var a = 1;
+var b = a;
+var c = deepcopy(a);
+var d = 1;
+
+print(same(a, b));      # prints true;
+print(same(a, c));      # prints true;
+print(same(a, d));      # prints false;
+print(same(a, 1));      # prints false;
+            </tscript>
+        </div>
 		</td></tr>
 		<tr><th>version</th><td>
 			The <code class="code">function version()</code> returns a
@@ -83,6 +97,14 @@ export const doc_stdlib:Documentation = {
 			value of <code class="code">true</code> or
 			<code class="code">false</code>, respectively. The program
 			continues after the user has processed the message box.
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var confirmed = confirm("Print Hello World?");
+
+if (confirmed) then print("Hello World");       # if user confirms, the program prints "Hello World", else nothing
+            </tscript>
+        </div>
 		</td></tr>
 		<tr><th>prompt</th><td>
 			The <code class="code">function prompt(text)</code> opens a
@@ -91,6 +113,14 @@ export const doc_stdlib:Documentation = {
 			input a string in response, which is returned by the function.
 			The program continues after the user has processed the message
 			box.
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var s = prompt("Tell me what to print");
+
+print(s);                                       # prints the input given by the user
+            </tscript>
+        </div>
 		</td></tr>
 		<tr><th>wait</th><td>
 			The <code class="code">function wait(ms)</code> delays program
@@ -148,6 +178,19 @@ export const doc_stdlib:Documentation = {
 				<li>It must not contain a loop, i.e., contain a value as its own sub-value.</li>
 			</ul>
 			</p>
+            <div class="example">
+            <h3>Example</h3>
+            <tscript>
+var a = [0, 1, 2];
+var b = a;
+var c = deepcopy(a);
+
+a.push(3);
+
+print(b);               # prints [0, 1, 2, 3], since it's a reference
+print(c);               # prints [0, 1, 2], since it's a copy
+            </tscript>
+        </div>
 		</td></tr>
 		<tr><th>setEventHandler</th><td>
 			The <code class="code">function setEventHandler(event, handler)</code>
@@ -208,7 +251,8 @@ export const doc_stdlib:Documentation = {
 		The <code class="code">namespace math</code> contains a number
 		of functions computing powers, logarithms, trigonometric and
 		hyperbolic functions. Unless stated differently, all functions
-		operate on real numbers, and integers are converted to reals.
+		operate on real numbers, and integers are converted to reals. 
+        All trigonometric functions work with Radian.
 		</p>
 		<table class="methods">
 		<tr><th>pi</th><td>
@@ -408,6 +452,25 @@ export const doc_stdlib:Documentation = {
 			<i>down</i> is false and lowers the pen if <i>down</i> is true.
 		</td></tr>
 		</table>
+        <div class="example">
+        <h3>Example</h3>
+        <tscript>
+turtle.pen(true);           # lift the pen down
+turtle.move(50);            # black line upwards
+turtle.color(1,0,0);        # turn color red
+turtle.turn(90);            # turn 90 degrees clockwise
+turtle.move(50);            # red line to the right
+turtle.color(0,1,0);        # turn color green
+turtle.turn(90);            # turn 90 degress clockwise
+turtle.move(50);            # green line downwards
+turtle.color(0,0,1);        # turn color blue
+turtle.turn(90);            # turn 90 degrees clockwise
+turtle.move(50);            # blue line to the left
+        </tscript>
+        <center>
+        <img src="images/turtle.png">
+        </center>
+    </div>
 	`,
 	"children": [
 	]},
@@ -571,7 +634,21 @@ export const doc_stdlib:Documentation = {
 			current text alignment, using the current font and fill color.
 		</td></tr>
 		</table>
+        <div class="example">
+        <h3>Example</h3>
+        <tscript>
+var points = [[10, 10],[100, 10],[100, 100],[55, 150],[10, 100]];   # array with corners of the polygon
 
+canvas.setLineColor(1,0,0);                                         # sets the Linecolor to red
+canvas.curve(points, true);                                         # draws a connection between the points of the array points
+        
+canvas.setFillColor(0,0,1);                                         # sets the Fillcolor to blue
+canvas.fillArea(points);                                            # fills the area surrounded by the points of the array points
+        </tscript>
+        <center>
+        <img src="images/canvas.png">
+        </center>
+    </div>        
 		<h3>Transformations</h3>
 		<table class="methods">
 		<tr><th>reset</th><td>
@@ -579,26 +656,41 @@ export const doc_stdlib:Documentation = {
 			transformation. Afterwards the origin of the coordinate system is
 			the top left corner, with axes extending to the right and to the
 			bottom.
+            <center>
+            <img src ="images/canvasNormal.png">
+            </center>
 		</td></tr>
 		<tr><th>shift</th><td>
 			The <code class="code">function shift(dx, dy)</code> translates
 			the origin of the coordinate system by the vector (dx, dy).
+            <center>
+            <img src ="images/canvasShift.png">
+            </center>
 		</td></tr>
 		<tr><th>scale</th><td>
 			The <code class="code">function scale(factor)</code> scales the
 			coordinate system by the given factor.
+            <center>
+            <img src ="images/canvasScale.png">
+            </center>
 		</td></tr>
 		<tr><th>rotate</th><td>
 			The <code class="code">function rotate(angle)</code> rotates the
 			coordinate system clockwise by the given angle. The angle is given
 			in radians, i.e., a full rotation corresponds to the angle
 			<code class="code">2 * math.pi()</code>.
+            <center>
+            <img src ="images/canvasRotate.png">
+            </center>
 		</td></tr>
 		<tr><th>transform</th><td>
 			The <code class="code">function transform(A, b)</code> transforms
 			coordinates (x, y) into new coordinates A (x, y) + b, where A is
 			the 2x2 matrix <code class="code">[[A11, A12], [A21, A22]]</code>
 			and b is the vector <code class="code">[b1, b2]</code>.
+            <center>
+            <img src ="images/canvasTransformed.png">
+            </center>
 		</td></tr>
 		</table>
 
