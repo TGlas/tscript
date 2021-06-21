@@ -14,7 +14,7 @@
   "devDependencies": {
     "@interactjs/types": "^1.10.2",
     "@types/chai": "^4.2.14",
-    "@types/lodash": "^4.17.21",
+    "@types/lodash": "^4.14.167",
     "@types/mocha": "^8.2.0",
     "chai": "^4.2.0",
     "css-loader": "^5.0.1",
