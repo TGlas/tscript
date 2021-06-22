@@ -1,5 +1,6 @@
 import { ide } from "./ide";
 import { doc } from "./doc";
+import { tutorial } from "./tutorial";
 import { handleCanvas, handleTurtle } from "./standalone";
 
 import "./css/ide.css";

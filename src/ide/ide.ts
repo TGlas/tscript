@@ -3,6 +3,7 @@
 import { Typeid } from "../lang/helpers/typeIds";
 import { TScript } from "../lang";
 import { tgui } from "./tgui";
+import { tutorial } from "./tutorial";
 import { Parser } from "../lang/parser";
 import { Interpreter } from "../lang/interpreter/interpreter";
 import { defaultOptions } from "../lang/helpers/options";
@@ -2875,6 +2876,45 @@ export let ide = (function () {
 			e = createTypedEvent("canvas.KeyboardEvent", e);
 			module.interpreter.enqueueEvent("canvas.keyup", e);
 		});
+
+		let panel_tutorial = tgui.createPanel({
+			name: "tutorial",
+			title: "Tutorial",
+			state: "right",
+			dockedheight: 400,
+			icondraw: function (canvas) {
+				let ctx = canvas.getContext("2d");
+
+				ctx.strokeStyle = "#db7";
+				ctx.lineWidth = 2;
+				ctx.beginPath();
+				ctx.moveTo( 5.0, 19);
+				ctx.lineTo( 9.5,  1);
+				ctx.lineTo(10.5,  1);
+				ctx.lineTo(15.0, 19);
+				ctx.stroke();
+
+				ctx.lineWidth = 1.5;
+				ctx.fillStyle = "#000";
+				ctx.fillRect(3, 4, 14, 9);
+				ctx.strokeRect(3, 4, 14, 9);
+
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = "#fff";
+				ctx.beginPath();
+				ctx.moveTo( 5, 6);
+				ctx.lineTo( 7, 8);
+				ctx.lineTo( 5, 10);
+				ctx.stroke();
+			},
+		});
+		module.tutorialcontainer = tgui.createElement({
+			type: "div",
+			parent: panel_tutorial.content,
+			classname: "ide ide-tutorial",
+		});
+		tutorial.activate(module.tutorialcontainer, 0, 0);
+
 		tgui.arrangePanels();
 
 		module.sourcecode.focus();
