@@ -1044,8 +1044,8 @@ export const core = {
 			}
 		},
 		listKeys: function () {
-			return TScript.jsObject2typed.call(
-				this,
+			return TScript.jsObject2typed(
+				this.program,
 				Object.keys(this.service.localStorage) //will always return an array
 					.filter((key) => {
 						return key.startsWith("tscript.data.");

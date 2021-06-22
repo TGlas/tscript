@@ -39,7 +39,6 @@ learning experience. It offers simple graphics manipulation
 environments, which greatly boost motivation and stimulate a playful and
 explorative learning style.
 </p>
-
 <h2>Overview</h2>
 <p>
 Being a reference documentation, this collection of documents is not

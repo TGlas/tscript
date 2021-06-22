@@ -1597,6 +1597,17 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
+		name: "listKeys",
+		description: "test function listKeys",
+		code: `
+			print(Type(listKeys()));
+		`,
+		expectation: [
+			{ type: "print", message: "<Type Array>" },
+			"finished",
+		],
+	},
+	{
 		name: "event handling",
 		description: "test event handling and timer events",
 		code: `

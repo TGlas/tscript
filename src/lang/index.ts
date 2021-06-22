@@ -155,10 +155,7 @@ export class TScript {
 				: rhs * Math.floor(lhs / rhs) - lhs;
 	}
 
-	// TODO: refactor 'this' into a real parameter
-	public static jsObject2typed(object) {
-		let program = this as any;
-
+	public static jsObject2typed(program, object) {
 		switch (typeof object) {
 			case "boolean":
 				return {
@@ -166,7 +163,7 @@ export class TScript {
 					value: { b: object },
 				};
 			case "number":
-				if (object % 1 === 0) {
+				if (object % 1 === 0 && object >= -2147483648 && object <= 2147483647) {
 					return {
 						type: program.types[Typeid.typeid_integer],
 						value: { b: object },
@@ -187,7 +184,7 @@ export class TScript {
 					return {
 						type: program.types[Typeid.typeid_array],
 						value: {
-							b: object.map(TScript.jsObject2typed.bind(this)),
+							b: object.map((arg) => { return TScript.jsObject2typed(program, arg); }),
 						},
 					};
 				}
