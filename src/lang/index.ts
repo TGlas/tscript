@@ -163,7 +163,11 @@ export class TScript {
 					value: { b: object },
 				};
 			case "number":
-				if (object % 1 === 0 && object >= -2147483648 && object <= 2147483647) {
+				if (
+					object % 1 === 0 &&
+					object >= -2147483648 &&
+					object <= 2147483647
+				) {
 					return {
 						type: program.types[Typeid.typeid_integer],
 						value: { b: object },
@@ -184,7 +188,9 @@ export class TScript {
 					return {
 						type: program.types[Typeid.typeid_array],
 						value: {
-							b: object.map((arg) => { return TScript.jsObject2typed(program, arg); }),
+							b: object.map((arg) => {
+								return TScript.jsObject2typed(program, arg);
+							}),
 						},
 					};
 				}

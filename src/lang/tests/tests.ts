@@ -1602,10 +1602,7 @@ export const tests: Array<TscriptTest> = [
 		code: `
 			print(Type(listKeys()));
 		`,
-		expectation: [
-			{ type: "print", message: "<Type Array>" },
-			"finished",
-		],
+		expectation: [{ type: "print", message: "<Type Array>" }, "finished"],
 	},
 	{
 		name: "event handling",
