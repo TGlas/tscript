@@ -1,68 +1,211 @@
 "use strict";
 
-import { ErrorHelper } from "../lang/errors/ErrorHelper";
+//import { ErrorHelper } from "../lang/errors/ErrorHelper";
 import { tgui } from "./tgui";
-import { defaultOptions } from "../lang/helpers/options";
-import { Interpreter } from "../lang/interpreter/interpreter";
-import { Lexer } from "../lang/parser/lexer";
-import { Parser } from "../lang/parser";
-import { TScript } from "../lang";
+import { doc } from "./doc";
+import { checkCode } from "../check";
 import { tutorialData } from "../tutorial";
-import { createDefaultServices } from "../lang/interpreter/defaultService";
 
 ///////////////////////////////////////////////////////////
 // TScript documentation
 //
 
 export const tutorial = (function () {
-	// define all services related to the tutorial
-
 	let module: any = {};
-	module.unit = 0;
-	module.section = 0;
 	module.data = tutorialData;
-console.log(tutorialData);
+	module.state = {
+			unit: 0,
+			section: 0,
+			completed: {}
+		};
+	module.dom = null;
+	module.getCode = null;
+	module.clearErrorMessage = null;
+	module.showErrorMessage = null;
 
-	// check whether the code fulfills the specification
-	module.checkCode = function(code)
+	// store the current state in localStorage
+	function storeState()
 	{
-		// TODO
+		let s = JSON.stringify(module.state);
+		localStorage.setItem("tutorial", s);
 	}
 
-	// display a tutorial unit
-	module.activate = function(parent, unit, section)
+	// get the last processed section of the unit plus 1
+	function getCanonicalSection(unit)
 	{
-		module.unit = unit;
-		module.section = section;
-		// TODO: store the state to local storage
-
-		parent.innerHTML = "";
-		tgui.createElement({type: "h1", parent: parent, text: module.data[unit].title});
-
-		for (let i=0; i<=section; i++)
+		let ret = 0;
+		for (let j=0; j<module.data[unit].sections.length; j++)
 		{
-			let content = module.data[unit].sections[i].content;
-			// TODO: process content the same as for the documentation
-			tgui.createElement({type: "div", parent: parent, html: content});
+			ret = j;
+			if (module.data[unit].sections[j].correct && ! module.state.completed[unit + ":" + j]) break;
 		}
+		return ret;
+	}
 
-		// TODO:
-		// If a reference solution of unit tests are present then display "solve task" and "skip task" buttons.
-		// Otherwise display a "continue" button; unless this is the last unit.
-		if (unit+1 < module.data.length || section+1 < module.data[unit].sections.length)
+	// Check whether the code fulfills the task specification.
+	// Return null on success, and an error description otherwise.
+	function check(task, code) : any
+	{
+		// TODO: more complete check with unit tests, marker, etc
+		let events1 = checkCode.run_tscript(code);
+		let events2 = checkCode.run_tscript(task.correct);
+		let result = checkCode.compare_runs(events1, events2);
+		if (result[0] == "" && result[1] == "") return null;
+		else return {
+				message: result[0],
+				html: result[1],
+			};
+	}
+
+	// display the current tutorial unit
+	function display()
+	{
+		if (module.state.unit < 0)
 		{
-			// TODO: nice button
+			// overview page
+			module.dom.innerHTML = "";
+			tgui.createElement({type: "h1", parent: module.dom, text: "Table of Contents"});
+			let list = tgui.createElement({type: "ol", parent: module.dom});
+			for (let i=0; i<module.data.length; i++)
+			{
+				let status = "";
+				let missing = 0, completed = 0;
+				for (let j=0; j<module.data[i].sections.length; j++)
+				{
+					if (module.state.completed[i + ":" + j]) completed++;
+					else if (module.data[i].sections[j].correct) missing++;
+				}
+				if (completed > 0) status = (missing > 0) ? " (started)" : " (completed)";
+
+				let title = module.data[i].title;
+				tgui.createElement({type: "li", parent: list, classname: "tutorial-toc", text: title + status,
+						click: function(event)
+						{
+							module.state.unit = i;
+							module.state.section = getCanonicalSection(i);
+							storeState();
+							display();
+						},
+				});
+			}
+
+			// reset button, useful at least for software testing
+			if (Object.keys(module.state.completed).length > 0)
+			{
+				tgui.createElement({
+					type: "button",
+					classname: "tgui-modal-default-button tutorial-reset-button",
+					parent: module.dom,
+					text: "reset progress",
+					click: function(event)
+					{
+						if (confirm("Are you sure?\nResetting marks all programming tasks in the tutorial as unsolved."))
+						{
+							module.state.completed = {};
+							storeState();
+							display();
+						}
+					},
+				});
+			}
+		}
+		else
+		{
+			// content page
+			module.dom.innerHTML = "";
+
 			tgui.createElement({
 				type: "button",
-				parent: parent,
-				text: "continue",
+				classname: "tgui-modal-default-button tutorial-home-button",
+				parent: module.dom,
+				text: "table of contents",
 				click: function(event)
 				{
-					if (section+1 < tutorialData[unit].sections.length) module.activate(parent, unit, section+1);
-					else module.activate(parent, unit+1, 0);
+					module.state.unit = -1;
+					module.state.section = null;
+					storeState();
+					display();
 				},
 			});
+
+			tgui.createElement({type: "h1", parent: module.dom, text: module.data[module.state.unit].title});
+
+			for (let i=0; i<=module.state.section; i++)
+			{
+				let content = module.data[module.state.unit].sections[i].content;
+				content = doc.prepare(content, true);
+				tgui.createElement({type: "div", parent: module.dom, html: content});
+			}
+
+			// navigation elements
+			let nav = tgui.createElement({type: "div", classname: "tutorial-nav", parent: module.dom});
+			if (module.data[module.state.unit].sections[module.state.section].correct)
+			{
+				tgui.createElement({
+					type: "button",
+					classname: "tgui-modal-default-button tutorial-nav-button",
+					parent: nav,
+					text: "solve task",
+					click: function(event)
+					{
+						var result = check(module.data[module.state.unit].sections[module.state.section], module.getCode());
+						module.clearErrorMessage();
+						if (result === null)
+						{
+							module.state.completed[module.state.unit + ":" + module.state.section] = true;
+							if (module.state.section+1 == module.data[module.state.unit].sections.length)
+							{
+								module.state.unit++;
+								module.state.section = getCanonicalSection(module.state.unit);
+							}
+							else module.state.section++;
+							storeState();
+							display();
+						}
+						else
+						{
+							if (result.message) module.showErrorMessage(result.message);
+
+							// TODO
+						}
+					},
+				});
+			}
+			if (module.state.unit+1 < module.data.length || module.state.section+1 < module.data[module.state.unit].sections.length)
+			{
+				tgui.createElement({
+					type: "button",
+					classname: "tgui-modal-default-button tutorial-nav-button",
+					parent: nav,
+					text: "continue",
+					click: function(event)
+					{
+						if (module.state.section+1 == module.data[module.state.unit].sections.length)
+						{
+							module.state.unit++;
+							module.state.section = getCanonicalSection(module.state.unit);
+						}
+						else module.state.section++;
+						storeState();
+						display();
+					},
+				});
+			}
 		}
+	}
+
+	module.init = function(dom, getCode, clearErrorMessage, showErrorMessage)
+	{
+		module.dom = dom;
+		module.getCode = getCode;
+		module.clearErrorMessage = clearErrorMessage;
+		module.showErrorMessage = showErrorMessage;
+
+		let s = localStorage.getItem("tutorial");
+		if (s) module.state = JSON.parse(s);
+		else storeState();
+
+		display();
 	}
 
 	return module;

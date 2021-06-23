@@ -649,7 +649,7 @@ export let ide = (function () {
 				let pe = frame.pe[frame.pe.length - 1];
 				if (pe.where) setCursorPosition(pe.where.line, pe.where.ch);
 			} else {
-				// it might be appropiate to keep the scroll position after running the program,
+				// it might be appropriate to keep the scroll position after running the program,
 				// because in a large program one would continue editing some location in the middle
 				// of the code
 				//setCursorPosition(module.sourcecode.lineCount(), 1000000);
@@ -2885,19 +2885,30 @@ export let ide = (function () {
 			icondraw: function (canvas) {
 				let ctx = canvas.getContext("2d");
 
+				ctx.strokeStyle = "#666";
+				ctx.lineWidth = 3;
+				ctx.beginPath();
+				ctx.moveTo( 5.0, 20);
+				ctx.lineTo( 9.0,  2);
+				ctx.lineTo(11.0,  2);
+				ctx.lineTo(15.0, 20);
+				ctx.stroke();
+
 				ctx.strokeStyle = "#db7";
 				ctx.lineWidth = 2;
 				ctx.beginPath();
-				ctx.moveTo( 5.0, 19);
-				ctx.lineTo( 9.5,  1);
-				ctx.lineTo(10.5,  1);
-				ctx.lineTo(15.0, 19);
+				ctx.moveTo( 5, 20);
+				ctx.lineTo( 9,  2);
+				ctx.lineTo(11,  2);
+				ctx.lineTo(15, 20);
 				ctx.stroke();
 
-				ctx.lineWidth = 1.5;
+				ctx.fillStyle = "#666";
+				ctx.fillRect(1.5, 2.5, 17, 12);
+				ctx.fillStyle = "#db7";
+				ctx.fillRect(2, 3, 16, 11);
 				ctx.fillStyle = "#000";
 				ctx.fillRect(3, 4, 14, 9);
-				ctx.strokeRect(3, 4, 14, 9);
 
 				ctx.lineWidth = 1;
 				ctx.strokeStyle = "#fff";
@@ -2913,7 +2924,12 @@ export let ide = (function () {
 			parent: panel_tutorial.content,
 			classname: "ide ide-tutorial",
 		});
-		tutorial.activate(module.tutorialcontainer, 0, 0);
+		tutorial.init(
+				module.tutorialcontainer,
+				function() { return module.sourcecode.getValue(); },
+				function() { module.messages.innerHTML = ""; },
+				function(error) { module.addMessage("error", error); },
+			);
 
 		tgui.arrangePanels();
 

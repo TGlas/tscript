@@ -7,6 +7,7 @@ import "./css/ide.css";
 import "./css/tgui.css";
 import "./css/codemirror.css";
 import "./css/documentation.css";
+import "./css/tutorial.css";
 
 window.addEventListener(
 	"load",

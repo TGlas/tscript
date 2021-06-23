@@ -28,8 +28,8 @@ export const tutorial_helloworld = {
 			program a programmer writes in a new programming language simply
 			outputs the greeting
 			</p>
-			<div style="font-size: 200%; margin: 1em; text-align: center;">
-				<i>Hello World!</i>
+			<div style="font-size: 150%; text-align: center; padding: 1em; border: 1px solid #000;">
+				Hello World!
 			</div>
 			<p>
 			So, let's start writing our first program!
@@ -39,7 +39,9 @@ export const tutorial_helloworld = {
 			(and many other languages), a line of text can be produced with
 			the <code class="code">print</code> command. In a programming
 			language, all commands follow a very strict syntax. The syntax
-			of the print-command is as follows:
+			rules of a programming language are similar to the grammar rules
+			of a spoken language. The syntax of the print-command is as
+			follows:
 			<tscript>
 				print("Hello World!");
 			</tscript>
@@ -50,11 +52,11 @@ export const tutorial_helloworld = {
 			and every command ends with a semicolon.
 			</p>
 			<p>
-			Now go ahead and type the above command into the editor. Don't
-			use copy&amp;paste, but rather type it carefully, so you are
-			forced to pay attention to the details, like parentheses, double
-			quotes and the semicolon. Congratulations! You have just written
-			your first program!
+			Now go ahead and type the above command into the editor. Refuse
+			the temptation to copy&amp;paste. Rather type it carefully
+			yourself, so you are forced to pay attention to the details like
+			parentheses, double quotes, and the semicolon. Congratulations!
+			You have just written your first program!
 			</p>
 			<p>
 			The program can be run (or executed) by pressing F7, or by
