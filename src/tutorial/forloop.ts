@@ -3,8 +3,7 @@ export const tutorial_forloop = {
 	title: "For-Loops",
 	sections: [
 		{
-			content:
-			`
+			content: `
 			<p>
 			The ability to execute any number of commands on the press of a
 			button is already of great help when automating tasks. However,
@@ -83,16 +82,16 @@ export const tutorial_forloop = {
 				`,
 			tests: [
 				{
-					"type": "code",
-					"code": "",
+					type: "code",
+					code: "",
 				},
 				{
-					"type": "code",
-					"code": "",
+					type: "code",
+					code: "",
 				},
 				{
-					"type": "js",
-					"code": `
+					type: "js",
+					code: `
 						let program = parse(code).program;
 						if (! program) return "Failed to parse the program code.";
 						if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
@@ -104,22 +103,19 @@ export const tutorial_forloop = {
 			],
 		},
 		{
-			content:
-			`
+			content: `
 			<h2>Loop Counters</h2>
 			<p>TODO</p>
 			`,
 		},
 		{
-			content:
-			`
+			content: `
 			<h2>Ranges</h2>
 			<p>TODO</p>
 			`,
 		},
 		{
-			content:
-			`
+			content: `
 			<h2>Wrap-up</h2>
 			<p>
 			You have learned how to repeat commands multiple times in a

@@ -393,7 +393,7 @@ export const doc = (function () {
 	//   indentation, and converts the remaining leading tabulators to four
 	//   spaces each.
 	// * It scans for keyword tags, which are styled appropriately.
-	function prepare(content, tutorial=false) {
+	function prepare(content, tutorial = false) {
 		let search = content.toLowerCase();
 		let ret = "";
 		let start = 0;
@@ -418,15 +418,23 @@ export const doc = (function () {
 				if (end < 0) throw "[doc] <tscript> tag not closed";
 				let code = content.substr(start, end - start);
 				start = end + 10;
-				if (! tutorial) checkCode(code);
-				ret += processCode(code, tutorial ? "code" : "copy code", get_token_code);
+				if (!tutorial) checkCode(code);
+				ret += processCode(
+					code,
+					tutorial ? "code" : "copy code",
+					get_token_code
+				);
 			} else if (search.substr(start, 20) == "<tscript do-not-run>") {
 				start += 20;
 				let end = search.indexOf("</tscript>", start);
 				if (end < 0) throw "[doc] <tscript> tag not closed";
 				let code = content.substr(start, end - start);
 				start = end + 10;
-				ret += processCode(code, tutorial ? "code" : "code copy", get_token_code);
+				ret += processCode(
+					code,
+					tutorial ? "code" : "code copy",
+					get_token_code
+				);
 			} else if (search.substr(start, 9) == "<keyword>") {
 				start += 9;
 				let end = search.indexOf("</keyword>", start);

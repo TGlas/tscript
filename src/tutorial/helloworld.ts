@@ -3,8 +3,7 @@ export const tutorial_helloworld = {
 	title: "The first program",
 	sections: [
 		{
-			content:
-			`
+			content: `
 			<p>
 			Programming means to give commands to the computer. These
 			commands, taken together, are the program, or code. Running the
@@ -83,8 +82,7 @@ export const tutorial_helloworld = {
 			correct: `print("Hello World!");`,
 		},
 		{
-			content:
-			`
+			content: `
 			<h2>Variation</h2>
 			<p>
 			The print command is a bit boring. Who needs a computer for
@@ -98,8 +96,7 @@ export const tutorial_helloworld = {
 			correct: `alert("Hello World!");`,
 		},
 		{
-			content:
-			`
+			content: `
 			<h2>Wrap-up</h2>
 			<p>
 			You have just written your first program. Nothing

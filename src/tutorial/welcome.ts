@@ -3,8 +3,7 @@ export const tutorial_welcome = {
 	title: "Programming Tutorial with TScript",
 	sections: [
 		{
-			content:
-			`
+			content: `
 			<p>
 			Welcome to the TScript tutorial!
 			This tutorial is designed for programming beginners. Its main
