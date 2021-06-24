@@ -7,10 +7,14 @@ import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
 
 //
-// This file is a stub. It needs considerable clean-up and restructuring.
+// The functions in this module allow running and monitoring the runtime
+// behavior of TScript code. This is particularly useful for testing
+// submissions to programming tasks for correctness. The module supports
+// comparing to a reference solution and running various types of unit
+// tests.
 //
 
-export const checkCode = (function () {
+export const evaluation = (function () {
 	let module: any = {};
 
 	function isObject(x)
@@ -52,7 +56,7 @@ export const checkCode = (function () {
 		if (Array.isArray(submission))
 		{
 			if (! Array.isArray(solution)) return "internal error: unexpected data type in compare_events";
-			if (submission.length != solution.length) return "Falsche Array-Größe - erwartet " + solution.length + " - erhalten " + submission.length;
+			if (submission.length != solution.length) return "Wrong array size - expected " + solution.length + " - obtained " + submission.length;
 			for (let i=0; i<submission.length; i++)
 			{
 				let result = compare_events(submission[i], solution[i]);
@@ -63,7 +67,7 @@ export const checkCode = (function () {
 		else if (isObject(submission))
 		{
 			if (! isObject(solution)) return "internal error: unexpected data type in compare_events";
-			if (submission.hasOwnProperty("type") && solution.hasOwnProperty("type") && submission.type != solution.type) return "Falscher Ereignistyp - erwartet: " + solution.type + " - erhalten: " + submission.type;
+			if (submission.hasOwnProperty("type") && solution.hasOwnProperty("type") && submission.type != solution.type) return "Wrong result data type - expected: " + solution.type + " - obtained: " + submission.type;
 			for (let p in submission)
 			{
 				if (! submission.hasOwnProperty(p)) continue;
@@ -82,18 +86,18 @@ export const checkCode = (function () {
 			let sol = strAsNumber(solution);
 			if (sub === null || sol === null)
 			{
-				if (submission != solution) return "Falscher Wert - erwartet: " + solution + " - erhalten: " + submission;
+				if (submission != solution) return "Wrong value - expected: " + solution + " - obtained: " + submission;
 			}
 			else
 			{
 				let close = Math.abs(sub - sol) < 1e-3 || Math.abs((sub / sol) - 1) < 1e-3;
-				if (! close) return "Falsche Zahl - erwartet: " + solution + " - erhalten: " + submission;
+				if (! close) return "Wrong number - expected: " + solution + " - obtained: " + submission;
 			}
 			return "";
 		}
 		else
 		{
-			if (submission != solution) return "Falscher Wert - erwartet: " + solution + " - erhalten: " + submission;
+			if (submission != solution) return "Wrong value - expected: " + solution + " - obtained: " + submission;
 			return "";
 		}
 	}
@@ -116,10 +120,10 @@ export const checkCode = (function () {
 
 	// Judge the submission relative to the solution based on the generated sequences of events corresponding to one run each.
 	// In case of a discrepancy, the function returns [error, details]; otherwise both strings are empty.
-	module.compare_runs = function(submission, solution, marker:any = null)
+	function compare_runs(submission, solution, marker:any = null)
 	{
-		if (! marker) marker = "f2NXpgk65Tjbe8fm2kcjJu19dNGb9aD0e";   // some random string
-		let table = '<table class="code-evaluation">\r\n<tr><th>Ihre Lösung</th><th>Musterlösung</th></tr>\r\n';
+		if (! marker) marker = "$j71dKyoSL2KmbHXIa5dC$";   // some random string, delimited by dollar signs
+		let table = '<table class="code-evaluation">\r\n<tr><th>your solution</th><th>reference solution</th></tr>\r\n';
 		let addrow = function(solution, submission, cls="")
 		{
 			let s = "<tr><td";
@@ -187,18 +191,18 @@ export const checkCode = (function () {
 		let i=0, j=0;
 		while (i < submission.length)
 		{
-			if (submission[i].type == "compile error") return ["Der Code konnte nicht ausgeführt werden - " + submission[i].message, ""];
+			if (submission[i].type == "compile error") return ["Failed to parse the code - " + submission[i].message, ""];
 			let type = submission[i].type;
 			if (type == "print" && submission[i].value.indexOf(marker) >= 0) type = "marker";
 			if (j >= solution.length)
 			{
-				if (type == "runtime error") return ["Fehler bei der Ausführung des Codes - " + submission[i].message, table];
+				if (type == "runtime error") return ["Runtime error while executing the code - " + submission[i].message, table];
 				else if (expected_events.hasOwnProperty(type))
 				{
 					table += addrow(null, submission[i], "error");
 					table += "</table>\r\n";
-					let error = "unerwartete überzählige Ausgabe";
-					if (isObject(submission[i]) && submission[i].hasOwnProperty("type")) error += " vom Typ " + type;
+					let error = "Unexpected surplus output";
+					if (isObject(submission[i]) && submission[i].hasOwnProperty("type")) error += " of type " + type;
 					return [error, table];
 				}
 			}
@@ -222,10 +226,10 @@ export const checkCode = (function () {
 					{
 						table += addrow(solution[j], submission[i], "error");
 						table += "</table>\r\n";
-						return ["Unerwarteter Fehler bei Ausführung des Codes; erwarteter Fehler: " + solution[i].message + " - erhaltener Fehler: " + submission[i].message, table];
+						return ["Unexpected runtime error; expected error: " + solution[i].message + " - obtained error: " + submission[i].message, table];
 					}
 				}
-				return ["Fehler bei der Ausführung des Codes - " + submission[i].message, ""];
+				return ["Runtime error while executing the code - " + submission[i].message, ""];
 			}
 			if (! expected_events.hasOwnProperty(type))
 			{
@@ -250,11 +254,11 @@ export const checkCode = (function () {
 			table += addrow(solution[j], null, "error");
 			table += "</table>\r\n";
 			let error = "";
-			if (solution[j].type == "runtime error") error = "Laufzeitfehler erwartet";
+			if (solution[j].type == "runtime error") error = "Runtime error expected";
 			else
 			{
-				error = "Fehlende Ausgabe";
-				if (isObject(solution[j]) && solution[j].hasOwnProperty("type")) error += " vom Typ " + JSON.stringify(solution[j].type);
+				error = "Missing output";
+				if (isObject(solution[j]) && solution[j].hasOwnProperty("type")) error += " of type " + JSON.stringify(solution[j].type);
 			}
 			return [error, table];
 		}
@@ -263,13 +267,13 @@ export const checkCode = (function () {
 
 		// check the return value
 		if (return_sub_type == "" && return_sol_type == "") return ["", ""];
-		if (return_sub_type == "") return ["Fehlender Rückgabewert - erwartet " + return_sol_value + " vom Typ " + return_sol_type + "; die Funktion terminiert, ohne einen Wert zurück zu geben", ""];
+		if (return_sub_type == "") return ["Missing return value - expected " + return_sol_value + " of type " + return_sol_type + "; the function terminates without returning a value", ""];
 		if (return_sol_type == "") throw new Error("internal error: missing return type in compare_runs");
 
-		if (return_sub_type != return_sol_type) return ["Falscher Typ der Rückgabe - erwartet: " + return_sol_type + " - erhalten: " + return_sub_type, ""];
+		if (return_sub_type != return_sol_type) return ["Wrong data type of the return value - expected: " + return_sol_type + " - obtained: " + return_sub_type, ""];
 		let cmp = compare_events(return_sub_value, return_sol_value);
 		if (cmp == "") return ["", ""];
-		else return ["Falscher Rückgabewert - erwartet: " + return_sol_value + " vom Typ " + return_sol_type + " - erhalten: " + return_sub_value + " vom Typ " + return_sub_type, ""];
+		else return ["Wrong return value - expected: " + return_sol_value + " of type " + return_sol_type + " - obtained: " + return_sub_value + " of type " + return_sub_type, ""];
 	}
 
 	// create an interpreter with specialized services for observing the
@@ -382,14 +386,15 @@ export const checkCode = (function () {
 		return interpreter;
 	}
 
-	// code is the TScript source code to run
-	// maxseconds in the timeout, default=3
-	// inputs in an array of values returned by consecutive calls to TScript's prompt, default=empty
-	module.run_tscript = function(code, maxseconds, inputs)
+	// This function runs a TScript program. It returns an array of
+	// events, like print messages, turtle and canvas outputs.
+	// Parameters:
+	//  - code is the TScript source code to run
+	//  - maxseconds is the timeout, default=3
+	//  - inputs in an array of values returned by consecutive calls to TScript's confirm or prompt, default=[]
+	module.run_tscript = function(code, maxseconds = 3.0, inputs = [])
 	{
-		if (! maxseconds) maxseconds = 3.0;
-
-		if (inputs) inputs = inputs.slice();
+		inputs = inputs.slice();
 		let output = new Array();
 
 		let result = Parser.parse(code);
@@ -439,10 +444,11 @@ export const checkCode = (function () {
 	}
 
 	// This function runs multiple TScript programs. It returns immediately.
-	// The programs are run in the background until they finish or time out.
-	// * code is an array of TScript programs or JS test functions
-	// * maxseconds is the timeout
-	// * process is a function taking the array of event arrays as its argument for further processing.
+	// The programs are run asynchronously in the background until they finish or time out.
+	// Parameters:
+	//  - code is an array of TScript programs or JS test functions
+	//  - maxseconds is the timeout
+	//  - process is a function taking the array of event arrays as its argument for further processing.
 	module.run_multiple = function(code, maxseconds, process)
 	{
 		let timeout = (new Date()).getTime() + 1000 * maxseconds;
@@ -459,8 +465,8 @@ export const checkCode = (function () {
 				let jsc = c.substr(1, split - 1);
 				let tsc = c.substr(split + 3);
 				let testfunction;
-				eval("testfunction = function(code) {\n" + jsc + "\nreturn null; };\n");
-				all.push(testfunction(tsc));
+				eval("testfunction = function(code, parse, hasStructure, isRecursive) {\n" + jsc + "\nreturn null; };\n");
+				all.push(testfunction(tsc, Parser.parse, module.hasStructure, module.isRecursive));
 				output = new Array();
 				index++;
 				if (index == code.length) process(all);
@@ -554,7 +560,7 @@ export const checkCode = (function () {
 		};
 
 	// static code analysis, try to decide whether a program contains a recursive function or not
-	module.isRecursiveStatic = function(program)
+	function isRecursiveStatic(program)
 	{
 		if (! program) return false;
 
@@ -597,13 +603,10 @@ export const checkCode = (function () {
 	}
 
 	// dynamic behavior analysis, try to decide whether a program contains a recursive function or not
-	module.isRecursiveDynamic = function(program, maxseconds, inputs)
+	function isRecursiveDynamic(program, maxseconds = 3.0, inputs = [])
 	{
 		if (! program) return false;
-
-		if (! maxseconds) maxseconds = 3.0;
-
-		if (inputs) inputs = inputs.slice();
+		inputs = inputs.slice();
 
 		// create an interpreter with empty services
 		let interpreter = new Interpreter(program, createDefaultServices());
@@ -669,19 +672,19 @@ export const checkCode = (function () {
 		return false;
 	}
 
-	// Return true of the given (translated) program contains at least one
+	// Return true if the given (translated) program contains at least one
 	// recursive function. The test is performed statically at first. If no
 	// recursion is found then the program is executed -- hence make sure to
-	// include test code that actually runs the recursion -- and the runtime
-	// behavior is analyzed.
+	// include test code that actually invokes the recursion -- and the
+	// runtime behavior is analyzed.
 	module.isRecursive = function(program)
 	{
-		if (module.isRecursiveStatic(program)) return true;
-		else return module.isRecursiveDynamic(program);
+		if (isRecursiveStatic(program)) return true;
+		else return isRecursiveDynamic(program);
 	}
 
-	// Return true if the given (translated) program has a structure that is
-	// compatible with the given pseudo code.
+	// Return true if the given program (more precisely, its AST)
+	// has a structure that is compatible with the given pseudo code.
 	module.hasStructure = function(program, pseudo)
 	{
 		function compilePseudo(code)
@@ -979,6 +982,143 @@ export const checkCode = (function () {
 			return false;
 		}
 		return isSubtree(pc, program);
+	}
+
+	// Evaluate a submission (TScript code) for a programming task. The
+	// task is specified as an object with the following keys:
+	//  - correct: This is the reference solution as a string.
+	//  - tests: This is an array of objects describing tests. Each
+	//    test has a type ("code", "call", or "js"), as well as further
+	//    fields depending on the type.
+	// Code evaluation is asynchronous. The function returns
+	// immediately. Reporting is done by calling the functions process
+	// with a results object with the following keys:
+	//  - error: Error message as a string.
+	//  - details: Additional error details as a string (html code).
+	//  - points: number of points if specified in the task and the code
+	//    is correct, otherwise 0
+	module.evaluate = function(task, submission, process)
+	{
+		let marker = "$j71dKyoSL2KmbHXIa5dC$";   // some random string, delimited by dollar signs
+
+		// extract properties
+		let solution = task.correct;
+		let points = task.points ? task.points : 0;
+		let error:null|string = null;
+		let details:null|string = null;
+		let timeout = task.timeout ? task.timeout : 3;
+
+		// collect the codes to execute
+		let codes = new Array();
+		let calls = new Array();
+		if (! task.hasOwnProperty("tests") || task.tests === null)
+		{
+			codes.push(submission);
+			codes.push(solution);
+		}
+		else
+		{
+			for (let i=0; i<task.tests.length; i++)
+			{
+				let test = task.tests[i];
+				if (test.type == "call")
+				{
+					let call = test.code;
+					calls.push(call);
+					let sub = submission + "\n\n{var result = " + call + "; print(Type(result) + \"" + marker + "\" + result);\n}\n";
+					let sol = solution   + "\n\n{var result = " + call + "; print(Type(result) + \"" + marker + "\" + result);\n}\n";
+					codes.push(sub);
+					codes.push(sol);
+				}
+				else if (test.type == "code")
+				{
+					let call = test.code;
+					calls.push(call);
+					let sub = submission + "\n\n{" + call + "\n}\n";
+					let sol = solution   + "\n\n{" + call + ";\n}\n";
+					codes.push(sub);
+					codes.push(sol);
+				}
+				else if (test.type == "js")
+				{
+					let call = test.code;
+					codes.push("@" + call + "\n@\n" + submission);
+				}
+			}
+		}
+
+		// run the code
+		module.run_multiple(codes, timeout, function(result)
+		{
+			if (result === null)
+			{
+				error = "internal error: failed to evaluate the code";
+				points = 0;
+			}
+			else
+			{
+				// check the result, report success or failure
+				if (! task.tests)
+				{
+					let ed = compare_runs(result[0], result[1], marker);
+					if (ed[0] != "")
+					{
+						points = 0;
+						error = ed[0];
+						details = ed[1];
+					}
+				}
+				else
+				{
+					let call_pos = 0;
+					let code_pos = 0;
+					for (let i=0; i<task.tests.length && error === null; i++)
+					{
+						let test = task.tests[i];
+						if (test.type == "call")
+						{
+							let ed = compare_runs(result[code_pos], result[code_pos+1], marker);
+							if (ed[0] != "")
+							{
+								points = 0;
+								error = "Error in the specification of a unit test of type 'call': " + ed[0] + "\n" + calls[call_pos];
+								details = ed[1];
+							}
+							code_pos += 2;
+							call_pos++;
+						}
+						else if (test.type == "code")
+						{
+							let ed = compare_runs(result[code_pos], result[code_pos+1], marker);
+							if (ed[0] != "")
+							{
+								points = 0;
+								if (calls[call_pos] != "")
+								{
+									error = "Error in the specification of a unit test of type 'code': " + ed[0] + "\n" + calls[call_pos];
+									details = ed[1];
+								}
+							}
+							code_pos += 2;
+							call_pos++;
+						}
+						else if (test.type == "js")
+						{
+							if (typeof result[code_pos] == "string")
+							{
+								points = 0;
+								error = result[code_pos];
+								if (test.hasOwnProperty("feedback")) details = test.feedback;
+							}
+							code_pos++;
+						}
+					}
+				}
+			}
+
+			// report the result
+			process({ error: error, details: details, points: points });
+		});
 	}
 
 	return module;

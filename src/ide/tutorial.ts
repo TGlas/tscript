@@ -3,11 +3,11 @@
 //import { ErrorHelper } from "../lang/errors/ErrorHelper";
 import { tgui } from "./tgui";
 import { doc } from "./doc";
-import { checkCode } from "../check";
+import { evaluation } from "../eval";
 import { tutorialData } from "../tutorial";
 
 ///////////////////////////////////////////////////////////
-// TScript documentation
+// TScript tutorial
 //
 
 export const tutorial = (function () {
@@ -31,33 +31,35 @@ export const tutorial = (function () {
 	}
 
 	// get the last processed section of the unit plus 1
-	function getCanonicalSection(unit)
+	function findCanonicalSection(unit)
 	{
 		let ret = 0;
 		for (let j=0; j<module.data[unit].sections.length; j++)
 		{
 			ret = j;
-			if (module.data[unit].sections[j].correct && ! module.state.completed[unit + ":" + j]) break;
+			if ((module.data[unit].sections[j].correct || module.data[unit].sections[j].tests) && ! module.state.completed[unit + ":" + j]) break;
 		}
 		return ret;
 	}
 
-	// Check whether the code fulfills the task specification.
-	// Return null on success, and an error description otherwise.
-	function check(task, code) : any
-	{
-		// TODO: more complete check with unit tests, marker, etc
-		let events1 = checkCode.run_tscript(code);
-		let events2 = checkCode.run_tscript(task.correct);
-		let result = checkCode.compare_runs(events1, events2);
-		if (result[0] == "" && result[1] == "") return null;
-		else return {
-				message: result[0],
-				html: result[1],
-			};
-	}
+//	// Check whether the code fulfills the task specification.
+//	// Return null on success, and an error description otherwise.
+//	function check(task, code) : any
+//	{
+//		// TODO: more complete check with unit tests, marker, etc
+//		let events1 = evaluation.run_tscript(code);
+//		let events2 = evaluation.run_tscript(task.correct);
+//		let result = evaluation.compare_runs(events1, events2);
+//		if (result[0] == "" && result[1] == "") return null;
+//		else return {
+//				message: result[0],
+//				html: result[1],
+//			};
+//	}
 
-	// display the current tutorial unit
+	// Display the current tutorial unit. This is where most of the
+	// logic is, including testing and error reporting for programming
+	// tasks.
 	function display()
 	{
 		if (module.state.unit < 0)
@@ -73,7 +75,7 @@ export const tutorial = (function () {
 				for (let j=0; j<module.data[i].sections.length; j++)
 				{
 					if (module.state.completed[i + ":" + j]) completed++;
-					else if (module.data[i].sections[j].correct) missing++;
+					else if (module.data[i].sections[j].correct || module.data[i].sections[j].tests) missing++;
 				}
 				if (completed > 0) status = (missing > 0) ? " (started)" : " (completed)";
 
@@ -82,7 +84,7 @@ export const tutorial = (function () {
 						click: function(event)
 						{
 							module.state.unit = i;
-							module.state.section = getCanonicalSection(i);
+							module.state.section = findCanonicalSection(i);
 							storeState();
 							display();
 						},
@@ -99,12 +101,20 @@ export const tutorial = (function () {
 					text: "reset progress",
 					click: function(event)
 					{
-						if (confirm("Are you sure?\nResetting marks all programming tasks in the tutorial as unsolved."))
-						{
-							module.state.completed = {};
-							storeState();
-							display();
-						}
+						tgui.msgBox({
+								title: "Reset Progress",
+								prompt: "Resetting marks all programming tasks in the tutorial as unsolved.\nAre you sure?",
+								buttons: [
+									{ text: "Yes", onClick: (event) =>
+										{
+											module.state.completed = {};
+											storeState();
+											display();
+										}
+									},
+									{ text: "No" },
+								],
+							});
 					},
 				});
 			}
@@ -114,6 +124,7 @@ export const tutorial = (function () {
 			// content page
 			module.dom.innerHTML = "";
 
+			// "table of contents" button
 			tgui.createElement({
 				type: "button",
 				classname: "tgui-modal-default-button tutorial-home-button",
@@ -128,8 +139,10 @@ export const tutorial = (function () {
 				},
 			});
 
+			// heading
 			tgui.createElement({type: "h1", parent: module.dom, text: module.data[module.state.unit].title});
 
+			// content sections
 			for (let i=0; i<=module.state.section; i++)
 			{
 				let content = module.data[module.state.unit].sections[i].content;
@@ -138,8 +151,10 @@ export const tutorial = (function () {
 			}
 
 			// navigation elements
+			let details = tgui.createElement({type: "div", parent: module.dom});
 			let nav = tgui.createElement({type: "div", classname: "tutorial-nav", parent: module.dom});
-			if (module.data[module.state.unit].sections[module.state.section].correct)
+			let d = module.data[module.state.unit].sections[module.state.section];
+			if (d.correct || d.test)
 			{
 				tgui.createElement({
 					type: "button",
@@ -148,26 +163,34 @@ export const tutorial = (function () {
 					text: "solve task",
 					click: function(event)
 					{
-						var result = check(module.data[module.state.unit].sections[module.state.section], module.getCode());
 						module.clearErrorMessage();
-						if (result === null)
+						evaluation.evaluate(d, module.getCode(), function(result)
 						{
-							module.state.completed[module.state.unit + ":" + module.state.section] = true;
-							if (module.state.section+1 == module.data[module.state.unit].sections.length)
+							if (result.error)
 							{
-								module.state.unit++;
-								module.state.section = getCanonicalSection(module.state.unit);
+								// evaluation failed; report the problem
+								module.showErrorMessage(result.error);
+								if (result.details) details.innerHTML = result.details;
 							}
-							else module.state.section++;
-							storeState();
-							display();
-						}
-						else
-						{
-							if (result.message) module.showErrorMessage(result.message);
-
-							// TODO
-						}
+							else
+							{
+								// evaluation succeeded; move on to the next section
+								tgui.msgBox({
+										title: "Success",
+										prompt: "Congrats!\nYou have solved the task.",
+										enterConfirms: true,
+									});
+								module.state.completed[module.state.unit + ":" + module.state.section] = true;
+								if (module.state.section+1 == module.data[module.state.unit].sections.length)
+								{
+									module.state.unit++;
+									module.state.section = findCanonicalSection(module.state.unit);
+								}
+								else module.state.section++;
+								storeState();
+								display();
+							}
+						});
 					},
 				});
 			}
@@ -183,7 +206,7 @@ export const tutorial = (function () {
 						if (module.state.section+1 == module.data[module.state.unit].sections.length)
 						{
 							module.state.unit++;
-							module.state.section = getCanonicalSection(module.state.unit);
+							module.state.section = findCanonicalSection(module.state.unit);
 						}
 						else module.state.section++;
 						storeState();
@@ -194,6 +217,7 @@ export const tutorial = (function () {
 		}
 	}
 
+	// define the interface to the IDE
 	module.init = function(dom, getCode, clearErrorMessage, showErrorMessage)
 	{
 		module.dom = dom;

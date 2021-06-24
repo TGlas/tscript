@@ -1,5 +1,3 @@
-//import { Documentation } from ".";
-
 export const tutorial_helloworld = {
 	id: "helloworld",
 	title: "The first program",
@@ -60,8 +58,8 @@ export const tutorial_helloworld = {
 			</p>
 			<p>
 			The program can be run (or executed) by pressing F7, or by
-			pressing the button with the green triangle ("play" symbol) in
-			the toolbar. Doing so should produce the greeting
+			pressing the "Run" button with the green triangle ("play"
+			symbol) in the toolbar. Doing so should produce the greeting
 			<code class="code">Hello World!</code> as a line in the message
 			area.
 			</p>
@@ -73,6 +71,14 @@ export const tutorial_helloworld = {
 			error message. That's what we meant before when stating that
 			each command follows a strict syntax.
 			</p>
+			<p>
+			For the purpose of this tutorial, use F7 or the "Run" button for
+			code testing. Once you are done, press the "solve task" button
+			below. If will give you feedback on your code. If you have
+			solved the task correctly and completely, then it moves on to
+			the next section of the tutorial. You can also skip the
+			programming task by clicking the "continue" button.
+			</p>
 			`,
 			correct: `print("Hello World!");`,
 		},
@@ -81,10 +87,10 @@ export const tutorial_helloworld = {
 			`
 			<h2>Variation</h2>
 			<p>
-			The print command is a bit boring. Who really needs a computer
-			for printing messages to a message area? Let's do something
-			slightly visually more appealing: we output the greeting in a
-			message box. That's done with the <code class="code">alert</code>
+			The print command is a bit boring. Who needs a computer for
+			printing messages to a message area? Let's do something slightly
+			visually more appealing: we output the greeting in a message
+			box. That's done with the <code class="code">alert</code>
 			command. It has the same syntax as the print command. Replace
 			print with alert and see what happens.
 			</p>
@@ -98,9 +104,9 @@ export const tutorial_helloworld = {
 			<p>
 			You have just written your first program. Nothing
 			fancy, just a short greeting. You could have achieved that
-			easier by typing the greeting yourself, right? However, now the
-			task is automated and you can run the program as often as you
-			wish!
+			easier by typing the greeting yourself instead of letting the
+			program do the job, right? However, now the task is automated
+			and you can run the program as often as you wish!
 			</p>
 			`,
 		},

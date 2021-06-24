@@ -1,5 +1,3 @@
-//import { Documentation } from ".";
-
 export const tutorial_welcome = {
 	id: "welcome",
 	title: "Programming Tutorial with TScript",

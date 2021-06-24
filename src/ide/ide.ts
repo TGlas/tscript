@@ -2876,7 +2876,7 @@ export let ide = (function () {
 			e = createTypedEvent("canvas.KeyboardEvent", e);
 			module.interpreter.enqueueEvent("canvas.keyup", e);
 		});
-
+/*
 		let panel_tutorial = tgui.createPanel({
 			name: "tutorial",
 			title: "Tutorial",
@@ -2919,18 +2919,18 @@ export let ide = (function () {
 				ctx.stroke();
 			},
 		});
-		module.tutorialcontainer = tgui.createElement({
+		let tutorial_container = tgui.createElement({
 			type: "div",
 			parent: panel_tutorial.content,
 			classname: "ide ide-tutorial",
 		});
 		tutorial.init(
-				module.tutorialcontainer,
+				tutorial_container,
 				function() { return module.sourcecode.getValue(); },
 				function() { module.messages.innerHTML = ""; },
 				function(error) { module.addMessage("error", error); },
 			);
-
+*/
 		tgui.arrangePanels();
 
 		module.sourcecode.focus();
