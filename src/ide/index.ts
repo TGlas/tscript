@@ -1,11 +1,13 @@
 import { ide } from "./ide";
 import { doc } from "./doc";
+import { tutorial } from "./tutorial";
 import { handleCanvas, handleTurtle } from "./standalone";
 
 import "./css/ide.css";
 import "./css/tgui.css";
 import "./css/codemirror.css";
 import "./css/documentation.css";
+import "./css/tutorial.css";
 
 window.addEventListener(
 	"load",

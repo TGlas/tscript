@@ -1575,7 +1575,9 @@ export let tgui = (function () {
 	// icon   -- an optional canvas drawing function to display the appropriate icon to the message
 	// See `createModal` for more information about these properties
 	module.msgBox = function (description) {
-		let default_description = { buttons: [{ text: "Okay" }] };
+		let default_description = {
+			buttons: [{ text: "Okay", isDefault: true }],
+		};
 		description = Object.assign(default_description, description);
 
 		let dlg = tgui.createModal(
