@@ -770,6 +770,58 @@ canvas.fillArea(points);                                            # fills the 
 		reported in the event object are unaffected; they always refer to the
 		original canvas coordinates.
 		</p>
+        <div class="example">
+        <h3>Example</h3>
+        <tscript do-not-run>
+function onMouseMove(event) {
+    var radius;
+    if (event.shift)
+        radius = 2;                                 # sets radius to 2 if shift is pressed
+    else   
+        radius = 1;                                 # else to 1
+
+    canvas.circle(event.x, event.y, radius);        # draws a circle with center at point where mouse has been moved to
+}
+setEventHandler("canvas.mousemove", onMouseMove);
+enterEventMode();
+
+function onMouseOut(event) {
+    print("left canvas");                           # prints, once the mouse has left the canvas
+}
+setEventHandler("canvas.mouseout", onMouseOut);
+enterEventMode();
+
+function onMouseDown(event) {
+    canvas.circle(event.x, event.y, 1);             # draws a circle with center at the point where the mouse has been pressed with radius 1
+}
+setEventHandler("canvas.mousedown", onMouseDown);
+enterEventMode();
+
+function onMouseUp(event) {
+    canvas.circle(event.x, event.y, 1);             # draws a circle with center at the point where the mouse button has been released with radius 1
+}
+setEventHandler("canvas.mouseup", onMouseUp);
+enterEventMode();
+
+function onKeyDown(event) {
+    print(event.key);                               # prints the key that has been pressed
+}
+setEventHandler("canvas.keydown", onKeyDown);
+enterEventMode();
+
+function onKeyUp(event) {
+    print(event.key);                               # prints the key that has been released
+}
+setEventHandler("canvas.keyup", onKeyUp);
+enterEventMode();
+
+function onResize(event) {
+    print(event.width + " " + event.height);        # prints the new size of the canvas
+}
+setEventHandler("canvas.resize", onResize);
+enterEventMode();
+        </tscript>
+    </div>
 	`,
 	"children": [
 	]},
