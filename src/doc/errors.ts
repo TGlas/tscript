@@ -842,8 +842,8 @@ function example(index) {
 		"content": `
 			<p>
 			The <a href="?doc#/language/declarations/classes">constructor of a class</a>
-			must be unique, it cannot be overloaded. This is explicitely different from other
-            languages Remove all but one constructor
+			must be unique, it cannot be overloaded. This is explicitly different from other
+            languages. Remove all but one constructor
 			to fix this error.
 			</p>
 		`,
@@ -1522,15 +1522,15 @@ function example(index) {
 var arr = [1, 4, 2, 3];
 
 function order1(a, b) {
-    if (a<=b) then return -1; 
+    if a<=b then return -1; 
 }
 
 function order2(a, b) {
-    if (a<=b) then return -1; else return 1;
+    if a<=b then return -1; else return 1;
 }
 
 function order3(a, b) {
-    if (a<=b) then return "-1"; else return "1";
+    if a<=b then return "-1"; else return "1";
 }
 
 # print(arr.sort(order1));                      # error - if a>b the order function returns Null, but sort expects a number
@@ -2337,7 +2337,7 @@ assert(a==2);           # this throws a runtime-assertion failed error
             <div class="example">
             <h3>Example</h3>
             <tscript do-not-run>
-if (not ... ) then 
+if not ...  then 
     error("condition was not fulfilled");           # this throws a runtime error
             </tscript>
         </div>
@@ -2359,7 +2359,7 @@ var arr = [0, 1, 2, 3, 4, 5, 6];
 
 try {
     for var i in 0:10 do {
-        if (i >= arr.size())
+        if i >= arr.size()
             then throw(i);
     }
 }
