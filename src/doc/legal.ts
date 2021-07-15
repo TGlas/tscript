@@ -1,10 +1,10 @@
 import { Documentation } from ".";
 
-export const doc_legal:Documentation = {
-"id": "legal",
-"name": "Legal Information",
-"title": "Legal Information",
-"content": `
+export const doc_legal: Documentation = {
+	id: "legal",
+	name: "Legal Information",
+	title: "Legal Information",
+	content: `
 	<p>
 	This is the reference implementation of the TScript programming language.
 	The software/website is provided under an
@@ -59,5 +59,5 @@ export const doc_legal:Documentation = {
 	for contributions.
 	</p>
 `,
-"children": [],
+	children: [],
 };

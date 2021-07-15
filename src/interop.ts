@@ -2,16 +2,16 @@ import { ErrorHelper } from "./lang/errors/ErrorHelper";
 import { defaultOptions } from "./lang/helpers/options";
 import { Typeid } from "./lang/helpers/typeIds";
 import { createDefaultServices } from "./lang/interpreter/defaultService";
-import { Interpreter as _Interpreter } from "./lang/interpreter/interpreter"
+import { Interpreter as _Interpreter } from "./lang/interpreter/interpreter";
 import { Lexer } from "./lang/parser/lexer";
-import { Parser } from "./lang/parser"
-import { TScript } from "./lang"
+import { Parser } from "./lang/parser";
+import { TScript } from "./lang";
 import { Version } from "./lang/version";
 
-class InteropInterpreter extends _Interpreter{
-    constructor(program){
-        super(program, createDefaultServices()) 
-    }
+class InteropInterpreter extends _Interpreter {
+	constructor(program) {
+		super(program, createDefaultServices());
+	}
 }
 
 export const Interpreter = InteropInterpreter;
@@ -30,7 +30,9 @@ export const json2typed = TScript.json2typed;
 export const mul32 = TScript.mul32;
 export const mod = TScript.mod;
 export const order = TScript.order;
-export const parse = function (code){return Parser.parse(code, defaultOptions)};
+export const parse = function (code) {
+	return Parser.parse(code, defaultOptions);
+};
 export const previewValue = TScript.previewValue;
 export const typed2json = TScript.typed2json;
 

@@ -1,10 +1,10 @@
 import { Documentation } from ".";
 
-export const doc_examples:Documentation = {
-"id": "examples",
-"name": "Example Programs",
-"title": "Example Programs",
-"content": `
+export const doc_examples: Documentation = {
+	id: "examples",
+	name: "Example Programs",
+	title: "Example Programs",
+	content: `
 	<p>
 	This section provides example programs demonstrating the use of
 	turtle and canvas graphics. They can by copied by clicking the code.
@@ -18,11 +18,12 @@ export const doc_examples:Documentation = {
 		<li><a href="?doc#/examples/cube-3D">Rotating 3D Cube (canvas graphics)</a></li>
 	</ul>
 `,
-"children": [
-	{"id": "koch-snowflake",
-	"name": "Koch Snowflake",
-	"title": "Koch Snowflake",
-	"content": `
+	children: [
+		{
+			id: "koch-snowflake",
+			name: "Koch Snowflake",
+			title: "Koch Snowflake",
+			content: `
 		<tscript do-not-run>
 			#
 			# Koch snowflake
@@ -69,11 +70,13 @@ export const doc_examples:Documentation = {
 			}
 		</tscript>
 	`,
-	"children": []},
-	{"id": "game-of-life",
-	"name": "Game of Life",
-	"title": "Game of Life",
-	"content": `
+			children: [],
+		},
+		{
+			id: "game-of-life",
+			name: "Game of Life",
+			title: "Game of Life",
+			content: `
 		<tscript do-not-run>
 			#
 			# Game of Life
@@ -142,11 +145,13 @@ export const doc_examples:Documentation = {
 			}
 		</tscript>
 	`,
-	"children": []},
-	{"id": "cube-3D",
-	"name": "3D Cube",
-	"title": "3D Cube",
-	"content": `
+			children: [],
+		},
+		{
+			id: "cube-3D",
+			name: "3D Cube",
+			title: "3D Cube",
+			content: `
 		<tscript do-not-run>
 			#
 			# 3D cube
@@ -262,6 +267,7 @@ export const doc_examples:Documentation = {
 			enterEventMode();
 		</tscript>
 	`,
-	"children": []},
-]
+			children: [],
+		},
+	],
 };

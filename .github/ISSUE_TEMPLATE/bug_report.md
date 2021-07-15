@@ -1,12 +1,12 @@
 ---
 name: Bug report
 about: Something isn't working correctly
-title: ''
+title: ""
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
-### Description  
+### Description
 A clear description of what the bug is.
 
 ### To Reproduce

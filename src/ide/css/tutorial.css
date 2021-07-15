@@ -1,0 +1,40 @@
+.tutorial-nav {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.tutorial-nav-button {
+	width: 100px;
+	height: 30px;
+	margin: 5px 10px 5px 0;
+}
+
+.tutorial-home-button {
+	width: 150px;
+	height: 30px;
+	margin: 5px 10px 5px 0;
+	float: right;
+}
+
+.tutorial-reset-button {
+	width: 150px;
+	height: 30px;
+}
+
+.tutorial-toc {
+	color: #44c;
+	cursor: pointer;
+	padding: 5px 0;
+}
+
+.code-evaluation th {
+	padding: 5px 10px;
+	background: #468;
+	color: #fff;
+}
+
+.code-evaluation td {
+	padding: 5px 10px;
+	background: #fed;
+	border: 1px solid #aaa;
+}

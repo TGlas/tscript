@@ -7,7 +7,9 @@
     "build": "webpack --mode=production",
     "dev": "webpack --mode=development --watch",
     "interop": "webpack --mode=production --config webpack.interop.js",
-    "test": "mocha -r ts-node/register \"src/**/*.test.ts\""
+    "test": "mocha -r ts-node/register \"src/**/*.test.ts\"",
+    "test:fmt": "prettier --check \"**/*\"",
+    "prettier": "prettier --write \"**/*\""
   },
   "devDependencies": {
     "@interactjs/types": "^1.10.2",
@@ -21,6 +23,7 @@
     "html-webpack-plugin": "^5.0.0-beta.6",
     "mini-css-extract-plugin": "^1.3.4",
     "mocha": "^8.2.1",
+    "prettier": "^2.2.1",
     "ts-loader": "^8.0.14",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3",

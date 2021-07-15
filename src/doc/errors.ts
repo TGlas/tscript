@@ -1,10 +1,10 @@
 import { Documentation } from ".";
 
-export const doc_errors:Documentation = {
-"id": "errors",
-"name": "Error Messages",
-"title": "All Error Messages Explained",
-"content": `
+export const doc_errors: Documentation = {
+	id: "errors",
+	name: "Error Messages",
+	title: "All Error Messages Explained",
+	content: `
 	<p>
 	Sometimes error messages can be really confusing. Experienced
 	programmers know how to read and interpret even seemingly obscure
@@ -78,20 +78,22 @@ export const doc_errors:Documentation = {
 	real context as <b>cannot order type 'Dictionary'</b>.
 	</p>
 `,
-"children": [
-	{"id": "syntax",
-	"name": "Syntax Errors",
-	"title": "Syntax Errors",
-	"content": `
+	children: [
+		{
+			id: "syntax",
+			name: "Syntax Errors",
+			title: "Syntax Errors",
+			content: `
 		<p>
 		A syntax error indicates failure to follow the
 		<a href="?doc#/language/syntax/EBNF-syntax">formal syntax</a>
 		of the language.
 		</p>
 	`,
-	"children": [
-		{"id": "se-1",
-		"content": `
+			children: [
+				{
+					id: "se-1",
+					content: `
 			<p>
 			This error occurs in two situations:
 			<ol>
@@ -118,9 +120,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-2",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-2",
+					content: `
 			<p>
 			Each <a href="?doc#/language/expressions/literals/strings">string literal</a>
 			must end within a single line. This error indicates that the
@@ -135,9 +139,11 @@ export const doc_errors:Documentation = {
         </div>
             </p>
 		`,
-		"children": []},
-		{"id": "se-3",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-3",
+					content: `
 			<p>
 			A Unicode escape sequence in a
 			<a href="?doc#/language/expressions/literals/strings">string literal</a>
@@ -156,9 +162,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-4",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-4",
+					content: `
 			<p>
 			In a
 			<a href="?doc#/language/expressions/literals/strings">string literal</a>,
@@ -175,9 +183,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-5",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-5",
+					content: `
 			<p>
 			This error is reported if an invalid character was encountered
 			in the program. All characters are legal inside comments and
@@ -189,27 +199,33 @@ export const doc_errors:Documentation = {
 			legal outside comments and string literals.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-6",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-6",
+					content: `
 			<p>
 			The keyword <keyword>super</keyword> refers to the super class
 			of the current class. Therefore, using this keyword outside of
 			a class declaration results in this error.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-7",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-7",
+					content: `
 			<p>
 			The keyword <keyword>super</keyword> refers to the super class
 			of the current class. Therefore, using this keyword in a class
 			that does not have a super class results in this error.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-8",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-8",
+					content: `
 			<p>
 			The keyword <keyword>super</keyword> is used to refer to members
 			of the super class. The reference is of the form
@@ -217,9 +233,11 @@ export const doc_errors:Documentation = {
 			the dot is missing after super.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-9",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-9",
+					content: `
 			<p>
 			The keyword <keyword>super</keyword> is used to refer to members
 			of the super class. The reference is of the form
@@ -227,9 +245,11 @@ export const doc_errors:Documentation = {
 			the identifier is missing after super.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-10",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-10",
+					content: `
 			<p>
 			This error can occur in multiple contexts, namely when parsing the
 			super class in a class declaration, in a use directive, and when
@@ -237,9 +257,11 @@ export const doc_errors:Documentation = {
 			referring to a type or variable is expected but not found.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-11",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-11",
+					content: `
 			<p>
 			A name is a sequence of identifiers separated by dots. This error
 			indicates that the name ends with a dot, while it should end with
@@ -301,9 +323,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-14",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-14",
+					content: `
 			<p>
 			When calling a function, all positional arguments must precede
 			the named arguments. This error occurs when that rule is violated
@@ -317,9 +341,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-15",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-15",
+					content: `
 			<p>
 			This error indicates that a function call is broken. The argument list
 			is a comma-separated list of expressions in parentheses. In other words,
@@ -327,9 +353,11 @@ export const doc_errors:Documentation = {
 			The error is reported if a different token is encountered.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-16",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-16",
+					content: `
 			<p>
 			The formal syntax of a function call does not ensure that the object
 			being called is indeed callable.
@@ -345,9 +373,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-21",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-21",
+					content: `
 			<p>
 			The result of applying a left-unary of binary operator like
 			<code class="code">+</code> is a temporary value. Assigning
@@ -363,9 +393,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-22",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-22",
+					content: `
 			<p>
 			Any expression can be enclosed in parentheses, usually for the
 			purpose of overriding operator precedence rules. When nesting
@@ -373,9 +405,11 @@ export const doc_errors:Documentation = {
 			to forget to close a parenthesis, which results in this error.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-23",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-23",
+					content: `
 			<p>
 			A sequence of digits forms an integer <i>token</i>. However, an integer
 			<i>literal</i> is limited to the range 0 to 2147483647=2<sup>31</sup>-1,
@@ -398,9 +432,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-24",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-24",
+					content: `
 			<p>
 			An <a href="?doc#/language/expressions/literals/arrays">array literal</a>
 			starts with an opening bracket <code class="code">[</code> and stops with
@@ -409,9 +445,11 @@ export const doc_errors:Documentation = {
 			closing bracket was found after an expression.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-25",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-25",
+					content: `
 			<p>
 			An <a href="?doc#/language/expressions/literals/arrays">array literal</a>
 			starts with an opening bracket <code class="code">[</code> and stops with
@@ -420,9 +458,11 @@ export const doc_errors:Documentation = {
 			bracket.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-26",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-26",
+					content: `
 			<p>
 			Keys in a dictionary must be unique. This error occurs if a
 			<a href="?doc#/language/expressions/literals/dictionaries">dictionary literal</a>
@@ -440,9 +480,11 @@ export const doc_errors:Documentation = {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-27",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-27",
+					content: `
 			<p>
 			A <a href="?doc#/language/expressions/literals/dictionaries">dictionary literal</a>
 			starts with an opening brace <code class="code">{</code> and stops with
@@ -451,27 +493,33 @@ export const doc_errors:Documentation = {
 			closing brace was found after a value.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-28",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-28",
+					content: `
 			<p>
 			Keys in a <a href="?doc#/language/expressions/literals/dictionaries">dictionary literal</a>
 			are identifiers or strings. This error is reported if neither of them
 			was found where a key was expected.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-29",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-29",
+					content: `
 			<p>
 			In a <a href="?doc#/language/expressions/literals/dictionaries">dictionary literal</a>,
 			keys and values are separated by colons. This error occurs is there is
 			no colon found after the key.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-30",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-30",
+					content: `
 			<p>
 			A <a href="?doc#/language/expressions/literals/dictionaries">dictionary literal</a>
 			starts with an opening brace <code class="code">{</code> and stops with
@@ -480,9 +528,11 @@ export const doc_errors:Documentation = {
 			brace.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-31",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-31",
+					content: `
 			<p>
 			An <a href="?doc#/language/expressions/literals/anonymous-functions">anonymous function</a>
 			expression encloses variables as a comma-separated list of named expressions
@@ -501,9 +551,11 @@ function example(index) {
             </tscript>
         </div>
 		`,
-		"children": []},
-		{"id": "se-32",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-32",
+					content: `
 			<p>
 			An <a href="?doc#/language/expressions/literals/anonymous-functions">anonymous function</a>
 			expression encloses variables as a comma-separated list of named expressions
@@ -513,9 +565,11 @@ function example(index) {
 			then this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-33",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-33",
+					content: `
 			<p>
 			The parameter list of a function is a comma separated list of identifiers,
 			possibly with the definition of default values, enclosed in parentheses.
@@ -523,9 +577,11 @@ function example(index) {
 			by a comma or closing parenthesis, otherwise this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-35",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-35",
+					content: `
 			<p>
 			When using the keyword <keyword>function</keyword> in an expression,
 			an <a href="?doc#/language/expressions/literals/anonymous-functions">anonymous function</a>
@@ -544,9 +600,11 @@ function example(index) {
 }
             </tsc
 		`,
-		"children": []},
-		{"id": "se-36",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-36",
+					content: `
 			<p>
 			When declaring a <a href="?doc#/language/declarations/functions">function</a>,
 			<a href="?doc#/language/expressions/literals/anonymous-functions">anonymous function</a>,
@@ -555,9 +613,11 @@ function example(index) {
 			error indicates that the opening parenthesis was not found.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-37",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-37",
+					content: `
 			<p>
 			A <href="?doc#/language/declarations/functions">function</a> declares
 			parameters as a comma-separated list in parentheses. Hence, each
@@ -565,9 +625,11 @@ function example(index) {
 			otherwise this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-38",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-38",
+					content: `
 			<p>
 			Default values of
 			<href="?doc#/language/declarations/functions">function</a> parameters
@@ -576,18 +638,22 @@ function example(index) {
 			considered a proper constant in TScript.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-40",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-40",
+					content: `
 			<p>
 			This error indicates that a namespace, class, or function body is
 			missing in a <a href="?doc#/language/declarations">declaration</a> or
 			<a href="?doc#/language/expressions/literals/anonymous-functions">anonymous function</a>.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-41",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-41",
+					content: `
 			<p>
 			A keyword that cannot initiate an expression was detected in a context
 			where an expression is expected. Such contexts are manifold, i.e.,
@@ -600,9 +666,11 @@ function example(index) {
 			cannot be part of an expression.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-42",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-42",
+					content: `
 			<p>
 			A token that cannot initiate an expression was detected in a context
 			where an expression is expected. Such contexts are manifold, i.e.,
@@ -615,9 +683,11 @@ function example(index) {
 			<code class="code">,</code> (a comma).
 			</p>
 		`,
-		"children": []},
-		{"id": "se-43",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-43",
+					content: `
 			<p>
 			A <a href="?doc#/language/expressions/names">name</a> used to
 			<a href="?doc#/language/expressions/member-access">access a member</a>
@@ -626,9 +696,11 @@ function example(index) {
 			and not with an identifier, as it should.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-44",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-44",
+					content: `
 			<p>
 			Characters of strings and items of arrays and dictionaries are
 			<a href="?doc#/language/expressions/item-access">accessed with an index in square brackets</a>.
@@ -636,9 +708,11 @@ function example(index) {
 			after the index expression.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-47",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-47",
+					content: `
 			<p>
 			Within a <a href="?doc#/language/declarations/classes">class declaration</a>
 			the keyword <keyword>this</keyword> refers to the object upon which
@@ -674,9 +748,11 @@ function example(index) {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "se-48",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-48",
+					content: `
 			<p>
 			An <a href="?doc#/language/statements/assignments">assignment</a> ends with
 			a semicolon. This error indicates that the semicolon was not found after
@@ -691,9 +767,11 @@ function example(index) {
 			</ul>
 			</p>
 		`,
-		"children": []},
-		{"id": "se-49",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-49",
+					content: `
 			<p>
 			This error indicates that an <a href="?doc#/language/expressions">expression</a>
 			ended in an unexpected way. When
@@ -711,9 +789,11 @@ function example(index) {
 			</ul>
 			</p>
 		`,
-		"children": []},
-		{"id": "se-50",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-50",
+					content: `
 			<p>
 			In a <a href="?doc#/language/declarations/variables">variable declaration</a>,
 			the names of all variables must be identifiers. This error indicates that
@@ -721,9 +801,11 @@ function example(index) {
 			encountered instead.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-51",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-51",
+					content: `
 			<p>
 			This error indicates that the basic syntax of a
 			<a href="?doc#/language/declarations/variables">variable declaration</a>
@@ -733,9 +815,11 @@ function example(index) {
 			a comma, or a semicolon. Otherwise this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-51b",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-51b",
+					content: `
 			<p>
 			This error indicates that the basic syntax of a
 			<a href="?doc#/language/declarations/variables">variable declaration</a>
@@ -744,9 +828,11 @@ function example(index) {
 			semicolon. Otherwise this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-52",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-52",
+					content: `
 			<p>
 			A <a href="?doc#/language/declarations/functions">function declaration</a>
 			must have a name, which is an identifier. This error indicates that the
@@ -761,17 +847,21 @@ function example(index) {
 			proper parsing as an expression.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-53",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-53",
+					content: `
 			<p>
 			The <a href="?doc#/language/declarations/classes">constructor of a class</a>
 			can invoke the constructor of the super class with a special syntax,
 			</p>
 		`,
-		"children": []},
-		{"id": "se-54",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-54",
+					content: `
 			<p>
 			A <a href="?doc#/language/declarations/classes">class declaration</a>
 			contains an identifier acting as the name of the class. This error
@@ -779,9 +869,11 @@ function example(index) {
 			<keyword>class</keyword>.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-55",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-55",
+					content: `
 			<p>
 			An <a href="?doc#/language/declarations/classes">access modifier in a class declaration</a>
 			consists of one of the keywords <keyword>public</keyword>, <keyword>protected</keyword>,
@@ -789,9 +881,11 @@ function example(index) {
 			is missing.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-56",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-56",
+					content: `
 			<p>
 			All <a href="?doc#/language/declarations/classes">members of a class</a>
 			are subject to a visibility modifier, consisting of one of the keywords
@@ -800,9 +894,11 @@ function example(index) {
 			that a member declaration precedes the first visibility modifier.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-57",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-57",
+					content: `
 			<p>
 			<a href="?doc#/language/declarations/classes">Attributes of a class</a>
 			can be initialized in their declaration by providing an initializer.
@@ -811,9 +907,11 @@ function example(index) {
 			a <a href="?doc#/language/expressions/constants">constant</a>.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-58",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-58",
+					content: `
 			<p>
 			All <a href="?doc#/language/declarations/classes">members of a class</a>
 			are subject to visibility settings. The constructor of a class always
@@ -827,9 +925,11 @@ function example(index) {
 			inheriting a class with private constructor is not possible.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-59",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-59",
+					content: `
 			<p>
 			The <a href="?doc#/language/declarations/classes">constructor of a class</a>
 			needs a <keyword>this</keyword> reference to the object to be initialized,
@@ -837,9 +937,11 @@ function example(index) {
 			was marked as static.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-59b",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-59b",
+					content: `
 			<p>
 			The <a href="?doc#/language/declarations/classes">constructor of a class</a>
 			must be unique, it cannot be overloaded. This is explicitly different from other
@@ -847,9 +949,11 @@ function example(index) {
 			to fix this error.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-60",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-60",
+					content: `
 			<p>
 			The only members of a <a href="?doc#/language/declarations/classes">class</a>
 			that can be declared are attributes and methods. This error indicates that
@@ -857,9 +961,11 @@ function example(index) {
 			static.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-61",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-61",
+					content: `
 			<p>
 			The only members of a <a href="?doc#/language/declarations/classes">class</a>
 			that can be declared are attributes and methods. This error indicates that
@@ -867,9 +973,11 @@ function example(index) {
 			scope of another class is declared static.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-62",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-62",
+					content: `
 			<p>
 			This error indicates that an unexpected entity was found inside a
 			<a href="?doc#/language/declarations/classes">class</a>. The class syntax
@@ -877,9 +985,11 @@ function example(index) {
 			declarations of nested classes, and use-directives are allowed.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-63",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-63",
+					content: `
 			<p>
 			As the error message states, a
 			<a href="?doc#/language/declarations/namespaces">namespace</a> can be
@@ -888,9 +998,11 @@ function example(index) {
 			message indicates that this rule was violated.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-64",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-64",
+					content: `
 			<p>
 			A <a href="?doc#/language/declarations/namespaces">namespace declaration</a>
 			contains an identifier acting as the name of the class. This error
@@ -898,18 +1010,22 @@ function example(index) {
 			<keyword>namespace</keyword>.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-65",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-65",
+					content: `
 			<p>
 			<a href="?doc#/language/directives/use">Use directives</a> can have two forms.
 			This error occurs if the form starting with <keyword>from</keyword> does
 			not contain the keyword <keyword>use</keyword> after the from-clause.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-66",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-66",
+					content: `
 			<p>
 			In a <a href="?doc#/language/directives/use">use directive</a>, an imported name
 			can be remapped to a different name with an <keyword>as</keyword> clause.
@@ -917,17 +1033,21 @@ function example(index) {
 			namespace. This error indicates that the attempt was made nevertheless.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-67",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-67",
+					content: `
 			<p>
 			This error indicates that the <ebnf>identifier</ebnf> is missing after
 			<keyword>as</keyword> in a <a href="?doc#/language/directives/use">use directive</a>.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-68",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-68",
+					content: `
 			<p>
 			In a <a href="?doc#/language/directives/use">use directive</a>, multiple names
 			or whole namespaces can be imported. The individual imports are separated
@@ -936,9 +1056,11 @@ function example(index) {
 			indicates that the above rule is violated.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-69",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-69",
+					content: `
 			<p>
 			The error indicates that in an
 			<a href="?doc#/language/statements/if-then-else">if-then-else</a> conditional
@@ -947,9 +1069,11 @@ function example(index) {
 			have this keyword.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-70",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-70",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/for-loops">for loop</a> uses a loop
 			variable to indicate its current iteration. If this variable is declared
@@ -958,9 +1082,11 @@ function example(index) {
 			that a non-identifier token was encountered.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-71",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-71",
+					content: `
 			<p>
 			In a <a href="?doc#/language/statements/for-loops">for loop</a> declaring its
 			own loop variable, the keyword <keyword>in</keyword> must follow the loop
@@ -968,18 +1094,22 @@ function example(index) {
 			encountered.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-72",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-72",
+					content: `
 			<p>
 			In a <a href="?doc#/language/statements/for-loops">for loop</a> after the
 			container to loop over must be followed by the keyword <keyword>do</keyword>.
 			This error indicates that some other token was encountered.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-73",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-73",
+					content: `
 			<p>
 			If a <a href="?doc#/language/statements/for-loops">for loop</a> does not use
 			loop variable declared within the loop, then the expression following
@@ -990,18 +1120,22 @@ function example(index) {
 			was found.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-74",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-74",
+					content: `
 			<p>
 			The syntax of a <a href="?doc#/language/statements/do-while-loops">do-while loop</a>
 			demands that the loop body is followed by the keyword <keyword>while</keyword>.
 			This error message indicates that an different token was encountered.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-75",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-75",
+					content: `
 			<p>
 			The syntax of a <a href="?doc#/language/statements/do-while-loops">do-while loop</a>
 			demands that the condition is followed by a semicolon.
@@ -1010,36 +1144,44 @@ function example(index) {
 			is broken.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-76",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-76",
+					content: `
 			<p>
 			The syntax of a <a href="?doc#/language/statements/while-do-loops">while-do loop</a>
 			demands that the condition is followed by the keyword <keyword>do</keyword>.
 			This error message indicates that an different token was encountered.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-77",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-77",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/break-continue">break</a> statement
 			can only appear inside a loop. This error message indicates that there
 			is no loop surrounding the statement.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-78",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-78",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/break-continue">continue</a> statement
 			can only appear inside a loop. This error message indicates that there
 			is no loop surrounding the statement.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-79",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-79",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/return">return</a> statement returns
 			the control flow from the current function back to the calling context.
@@ -1050,9 +1192,11 @@ function example(index) {
 			this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-80",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-80",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/return">return</a> statement returns
 			the control flow from the current function back to the calling context.
@@ -1063,62 +1207,78 @@ function example(index) {
 			contain a return value, otherwise this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-81",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-81",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/return">return</a> statement ends with
 			a semicolon. The error message indicates that this is not the case.
 			The most probably reason is that the return expression is broken.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-81b",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-81b",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/break-continue">break</a> statement ends with
 			a semicolon. The error message indicates that this is not the case.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-81c",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-81c",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/break-continue">continue</a> statement ends with
 			a semicolon. The error message indicates that this is not the case.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-82",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-82",
+					content: `
 			<p>
 			<a href="?doc#/language/statements/try-catch">try-catch</a>
 			</p>
 		`,
-		"children": []},
-		{"id": "se-84",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-84",
+					content: `
 			<p>
 			<a href="?doc#/language/statements/try-catch">try-catch</a>
 			</p>
 		`,
-		"children": []},
-		{"id": "se-85",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-85",
+					content: `
 			<p>
 			<a href="?doc#/language/statements/try-catch">try-catch</a>
 			</p>
 		`,
-		"children": []},
-		{"id": "se-86",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-86",
+					content: `
 			<p>
 			<a href="?doc#/language/statements/try-catch">try-catch</a>
 			</p>
 		`,
-		"children": []},
-		{"id": "se-87",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-87",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/throw">throw</a> statements ends with
 			a semicolon. This error message indicates that the semicolon is missing.
@@ -1126,9 +1286,11 @@ function example(index) {
 			the semicolon.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-88",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-88",
+					content: `
 			<p>
 			Curly braces can close
 			<a href="?doc#/language/statements/blocks">blocks of statements</a> and
@@ -1138,9 +1300,11 @@ function example(index) {
 			or statement preceding the closing brace is broken.
 			</p>
 		`,
-		"children": []},
-		{"id": "se-89",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-89",
+					content: `
 			<p>
 			This error is reported if a keyword that cannot start a statement
 			(like, e.g., <keyword>static</keyword>) was encountered where a
@@ -1151,9 +1315,11 @@ function example(index) {
 			</ul>
 			</p>
 		`,
-		"children": []},
-		{"id": "se-90",
-		"content": `
+					children: [],
+				},
+				{
+					id: "se-90",
+					content: `
 			<p>
 			This error is reported if a token that cannot start a statement
 			(like, e.g., <code class="code">+=</code>) was encountered where a
@@ -1162,12 +1328,15 @@ function example(index) {
 			reported is broken.
 			</p>
 		`,
-		"children": []},
-	]},
-	{"id": "argument-mismatch",
-	"name": "Argument Mismatch",
-	"title": "Argument Mismatch",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "argument-mismatch",
+			name: "Argument Mismatch",
+			title: "Argument Mismatch",
+			content: `
 		<p>
 		Values passed into a function or operator can mismatch the needs
 		and expectations of the function being called in several ways.
@@ -1175,9 +1344,10 @@ function example(index) {
 		invalid range. Errors in this category reflect such events.
 		</p>
 	`,
-	"children": [
-		{"id": "am-1",
-		"content": `
+			children: [
+				{
+					id: "am-1",
+					content: `
 			<p>
 			A function specifies how many arguments it expects, but the formal
 			function declaration does not specify which types can be processed.
@@ -1210,36 +1380,44 @@ function example(index) {
 			</ol>
 			</p>
 		`,
-		"children": []},
-		{"id": "am-2",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-2",
+					content: `
 			<p>
 			The <a href="?doc#/language/expressions/unary-operators/minus">unary operator not</a>
 			is only defined for boolean arguments. Applying unary not
 			to a value of any other type results in this error.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-3",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-3",
+					content: `
 			<p>
 			The <a href="?doc#/language/expressions/unary-operators/plus">unary operator +</a>
 			is only defined for numerical arguments. Applying unary plus
 			to a value of any other type results in this error.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-4",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-4",
+					content: `
 			<p>
 			The <a href="?doc#/language/expressions/unary-operators/minus">unary operator -</a>
 			is only defined for numerical arguments. Applying unary minus
 			to a value of any other type results in this error.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-5",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-5",
+					content: `
 			<p>
 			This error occurs if the
 			<a href="?doc#/language/expressions/binary-operators/addition">binary operator +</a>
@@ -1248,27 +1426,33 @@ function example(index) {
 			types result in this error.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-6",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-6",
+					content: `
 			<p>
 			This error occurs if the
 			<a href="?doc#/language/expressions/binary-operators/subtraction">binary operator -</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-7",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-7",
+					content: `
 			<p>
 			This error occurs if the
 			<a href="?doc#/language/expressions/binary-operators/multiplication">binary operator +</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-8",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-8",
+					content: `
 			<p>
 			This error occurs if the
 			<a href="?doc#/language/expressions/binary-operators/real-division">binary operator /</a>
@@ -1277,36 +1461,44 @@ function example(index) {
 			is applied to non-numeric arguments.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-9",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-9",
+					content: `
 			<p>
 			This error occurs if the
 			<a href="?doc#/language/expressions/binary-operators/modulo">binary operator %</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-10",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-10",
+					content: `
 			<p>
 			This error occurs if the
 			<a href="?doc#/language/expressions/binary-operators/power">binary operator ^</a>
 			is applied to non-numeric arguments.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-11",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-11",
+					content: `
 			<p>
 			This error occurs if the
 			<a href="?doc#/language/expressions/binary-operators/addition">binary operator :</a>
 			is applied to non-integer arguments.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-12",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-12",
+					content: `
 			<p>
 			This error occurs if one of the binary operators
 			<a href="?doc#/language/expressions/binary-operators/and">and</a>,
@@ -1315,9 +1507,11 @@ function example(index) {
 			is applied to non-boolean non-integer arguments.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-13",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-13",
+					content: `
 			<p>
 			This error occurs when a value is converted to an integer. The
 			value is often a real, but it can also be a string that is
@@ -1338,9 +1532,11 @@ function example(index) {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "am-14",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-14",
+					content: `
 			<p>
 			This error occurs when a string is converted to an integer
 			and the string value does not represent a number.
@@ -1354,9 +1550,11 @@ function example(index) {
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "am-15",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-15",
+					content: `
 			<p>
 			This error occurs when a value is divided by zero with the
 			integer division operator <code class="code">\/\/</code> or
@@ -1384,9 +1582,11 @@ function example(index) {
 			</tscript>
 			</p>
 		`,
-		"children": []},
-		{"id": "am-16",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-16",
+					content: `
 			<p>
 			Values are said to be ordered if they can be compared with operators
 			<code class="code">&lt;</code>, <code class="code">&lt;=</code>,
@@ -1418,9 +1618,11 @@ function example(index) {
 			raises an error, but only if the search key is not found.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-16b",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-16b",
+					content: `
 			<p>
 			Values are said to be ordered if they can be compared with operators
 			<code class="code">&lt;</code>, <code class="code">&lt;=</code>,
@@ -1452,9 +1654,11 @@ function example(index) {
 			raises an error, but only if the search key is not found.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-17",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-17",
+					content: `
 			<p>
 			When calling the Array constructor with an integer as the first
 			argument, an array of the given size is created. If this size is
@@ -1473,9 +1677,11 @@ function example(index) {
 			the programmer.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-18",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-18",
+					content: `
 			<p>
 			The <a href="?doc#/language/types/array">Array.insert</a> function
 			takes a position within the array as its argument. The position
@@ -1496,9 +1702,11 @@ function example(index) {
 			happens to take values not anticipated by the programmer.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-18b",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-18b",
+					content: `
 			<p>
 			The <a href="?doc#/language/types/array">Array.pop</a> function removes
 			the last item of the array, which is returned. If the array is
@@ -1506,9 +1714,11 @@ function example(index) {
 			error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-19",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-19",
+					content: `
 			<p>
 			The <a href="?doc#/language/types/array">Array.sort</a> function can
 			sort the array according to a user-specificed order relation,
@@ -1540,9 +1750,11 @@ print(arr.sort(order2));                        # works fine
         </div>
 			</p>
 		`,
-		"children": []},
-		{"id": "am-20",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-20",
+					content: `
 			<p>
 			This error is reported if the items of a
 			<a href="?doc#/language/types/string">string</a> are
@@ -1551,9 +1763,11 @@ print(arr.sort(order2));                        # works fine
 			integer and range.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-21",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-21",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a>
 			a single character of a <a href="?doc#/language/types/string">string</a>
@@ -1561,9 +1775,11 @@ print(arr.sort(order2));                        # works fine
 			string. This error indicates that the index is negative.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-22",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-22",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a>
 			a single character of a <a href="?doc#/language/types/string">string</a>
@@ -1572,9 +1788,11 @@ print(arr.sort(order2));                        # works fine
 			which is upper bounded by the string size.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-23",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-23",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a> an item
 			of an array, a valid (zero-based) index is neither negative, not does it
@@ -1583,9 +1801,11 @@ print(arr.sort(order2));                        # works fine
 			negative number, which was not anticipated by the programmer.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-24",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-24",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a> an item
 			of an <a href="?doc#/language/types/array">array</a>, a valid (zero-based)
@@ -1595,9 +1815,11 @@ print(arr.sort(order2));                        # works fine
 			number, which was not anticipated by the programmer.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-25",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-25",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a> an item
 			of an <a href="?doc#/language/types/array">array</a>, a valid index is of
@@ -1606,9 +1828,11 @@ print(arr.sort(order2));                        # works fine
 			error indicates that the index expression evaluates to a different type.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-26",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-26",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a> an item
 			of an <a href="?doc#/language/types/array">array</a>, a valid index is of
@@ -1616,9 +1840,11 @@ print(arr.sort(order2));                        # works fine
 			evaluates to a different type.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-27",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-27",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a> an item
 			of a <a href="?doc#/language/types/dictionary">dictionary</a>, the index
@@ -1626,9 +1852,11 @@ print(arr.sort(order2));                        # works fine
 			not found as a key in the dictionary.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-28",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-28",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a> an item
 			of a <a href="?doc#/language/types/dictionary">dictionary</a>, a valid key
@@ -1636,9 +1864,11 @@ print(arr.sort(order2));                        # works fine
 			evaluates to a different type.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-29",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-29",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a> an item
 			of a <a href="?doc#/language/types/range">range</a>, the index must be a
@@ -1647,9 +1877,11 @@ print(arr.sort(order2));                        # works fine
 			the range. This error indicates that the index is outside these bounds.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-30",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-30",
+					content: `
 			<p>
 			When <a href="?doc#/language/expressions/item-access">accessing</a> an item
 			of a <a href="?doc#/language/types/range">range</a>, the index must be a of
@@ -1657,9 +1889,11 @@ print(arr.sort(order2));                        # works fine
 			evaluates to a different type.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-31",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-31",
+					content: `
 			<p>
 			The <a href="?doc#/language/expressions/item-access">access operator</a>
 			provides access to the items of a container. The only types supporting
@@ -1667,9 +1901,11 @@ print(arr.sort(order2));                        # works fine
 			indicates that it was attempted to access an item of a different type.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-31b",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-31b",
+					content: `
 			<p>
 			The <a href="?doc#/language/expressions/item-access">access operator</a>
 			provides access to the items of a container. The only types supporting
@@ -1678,9 +1914,11 @@ print(arr.sort(order2));                        # works fine
 			set an item of a different type.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-32",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-32",
+					content: `
 			<p>
 			The left-hand side of an
 			<a href="?doc#/language/statements/assignments">assignment operator</a>
@@ -1690,9 +1928,11 @@ print(arr.sort(order2));                        # works fine
 			right-hand-side can be stored.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-33",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-33",
+					content: `
 			<p>
 			The condition in an
 			<a href="?doc#/language/statements/if-then-else">if-then-else</a>
@@ -1702,18 +1942,22 @@ print(arr.sort(order2));                        # works fine
 			this error is triggered.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-34",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-34",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/for-loops">for-loop</a> iterates
 			over the items of a range or array. If the expression defining the
 			container evaluates to a different type then this error is emitted.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-35",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-35",
+					content: `
 			<p>
 			A <a href="?doc#/language/statements/for-loops">for-loop</a> stores
 			the current item of the container it iterates over in a variable.
@@ -1722,9 +1966,11 @@ print(arr.sort(order2));                        # works fine
 			this error is triggered.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-36",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-36",
+					content: `
 			<p>
 			The condition in a
 			<a href="?doc#/language/statements/do-while-loops">do-while loop</a>
@@ -1733,9 +1979,11 @@ print(arr.sort(order2));                        # works fine
 			value, otherwise this error is triggered.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-37",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-37",
+					content: `
 			<p>
 			The condition in a
 			<a href="?doc#/language/statements/while-do-loops">while-do loop</a>
@@ -1744,9 +1992,11 @@ print(arr.sort(order2));                        # works fine
 			value, otherwise this error is triggered.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-38",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-38",
+					content: `
 			<p>
 			Loading a value with the standard library's
 			<code class="code">load</code> function failed because the key does
@@ -1758,9 +2008,11 @@ print(arr.sort(order2));                        # works fine
 			to check whether a key exists.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-39",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-39",
+					content: `
 			<p>
 			Saving a value with the standard library's <code class="code">save</code>
 			function failed because the value is not a
@@ -1778,9 +2030,11 @@ print(arr.sort(order2));                        # works fine
 			indirectly.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-40",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-40",
+					content: `
 			<p>
 			The given event name is not known.
 			</p>
@@ -1788,9 +2042,11 @@ print(arr.sort(order2));                        # works fine
 			The most probable reason for this error is a misspelled event name.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-41",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-41",
+					content: `
 			<p>
 			The function registered as an event handler is expected to take exactly
 			one argument, the event object. A common way to declare event handlers
@@ -1811,9 +2067,11 @@ print(arr.sort(order2));                        # works fine
 			than one argument.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-42",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-42",
+					content: `
 			<p>
 			The function <i>deepcopy</i> creates a deep copy of a container.
 			If the container holds other containers as values then they are
@@ -1828,9 +2086,11 @@ print(arr.sort(order2));                        # works fine
 			is not fulfilled.
 			</p>
 		`,
-		"children": []},
-		{"id": "am-43",
-		"content": `
+					children: [],
+				},
+				{
+					id: "am-43",
+					content: `
 			<p>
 			The error indicates that a recursive data structure was passed
 			to a function that cannot handle this case since it would result
@@ -1842,21 +2102,25 @@ print(arr.sort(order2));                        # works fine
 			</tscript>
 			</p>
 		`,
-		"children": []},
-	]},
-	{"id": "name",
-	"name": "Name Lookup Errors",
-	"title": "Name Lookup Errors",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "name",
+			name: "Name Lookup Errors",
+			title: "Name Lookup Errors",
+			content: `
 		<p>
 		A <a href="?doc#/language/expressions/names">name</a> refers to a declaration
 		according to the name lookup rules. The errors in this category indicate
 		that something went wrong either when declaring or when resolving a name.
 		</p>
 	`,
-	"children": [
-		{"id": "ne-1",
-		"content": `
+			children: [
+				{
+					id: "ne-1",
+					content: `
 			<p>
 			When providing named arguments in a function call, each parameter
 			can be specified only once. This error indicates that a parameter
@@ -1873,9 +2137,11 @@ print(arr.sort(order2));                        # works fine
 			</div>
 			<p>
 		`,
-		"children": []},
-		{"id": "ne-2",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-2",
+					content: `
 			<p>
 			When calling a function with named parameters then the function to be
 			called must have a parameter with the given name &ndash; otherwise
@@ -1890,9 +2156,11 @@ print(arr.sort(order2));                        # works fine
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "ne-3",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-3",
+					content: `
 			<p>
 			A function cannot be called with more arguments than it has
 			parameters. An attempt to do so results in this error.
@@ -1906,9 +2174,11 @@ print(arr.sort(order2));                        # works fine
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "ne-4",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-4",
+					content: `
 			<p>
 			When calling a function, all (non-default) parameters must be
 			specified by providing corresponding (positional or named)
@@ -1923,9 +2193,11 @@ print(arr.sort(order2));                        # works fine
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "ne-5",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-5",
+					content: `
 			<p>
 			This error means that the given name cannot be resolved
 			since no declaration of the given name exists. The three most
@@ -1937,9 +2209,11 @@ print(arr.sort(order2));                        # works fine
 			</ol>
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-6",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-6",
+					content: `
 			<p>
 			In certain situations a name is resolved into a variable that cannot
 			be accessed from the current context. This error refers to the case
@@ -1966,9 +2240,11 @@ print(arr.sort(order2));                        # works fine
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "ne-7",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-7",
+					content: `
 			<p>
 			In certain situations a name is resolved into a variable that cannot
 			be accessed from the current context. This error refers to the case
@@ -1992,9 +2268,11 @@ print(arr.sort(order2));                        # works fine
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "ne-8",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-8",
+					content: `
 			<p>
 			In certain situations a name is resolved into a variable that cannot
 			be accessed from the current context. This error refers to the case
@@ -2020,9 +2298,11 @@ print(arr.sort(order2));                        # works fine
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "ne-9",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-9",
+					content: `
 			<p>
 			This error indicates that a name was not found inside a namespace.
 			For a name of the form <code class="ebnf">identifier "." identifier</code>
@@ -2031,20 +2311,22 @@ print(arr.sort(order2));                        # works fine
 			then this error is reported.
 			</p>
 		`,
-		"children": []},
-//		{"id": "ne-10",
-//		"content": `
-//			<p>
-//			When parsing an expression, a name is expected to resolve to a
-//			declaration that can be used as a value. This works for variables,
-//			function and types, but not for namespaces and non-static members.
-//			This error indicates that a name refers to a declaration that
-//			cannot be used as a value.
-//			</p>
-//		`,
-//		"children": []},
-		{"id": "ne-11",
-		"content": `
+					children: [],
+				},
+				//		{"id": "ne-10",
+				//		"content": `
+				//			<p>
+				//			When parsing an expression, a name is expected to resolve to a
+				//			declaration that can be used as a value. This works for variables,
+				//			function and types, but not for namespaces and non-static members.
+				//			This error indicates that a name refers to a declaration that
+				//			cannot be used as a value.
+				//			</p>
+				//		`,
+				//		"children": []},
+				{
+					id: "ne-11",
+					content: `
 			<p>
 			This error indicates that a name refers to a namespace, while a
 			different entity was expected.
@@ -2059,9 +2341,11 @@ print(arr.sort(order2));                        # works fine
 				</tscript>
 			</div>
 		`,
-		"children": []},
-		{"id": "ne-12",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-12",
+					content: `
 			<p>
 			The <a href="?doc#/language/expressions/member-access">member access operator .</a>
 			references a public member of a type. If the left-hand-side evaluates
@@ -2070,9 +2354,11 @@ print(arr.sort(order2));                        # works fine
 			classes has a public static member of the given name.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-13",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-13",
+					content: `
 			<p>
 			The <a href="?doc#/language/expressions/member-access">member access operator .</a>
 			references a public member of a type. This error is reported if neither
@@ -2080,9 +2366,11 @@ print(arr.sort(order2));                        # works fine
 			name.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-14",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-14",
+					content: `
 			<p>
 			Names declared within a scope must be unique. This error indicates
 			that a variable name is already used by a different declaration.
@@ -2093,9 +2381,11 @@ print(arr.sort(order2));                        # works fine
 			and the function body are all in the same scope.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-15",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-15",
+					content: `
 			<p>
 			Names declared within a scope must be unique. This error indicates
 			that a function name is already used by a different declaration.
@@ -2106,9 +2396,11 @@ print(arr.sort(order2));                        # works fine
 			and the function body are all in the same scope.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-16",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-16",
+					content: `
 			<p>
 			Names declared within a scope must be unique. This error indicates
 			that a parameter name is already used by a different declaration.
@@ -2122,9 +2414,11 @@ print(arr.sort(order2));                        # works fine
 			parameter, which is declared first.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-17",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-17",
+					content: `
 			<p>
 			All <a href="?doc#/language/expressions/literals/anonymous-functions">closure</a>
 			parameters belong to the same scope, therefore they must be unique.
@@ -2132,9 +2426,11 @@ print(arr.sort(order2));                        # works fine
 			then this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-18",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-18",
+					content: `
 			<p>
 			Names declared within a scope must be unique. This error indicates
 			that a class name is already used by a different declaration.
@@ -2145,9 +2441,11 @@ print(arr.sort(order2));                        # works fine
 			and the function body are all in the same scope.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-19",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-19",
+					content: `
 			<p>
 			Names declared within a scope must be unique. This error indicates
 			that a namespace name is already used by a different declaration.
@@ -2158,9 +2456,11 @@ print(arr.sort(order2));                        # works fine
 			and the function body are all in the same scope.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-21",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-21",
+					content: `
 			<p>
 			The <a href="?doc#/language/declarations/classes">constructor of a class</a>
 			can invoke the constructor of the super class with a special syntax
@@ -2170,18 +2470,22 @@ print(arr.sort(order2));                        # works fine
 			not exist a super class.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-22",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-22",
+					content: `
 			<p>
 			The <a href="?doc#/language/declarations/classes">super class of a class</a>
 			is provided as a name. The name must refer to a type, otherwise this
 			error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-23",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-23",
+					content: `
 			<p>
 			When importing all name from a namespace with a
 			<a href="?doc#/language/directives/use">use directive</a> of the form
@@ -2190,9 +2494,11 @@ print(arr.sort(order2));                        # works fine
 			indeed refers to a namespace, otherwise this error is triggered.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-24",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-24",
+					content: `
 			<p>
 			When importing a name from a namespace with a
 			<a href="?doc#/language/directives/use">use directive</a>, then the
@@ -2209,9 +2515,11 @@ print(arr.sort(order2));                        # works fine
 			an alias name.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-25",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-25",
+					content: `
 			<p>
 			It was attempted to call a constructor of a type with a protected or
 			private constructor from outside the scope of the class, and for a
@@ -2225,17 +2533,21 @@ print(arr.sort(order2));                        # works fine
 			created directly from outside the class.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-26",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-26",
+					content: `
 			<p>
 			It was attempted to use a class as its own super class.
 			That's not possible because inheritance chains must be cycle-free.
 			</p>
 		`,
-		"children": []},
-		{"id": "ne-27",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ne-27",
+					content: `
 			<p>
 			It was attempted to create an object of a class without knowing its
 			constructor. This happens when creating an object of a class from
@@ -2266,53 +2578,65 @@ print(arr.sort(order2));                        # works fine
 				</tscript>
 			</div>
 		`,
-		"children": []},
-	]},
-	{"id": "logic",
-	"name": "Logic Errors",
-	"title": "Logic Errors",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "logic",
+			name: "Logic Errors",
+			title: "Logic Errors",
+			content: `
 		The errors in this category indicate a severe bug in the logic of a
 		TScript program.
 	`,
-	"children": [
-		{"id": "le-1",
-		"content": `
+			children: [
+				{
+					id: "le-1",
+					content: `
 			<p>
 			This error indicates that too many function calls were nested.
 			It is often caused by an infinite recursion.
 			</p>
 		`,
-		"children": []},
-		{"id": "le-2",
-		"content": `
+					children: [],
+				},
+				{
+					id: "le-2",
+					content: `
 			<p>
 			The function <code class="code">enterEventMode</code> was called,
 			directly or indirectly, from within an event handler. Event
 			handling mode cannot be nested, hence this error is reported.
 			</p>
 		`,
-		"children": []},
-		{"id": "le-3",
-		"content": `
+					children: [],
+				},
+				{
+					id: "le-3",
+					content: `
 			<p>
 			This error indicates that the function
 			<code class="code">quitEventMode</code> was called although the
 			program was not in event handling mode.
 			</p>
 		`,
-		"children": []},
-	]},
-	{"id": "user",
-	"name": "User-Defined Errors",
-	"title": "User-Defined Errors",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "user",
+			name: "User-Defined Errors",
+			title: "User-Defined Errors",
+			content: `
 		This section collects errors reported by the program itself, not by
 		the TScript programming language and its runtime environment.
 	`,
-	"children": [
-		{"id": "ue-1",
-		"content": `
+			children: [
+				{
+					id: "ue-1",
+					content: `
 			<p>
 			The library function <a href="?doc#/library/core">assert</a> can be
 			called in order to report an error in case a condition is violated.
@@ -2327,9 +2651,11 @@ assert(a==2);           # this throws a runtime-assertion failed error
         </div>
 			</p>
 		`,
-		"children": []},
-		{"id": "ue-2",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ue-2",
+					content: `
 			<p>
 			The library function <a href="?doc#/library/core">error</a> can be
 			called in order to report an error. The error is reported by user
@@ -2343,9 +2669,11 @@ if not ...  then
         </div>
 			</p>
 		`,
-		"children": []},
-		{"id": "ue-3",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ue-3",
+					content: `
 			<p>
 			If an exception is <a href="?doc#/language/statements/throw">thrown</a>
 			and not <a href="?doc#/language/statements/try-catch">caught</a> then
@@ -2370,20 +2698,24 @@ catch var ex do {                               # an error occurs if this catch 
         </div>
 			</p>
 		`,
-		"children": []},
-	]},
-	{"id": "style",
-	"name": "Style Errors",
-	"title": "Style Errors",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "style",
+			name: "Style Errors",
+			title: "Style Errors",
+			content: `
 		This section collects errors reported by the style checker. They are not
 		programming errors in a strict sense. Yet, if configured to do so,
 		TScript reports style errors to enforce good programming style. This
 		behavior can be changed in the configuration dialog.
 	`,
-	"children": [
-		{"id": "ste-1",
-		"content": `
+			children: [
+				{
+					id: "ste-1",
+					content: `
 			<p>
 			This error is reported if the indentation of a program is
 			inconsistent. The indentation in each block must be larger
@@ -2398,9 +2730,11 @@ catch var ex do {                               # an error occurs if this catch 
 			</tscript>
 			</p>
 		`,
-		"children": []},
-		{"id": "ste-2",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ste-2",
+					content: `
 			<p>
 			This error is reported if the indentation of program block
 			markers is inconsistent, i.e., if the indentation of the line
@@ -2413,9 +2747,11 @@ catch var ex do {                               # an error occurs if this catch 
 			</tscript>
 			</p>
 		`,
-		"children": []},
-		{"id": "ste-3",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ste-3",
+					content: `
 			<p>
 			This error can occur when a variable, function, or namespace name
 			starts with a capital letter. By convention, these names start with
@@ -2428,9 +2764,11 @@ catch var ex do {                               # an error occurs if this catch 
 			}
 			</tscript>
 		`,
-		"children": []},
-		{"id": "ste-4",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ste-4",
+					content: `
 			<p>
 			This error can occur when a class name starts with a
 			lowercase letter or an underscore. By convention, TScript
@@ -2443,19 +2781,23 @@ catch var ex do {                               # an error occurs if this catch 
 			}
 			</tscript>
 		`,
-		"children": []},
-	]},
-	{"id": "internal",
-	"name": "Internal Errors",
-	"title": "Internal Errors",
-	"content": `
+					children: [],
+				},
+			],
+		},
+		{
+			id: "internal",
+			name: "Internal Errors",
+			title: "Internal Errors",
+			content: `
 		This section collects errors reported by TScript about itself.
 		Such errors <i>should of course never occur</i>, however, it is
 		clear that bugs are unavoidable.
 	`,
-	"children": [
-		{"id": "ie-1",
-		"content": `
+			children: [
+				{
+					id: "ie-1",
+					content: `
 			<p>
 			This error is reported if the TScript parser fails to
 			operate as expected. This is not the fault of the program
@@ -2463,9 +2805,11 @@ catch var ex do {                               # an error occurs if this catch 
 			TScript.
 			</p>
 		`,
-		"children": []},
-		{"id": "ie-2",
-		"content": `
+					children: [],
+				},
+				{
+					id: "ie-2",
+					content: `
 			<p>
 			This error is reported if the TScript interpreter fails to
 			operate as expected. This is not the fault of the program
@@ -2473,7 +2817,9 @@ catch var ex do {                               # an error occurs if this catch 
 			TScript or its standard library.
 			</p>
 		`,
-		"children": []},
-	]},
-]
+					children: [],
+				},
+			],
+		},
+	],
 };

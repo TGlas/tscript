@@ -1,0 +1,14 @@
+.github/ISSUE_TEMPLATE/*.md
+
+# unsupported files
+.editorconfig
+.gitignore
+.prettierignore
+
+LICENSE
+
+*.tscript
+
+# copied from .gitignore
+node_modules/
+distribution/

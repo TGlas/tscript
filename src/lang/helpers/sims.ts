@@ -1,5 +1,7 @@
-export function simfalse()
-{ return false; }
+export function simfalse() {
+	return false;
+}
 
-export function simtrue()
-{ return true; }
+export function simtrue() {
+	return true;
+}
