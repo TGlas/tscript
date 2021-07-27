@@ -39,8 +39,13 @@ export const doc_ide: Documentation = {
 		The IDE has a toolbar at the top. It features a number of central
 		controls.
 		</p>
+        <p>
+        <center>
+        <img src="images/toolbar.png"
+        </center>
+        </p>
 		<p>
-		The four leftmost buttons manage files. They create a new
+		The four leftmost buttons manage files (red). They create a new
 		document, open a document from a file, save to file, and save
 		under a different name. Currently, documents can only be stored
 		in the local storage of the browser.
@@ -57,16 +62,16 @@ export const doc_ide: Documentation = {
 		the others.
 		</p>
 		<p>
-		The next group of buttons controls program execution. They start
+		The next group of buttons controls program execution (green). They start
 		or continue, interrupt, and abort the program. Three further
-		buttons belong the the debugger. They step through the programs
+		buttons belong to the debugger. They step through the programs
 		at different levels of granularity. The button with the little
 		red dot toggles (sets/removes) the breakpoint in the current
 		line, or the closest line below that is a legal breakpoint
 		location.
 		</p>
 		<p>
-		The green arrow opens the export dialog. It allows to export
+		The green arrow opens the export dialog (yellow). It allows to export
 		programs using turtle graphics or canvas graphics as standalone
 		applications (web pages). These files can be ran in a browser,
 		i.e., independent of the TScript IDE.
@@ -86,7 +91,7 @@ export const doc_ide: Documentation = {
 		</p>
 		<p>
 		Right of the program indicator there is an area collecting icons of
-		iconified panels. The icons can be clicked to restore the previous
+		iconified panels (purple). The icons can be clicked to restore the previous
 		non-icon state of a panel.
 		</p>
 		<p>
@@ -184,12 +189,17 @@ export const doc_ide: Documentation = {
 		temporary value exists only during the evaluation of an expression,
 		before it is consumed by another expression.
 		</p>
-		</p>
+		<p>
 		The panel allows to inspect the values of all variables at runtime.
 		This information is invaluable for debugging. While running the
 		program step by step the programmer can monitor the effect of all
 		commands on the variables.
-		<p>
+		</p>
+        <p>
+        <center>
+        <img src="images/stackexample.png">
+        </center>
+        </p>
 
 		<h2>The Program View</h2>
 		<p>
