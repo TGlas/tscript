@@ -94,11 +94,11 @@ export const doc_language: Documentation = {
 			with clear semantics. Tokens can be separated by whitespace,
 			comments, other terminals, or they can be self-delimiting.
 			A sequence of input characters that does not match any of
-			the token types results in a syntax error. In this documentation 
-            the red-written expressions need to be replaced by the corresponding 
-            tokens. The "|" denote the logical or, "()" enclose connected tokens. 
-            "[]" express that the inner expressions are optional and therefore can 
-            be chosen zero or one times, "{}" express that the inner expressions can 
+			the token types results in a syntax error. In this documentation
+            the red-written expressions need to be replaced by the corresponding
+            tokens. The "|" denote the logical or, "()" enclose connected tokens.
+            "[]" express that the inner expressions are optional and therefore can
+            be chosen zero or one times, "{}" express that the inner expressions can
             be chosen zero or n times.
 			</p>
 
@@ -117,7 +117,7 @@ export const doc_language: Documentation = {
 				line-comment = "#" (unicode-char - "*" - line-feed)
 				                   { unicode-char - line-feed } ;                           "example: # this is a comment       "
 				block-comment = "#*" { (unicode-char - "*")                                 "example: #* this is a              "
-				                       | ("*" { "*" } (unicode-char - "#"))                 "            multiline comment *#   " 
+				                       | ("*" { "*" } (unicode-char - "#"))                 "            multiline comment *#   "
 				                     } "*#" ;
 				unicode-char = $ any Unicode character U+0000 to U+FFFF $ ;
 			</ebnf>
@@ -340,7 +340,15 @@ export const doc_language: Documentation = {
 			For example, when encountering the sequence of tokens
 			<code class="code">{(</code> then <code class="code">)</code> is fine, while
 			encountering <code class="code">}</code> first indicates a syntax error.
-<<<<<<< HEAD:src/doc/def-language.ts
+			<tscript do-not-run>
+{
+	()
+}           # this is okay
+
+{
+	(
+} )         # this is not
+			</tscript>
 			</p>
 		`,
 					children: [],
@@ -351,24 +359,6 @@ export const doc_language: Documentation = {
 					title:
 						"Complete Formal EBNF Definition of the TScript Syntax",
 					content: `
-=======
-			<tscript do-not-run>
-{
-    ()
-}           # this is okay
-
-{
-    (
-} )         # this is not
-			</tscript>
-            </p>
-        `,
-		"children": []},
-		{"id": "EBNF-syntax",
-		"name": "Complete EBNF Syntax",
-		"title": "Complete Formal EBNF Definition of the TScript Syntax",
-		"content": `
->>>>>>> d98179ca94abd2160d5930268f7f3ed3ee82ff0b:src/doc/language.ts
 			<p>
 			This section collects all syntax rules for reference.
 			</p>
@@ -702,7 +692,7 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 				func-decl = "function" identifier "(" param-list ")" func-body ;    "# function example() {}"
 				  param-list = [ param-decl { "," param-decl } ] ;                  "# (ex, am, ple)"
 				  param-decl = identifier [ "=" constant-ex ] ;                     "# ex or ex = 1"
-				  constant-ex = $ expression that evaluates to a constant $ ;       
+				  constant-ex = $ expression that evaluates to a constant $ ;
 				  func-body = "{" { declaration | statement | directive } "}" ;     "# { . . . }"
 			</ebnf>
 			It is referenced by its name, and invoked by
@@ -752,8 +742,8 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			<p>
 			A class is declared with the following syntax:
 			<ebnf>
-				class-decl = "class" identifier [ ":" name ] class-body ;               
-				  class-body = "{" "}" | "{" visibility { visibility                    
+				class-decl = "class" identifier [ ":" name ] class-body ;
+				  class-body = "{" "}" | "{" visibility { visibility
 				                                        | constructor
 				                                        | [ "static" ] declaration
 				                                        | directive }
@@ -778,8 +768,8 @@ class Circle
 
     public:
 		constructor(radius=1)                         # constructor, gets called by "var c = Circle(5)" and sets m_radius to handed value; if no value is given, sets radius to 1 by default
-		{ 
-            m_radius = radius; 
+		{
+            m_radius = radius;
         }
 		function radius()
 		{ return m_radius; }
@@ -902,7 +892,7 @@ print("The circle has radius " + c2.radius() + " and area " + c2.area() + "."); 
 					constructor(x_, y_)
 					{ x = x_; y = y_; }
 				}
-				
+
 			</tscript>
 			The same data can of course be held in an array
 			<code class="code">[x,y]</code> or a dictionary
@@ -941,8 +931,8 @@ print("The circle has radius " + c2.radius() + " and area " + c2.area() + "."); 
 			<tscript>
 class Person
 {
-	private:                                                            
-		var m_name;         
+	private:
+		var m_name;
 		var m_address;                                                      # m_name and m_address can only be accessed in Person
 
     protected:
@@ -974,7 +964,7 @@ class Customer : Person
 
             print(super.m_example);                                           # this does work, since m_example is protected and therefore visible for Customer
 
-            return "id: " + m_customerID + "\\n" + super.description(); 
+            return "id: " + m_customerID + "\\n" + super.description();
         }
 }
 
@@ -2167,7 +2157,7 @@ print(r > s);                           # prints true, as the first comparison t
 			A function call is an expression with the following syntax:
 			<ebnf>
 				function-call = expression "(" argument { "," argument } ")" ";" ;          # example("example");
-				argument = [ identifier "=" ] expression ;                                 
+				argument = [ identifier "=" ] expression ;
 			</ebnf>
 			The first expression must resolve to a callable object, hereafter
 			referred to as the function for short, which is a
@@ -2706,7 +2696,7 @@ print(e.ex);                        # works fine
 var a = 1;      # statement
 
 for 0:3 do      # statement
-{ 
+{
     print(a);   # statement
     break;      # statement
 }
@@ -2878,7 +2868,7 @@ if 3 < 5 then {}             # works
 # if "true" then {}            # does not work
             </tscript>
         </div>
-            
+
 		`,
 					children: [],
 				},
@@ -3216,7 +3206,7 @@ print("example");               # will not be executed
 			The result of evaluating the <ebnf>expression</ebnf> is called
 			an exception.
 			The effect of throwing an exception is that execution continues
-			in the <keyword>catch</keyword>-part of the closest enclosing 
+			in the <keyword>catch</keyword>-part of the closest enclosing
 			<keyword>try</keyword>-<keyword>catch</keyword> block.
 			The search for the closest enclosing <keyword>try</keyword> block
 			works as follows. The current scope is left until a
@@ -3237,7 +3227,7 @@ print("example");               # will not be executed
 			deeply nested function calls. The role of the exception is to
 			provide a useful description of the error, which can be either
 			handled programmatically by the catch block, or reported to the
-			user. 
+			user.
 			</p>
 			<p>
 			Sometimes only certain types of errors should be handled in a
@@ -3442,7 +3432,7 @@ print(b xor b);         # prints false;
 
 
 
-var FLAG_FOUNDITEM = false;                                     # this flag indicates if an item is already found in a search 
+var FLAG_FOUNDITEM = false;                                     # this flag indicates if an item is already found in a search
 
 var example_array = Array(10);
 example_array[4] = 1;
@@ -3994,7 +3984,7 @@ function descending(a, b) {
 arr.sort();
 print(arr);                                     # prints [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-arr.sort(descending);                           
+arr.sort(descending);
 print(arr);                                     # prints [9, 8, 7, 6, 5, 4, 3, 2, 1]
 
 arr.sort(ascending);

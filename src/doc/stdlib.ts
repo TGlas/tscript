@@ -1,10 +1,10 @@
 import { Documentation } from ".";
 
-export const doc_stdlib:Documentation = {
-"id": "library",
-"name": "The TScript Standard Library",
-"title": "Reference Documentation for the TScript Standard Library",
-"content": `
+export const doc_stdlib: Documentation = {
+	id: "library",
+	name: "The TScript Standard Library",
+	title: "Reference Documentation for the TScript Standard Library",
+	content: `
 	<p>
 	This is the reference documentation of the TScript standard library.
 	Its core consists of a hand full of general utility functions and a set
@@ -12,11 +12,12 @@ export const doc_stdlib:Documentation = {
 	turtle and canvas graphics.
 	</p>
 `,
-"children": [
-	{"id": "core",
-	"name": "Core Functions",
-	"title": "Core Functions",
-	"content": `
+	children: [
+		{
+			id: "core",
+			name: "Core Functions",
+			title: "Core Functions",
+			content: `
 		<p>
 		The functions described in this section perform essential core tasks.
 		Instead of being library functions, they could equally well be
@@ -242,12 +243,13 @@ print(c);               # prints [0, 1, 2], since it's a copy
 		</td></tr>
 		</table>
 	`,
-	"children": [
-	]},
-	{"id": "math",
-	"name": "Math Functions",
-	"title": "Math Functions",
-	"content": `
+			children: [],
+		},
+		{
+			id: "math",
+			name: "Math Functions",
+			title: "Math Functions",
+			content: `
 		<p>
 		The <code class="code">namespace math</code> contains a number
 		of functions computing powers, logarithms, trigonometric and
@@ -401,12 +403,13 @@ print(c);               # prints [0, 1, 2], since it's a copy
 		</td></tr>
 		</table>
 	`,
-	"children": [
-	]},
-	{"id": "turtle",
-	"name": "Turtle Graphics",
-	"title": "Turtle Graphics",
-	"content": `
+			children: [],
+		},
+		{
+			id: "turtle",
+			name: "Turtle Graphics",
+			title: "Turtle Graphics",
+			content: `
 		<p>
 		The functions in this section control the "turtle", an imaginary robot
 		equipped with a pen that can move around and draw lines. The turtle
@@ -473,12 +476,13 @@ turtle.move(50);            # blue line to the left
         </center>
     </div>
 	`,
-	"children": [
-	]},
-	{"id": "canvas",
-	"name": "Canvas Graphics",
-	"title": "Canvas Graphics",
-	"content": `
+			children: [],
+		},
+		{
+			id: "canvas",
+			name: "Canvas Graphics",
+			title: "Canvas Graphics",
+			content: `
 		<p>
 		The functions in this section control the "canvas", a rectangular
 		surface for drawing geometric shapes and text. Canvas graphics is
@@ -824,14 +828,14 @@ enterEventMode();
         </tscript>
     </div>
 	`,
-	"children": [
-	]},
+			children: [],
+		},
 
-	{
-		"id": "audio",
-		"name": "Audio playback",
-		"title": "Audio playback",
-		"content": `
+		{
+			id: "audio",
+			name: "Audio playback",
+			title: "Audio playback",
+			content: `
 			<p>TScript supports playback of audio. The classes <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code> allow the playback of arbitrary buffers consisting of reals with values from -1 to 1.
 			The playback is performed asynchronously, meaning that a call to <code class="code">play()</code> will return immediately regardless of sound duration.
 			</p>
@@ -886,7 +890,7 @@ enterEventMode();
 				
 			</tscript>
 		`,
-		"children":[],
-	}
-]
+			children: [],
+		},
+	],
 };

@@ -1,7 +1,3 @@
-"use strict";
-
-import { doc_legal } from "../doc/legal";
-
 var interact = require("interactjs");
 
 ///////////////////////////////////////////////////////////

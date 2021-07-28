@@ -130,9 +130,6 @@ export const doc_errors: Documentation = {
 			must end within a single line. This error indicates that the
 			closing double quotes character was not found before the end
 			of the line.
-<<<<<<< HEAD:src/doc/def-errors.ts
-			</p>
-=======
             <div class="example">
             <h3>Example</h3>
             <tscript do-not-run>
@@ -141,7 +138,6 @@ export const doc_errors: Documentation = {
             </tscript>
         </div>
             </p>
->>>>>>> d98179ca94abd2160d5930268f7f3ed3ee82ff0b:src/doc/errors.ts
 		`,
 					children: [],
 				},
@@ -273,7 +269,6 @@ export const doc_errors: Documentation = {
 			an identifier is missing at the end.
 			</p>
 		`,
-<<<<<<< HEAD:src/doc/def-errors.ts
 					children: [],
 				},
 				//		{"id": "se-12",
@@ -288,20 +283,6 @@ export const doc_errors: Documentation = {
 				{
 					id: "se-13",
 					content: `
-=======
-//		"children": []},
-//		{"id": "se-12",
-//		"content": `
-//			<p>
-//			This error occurs if a name refers to a non-static member of an outer
-//			class. It cannot be accessed because the <keyword>this</keyword> object
-//			of the inner class is unrelated.
-//			</p>
-//		`,
-		"children": []},
-		{"id": "se-13",
-		"content": `
->>>>>>> d98179ca94abd2160d5930268f7f3ed3ee82ff0b:src/doc/errors.ts
 			<p>
 			This error message indicates that a name refers to a non-static
 			attribute or method, which requires <keyword>this</keyword> to be
@@ -560,8 +541,6 @@ export const doc_errors: Documentation = {
 			enclosed in square brackets. In other words, a comma or a closing bracket
 			must follow each variable or expression, otherwise this error is reported.
 			</p>
-<<<<<<< HEAD:src/doc/def-errors.ts
-=======
             <div class="example">
             <h3>Example</h3>
             <tscript do-not-run>
@@ -573,7 +552,6 @@ function example(index) {
 }
             </tscript>
         </div>
->>>>>>> d98179ca94abd2160d5930268f7f3ed3ee82ff0b:src/doc/errors.ts
 		`,
 					children: [],
 				},
@@ -613,8 +591,6 @@ function example(index) {
 			variables enclosed in square brackets or by a parameter list in
 			enclosed parentheses, otherwise this error is emitted.
 			</p>
-<<<<<<< HEAD:src/doc/def-errors.ts
-=======
             <div class="example">
             <h3>Example</h3>
             <tscript do-not-run>
@@ -624,8 +600,8 @@ function example(index) {
         return array[index];
     };
 }
-            </tsc
->>>>>>> d98179ca94abd2160d5930268f7f3ed3ee82ff0b:src/doc/errors.ts
+            </tscript>
+			</div>
 		`,
 					children: [],
 				},
@@ -1759,7 +1735,7 @@ function example(index) {
 var arr = [1, 4, 2, 3];
 
 function order1(a, b) {
-    if a<=b then return -1; 
+    if a<=b then return -1;
 }
 
 function order2(a, b) {
@@ -2690,7 +2666,7 @@ assert(a==2);           # this throws a runtime-assertion failed error
             <div class="example">
             <h3>Example</h3>
             <tscript do-not-run>
-if not ...  then 
+if not ...  then
     error("condition was not fulfilled");           # this throws a runtime error
             </tscript>
         </div>
@@ -2707,8 +2683,6 @@ if not ...  then
 			the program stops and this error message is reported. This is often
 			unintended by the programmer and hints at an internal error that
 			should be fixed.
-<<<<<<< HEAD:src/doc/def-errors.ts
-=======
             <div class="example">
             <h3>Example</h3>
             <tscript do-not-run>
@@ -2725,7 +2699,6 @@ catch var ex do {                               # an error occurs if this catch 
 }
             </tscript>
         </div>
->>>>>>> d98179ca94abd2160d5930268f7f3ed3ee82ff0b:src/doc/errors.ts
 			</p>
 		`,
 					children: [],
