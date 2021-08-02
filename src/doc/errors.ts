@@ -596,7 +596,7 @@ function example(index) {
             <tscript do-not-run>
 var array = [0, 1, 2, 3, 4, 5];
 function example(index) {
-    return function [index () {         # here the error occurs, because behind index a comma or closing bracket is expected
+    return function index] () {         # here the error occurs, because an opening bracket/paranthesis is expected behind the function keyword inside of an expression
         return array[index];
     };
 }
