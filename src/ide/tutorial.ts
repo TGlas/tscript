@@ -113,8 +113,7 @@ export const tutorial = (function () {
 					click: function (event) {
 						tgui.msgBox({
 							title: "Reset Progress",
-							prompt:
-								"Resetting marks all programming tasks in the tutorial as unsolved.\nAre you sure?",
+							prompt: "Resetting marks all programming tasks in the tutorial as unsolved.\nAre you sure?",
 							buttons: [
 								{
 									text: "Yes",
@@ -200,8 +199,7 @@ export const tutorial = (function () {
 									// evaluation succeeded; move on to the next section
 									tgui.msgBox({
 										title: "Success",
-										prompt:
-											"Congrats!\nYou have solved the task.",
+										prompt: "Congrats!\nYou have solved the task.",
 										enterConfirms: true,
 									});
 									module.state.completed[
@@ -215,9 +213,10 @@ export const tutorial = (function () {
 											.length
 									) {
 										module.state.unit++;
-										module.state.section = findCanonicalSection(
-											module.state.unit
-										);
+										module.state.section =
+											findCanonicalSection(
+												module.state.unit
+											);
 									} else module.state.section++;
 									storeState();
 									display();

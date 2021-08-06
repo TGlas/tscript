@@ -356,8 +356,7 @@ export const doc_language: Documentation = {
 				{
 					id: "EBNF-syntax",
 					name: "Complete EBNF Syntax",
-					title:
-						"Complete Formal EBNF Definition of the TScript Syntax",
+					title: "Complete Formal EBNF Definition of the TScript Syntax",
 					content: `
 			<p>
 			This section collects all syntax rules for reference.

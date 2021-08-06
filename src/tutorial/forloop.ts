@@ -86,10 +86,6 @@ export const tutorial_forloop = {
 					code: "",
 				},
 				{
-					type: "code",
-					code: "",
-				},
-				{
 					type: "js",
 					code: `
 						let program = parse(code).program;

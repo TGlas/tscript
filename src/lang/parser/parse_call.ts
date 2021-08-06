@@ -216,12 +216,11 @@ export function callstep(options: Options) {
 				while (c && c.variables) {
 					for (let i = 0; i < c.variables.length; i++) {
 						if (c.variables[i].hasOwnProperty("initializer")) {
-							f_obj.value.a[
-								c.variables[i].id
-							] = copyconstant.call(
-								this,
-								c.variables[i].initializer.typedvalue
-							);
+							f_obj.value.a[c.variables[i].id] =
+								copyconstant.call(
+									this,
+									c.variables[i].initializer.typedvalue
+								);
 						}
 					}
 					c = c.superclass;

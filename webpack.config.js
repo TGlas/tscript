@@ -2,8 +2,8 @@ const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
-const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin")
-	.default;
+const HTMLInlineCSSWebpackPlugin =
+	require("html-inline-css-webpack-plugin").default;
 
 module.exports = (_, options) => {
 	const isProd = options.mode === "production";

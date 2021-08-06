@@ -470,8 +470,8 @@ export let tgui = (function () {
 				if (result.children.length > 0) {
 					td1.style.cursor = "pointer";
 					td1.addEventListener("click", function (event) {
-						let element = this.parentNode.childNodes[1]
-							.childNodes[0];
+						let element =
+							this.parentNode.childNodes[1].childNodes[0];
 						let state = control.element2state[element.id];
 						if (state.open) {
 							// close the node, i.e., add the tgui-hidden class to all child rows

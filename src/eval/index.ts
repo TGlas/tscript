@@ -1209,7 +1209,7 @@ export const evaluation = (function () {
 				points = 0;
 			} else {
 				// check the result, report success or failure
-				if (!task.tests) {
+				if (!task.hasOwnProperty("tests") || task.tests === null) {
 					let ed = compare_runs(result[0], result[1], marker);
 					if (ed[0] != "") {
 						points = 0;
@@ -1250,6 +1250,8 @@ export const evaluation = (function () {
 							);
 							if (ed[0] != "") {
 								points = 0;
+								error = ed[0];
+								details = ed[1];
 								if (calls[call_pos] != "") {
 									error =
 										"Error in the specification of a unit test of type 'code': " +

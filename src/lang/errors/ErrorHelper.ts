@@ -108,21 +108,14 @@ export class ErrorHelper {
 export let errors = {
 	syntax: {
 		"se-1": "syntax error in floating point literal",
-		"se-2":
-			"syntax error in string literal; closing double quotes '\"' expected before end-of-line",
-		"se-3":
-			"syntax error in string literal; invalid Unicode escape sequence",
-		"se-4":
-			"syntax error in string literal; invalid escape sequence '\\$$'",
+		"se-2": "syntax error in string literal; closing double quotes '\"' expected before end-of-line",
+		"se-3": "syntax error in string literal; invalid Unicode escape sequence",
+		"se-4": "syntax error in string literal; invalid escape sequence '\\$$'",
 		"se-5": "syntax error; invalid character '$$'",
-		"se-6":
-			"syntax error; 'super' cannot be used outside of a class declaration",
-		"se-7":
-			"syntax error; 'super' cannot be used in a class without super class",
-		"se-8":
-			"syntax error in super reference; dot '.' expected after 'super'",
-		"se-9":
-			"syntax error in super reference; identifier expected after dot '.'",
+		"se-6": "syntax error; 'super' cannot be used outside of a class declaration",
+		"se-7": "syntax error; 'super' cannot be used in a class without super class",
+		"se-8": "syntax error in super reference; dot '.' expected after 'super'",
+		"se-9": "syntax error in super reference; identifier expected after dot '.'",
 		"se-10": "syntax error in $$; name (identifier or super name) expected",
 		"se-11":
 			"syntax error in namespace reference; identifier expected after dot '.'",
@@ -245,8 +238,7 @@ export let errors = {
 		"se-90": "syntax error; unexpected token '$$', statement expected",
 	},
 	"argument-mismatch": {
-		"am-1":
-			"argument type mismatch; parameter '$$' of '$$' must be a $$; found '$$'",
+		"am-1": "argument type mismatch; parameter '$$' of '$$' must be a $$; found '$$'",
 		"am-2": "cannot logically negate type '$$'",
 		"am-3": "cannot apply unary plus to type '$$'",
 		"am-4": "cannot arithmetically negate type '$$'",
@@ -313,23 +305,15 @@ export let errors = {
 		"am-45": "$$ exceeded allowed range $$",
 	},
 	name: {
-		"ne-1":
-			"error in function call; named parameter '$$' is already specified in call to function '$$'",
-		"ne-2":
-			"error in function call; named parameter '$$' not found in function '$$'",
-		"ne-3":
-			"error in function call; too many arguments for call to function '$$'",
-		"ne-4":
-			"error in function call; parameter number $$ is missing when calling function '$$'",
+		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",
+		"ne-2": "error in function call; named parameter '$$' not found in function '$$'",
+		"ne-3": "error in function call; too many arguments for call to function '$$'",
+		"ne-4": "error in function call; parameter number $$ is missing when calling function '$$'",
 		"ne-5": "error in $$; '$$' is not defined",
-		"ne-6":
-			"error in $$; cannot access variable '$$', which is declared in a different class",
-		"ne-7":
-			"error in $$; cannot access variable '$$', which is declared in a different function",
-		"ne-8":
-			"error in $$; '$$' cannot be accessed because it is a private member of type '$$'",
-		"ne-9":
-			"error in namespace lookup; name '$$' not found in namespace '$$'",
+		"ne-6": "error in $$; cannot access variable '$$', which is declared in a different class",
+		"ne-7": "error in $$; cannot access variable '$$', which is declared in a different function",
+		"ne-8": "error in $$; '$$' cannot be accessed because it is a private member of type '$$'",
+		"ne-9": "error in namespace lookup; name '$$' not found in namespace '$$'",
 		"ne-11":
 			"a name referring to a namespace is not allowed in this context",
 		"ne-12": "type '$$' does not have a public static member '$$'",

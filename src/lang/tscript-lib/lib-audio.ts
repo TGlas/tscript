@@ -47,7 +47,8 @@ export const lib_audio = {
 
 					fillAudioBuffer(buffer, buf.getChannelData(0));
 
-					let sourceNode = this.service.audioContext.createBufferSource();
+					let sourceNode =
+						this.service.audioContext.createBufferSource();
 					sourceNode.buffer = buf;
 					sourceNode.connect(this.service.audioContext.destination);
 
@@ -140,7 +141,8 @@ export const lib_audio = {
 					fillAudioBuffer(leftBuffer, buf.getChannelData(0));
 					fillAudioBuffer(rightBuffer, buf.getChannelData(1));
 
-					let sourceNode = this.service.audioContext.createBufferSource();
+					let sourceNode =
+						this.service.audioContext.createBufferSource();
 					sourceNode.buffer = buf;
 					sourceNode.connect(this.service.audioContext.destination);
 

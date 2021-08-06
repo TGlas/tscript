@@ -137,8 +137,10 @@ export let ide = (function () {
 		module.sourcecode.focus();
 		//	module.sourcecode.scrollIntoView({"line": line-1, "ch": 0}, 40);
 		let s = module.sourcecode.getScrollInfo();
-		let y = module.sourcecode.charCoords({ line: line - 1, ch: 0 }, "local")
-			.top;
+		let y = module.sourcecode.charCoords(
+			{ line: line - 1, ch: 0 },
+			"local"
+		).top;
 		let h = module.sourcecode.getScrollerElement().offsetHeight;
 		if (
 			y < s.top + 0.1 * s.clientHeight ||
@@ -299,10 +301,8 @@ export let ide = (function () {
 						) {
 							ret.children.push({
 								nodetype: "typedvalue",
-								index:
-									value.typedvalue.value.b.func.closureparams[
-										i
-									].name,
+								index: value.typedvalue.value.b.func
+									.closureparams[i].name,
 								typedvalue:
 									value.typedvalue.value.b.enclosed[i],
 							});
@@ -1143,8 +1143,7 @@ export let ide = (function () {
 	function confirmFileDiscard(title, onConfirm) {
 		if (module.document.dirty) {
 			tgui.msgBox({
-				prompt:
-					"The document may have unsaved changes.\nDo you want to discard the code?",
+				prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
 				icon: tgui.msgBoxQuestion,
 				title: title,
 				buttons: [
@@ -1673,8 +1672,7 @@ export let ide = (function () {
 					tgui.createElement({
 						parent: dlg.content,
 						type: "label",
-						text:
-							"Press the hotkey to assign, or press escape to remove the current hotkey",
+						text: "Press the hotkey to assign, or press escape to remove the current hotkey",
 						style: {
 							position: "absolute",
 							left: "15px",
@@ -2669,12 +2667,11 @@ export let ide = (function () {
 					// fill its attributes
 					for (let key in t.members) {
 						if (!dict.hasOwnProperty(key)) continue;
-						obj.value.a[
-							t.members[key].id
-						] = TScript.json2typed.call(
-							module.interpreter,
-							dict[key]
-						);
+						obj.value.a[t.members[key].id] =
+							TScript.json2typed.call(
+								module.interpreter,
+								dict[key]
+							);
 					}
 					return obj;
 				}
