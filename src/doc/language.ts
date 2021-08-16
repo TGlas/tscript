@@ -742,11 +742,13 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			A class is declared with the following syntax:
 			<ebnf>
 				class-decl = "class" identifier [ ":" name ] class-body ;
-				  class-body = "{" "}" | "{" visibility { visibility
-				                                        | constructor
-				                                        | [ "static" ] declaration
-				                                        | directive }
-				                         "}" ;
+				  class-body = "{" [ directive ] "}"
+				             | "{" [ directive ] visibility
+				                  { visibility
+         				           | constructor
+		         		           | [ "static" ] declaration
+				                    | directive }
+         				      "}" ;
 				  visibility = ("public" | "procected" | "private") ":" ;
 				  constructor = "constructor" "(" param-list ")"
 				         [ ":" "super" "(" [ expression { "," expression } ] ")" ]
