@@ -68,7 +68,7 @@ export const tutorial_forloop = {
 			programming, so need to get used to them.
 			</p>
 			<p>
-			It is time to try this our yourself. Write a program printing
+			It is time to try this out yourself. Write a program printing
 			out already familiar greeting <code class="code">Hello World!</code>
 			10 times, but using only a single <code class="code">print</code>
 			command inside of a for-loop.
@@ -105,13 +105,76 @@ export const tutorial_forloop = {
 		{
 			content: `
 			<h2>Loop Counters</h2>
-			<p>TODO</p>
+			<p>In many instances we not only want to execute the same code multiple times 
+            but slightly differ what we do in each iteration based on the iteration count. 
+            To do so we need to keep track of how many times we have already run the code. 
+            Instead of just telling the for-loop its range we extend the syntax with a 
+            variable in which the loop count will be saved. If we call the variable 
+            inside of the for-loop it tells us the current status. 
+            <tscript>
+            for var i in 0:4 do
+            {
+                turtle.move(20);
+                turtle.turn(90);
+                print(i);
+            }
+            </tscript>
+            This code will print <code class="code">0 1 2 3</code>. A small example application 
+            might be printing a small multiplication table for a specific number.
+            <tscript>
+            for var i in 1:10 do
+            {
+                print(3*i);
+            }
+            </tscript>
+            This will output the multiplication table of the number 3. We can see that the range 
+            the loop runs through is not bound to start at 0. It is totally possible to start and 
+            end at any number you want as long as it is an integer.</p>
+            <p>
+            To try this for yourself write a for-loop which prints a multiplication table for the 
+            number 5, starting at 2 and ending at 8. Be aware that our multiplication table for 3 
+            starts at 1 and ends with 9.
+            </p>
 			`,
+            correct: `
+				for var i in 2:9 do
+				{
+					print(5*i);
+				}
+				`,
+			tests: [
+				{
+					type: "code",
+					code: "",
+				},
+				{
+					type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
+                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                    if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
+                    if (isRecursive(program)) return "Please don't use recursion.";`,
+				},
+            ]
 		},
 		{
 			content: `
 			<h2>Ranges</h2>
-			<p>TODO</p>
+			<p>To specify how many iterations a for-loop should perform, we 
+            used a new data type called <i>ranges</i>. The syntax to create
+            a range is <code class="code">range = integer, ":", integer</code>.
+            We can also call the constructor of the data type via 
+            <code class = "code">range = Range(integer, ":", integer);</code>.
+            The first integer has to be smaller than the second one, otherwise
+            the constructed range is gonna be empty. Here are a few examples
+            how to create a range:
+            <tscript>
+				var r1 = 0:10;          # range from 0 to 9
+                var r2 = 20:10;         # empty range
+                var r3 = Range(5,7);    # range from 5 to 6
+			</tscript>
+            </p>
 			`,
 		},
 		{
