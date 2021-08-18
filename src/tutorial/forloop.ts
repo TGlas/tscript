@@ -69,8 +69,13 @@ export const tutorial_forloop = {
 			</p>
 			<div class="tutorial-exercise">
 			<p>
+<<<<<<< HEAD
 			It is time to try this our yourself. Write a program printing out
 			the already familiar greeting <code class="code">Hello World!</code>
+=======
+			It is time to try this out yourself. Write a program printing
+			out already familiar greeting <code class="code">Hello World!</code>
+>>>>>>> finished for-loop section in tutorial
 			10 times, but using only a single <code class="code">print</code>
 			command inside of a for-loop.
 			</p>
