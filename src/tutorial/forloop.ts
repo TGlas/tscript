@@ -132,7 +132,7 @@ export const tutorial_forloop = {
             starts at 1 and ends with 9.
             </p>
 			`,
-            correct: `
+			correct: `
 				for var i in 2:9 do
 				{
 					print(5*i);
@@ -152,7 +152,7 @@ export const tutorial_forloop = {
                     if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
                     if (isRecursive(program)) return "Please don't use recursion.";`,
 				},
-            ]
+			],
 		},
 		{
 			content: `
