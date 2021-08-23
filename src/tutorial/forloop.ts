@@ -65,14 +65,16 @@ export const tutorial_forloop = {
 			executed. That's one iteration. There are four iterations in
 			total, namely for the loop counter values 0, 1, 2 and 3.
 			Counters starting from zero instead of one are very common in
-			programming, so need to get used to them.
+			programming, so let's get used to them.
 			</p>
+			<div class="tutorial-exercise">
 			<p>
-			It is time to try this our yourself. Write a program printing
-			out already familiar greeting <code class="code">Hello World!</code>
+			It is time to try this our yourself. Write a program printing out
+			the already familiar greeting <code class="code">Hello World!</code>
 			10 times, but using only a single <code class="code">print</code>
 			command inside of a for-loop.
 			</p>
+			</div>
 			`,
 			correct: `
 				for 0:10 do

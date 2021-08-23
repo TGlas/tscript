@@ -48,13 +48,15 @@ export const tutorial_helloworld = {
 			to further commands. The semicolon is a command delimiter. Each
 			and every command ends with a semicolon.
 			</p>
+			<div class="tutorial-exercise">
 			<p>
 			Now go ahead and type the above command into the editor. Refuse
 			the temptation to copy&amp;paste. Rather type it carefully
 			yourself, so you are forced to pay attention to the details like
 			parentheses, double quotes, and the semicolon. Congratulations!
-			You have just written your first program!
+			You are just about to write your first program!
 			</p>
+			</div>
 			<p>
 			The program can be run (or executed) by pressing F7, or by
 			pressing the "Run" button with the green triangle ("play"
@@ -86,12 +88,16 @@ export const tutorial_helloworld = {
 			<h2>Variation</h2>
 			<p>
 			The print command is a bit boring. Who needs a computer for
-			printing messages to a message area? Let's do something slightly
+			printing messages to a message area?
+			</p>
+			<div class="tutorial-exercise">
+			<p>Let's do something slightly
 			visually more appealing: we output the greeting in a message
 			box. That's done with the <code class="code">alert</code>
 			command. It has the same syntax as the print command. Replace
 			print with alert and see what happens.
 			</p>
+			</div>
 			`,
 			correct: `alert("Hello World!");`,
 		},

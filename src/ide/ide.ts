@@ -2873,7 +2873,7 @@ export let ide = (function () {
 			e = createTypedEvent("canvas.KeyboardEvent", e);
 			module.interpreter.enqueueEvent("canvas.keyup", e);
 		});
-		/*
+/*
 		let panel_tutorial = tgui.createPanel({
 			name: "tutorial",
 			title: "Tutorial",
@@ -2885,18 +2885,18 @@ export let ide = (function () {
 				ctx.strokeStyle = "#666";
 				ctx.lineWidth = 3;
 				ctx.beginPath();
-				ctx.moveTo( 5.0, 20);
-				ctx.lineTo( 9.0,  2);
-				ctx.lineTo(11.0,  2);
+				ctx.moveTo(5.0, 20);
+				ctx.lineTo(9.0, 2);
+				ctx.lineTo(11.0, 2);
 				ctx.lineTo(15.0, 20);
 				ctx.stroke();
 
 				ctx.strokeStyle = "#db7";
 				ctx.lineWidth = 2;
 				ctx.beginPath();
-				ctx.moveTo( 5, 20);
-				ctx.lineTo( 9,  2);
-				ctx.lineTo(11,  2);
+				ctx.moveTo(5, 20);
+				ctx.lineTo(9, 2);
+				ctx.lineTo(11, 2);
 				ctx.lineTo(15, 20);
 				ctx.stroke();
 
@@ -2910,9 +2910,9 @@ export let ide = (function () {
 				ctx.lineWidth = 1;
 				ctx.strokeStyle = "#fff";
 				ctx.beginPath();
-				ctx.moveTo( 5, 6);
-				ctx.lineTo( 7, 8);
-				ctx.lineTo( 5, 10);
+				ctx.moveTo(5, 6);
+				ctx.lineTo(7, 8);
+				ctx.lineTo(5, 10);
 				ctx.stroke();
 			},
 		});
@@ -2922,11 +2922,17 @@ export let ide = (function () {
 			classname: "ide ide-tutorial",
 		});
 		tutorial.init(
-				tutorial_container,
-				function() { return module.sourcecode.getValue(); },
-				function() { module.messages.innerHTML = ""; },
-				function(error) { module.addMessage("error", error); },
-			);
+			tutorial_container,
+			function () {
+				return module.sourcecode.getValue();
+			},
+			function () {
+				module.messages.innerHTML = "";
+			},
+			function (error) {
+				module.addMessage("error", error);
+			}
+		);
 */
 		tgui.arrangePanels();
 

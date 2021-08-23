@@ -225,8 +225,26 @@ export const tutorial = (function () {
 						);
 					},
 				});
-			}
-			if (
+				tgui.createElement({
+					type: "button",
+					classname: "tgui-modal-default-button tutorial-nav-button",
+					parent: nav,
+					text: "skip task",
+					click: function (event) {
+						if (
+							module.state.section + 1 ==
+							module.data[module.state.unit].sections.length
+						) {
+							module.state.unit++;
+							module.state.section = findCanonicalSection(
+								module.state.unit
+							);
+						} else module.state.section++;
+						storeState();
+						display();
+					},
+				});
+			} else if (
 				module.state.unit + 1 < module.data.length ||
 				module.state.section + 1 <
 					module.data[module.state.unit].sections.length

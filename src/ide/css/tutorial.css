@@ -38,3 +38,13 @@
 	background: #fed;
 	border: 1px solid #aaa;
 }
+
+.tutorial-exercise {
+	padding: 5px;
+	background: #eff;
+	border: 1px solid #aaa;
+}
+.tutorial-exercise::before {
+	content: "[exercise] ";
+	font-weight: bold;
+}
