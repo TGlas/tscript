@@ -2873,7 +2873,7 @@ export let ide = (function () {
 			e = createTypedEvent("canvas.KeyboardEvent", e);
 			module.interpreter.enqueueEvent("canvas.keyup", e);
 		});
-/*
+		/*
 		let panel_tutorial = tgui.createPanel({
 			name: "tutorial",
 			title: "Tutorial",
