@@ -669,7 +669,7 @@ export const doc = (function () {
 						);
 					}
 				}
-			} catch (ex) {
+			} catch (ex: any) {
 				if (ex.message) alert(ex.message);
 				else alert(ex);
 				throw ex;

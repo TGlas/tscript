@@ -216,7 +216,7 @@ export class Parser {
 				program.breakpoints[state.line] = b;
 				program.commands.push(b);
 			}
-		} catch (ex) {
+		} catch (ex: any) {
 			// ignore the actual exception and rely on state.errors instead
 			if (ex.name === "Parse Error") {
 				if (state.errors.length > 0)
