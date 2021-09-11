@@ -235,7 +235,7 @@ export class Interpreter {
 				// end the loop before the step is done
 				if (pe.sim.call(this)) break;
 			}
-		} catch (ex) {
+		} catch (ex: any) {
 			if (ex.name === "Runtime Error" || ex.name === "Parse Error") {
 				this.halt = null;
 				this.background = false;
