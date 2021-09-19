@@ -1517,20 +1517,27 @@ export let ide = (function () {
 				parent: div_appearance,
 				type: "p",
 			});
-			let lbl = tgui.createElement({
+			/*let lbl = tgui.createElement({
 				parent: p_appearance,
 				type: "label",
 				html: " Dark Theme ",
-			});
+			});*/
 			let checkbox = tgui.createElement({
-				parent: lbl,
+				parent: p_appearance,
 				type: "input",
-				html: " Dark Theme ",
+				id: "chkDarkTheme",
 				properties: { type: "checkbox" },
 				click: function (event) {
 					dark_theme = checkbox.checked;
 					tgui.setDarkTheme(dark_theme);
 				},
+			});
+			let lbl = tgui.createElement({
+				parent: p_appearance,
+				type: "label",
+				html: "Dark theme",
+				attributes: { "for": "chkDarkTheme" },
+				style: {"padding-left": "5px"},
 			});
 			if (dark_theme) checkbox.checked = true;
 		}
@@ -1553,18 +1560,21 @@ export let ide = (function () {
 				parent: div_codingStyle,
 				type: "p",
 			});
-			let lbl = tgui.createElement({
-				parent: p_codingStyle,
-				type: "label",
-				html: " Enable style errors ",
-			});
 			let checkbox = tgui.createElement({
-				parent: lbl,
+				parent: p_codingStyle,
 				type: "input",
+				id: "chkCodingStyle",
 				properties: { type: "checkbox" },
 				click: function (event) {
 					options.checkstyle = checkbox.checked;
 				},
+			});
+			let lbl = tgui.createElement({
+				parent: p_codingStyle,
+				type: "label",
+				html: "Enable style errors",
+				attributes: { "for": "chkCodingStyle" },
+				style: {"padding-left": "5px"},
 			});
 			if (options.checkstyle) checkbox.checked = true;
 		}
@@ -1926,24 +1936,33 @@ export let ide = (function () {
 				//background: "#fff",
 			},
 		});
+
+		module.programstate.setCss = function (cls) {
+			if(this.hasOwnProperty("cssstate"))
+				this.dom.classList.replace(this.cssstate, cls)
+			else
+				this.dom.classList.add(cls)
+			this.cssstate = cls;
+			return this;
+		};
 		// TODO set tooltip text to the content text, this should apply when the statusbox is too narrow
 		module.programstate.unchecked = function () {
-			this.setText("program has not been checked").setBackground("#ee8");
+			this.setText("program has not been checked").setCss("ide-state-unchecked");
 		};
 		module.programstate.error = function () {
-			this.setText("an error has occurred").setBackground("#f44");
+			this.setText("an error has occurred").setCss("ide-state-error");
 		};
 		module.programstate.running = function () {
-			this.setText("program is running").setBackground("#8e8");
+			this.setText("program is running").setCss("ide-state-running");
 		};
 		module.programstate.waiting = function () {
-			this.setText("program is waiting").setBackground("#aca");
+			this.setText("program is waiting").setCss("ide-state-waiting");
 		};
 		module.programstate.stepping = function () {
-			this.setText("program is in stepping mode").setBackground("#8ee");
+			this.setText("program is in stepping mode").setCss("ide-state-stepping");
 		};
 		module.programstate.finished = function () {
-			this.setText("program has finished").setBackground("#88e");
+			this.setText("program has finished").setCss("ide-state-finished");
 		};
 		module.programstate.unchecked();
 

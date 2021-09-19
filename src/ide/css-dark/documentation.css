@@ -64,13 +64,13 @@ body.dark-theme hr {
 }
 
 body.dark-theme *.nicetable th {
-	border: 2px solid #fa8;
-	background: #854;
+	border: 2px solid #854;
+	background: #432;
 }
 
 body.dark-theme *.nicetable td {
-	border: 2px solid #abf;
-	background: #568;
+	border: 2px solid #568;
+	background: #234;
 }
 
 body.dark-theme *.nicetable th a {

@@ -12,7 +12,7 @@ body.dark-theme *.ide-panel-area {
 }
 
 body.dark-theme *.ide-toolbar {
-	background: #353535;
+	background: #303030;
 	color: #fff;
 	border-bottom: #555;
 	box-shadow: inset 0px -1px 0px #444;
@@ -95,4 +95,35 @@ body.dark-theme *.ide-builtin {
 }
 body.dark-theme *.ide-userclass {
 	color: #fff;
+}
+
+
+body.dark-theme *.tgui-label.ide-state-unchecked {
+	background-color: #970;
+	color: #fe8;
+}
+
+body.dark-theme *.tgui-label.ide-state-error {
+	background-color: #c32;
+	color: #fc8;
+}
+
+body.dark-theme *.tgui-label.ide-state-running {
+	background-color: #2a2;
+	color: #cfc;
+}
+
+body.dark-theme *.tgui-label.ide-state-waiting {
+	background-color: #171;
+	color: #8f8;
+}
+
+body.dark-theme *.tgui-label.ide-state-stepping {
+	background-color: #0ab;
+	color: #cff;
+}
+
+body.dark-theme *.tgui-label.ide-state-finished {
+	background-color: #139;
+	color: #8cf;
 }

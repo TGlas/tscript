@@ -202,6 +202,9 @@ export const icons = (function() {
 	// the 2d context of the canvas is passed as a parameter,
 	// resulting in less code
 
+    function iconColorRed(dark) { return dark ? "#f31" : "#c00"; }
+    function iconColorGreen(dark) { return dark ? "#4c2" : "#080"; }
+
 	function draw_icon_paper(ctx) {
 		ctx.strokeStyle = "#333";
 		ctx.fillStyle = "#fff";
@@ -224,6 +227,7 @@ export const icons = (function() {
 	}
 
 	function draw_icon_floppy_disk(ctx) {
+        ctx.lineWidth = 1;
 		ctx.fillStyle = "#36d";
 		ctx.strokeStyle = "#139";
 		ctx.beginPath();
@@ -302,6 +306,7 @@ export const icons = (function() {
 
         draw_icon_paper(ctx);
 
+        ctx.lineWidth = 1;
         ctx.strokeStyle = "#030";
         ctx.fillStyle = "#0a0";
         ctx.beginPath();
@@ -367,7 +372,7 @@ export const icons = (function() {
 
     icons.run = function (canvas, dark) {
         let ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#080";
+        ctx.fillStyle = iconColorGreen(dark);
         ctx.beginPath();
         ctx.moveTo(5, 5);
         ctx.lineTo(15, 10);
@@ -377,14 +382,14 @@ export const icons = (function() {
 
     icons.interrupt = function (canvas, dark) {
         let ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#c00";
+        ctx.fillStyle = iconColorRed(dark);
         ctx.fillRect(5, 5, 4, 10);
         ctx.fillRect(11, 5, 4, 10);
     };
 
     icons.reset = function (canvas, dark) {
         let ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#c00";
+        ctx.fillStyle = iconColorRed(dark);
         ctx.fillRect(5, 5, 10, 10);
     };
 
@@ -462,7 +467,7 @@ export const icons = (function() {
 
     icons.breakPoint = function (canvas, dark) {
         let ctx = canvas.getContext("2d");
-        ctx.fillStyle = "#c00";
+        ctx.fillStyle = iconColorRed(dark);
         ctx.arc(10, 10, 3.9, 0, 2 * Math.PI, false);
         ctx.fill();
     };
@@ -478,7 +483,7 @@ export const icons = (function() {
 
     icons.export = function (canvas, dark) {
         let ctx = canvas.getContext("2d");
-        ctx.strokeStyle = "#080";
+        ctx.strokeStyle = iconColorGreen(dark);
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(3, 7);
@@ -686,6 +691,7 @@ export const icons = (function() {
         // draws literally a turtle
         let ctx = canvas.getContext("2d");
 
+        ctx.lineWidth = 1;
         ctx.fillStyle = "#2c3";
         ctx.strokeStyle = "#070";
 
@@ -759,6 +765,7 @@ export const icons = (function() {
         ctx.fillStyle = "#fff";
         ctx.fillRect(4, 3, 12, 14);
         ctx.fillStyle = "#00c8";
+        ctx.lineWidth = 1;
         ctx.strokeStyle = "#00cc";
         ctx.beginPath();
         ctx.rect(5.5, 5.5, 6, 6);

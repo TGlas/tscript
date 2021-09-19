@@ -181,3 +181,28 @@ button {
 .ide-userclass {
 	color: #000;
 }
+
+
+.tgui-label.ide-state-unchecked {
+	background-color: #ee8;
+}
+
+.tgui-label.ide-state-error {
+	background-color: #f44;
+}
+
+.tgui-label.ide-state-running {
+	background-color: #8e8;
+}
+
+.tgui-label.ide-state-waiting {
+	background-color: #aca;
+}
+
+.tgui-label.ide-state-stepping {
+	background-color: #8ee;
+}
+
+.tgui-label.ide-state-finished {
+	background-color: #88e;
+}

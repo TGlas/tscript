@@ -133,6 +133,14 @@ export let tgui = (function () {
 			element.tabIndex = description.tabindex;
 		}
 
+		// html tag attributes, TODO: should these be in the description
+		// object directly?
+		if (description.hasOwnProperty("attributes"))
+		{
+			for(let a in description.attributes)
+				element.setAttribute(a, description.attributes[a]);
+		}
+
 		// add to a parent
 		if (description.parent) description.parent.appendChild(element);
 
