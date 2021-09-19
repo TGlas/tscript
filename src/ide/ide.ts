@@ -33,7 +33,7 @@ export let ide = (function () {
 
 	let module: any = {};
 	let options: any = {};
-	let dark_theme : boolean = false;
+	let dark_theme: boolean = false;
 
 	function guid() {
 		return (
@@ -1013,7 +1013,7 @@ export let ide = (function () {
 				//color: "#000",
 				padding: "2px 10px",
 				"vertical-align": "middle",
-				border: "1px solid"// #000",
+				border: "1px solid", // #000",
 			},
 		});
 		let download_turtle = tgui.createElement({
@@ -1033,7 +1033,7 @@ export let ide = (function () {
 				"font-decoration": "underline",
 				padding: "2px 10px",
 				"vertical-align": "middle",
-				border: "1px solid",// #000",
+				border: "1px solid", // #000",
 				display: "none",
 			},
 		});
@@ -1054,7 +1054,7 @@ export let ide = (function () {
 				"font-decoration": "underline",
 				padding: "2px 10px",
 				"vertical-align": "middle",
-				border: "1px solid",// #000",
+				border: "1px solid", // #000",
 				display: "none",
 			},
 		});
@@ -1317,12 +1317,10 @@ export let ide = (function () {
 			if (config.hasOwnProperty("options")) {
 				options = config.options;
 			}
-			if (config.hasOwnProperty("dark_theme"))
-			{
+			if (config.hasOwnProperty("dark_theme")) {
 				dark_theme = config.dark_theme === true;
-				if(dark_theme) 
-				{
-					document.addEventListener('DOMContentLoaded', function () {
+				if (dark_theme) {
+					document.addEventListener("DOMContentLoaded", function () {
 						tgui.setDarkTheme(true);
 					});
 				}
@@ -1499,7 +1497,7 @@ export let ide = (function () {
 			dlg_buttons.push(tgui.createButton(description));
 		}
 
-		{ 
+		{
 			// Appearance
 			let checked = "";
 
@@ -1536,13 +1534,13 @@ export let ide = (function () {
 				parent: p_appearance,
 				type: "label",
 				html: "Dark theme",
-				attributes: { "for": "chkDarkTheme" },
-				style: {"padding-left": "5px"},
+				attributes: { for: "chkDarkTheme" },
+				style: { "padding-left": "5px" },
 			});
 			if (dark_theme) checkbox.checked = true;
 		}
 
-		{ 
+		{
 			// Coding Style
 			let checked = "";
 
@@ -1573,8 +1571,8 @@ export let ide = (function () {
 				parent: p_codingStyle,
 				type: "label",
 				html: "Enable style errors",
-				attributes: { "for": "chkCodingStyle" },
-				style: {"padding-left": "5px"},
+				attributes: { for: "chkCodingStyle" },
+				style: { "padding-left": "5px" },
 			});
 			if (options.checkstyle) checkbox.checked = true;
 		}
@@ -1938,16 +1936,17 @@ export let ide = (function () {
 		});
 
 		module.programstate.setCss = function (cls) {
-			if(this.hasOwnProperty("cssstate"))
-				this.dom.classList.replace(this.cssstate, cls)
-			else
-				this.dom.classList.add(cls)
+			if (this.hasOwnProperty("cssstate"))
+				this.dom.classList.replace(this.cssstate, cls);
+			else this.dom.classList.add(cls);
 			this.cssstate = cls;
 			return this;
 		};
 		// TODO set tooltip text to the content text, this should apply when the statusbox is too narrow
 		module.programstate.unchecked = function () {
-			this.setText("program has not been checked").setCss("ide-state-unchecked");
+			this.setText("program has not been checked").setCss(
+				"ide-state-unchecked"
+			);
 		};
 		module.programstate.error = function () {
 			this.setText("an error has occurred").setCss("ide-state-error");
@@ -1959,7 +1958,9 @@ export let ide = (function () {
 			this.setText("program is waiting").setCss("ide-state-waiting");
 		};
 		module.programstate.stepping = function () {
-			this.setText("program is in stepping mode").setCss("ide-state-stepping");
+			this.setText("program is in stepping mode").setCss(
+				"ide-state-stepping"
+			);
 		};
 		module.programstate.finished = function () {
 			this.setText("program has finished").setCss("ide-state-finished");
@@ -2157,7 +2158,7 @@ export let ide = (function () {
 			title: "Stack",
 			state: "icon",
 			fallbackState: "right",
-			icondraw: "icon:stackView"
+			icondraw: "icon:stackView",
 		});
 		module.stacktree = tgui.createTreeControl({
 			parent: panel_stackview.content,

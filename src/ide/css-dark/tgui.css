@@ -97,7 +97,7 @@ body.dark-theme *.tgui-separator {
 
 body.dark-theme *.tgui-modal {
 	color: #fff;
-	border-color:#444;
+	border-color: #444;
 }
 
 body.dark-theme *.tgui-modal-titlebar {

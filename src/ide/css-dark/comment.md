@@ -7,5 +7,5 @@ means that the styles at the given style selector are probably not
 converted to dark theme. Only color properties should be used in the
 dark theme when possible.
 
-    text area -> #222 
+    text area -> #222
     button area -> #333

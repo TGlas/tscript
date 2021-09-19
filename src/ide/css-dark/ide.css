@@ -97,7 +97,6 @@ body.dark-theme *.ide-userclass {
 	color: #fff;
 }
 
-
 body.dark-theme *.tgui-label.ide-state-unchecked {
 	background-color: #970;
 	color: #fe8;

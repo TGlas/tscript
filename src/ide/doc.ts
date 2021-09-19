@@ -23,18 +23,15 @@ export const doc = (function () {
 	let doctree: any = null;
 	let dark_theme: boolean = false;
 
-
 	// check if dark theme is activated
 	function loadConfig() {
 		let str = localStorage.getItem("tscript.ide.config");
 		if (str) {
 			let config = JSON.parse(str);
-			if (config.hasOwnProperty("dark_theme"))
-			{
+			if (config.hasOwnProperty("dark_theme")) {
 				let dark_theme = config.dark_theme === true;
-				if(dark_theme) 
-				{
-					document.addEventListener('DOMContentLoaded', function () {
+				if (dark_theme) {
+					document.addEventListener("DOMContentLoaded", function () {
 						document.body.classList.add("dark-theme"); // TODO should this be here?
 					});
 				}
@@ -43,7 +40,6 @@ export const doc = (function () {
 		return null;
 	}
 	loadConfig();
-
 
 	// This function copies #text to the clipboard when run
 	// from within an event handler.

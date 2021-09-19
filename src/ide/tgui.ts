@@ -135,9 +135,8 @@ export let tgui = (function () {
 
 		// html tag attributes, TODO: should these be in the description
 		// object directly?
-		if (description.hasOwnProperty("attributes"))
-		{
-			for(let a in description.attributes)
+		if (description.hasOwnProperty("attributes")) {
+			for (let a in description.attributes)
 				element.setAttribute(a, description.attributes[a]);
 		}
 
@@ -213,8 +212,7 @@ export let tgui = (function () {
 		};
 	};
 
-	function setupCanvasZoom(canvas)
-	{
+	function setupCanvasZoom(canvas) {
 		// zoom
 		// TODO: programmaticly detect whenever zoom changes
 		let zoom = 2; // Good enough
@@ -227,16 +225,12 @@ export let tgui = (function () {
 		}
 	}
 
-	function renderCanvas(canvas, draw)
-	{
-		if(typeof draw === "string")
-		{
+	function renderCanvas(canvas, draw) {
+		if (typeof draw === "string") {
 			console.assert(draw.substring(0, 5) == "icon:");
 			let id = draw.substring(5);
 			icons[id](canvas, module.dark_theme);
-		}
-		else
-			draw(canvas);
+		} else draw(canvas);
 	}
 
 	// Create a canvas icon element with automaticly zoomed contents
@@ -260,15 +254,17 @@ export let tgui = (function () {
 		let canvas = module.createElement({
 			type: "canvas",
 			parent: description.parent,
-			classname: "tgui-dynamic-canvas " + (description.hasOwnProperty("classname")
-				? description["classname"]
-				: "tgui"),
+			classname:
+				"tgui-dynamic-canvas " +
+				(description.hasOwnProperty("classname")
+					? description["classname"]
+					: "tgui"),
 			style: style,
 		});
 		canvas.width = description.width;
 		canvas.height = description.height;
 
-		if(typeof description.draw === "string")
+		if (typeof description.draw === "string")
 			canvas.setAttribute("tgui_draw", description.draw);
 
 		setupCanvasZoom(canvas);
@@ -876,7 +872,6 @@ export let tgui = (function () {
 
 		// register the panel
 		module.panels.push(control);
-		
 
 		// create the title bar with buttons
 		control.titlebar_container = tgui.createElement({
@@ -1695,22 +1690,22 @@ export let tgui = (function () {
 		return true;
 	});
 
-
-	module.setDarkTheme = function(dark_theme: boolean)	{
-		if(module.dark_theme != dark_theme)
-		{
+	module.setDarkTheme = function (dark_theme: boolean) {
+		if (module.dark_theme != dark_theme) {
 			document.body.classList.toggle("dark-theme", dark_theme);
 			module.dark_theme = dark_theme;
-			document.querySelectorAll(".tgui-dynamic-canvas").forEach((canvas : any) => {
-				if(canvas.hasAttribute("tgui_draw")) {
-					let ctx = canvas.getContext("2d");
-					//ctx.resetTransform();
-					ctx.clearRect(0, 0, canvas.width, canvas.height);
-					renderCanvas(canvas, canvas.getAttribute("tgui_draw"));
-				}
-			});
+			document
+				.querySelectorAll(".tgui-dynamic-canvas")
+				.forEach((canvas: any) => {
+					if (canvas.hasAttribute("tgui_draw")) {
+						let ctx = canvas.getContext("2d");
+						//ctx.resetTransform();
+						ctx.clearRect(0, 0, canvas.width, canvas.height);
+						renderCanvas(canvas, canvas.getAttribute("tgui_draw"));
+					}
+				});
 		}
-	}
+	};
 
 	return module;
 })();
