@@ -1,0 +1,188 @@
+/*body.dark-theme {
+	border-color: #fff;
+	color: #fff;
+	background-color: #222;
+}*/
+
+body.dark-theme *.tgui-control {
+	color: #fff;
+	/*background-color: #333;*/
+}
+
+body.dark-theme *.tgui-tooltip {
+	background-color: #654;
+	color: #fe7;
+	border: 1px solid #777;
+}
+
+body.dark-theme *.tgui-toolbar-separator {
+	background: #444;
+	box-shadow: 0px 1px 2px #00000080;
+}
+
+/* used for program status on the toolbar */
+/* TODO: create separate css classes for the different states */
+body.dark-theme *.tgui-label {
+	color: #000;
+}
+
+body.dark-theme *.tgui-button-text {
+
+	color: #fff;
+	background: #333;
+	border-color: #444;
+}
+
+body.dark-theme *.tgui-button-text:hover {
+	background: #444;
+	border-color: #666;
+}
+
+body.dark-theme *.tgui-button-text:focus {
+	border-color: #fff;
+}
+
+body.dark-theme *.tgui-button-text:active {
+	background: #222;
+	border-color: #fff;
+}
+
+body.dark-theme *.tgui-button-canvas {
+	background: #333;
+	border-color: #444;
+}
+
+body.dark-theme *.tgui-button-canvas:hover {
+	background: #444;
+	border-color: #666;
+}
+
+body.dark-theme *.tgui-button-canvas:focus {
+	border-color: #fff;
+}
+
+body.dark-theme *.tgui-button-canvas:active {
+	background: #222;
+	border-color: #fff;
+}
+
+body.dark-theme *.tgui-list-box {
+	color: #fff;
+	background-color: #222;
+	border-color: #444;
+}
+
+body.dark-theme *.tgui-text-box {
+	color: #fff;
+	background-color: #222;
+	border-color: #444;
+}
+
+body.dark-theme *.tgui-tree-toggle {
+	color: #777;
+}
+
+body.dark-theme *.tgui-tree-toggle:hover {
+	color: #fff;
+}
+
+body.dark-theme *.tgui-tree-element:hover {
+	background: #447;
+}
+
+body.dark-theme *.tgui-separator {
+	background: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-theme *.tgui-modal {
+	color: #fff;
+	border-color:#444;
+}
+
+body.dark-theme *.tgui-modal-titlebar {
+	background: #008;
+	color: #fff;
+}
+
+body.dark-theme *.tgui-modal-titlebar-title {
+	color: #fff;
+}
+
+body.dark-theme *.tgui-modal-content {
+	background: #333;
+}
+
+body.dark-theme *.tgui-modal-buttonbar {
+	background: #272727;
+}
+
+body.dark-theme *.tgui-modal-button {
+	background: #333;
+	border-color: #fff;
+	color: #fff;
+}
+body.dark-theme *.tgui-modal-button:focus {
+	background: #444;
+}
+
+body.dark-theme *.tgui-modal-button:hover {
+	background: #447;
+}
+
+body.dark-theme *.tgui-modal-button:active {
+	background: #222;
+	color: #fff;
+}
+
+body.dark-theme *.tgui-modal-default-button {
+	background: #16f;
+	border-color: #4af;
+	color: #fff;
+}
+body.dark-theme *.tgui-modal-default-button:focus {
+	background: #16f;
+	border-color: #4af;
+}
+
+body.dark-theme *.tgui-modal-default-button:hover {
+	background: #27f;
+}
+
+body.dark-theme *.tgui-modal-default-button:active {
+	background: #139;
+	border-color: #27f;
+}
+
+body.dark-theme *.tgui-panel-titlebar {
+	background: #00c;
+	color: #fff;
+}
+
+body.dark-theme *.tgui-panel-titlebar-title {
+	color: #fff;
+}
+
+/* .tgui-panel-dockbutton is also used in modal dialogs */
+/*body.dark-theme *.tgui-panel-dockbutton {
+	background: #ddd;
+	border-color: #eee #ccc #ccc #eee;
+}
+
+body.dark-theme *.tgui-panel-dockbutton:focus {
+	border-color: #77f;
+}
+
+body.dark-theme *.tgui-panel-dockbutton:active {
+	background: #bbb;
+	border-color: #777;
+}*/
+
+body.dark-theme *.tgui-panel-content {
+	background: #222;
+	color: #fff;
+}
+
+body.dark-theme *.tgui-panel-container {
+	background: #222;
+	color: #fff;
+}
