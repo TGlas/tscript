@@ -1536,10 +1536,9 @@ export let ide = (function () {
 				parent: p_appearance,
 				type: "select",
 				attributes: { id: "selTheme" },
-			})
+			});
 
-			for(let t of themes)
-			{
+			for (let t of themes) {
 				let opt = tgui.createElement({
 					parent: sel,
 					type: "option",

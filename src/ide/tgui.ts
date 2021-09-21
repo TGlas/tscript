@@ -13,7 +13,7 @@ export let tgui = (function () {
 	let hotkeys = {};
 	let hotkeyElement = null;
 	module.theme = "default";
-	function isDarkTheme(theme: string)	{
+	function isDarkTheme(theme: string) {
 		return theme.includes("dark");
 	}
 
@@ -1695,12 +1695,15 @@ export let tgui = (function () {
 
 	module.setTheme = function (theme: string) {
 		if (module.theme != theme) {
-			if(theme == "default")
+			if (theme == "default")
 				document.body.classList.remove(`${module.theme}-theme`);
-			else if(module.theme == "default")
+			else if (module.theme == "default")
 				document.body.classList.add(`${theme}-theme`);
 			else
-				document.body.classList.replace(`${module.theme}-theme`, `${theme}-theme`);
+				document.body.classList.replace(
+					`${module.theme}-theme`,
+					`${theme}-theme`
+				);
 
 			module.theme = theme;
 			document
