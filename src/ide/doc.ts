@@ -21,25 +21,24 @@ export const doc = (function () {
 	let module: any = documentationData;
 	let docpath = "";
 	let doctree: any = null;
-	let dark_theme: boolean = false;
 
 	// check if dark theme is activated
 	function loadConfig() {
 		let str = localStorage.getItem("tscript.ide.config");
 		if (str) {
 			let config = JSON.parse(str);
-			if (config.hasOwnProperty("dark_theme")) {
-				let dark_theme = config.dark_theme === true;
-				if (dark_theme) {
+			if (config.hasOwnProperty("theme")) {
+				let theme = config.theme;
+				if (theme) {
 					document.addEventListener("DOMContentLoaded", function () {
-						document.body.classList.add("dark-theme"); // TODO should this be here?
+						document.body.classList.add(`${theme}-theme`);
 					});
 				}
 			}
 		}
 		return null;
 	}
-	loadConfig();
+	loadConfig(); // TODO should this be here?
 
 	// This function copies #text to the clipboard when run
 	// from within an event handler.

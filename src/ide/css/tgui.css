@@ -1,3 +1,5 @@
+/*TODO remove classes from modal components, instead: .tgui-modal button ...*/
+
 .tgui {
 	margin: 0;
 	padding: 0;
@@ -323,6 +325,16 @@
 	border-color: #000;
 	box-shadow: inset 0px 0px 3px #00000066;
 }
+
+.tgui-modal-content select {
+	background: #fff;
+	border-width: 1px;
+	border-color: #777;
+	border-radius: 2px;
+	padding: 3px;
+	color: #000;
+}
+
 
 .tgui-panel-container {
 	overflow: hidden;

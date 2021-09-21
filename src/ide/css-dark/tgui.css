@@ -154,6 +154,12 @@ body.dark-theme *.tgui-modal-default-button:active {
 	border-color: #27f;
 }
 
+body.dark-theme *.tgui-modal-content select {
+	background: #222;
+	border: #777;
+	color: #fff;
+}
+
 body.dark-theme *.tgui-panel-titlebar {
 	background: #00c;
 	color: #fff;

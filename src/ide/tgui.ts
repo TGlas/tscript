@@ -12,7 +12,10 @@ export let tgui = (function () {
 	// global mapping of hotkeys to handlers
 	let hotkeys = {};
 	let hotkeyElement = null;
-	module.dark_theme = false;
+	module.theme = "default";
+	function isDarkTheme(theme: string)	{
+		return theme.includes("dark");
+	}
 
 	// normalize the hotkey to lowercase
 	module.normalizeHotkey = function (hotkey) {
@@ -229,7 +232,7 @@ export let tgui = (function () {
 		if (typeof draw === "string") {
 			console.assert(draw.substring(0, 5) == "icon:");
 			let id = draw.substring(5);
-			icons[id](canvas, module.dark_theme);
+			icons[id](canvas, isDarkTheme(module.theme));
 		} else draw(canvas);
 	}
 
@@ -1690,10 +1693,16 @@ export let tgui = (function () {
 		return true;
 	});
 
-	module.setDarkTheme = function (dark_theme: boolean) {
-		if (module.dark_theme != dark_theme) {
-			document.body.classList.toggle("dark-theme", dark_theme);
-			module.dark_theme = dark_theme;
+	module.setTheme = function (theme: string) {
+		if (module.theme != theme) {
+			if(theme == "default")
+				document.body.classList.remove(`${module.theme}-theme`);
+			else if(module.theme == "default")
+				document.body.classList.add(`${theme}-theme`);
+			else
+				document.body.classList.replace(`${module.theme}-theme`, `${theme}-theme`);
+
+			module.theme = theme;
 			document
 				.querySelectorAll(".tgui-dynamic-canvas")
 				.forEach((canvas: any) => {

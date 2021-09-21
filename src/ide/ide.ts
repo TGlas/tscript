@@ -33,7 +33,7 @@ export let ide = (function () {
 
 	let module: any = {};
 	let options: any = {};
-	let dark_theme: boolean = false;
+	let theme: string = "default";
 
 	function guid() {
 		return (
@@ -1317,11 +1317,11 @@ export let ide = (function () {
 			if (config.hasOwnProperty("options")) {
 				options = config.options;
 			}
-			if (config.hasOwnProperty("dark_theme")) {
-				dark_theme = config.dark_theme === true;
-				if (dark_theme) {
+			if (config.hasOwnProperty("theme")) {
+				theme = config.theme;
+				if (theme !== "default") {
 					document.addEventListener("DOMContentLoaded", function () {
-						tgui.setDarkTheme(true);
+						tgui.setTheme(theme);
 					});
 				}
 			}
@@ -1332,7 +1332,7 @@ export let ide = (function () {
 
 	// save hotkeys
 	function saveConfig() {
-		let config: any = { options: options, hotkeys: [], dark_theme };
+		let config: any = { options: options, hotkeys: [], theme };
 		for (let i = 0; i < buttons.length; i++) {
 			config.hotkeys.push(buttons[i].hotkey);
 		}
@@ -1520,24 +1520,39 @@ export let ide = (function () {
 				type: "label",
 				html: " Dark Theme ",
 			});*/
-			let checkbox = tgui.createElement({
-				parent: p_appearance,
-				type: "input",
-				id: "chkDarkTheme",
-				properties: { type: "checkbox" },
-				click: function (event) {
-					dark_theme = checkbox.checked;
-					tgui.setDarkTheme(dark_theme);
-				},
-			});
+			const themes = [
+				{ id: "default", display: "Default" },
+				{ id: "dark", display: "Default dark" },
+			];
+
 			let lbl = tgui.createElement({
 				parent: p_appearance,
 				type: "label",
-				html: "Dark theme",
-				attributes: { for: "chkDarkTheme" },
-				style: { "padding-left": "5px" },
+				html: "Theme",
+				attributes: { for: "selTheme" },
+				style: { "padding-right": "5px" },
 			});
-			if (dark_theme) checkbox.checked = true;
+			let sel = tgui.createElement({
+				parent: p_appearance,
+				type: "select",
+				attributes: { id: "selTheme" },
+			})
+
+			for(let t of themes)
+			{
+				let opt = tgui.createElement({
+					parent: sel,
+					type: "option",
+					attributes: { value: t.id },
+					style: { width: "100px" },
+					html: t.display,
+				});
+			}
+			sel.value = theme;
+			sel.addEventListener("change", function (event) {
+				theme = sel.value;
+				tgui.setTheme(theme);
+			});
 		}
 
 		{
