@@ -102,7 +102,7 @@
 .tgui-button-text:active {
 	background: #bbb;
 	border-color: #888;
-	box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 0px 1px 1px #ffffff20;
 }
 
 .tgui-button-canvas {
@@ -144,9 +144,7 @@
 	background-color: #fff;
 	box-shadow: 0px 0px 2px #00000030;
 	border-radius: 2px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #ccc;
+	border: 1px solid #ccc;
 	padding: 3px;
 }
 
@@ -154,9 +152,7 @@
 	background-color: #fff;
 	box-shadow: 0px 0px 2px #00000030;
 	border-radius: 2px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #ccc;
+	border: 1px solid #ccc;
 	padding: 0 0 0 3px;
 }
 
@@ -326,13 +322,12 @@
 	box-shadow: inset 0px 0px 3px #00000066;
 }
 
-.tgui-modal-content select {
-	background: #fff;
-	border-width: 1px;
-	border-color: #777;
+.tgui-modal-dropdown {
+	background-color: #fff;
+	box-shadow: 0px 0px 2px #00000030;
 	border-radius: 2px;
+	border: 1px solid #ccc;
 	padding: 3px;
-	color: #000;
 }
 
 .tgui-panel-container {

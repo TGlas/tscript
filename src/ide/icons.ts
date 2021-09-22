@@ -501,6 +501,7 @@ export const icons = (function () {
 		ctx.fillStyle = col;
 		ctx.strokeStyle = col;
 		ctx.arc(10, 10, 2.0, 0, 2 * Math.PI, false);
+		ctx.closePath();
 		ctx.fill();
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = col;

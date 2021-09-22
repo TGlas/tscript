@@ -1235,71 +1235,83 @@ export let ide = (function () {
 			draw: "icon:newDocument",
 			tooltip: "New document",
 			hotkey: "shift-control-n",
+			group: "file",
 		},
 		{
 			click: cmd_load,
 			draw: "icon:openDocument",
 			tooltip: "Open document",
 			hotkey: "control-o",
+			group: "file",
 		},
 		{
 			click: cmd_save,
 			draw: "icon:saveDocument",
 			tooltip: "Save document",
 			hotkey: "control-s",
+			group: "file",
 		},
 		{
 			click: cmd_save_as,
 			draw: "icon:saveDocumentAs",
 			tooltip: "Save document as ...",
 			hotkey: "shift-control-s",
+			group: "file",
 		},
 		{
 			click: cmd_run,
 			draw: "icon:run",
 			tooltip: "Run/continue program",
 			hotkey: "F7",
+			group: "execution",
 		},
 		{
 			click: cmd_interrupt,
 			draw: "icon:interrupt",
 			tooltip: "Interrupt program",
 			hotkey: "shift-F7",
+			group: "execution",
 		},
 		{
 			click: cmd_reset,
 			draw: "icon:reset",
 			tooltip: "Abort program",
 			hotkey: "F10",
+			group: "execution",
 		},
 		{
 			click: cmd_step_into,
 			draw: "icon:stepInto",
 			tooltip: "Run current command, step into function calls",
 			hotkey: "shift-control-F11",
+			group: "debug",
 		},
 		{
 			click: cmd_step_over,
 			draw: "icon:stepOver",
 			tooltip: "Run current line of code, do no step into function calls",
 			hotkey: "control-F11",
+			group: "debug",
 		},
 		{
 			click: cmd_step_out,
 			draw: "icon:stepOut",
 			tooltip: "Step out of current function",
 			hotkey: "shift-F11",
+			group: "debug",
 		},
 		{
 			click: cmd_toggle_breakpoint,
 			draw: "icon:breakPoint",
 			tooltip: "Toggle breakpoint",
 			hotkey: "F8",
+			group: "debug",
 		},
 		/*{
-				"click": function() { module.sourcecode.execCommand("findPersistent"); },
-				"draw": "icon:search",
-				"tooltip": "Search",
+				click: function() { module.sourcecode.execCommand("findPersistent"); },
+				draw: "icon:search",
+				tooltip: "Search",
+				group: "edit",
 			},*/
 	];
 
@@ -1368,11 +1380,22 @@ export let ide = (function () {
 			type: "div",
 			classname: "ide-toolbar",
 		});
+		let curgroup: string = buttons[0].group;
 		for (let i = 0; i < buttons.length; i++) {
 			let description = Object.assign({}, buttons[i]);
+
+			if (description.group !== curgroup) {
+				tgui.createElement({
+					type: "div",
+					parent: div_buttons,
+					classname: "tgui tgui-control tgui-toolbar-separator",
+				});
+				curgroup = description.group;
+			}
+
 			description.width = 20;
 			description.height = 20;
-			description.style = { height: "22px" };
+			description.style = { float: "left", height: "22px" };
 			if (description.hotkey)
 				description.tooltip += " (" + description.hotkey + ")";
 			delete description.hotkey;
@@ -1515,11 +1538,6 @@ export let ide = (function () {
 				parent: div_appearance,
 				type: "p",
 			});
-			/*let lbl = tgui.createElement({
-				parent: p_appearance,
-				type: "label",
-				html: " Dark Theme ",
-			});*/
 			const themes = [
 				{ id: "default", display: "Default" },
 				{ id: "dark", display: "Default dark" },
@@ -1529,20 +1547,22 @@ export let ide = (function () {
 				parent: p_appearance,
 				type: "label",
 				html: "Theme",
-				attributes: { for: "selTheme" },
+				properties: { for: "selTheme" },
 				style: { "padding-right": "5px" },
 			});
 			let sel = tgui.createElement({
 				parent: p_appearance,
 				type: "select",
-				attributes: { id: "selTheme" },
+				classname: "tgui-modal-dropdown",
+				id: "selTheme",
+				properties: { size: "1" },
 			});
 
 			for (let t of themes) {
 				let opt = tgui.createElement({
 					parent: sel,
 					type: "option",
-					attributes: { value: t.id },
+					properties: { value: t.id },
 					style: { width: "100px" },
 					html: t.display,
 				});
@@ -1585,7 +1605,7 @@ export let ide = (function () {
 				parent: p_codingStyle,
 				type: "label",
 				html: "Enable style errors",
-				attributes: { for: "chkCodingStyle" },
+				properties: { for: "chkCodingStyle" },
 				style: { "padding-left": "5px" },
 			});
 			if (options.checkstyle) checkbox.checked = true;
@@ -1876,26 +1896,34 @@ export let ide = (function () {
 				click: cmd_export,
 				draw: "icon:export",
 				tooltip: "Export program as webpage",
+				group: "export",
 			});
 		}
+		buttons.push({
+			click: function () {
+				configDlg();
+				return false;
+			},
+			draw: "icon:config",
+			tooltip: "Configuration",
+			hotkey: "control-p",
+			group: "config",
+		});
 
 		// prepare menu bar
-		let sep = [
-			false,
-			false,
-			false,
-			true,
-			false,
-			false,
-			true,
-			false,
-			false,
-			false,
-			true,
-			true,
-		];
+		let curgroup: string = buttons[0].group;
 		for (let i = 0; i < buttons.length; i++) {
 			let description = Object.assign({}, buttons[i]);
+
+			if (description.group !== curgroup) {
+				tgui.createElement({
+					type: "div",
+					parent: module.toolbar,
+					classname: "tgui tgui-control tgui-toolbar-separator",
+				});
+				curgroup = description.group;
+			}
+
 			description.width = 20;
 			description.height = 20;
 			description.style = { float: "left", height: "22px" };
@@ -1903,17 +1931,9 @@ export let ide = (function () {
 				description.tooltip += " (" + description.hotkey + ")";
 			description.parent = module.toolbar;
 			buttons[i].control = tgui.createButton(description);
-
-			if (sep[i]) {
-				tgui.createElement({
-					type: "div",
-					parent: module.toolbar,
-					classname: "tgui tgui-control tgui-toolbar-separator",
-				});
-			}
 		}
 
-		tgui.createButton({
+		/*tgui.createButton({
 			click: function () {
 				configDlg();
 				return false;
@@ -1924,7 +1944,7 @@ export let ide = (function () {
 			parent: module.toolbar,
 			style: { float: "left" },
 			tooltip: "Configuration",
-		});
+		});*/
 
 		tgui.createElement({
 			type: "div",
@@ -1949,35 +1969,34 @@ export let ide = (function () {
 			},
 		});
 
-		module.programstate.setCss = function (cls) {
-			if (this.hasOwnProperty("cssstate"))
-				this.dom.classList.replace(this.cssstate, cls);
+		module.programstate.setStateCss = function (state) {
+			let cls = `ide-state-${state}`;
+			if (this.hasOwnProperty("state_css_class"))
+				this.dom.classList.replace(this.state_css_class, cls);
 			else this.dom.classList.add(cls);
-			this.cssstate = cls;
+			this.state_css_class = cls;
 			return this;
 		};
 		// TODO set tooltip text to the content text, this should apply when the statusbox is too narrow
 		module.programstate.unchecked = function () {
-			this.setText("program has not been checked").setCss(
-				"ide-state-unchecked"
+			this.setText("program has not been checked").setStateCss(
+				"unchecked"
 			);
 		};
 		module.programstate.error = function () {
-			this.setText("an error has occurred").setCss("ide-state-error");
+			this.setText("an error has occurred").setStateCss("error");
 		};
 		module.programstate.running = function () {
-			this.setText("program is running").setCss("ide-state-running");
+			this.setText("program is running").setStateCss("running");
 		};
 		module.programstate.waiting = function () {
-			this.setText("program is waiting").setCss("ide-state-waiting");
+			this.setText("program is waiting").setStateCss("waiting");
 		};
 		module.programstate.stepping = function () {
-			this.setText("program is in stepping mode").setCss(
-				"ide-state-stepping"
-			);
+			this.setText("program is in stepping mode").setStateCss("stepping");
 		};
 		module.programstate.finished = function () {
-			this.setText("program has finished").setCss("ide-state-finished");
+			this.setText("program has finished").setStateCss("finished");
 		};
 		module.programstate.unchecked();
 

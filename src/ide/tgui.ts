@@ -73,6 +73,7 @@ export let tgui = (function () {
 
 	// Create a new DOM element, acting as the control's main DOM element.
 	// Several standard properties of the description are honored.
+	// see createElement
 	function createControl(type, description, classname) {
 		let element = document.createElement(type);
 
@@ -124,23 +125,16 @@ export let tgui = (function () {
 		}
 
 		// add arbitrary event handlers
-		if (description.hasOwnProperty("event")) {
-			for (let key in description.event) {
-				if (!description.event.hasOwnProperty(key)) continue;
-				element.addEventListener(key, description.event[key]);
+		if (description.hasOwnProperty("events")) {
+			for (let key in description.events) {
+				if (!description.events.hasOwnProperty(key)) continue;
+				element.addEventListener(key, description.events[key]);
 			}
 		}
 
 		// tabindex property to disable tab focus (tabindex: -1)
 		if (description.hasOwnProperty("tabindex")) {
 			element.tabIndex = description.tabindex;
-		}
-
-		// html tag attributes, TODO: should these be in the description
-		// object directly?
-		if (description.hasOwnProperty("attributes")) {
-			for (let a in description.attributes)
-				element.setAttribute(a, description.attributes[a]);
 		}
 
 		// add to a parent
@@ -166,16 +160,29 @@ export let tgui = (function () {
 
 	// Convenience function for creating an HTML element.
 	// Fields of the description object:
-	// * type - HTML element type name, e.g., "div"
-	// * classname - optional CSS class
-	// * properties - dictionary of properties of the HTML document (should not be used for id, className, and innerHTML)
-	// * style - dictionary of CSS styles
-	// * parent - optionl DOM object containing the element
-	// * id - optional ID of the element
-	// * tooltip - optional tooltip
-	// * text - optional text to be added to the element as a text node
-	// * html - optional innerHTML to be added after the text
-	// * click - optional click handler
+	// * type 				- HTML element type name, e.g., "div"
+	//
+	// The following properties can be set directly
+	// * id 				- optional ID of the element
+	// * style 				- dictionary of CSS styles
+	// * classname 			- optional CSS class
+	// * tooltip[-right] 	- optional tooltip
+	// * tabindex 			- optional tabindex property
+	// Other attributes might be set through 'properties':
+	// * properties 		- dictionary of properties of the HTML document
+	//						  (should not be used for id, className, and innerHTML)
+	//
+	// The following event handlers can be set directly
+	// * click 				- optional click handler
+	// * dblclick 			- optional double click handler
+	// Other events might be set through 'events'
+	// * events 			- dictional of event handlers
+	//
+	// In addition the following fields have special meaning
+	// * text 				- optional text to be added to the element as a text node
+	// * html 				- optional innerHTML to be added after the text
+	// * parent 			- optionl DOM object containing the element
+	//
 	module.createElement = function (description) {
 		return createControl(
 			description.type,
@@ -189,7 +196,7 @@ export let tgui = (function () {
 	// Fields of the #description object:
 	// * text - for text buttons, default: ""
 	// * style - dictionary of CSS styles
-	// * parent - optionl DOM object containing the control
+	// * parent - optional DOM object containing the control
 	// * id - optional ID of the control
 	// * tooltip - optional tooltip
 	module.createLabel = function (description) {

@@ -125,7 +125,7 @@ body.dark-theme *.example {
 
 body.dark-theme *.warning {
 	border-color: #c66;
-	background: #fcc;
+	background: #633;
 }
 
 body.dark-theme *.keyword {
