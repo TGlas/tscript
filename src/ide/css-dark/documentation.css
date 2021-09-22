@@ -1,187 +1,187 @@
 /* general page styles */
 
-body.dark-theme *#doc-main {
+.dark-theme #doc-main {
 	color: #fff;
 }
 
-body.dark-theme *#searchtext {
+.dark-theme #searchtext {
 	background: #222;
 	color: #fff;
 	border-color: #888;
 }
 
-body.dark-theme input:focus {
+.dark-theme input:focus {
 	background: #222;
 	color: #fff;
 	border-color: #fff;
 }
 
-body.dark-theme *#sidebar {
+.dark-theme #sidebar {
 	background: #272727;
 }
 
-body.dark-theme *#version {
+.dark-theme #version {
 	color: #fff;
 	background: #272727;
 }
 
-body.dark-theme *#search {
+.dark-theme #search {
 	color: #fff;
 	background: #57f;
 }
 
-body.dark-theme *#tree {
+.dark-theme #tree {
 	color: #fff;
 	background: #272727;
 }
 
-body.dark-theme *#content {
+.dark-theme #content {
 	color: #fff;
 	background: #222;
 	border-left: solid 5px #347;
 	border-right: solid 5px #347;
 }
 
-body.dark-theme *.related {
+.dark-theme .related {
 	background: #272727;
 	border-color: #57f;
 }
 
 /* styles for the content */
 
-body.dark-theme a:link,
-body.dark-theme a:visited {
+.dark-theme a:link,
+.dark-theme a:visited {
 	color: #57f;
 }
 
-body.dark-theme a:active,
-body.dark-theme a:hover {
+.dark-theme a:active,
+.dark-theme a:hover {
 	color: #f44;
 }
 
-body.dark-theme hr {
+.dark-theme hr {
 	background: #151515;
 }
 
-body.dark-theme *.nicetable th {
+.dark-theme .nicetable th {
 	border: 2px solid #854;
 	background: #432;
 }
 
-body.dark-theme *.nicetable td {
+.dark-theme .nicetable td {
 	border: 2px solid #568;
 	background: #234;
 }
 
-body.dark-theme *.nicetable th a {
+.dark-theme .nicetable th a {
 	color: #fff;
 }
 
-body.dark-theme *.nicetable td a {
+.dark-theme .nicetable td a {
 	color: #fff;
 }
 
-body.dark-theme *.methods th {
+.dark-theme .methods th {
 	border-color: #888;
 	background: #543;
 }
 
-body.dark-theme *.methods td {
+.dark-theme .methods td {
 	border-color: #888;
 }
 
-body.dark-theme *.searchresults {
+.dark-theme .searchresults {
 	color: #666;
 }
 
 /* styles for the tree view */
 
-body.dark-theme *.current {
+.dark-theme .current {
 	color: #fa4;
 	background: #654;
 }
 
-body.dark-theme *.tgui-tree {
+.dark-theme .tgui-tree {
 	color: #fff;
 }
 
-body.dark-theme *.tgui-tree-toggle {
+.dark-theme .tgui-tree-toggle {
 	color: #fff;
 }
 
-body.dark-theme *.tgui-tree-toggle:hover {
+.dark-theme .tgui-tree-toggle:hover {
 	color: #fff;
 }
 
-body.dark-theme *.tgui-tree-element:hover {
+.dark-theme .tgui-tree-element:hover {
 	background: #444;
 }
 
 /* highlighting */
 
-body.dark-theme *.example {
+.dark-theme .example {
 	border-color: #c66;
 }
 
-body.dark-theme *.warning {
+.dark-theme .warning {
 	border-color: #c66;
 	background: #633;
 }
 
-body.dark-theme *.keyword {
+.dark-theme .keyword {
 	background: #333;
 	border-color: #333;
 }
 
-body.dark-theme *.code {
+.dark-theme .code {
 	background: #151515;
 }
-body.dark-theme *.code-keyword {
+.dark-theme .code-keyword {
 	color: #4af;
 }
-body.dark-theme *.code-identifier {
+.dark-theme .code-identifier {
 	color: #fff;
 }
-body.dark-theme *.code-integer {
+.dark-theme .code-integer {
 	color: #4fe;
 }
-body.dark-theme *.code-real {
+.dark-theme .code-real {
 	color: #4f4;
 }
-body.dark-theme *.code-string {
+.dark-theme .code-string {
 	color: #f44;
 }
-body.dark-theme *.code-operator {
+.dark-theme .code-operator {
 	color: #fff;
 }
-body.dark-theme *.code-grouping {
+.dark-theme .code-grouping {
 	color: #4f4;
 }
-body.dark-theme *.code-delimiter {
+.dark-theme .code-delimiter {
 	color: #fff;
 }
-body.dark-theme *.code-comment {
+.dark-theme .code-comment {
 	color: #888;
 }
 
-body.dark-theme *.ebnf {
+.dark-theme .ebnf {
 	background: #151919;
 }
-body.dark-theme *.ebnf-identifier {
+.dark-theme .ebnf-identifier {
 	color: #f44;
 }
-body.dark-theme *.ebnf-literal {
+.dark-theme .ebnf-literal {
 	color: #4f4;
 }
-body.dark-theme *.ebnf-special {
+.dark-theme .ebnf-special {
 	color: #c4f;
 }
-body.dark-theme *.ebnf-operator {
+.dark-theme .ebnf-operator {
 	color: #fff;
 }
-body.dark-theme *.ebnf-grouping {
+.dark-theme .ebnf-grouping {
 	color: #c80;
 }
-body.dark-theme *.ebnf-delimiter {
+.dark-theme .ebnf-delimiter {
 	color: #888;
 }

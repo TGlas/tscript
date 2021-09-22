@@ -1,123 +1,123 @@
-body.dark-theme *button {
+.dark-theme button {
 	border-color: #fff;
 }
 
-body.dark-theme *.ide-main {
+.dark-theme .ide-main {
 	color: #fff;
 	background: #f00;
 }
 
-body.dark-theme *.ide-panel-area {
+.dark-theme .ide-panel-area {
 	background: #111;
 }
 
-body.dark-theme *.ide-toolbar {
+.dark-theme .ide-toolbar {
 	background: #303030;
 	color: #fff;
 	border-bottom: #555;
 	box-shadow: inset 0px -1px 0px #444;
 }
 
-body.dark-theme *.ide-sourcecode {
+.dark-theme .ide-sourcecode {
 	/* overridden in file codemirror.css, class .CodeMirror */
 	background: #222;
 	color: #fff;
 }
 
-body.dark-theme *.ide-stackview {
+.dark-theme .ide-stackview {
 	background: #222;
 	color: #fff;
 }
 
-body.dark-theme *.ide-programview {
+.dark-theme .ide-programview {
 	background: #222;
 	color: #fff;
 }
 
-body.dark-theme *.ide-messages {
+.dark-theme .ide-messages {
 	background: #222;
 	color: #fff;
 }
 
-body.dark-theme *.ide-message:hover {
+.dark-theme .ide-message:hover {
 	background: #449;
 }
 
-body.dark-theme *.ide-errormessage {
+.dark-theme .ide-errormessage {
 	color: #f44;
 }
 
-body.dark-theme *.ide-program-ancestor {
+.dark-theme .ide-program-ancestor {
 	color: #fc6;
 	background: #653;
 }
 
-body.dark-theme *.ide-program-current {
+.dark-theme .ide-program-current {
 	color: #fc6;
 	background: #863;
 }
 
-body.dark-theme *.ide-turtle {
+.dark-theme .ide-turtle {
 	background: #333;
 }
 
-body.dark-theme *.ide-tutorial {
+.dark-theme .ide-tutorial {
 	background: #222;
 	color: #fff;
 }
 
-body.dark-theme *.ide-index {
+.dark-theme .ide-index {
 	color: #26f;
 }
 
-body.dark-theme *.ide-integer {
+.dark-theme .ide-integer {
 	color: #4fe;
 }
-body.dark-theme *.ide-real {
+.dark-theme .ide-real {
 	color: #4f4;
 }
-body.dark-theme *.ide-string {
+.dark-theme .ide-string {
 	color: #f44;
 }
-body.dark-theme *.ide-collection {
+.dark-theme .ide-collection {
 	color: #fa4;
 }
-body.dark-theme *.ide-keyword {
+.dark-theme .ide-keyword {
 	color: #4af;
 }
-body.dark-theme *.ide-builtin {
+.dark-theme .ide-builtin {
 	color: #c4f;
 }
-body.dark-theme *.ide-userclass {
+.dark-theme .ide-userclass {
 	color: #fff;
 }
 
-body.dark-theme *.tgui-label.ide-state-unchecked {
+.dark-theme .tgui-label.ide-state-unchecked {
 	background-color: #970;
 	color: #fe8;
 }
 
-body.dark-theme *.tgui-label.ide-state-error {
+.dark-theme .tgui-label.ide-state-error {
 	background-color: #c32;
 	color: #fc8;
 }
 
-body.dark-theme *.tgui-label.ide-state-running {
+.dark-theme .tgui-label.ide-state-running {
 	background-color: #2a2;
 	color: #cfc;
 }
 
-body.dark-theme *.tgui-label.ide-state-waiting {
+.dark-theme .tgui-label.ide-state-waiting {
 	background-color: #171;
 	color: #8f8;
 }
 
-body.dark-theme *.tgui-label.ide-state-stepping {
+.dark-theme .tgui-label.ide-state-stepping {
 	background-color: #0ab;
 	color: #cff;
 }
 
-body.dark-theme *.tgui-label.ide-state-finished {
+.dark-theme .tgui-label.ide-state-finished {
 	background-color: #139;
 	color: #8cf;
 }

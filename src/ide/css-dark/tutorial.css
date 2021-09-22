@@ -1,50 +1,19 @@
-.tutorial-nav {
-	display: flex;
-	flex-wrap: wrap;
-}
-
-.tutorial-nav-button {
-	width: 100px;
-	height: 30px;
-	margin: 5px 10px 5px 0;
-}
-
-.tutorial-home-button {
-	width: 150px;
-	height: 30px;
-	margin: 5px 10px 5px 0;
-	float: right;
-}
-
-.tutorial-reset-button {
-	width: 150px;
-	height: 30px;
-}
-
-.tutorial-toc {
+.dark-theme .tutorial-toc {
 	color: #44c;
-	cursor: pointer;
-	padding: 5px 0;
 }
 
-.code-evaluation th {
-	padding: 5px 10px;
+.dark-theme .code-evaluation th {
 	background: #468;
 	color: #fff;
 }
 
-.code-evaluation td {
-	padding: 5px 10px;
-	background: #fed;
-	border: 1px solid #aaa;
+.dark-theme .code-evaluation td {
+	background: #222;
+	border-color: #444;
 }
 
-.tutorial-exercise {
-	padding: 5px;
-	background: #eff;
-	border: 1px solid #aaa;
-}
-.tutorial-exercise::before {
-	content: "[exercise] ";
-	font-weight: bold;
+.dark-theme .tutorial-exercise {
+	color: #fff;
+	background: #222;
+	border-color: #444;
 }

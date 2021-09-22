@@ -1,6 +1,6 @@
 /* BASICS */
 
-body.dark-theme *.CodeMirror {
+.dark-theme .CodeMirror {
 	color: white;
 }
 
@@ -8,136 +8,136 @@ body.dark-theme *.CodeMirror {
 
 /* GUTTER */
 
-body.dark-theme *.CodeMirror-gutters {
+.dark-theme .CodeMirror-gutters {
 	border-right-color: #333;
 	background-color: #242424;
 }
 
-body.dark-theme *.CodeMirror-linenumber {
+.dark-theme .CodeMirror-linenumber {
 	color: #777;
 }
 
-body.dark-theme *.breakpoints {
+.dark-theme .breakpoints {
 	background: #272727;
 }
 
-body.dark-theme *.CodeMirror-guttermarker {
+.dark-theme .CodeMirror-guttermarker {
 	color: #fff;
 }
-body.dark-theme *.CodeMirror-guttermarker-subtle {
+.dark-theme .CodeMirror-guttermarker-subtle {
 	color: #777;
 }
 
 /* CURSOR */
 
-body.dark-theme *.CodeMirror-cursor {
+.dark-theme .CodeMirror-cursor {
 	border-left-color: #fff;
 }
 /* Shown when moving in bi-directional text */
-body.dark-theme *.CodeMirror div.CodeMirror-secondarycursor {
+.dark-theme .CodeMirror div.CodeMirror-secondarycursor {
 	border-left-color: silver;
 }
 
-body.dark-theme *.CodeMirror-ruler {
+.dark-theme .CodeMirror-ruler {
 	border-left-color: #555;
 }
 
 /* DEFAULT THEME */
 
-body.dark-theme *.cm-s-default .cm-header {
+.dark-theme .cm-s-default .cm-header {
 	color: #4af;
 }
-body.dark-theme *.cm-s-default .cm-quote {
+.dark-theme .cm-s-default .cm-quote {
 	color: #4f4;
 }
-body.dark-theme *.cm-negative {
+.dark-theme .cm-negative {
 	color: #d44;
 }
-body.dark-theme *.cm-positive {
+.dark-theme .cm-positive {
 	color: #292;
 }
 
-body.dark-theme *.cm-s-default .cm-keyword {
+.dark-theme .cm-s-default .cm-keyword {
 	color: #4af;
 }
-body.dark-theme *.cm-s-default .cm-atom {
+.dark-theme .cm-s-default .cm-atom {
 	color: #4fe;
 }
-body.dark-theme *.cm-s-default .cm-number {
+.dark-theme .cm-s-default .cm-number {
 	color: #4f4;
 }
-body.dark-theme *.cm-s-default .cm-def {
+.dark-theme .cm-s-default .cm-def {
 	color: #4af;
 }
-body.dark-theme *.cm-s-default .cm-variable {
+.dark-theme .cm-s-default .cm-variable {
 	color: #fff;
 }
-body.dark-theme *.cm-s-default .cm-punctuation {
+.dark-theme .cm-s-default .cm-punctuation {
 	color: #fff;
 }
-body.dark-theme *.cm-s-default .cm-property {
+.dark-theme .cm-s-default .cm-property {
 	color: #fff;
 }
-body.dark-theme *.cm-s-default .cm-operator {
+.dark-theme .cm-s-default .cm-operator {
 	color: #fff;
 }
-body.dark-theme *.cm-s-default .cm-variable-2 {
+.dark-theme .cm-s-default .cm-variable-2 {
 	color: #4df;
 }
 /*.cm-s-default .cm-variable-3,
 .cm-s-default .cm-type {
 	color: #085;
 }*/
-body.dark-theme *.cm-s-default .cm-comment {
+.dark-theme .cm-s-default .cm-comment {
 	color: #888;
 }
-body.dark-theme *.cm-s-default .cm-string {
+.dark-theme .cm-s-default .cm-string {
 	color: #f44;
 }
-body.dark-theme *.cm-s-default .cm-string-2 {
+.dark-theme .cm-s-default .cm-string-2 {
 	color: #f50;
 }
-body.dark-theme *.cm-s-default .cm-meta {
+.dark-theme .cm-s-default .cm-meta {
 	color: #bbb;
 }
-body.dark-theme *.cm-s-default .cm-qualifier {
+.dark-theme .cm-s-default .cm-qualifier {
 	color: #bbb;
 }
-body.dark-theme *.cm-s-default .cm-builtin {
+.dark-theme .cm-s-default .cm-builtin {
 	color: #c4f;
 }
-body.dark-theme *.cm-s-default .cm-bracket {
+.dark-theme .cm-s-default .cm-bracket {
 	color: #4f4;
 }
-body.dark-theme *.cm-s-default .cm-tag {
+.dark-theme .cm-s-default .cm-tag {
 	color: #7f4;
 }
-body.dark-theme *.cm-s-default .cm-attribute {
+.dark-theme .cm-s-default .cm-attribute {
 	color: #44f;
 }
-body.dark-theme *.cm-s-default .cm-hr {
+.dark-theme .cm-s-default .cm-hr {
 	color: #999;
 }
-body.dark-theme *.cm-s-default .cm-link {
+.dark-theme .cm-s-default .cm-link {
 	color: #44f;
 }
 
-body.dark-theme *.cm-invalidchar {
+.dark-theme .cm-invalidchar {
 	color: #f44;
 }
 
 /* Default styles for common addons */
 
-body.dark-theme *div.CodeMirror span.CodeMirror-matchingbracket {
+.dark-theme div.CodeMirror span.CodeMirror-matchingbracket {
 	color: #8f4;
 }
-body.dark-theme *div.CodeMirror span.CodeMirror-nonmatchingbracket {
+.dark-theme div.CodeMirror span.CodeMirror-nonmatchingbracket {
 	color: #f44;
 }
-body.dark-theme *.CodeMirror-matchingtag {
+.dark-theme .CodeMirror-matchingtag {
 	background: rgba(255, 150, 0, 0.3);
 }
-body.dark-theme *.CodeMirror-activeline-background {
+.dark-theme .CodeMirror-activeline-background {
 	background: #333337;
 }
 
@@ -146,47 +146,47 @@ body.dark-theme *.CodeMirror-activeline-background {
 /* The rest of this file contains styles related to the mechanics of
    the editor. You probably shouldn't touch them. */
 
-body.dark-theme *.CodeMirror {
+.dark-theme .CodeMirror {
 	background: #222;
 }
 
-body.dark-theme *.CodeMirror-gutter-wrapper {
+.dark-theme .CodeMirror-gutter-wrapper {
 	background: none !important;
 	border: none !important;
 }
 
-body.dark-theme *.CodeMirror-selected {
+.dark-theme .CodeMirror-selected {
 	background: #445;
 }
-body.dark-theme *.CodeMirror-focused .CodeMirror-selected {
+.dark-theme .CodeMirror-focused .CodeMirror-selected {
 	background: #449;
 }
-body.dark-theme *.CodeMirror-line::selection,
-body.dark-theme *.CodeMirror-line > span::selection,
-body.dark-theme *.CodeMirror-line > span > span::selection {
+.dark-theme .CodeMirror-line::selection,
+.dark-theme .CodeMirror-line > span::selection,
+.dark-theme .CodeMirror-line > span > span::selection {
 	background: #449;
 }
-body.dark-theme *.CodeMirror-line::-moz-selection,
-body.dark-theme *.CodeMirror-line > span::-moz-selection,
-body.dark-theme *.CodeMirror-line > span > span::-moz-selection {
+.dark-theme .CodeMirror-line::-moz-selection,
+.dark-theme .CodeMirror-line > span::-moz-selection,
+.dark-theme .CodeMirror-line > span > span::-moz-selection {
 	background: #449;
 }
 
-body.dark-theme *.cm-searching {
+.dark-theme .cm-searching {
 	background-color: #333;
 	background-color: rgba(255, 255, 0, 0.4);
 }
 
-body.dark-theme *.CodeMirror-dialog {
+.dark-theme .CodeMirror-dialog {
 	background: #333;
 }
 
-body.dark-theme *.CodeMirror-dialog input {
+.dark-theme .CodeMirror-dialog input {
 	color: #fff;
 	background-color: #222;
 	border-color: #888;
 }
 
-body.dark-theme *.CodeMirror-dialog input:focus {
+.dark-theme .CodeMirror-dialog input:focus {
 	border-color: #fff;
 }
