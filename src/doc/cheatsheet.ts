@@ -47,7 +47,7 @@ export const doc_cheatsheet: Documentation = {
 	</table>
 	<table class="nicetable">
 	<tr><th><a href="?doc#/library">standard library</a></th><th>topic</th></tr>
-	<tr><td><a href="?doc#/library/core">code functions</a></td><td>messages, time, errors, files, events</td></tr>
+	<tr><td><a href="?doc#/library/core">core functions</a></td><td>messages, time, errors, files, events</td></tr>
 	<tr><td><a href="?doc#/library/math">math functions</a></td><td>e.g., sine and square root</td></tr>
 	<tr><td><a href="?doc#/library/turtle">turtle graphics</a></td><td>simple graphics</td></tr>
 	<tr><td><a href="?doc#/library/canvas">canvas graphics</a></td><td>powerful 2D graphics</td></tr>

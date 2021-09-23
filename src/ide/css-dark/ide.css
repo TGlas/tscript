@@ -14,8 +14,8 @@
 .dark-theme .ide-toolbar {
 	background: #303030;
 	color: #fff;
-	border-bottom: #555;
-	box-shadow: inset 0px -1px 0px #444;
+	border-bottom: #222 solid 1px;
+	box-shadow: inset 0px -1px 0px #292929;
 }
 
 .dark-theme .ide-sourcecode {

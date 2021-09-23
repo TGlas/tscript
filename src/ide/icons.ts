@@ -133,7 +133,7 @@ export const icons = (function () {
 
 	// Message box icons, larger in size
 
-	icons.msgBoxQuestion = function (canvas, dark) {
+	icons.msgBoxQuestion = function (canvas) {
 		let ctx = canvas.getContext("2d");
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = "#04d";
@@ -157,7 +157,7 @@ export const icons = (function () {
 		ctx.stroke();
 	};
 
-	icons.msgBoxExclamation = function (canvas, dark) {
+	icons.msgBoxExclamation = function (canvas) {
 		let ctx = canvas.getContext("2d");
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = "#a91";
@@ -299,7 +299,7 @@ export const icons = (function () {
 		return dark ? "#ccc" : "#000";
 	}
 
-	icons.newDocument = function (canvas, dark) {
+	icons.newDocument = function (canvas) {
 		let ctx = canvas.getContext("2d");
 
 		draw_icon_paper(ctx);
@@ -325,7 +325,7 @@ export const icons = (function () {
 		ctx.stroke();
 	};
 
-	icons.openDocument = function (canvas, dark) {
+	icons.openDocument = function (canvas) {
 		let ctx = canvas.getContext("2d");
 
 		ctx.fillStyle = "#ec5";
@@ -355,13 +355,13 @@ export const icons = (function () {
 		ctx.stroke();
 	};
 
-	icons.saveDocument = function (canvas, dark) {
+	icons.saveDocument = function (canvas) {
 		let ctx = canvas.getContext("2d");
 
 		draw_icon_floppy_disk(ctx);
 	};
 
-	icons.saveDocumentAs = function (canvas, dark) {
+	icons.saveDocumentAs = function (canvas) {
 		let ctx = canvas.getContext("2d");
 
 		draw_icon_floppy_disk(ctx);
@@ -519,7 +519,7 @@ export const icons = (function () {
 		ctx.stroke();
 	};
 
-	icons.restorePanels = function (canvas, dark) {
+	icons.restorePanels = function (canvas) {
 		let ctx = canvas.getContext("2d");
 		ctx.lineWidth = 1;
 		ctx.fillStyle = "#fff";
@@ -552,7 +552,7 @@ export const icons = (function () {
 	};
 
 	// Panel icons
-	icons.editor = function (canvas, dark) {
+	icons.editor = function (canvas) {
 		let ctx = canvas.getContext("2d");
 		draw_icon_paper(ctx);
 
@@ -564,7 +564,7 @@ export const icons = (function () {
 		ctx.fillRect(9, 13, 4, 1);
 	};
 
-	icons.messages = function (canvas, dark) {
+	icons.messages = function (canvas) {
 		let ctx = canvas.getContext("2d");
 
 		ctx.fillStyle = "#fff";
@@ -583,7 +583,7 @@ export const icons = (function () {
 		ctx.fillRect(7, 10, 4, 1);
 	};
 
-	icons.stackView = function (canvas, dark) {
+	icons.stackView = function (canvas) {
 		let ctx = canvas.getContext("2d");
 
 		ctx.strokeStyle = "#222";
@@ -635,7 +635,7 @@ export const icons = (function () {
 		ctx.stroke();
 	};
 
-	icons.programView = function (canvas, dark) {
+	icons.programView = function (canvas) {
 		let ctx = canvas.getContext("2d");
 
 		// Outline
@@ -671,7 +671,7 @@ export const icons = (function () {
 		ctx.fillRect(6, 15, 8, 2);
 	};
 
-	icons.turtle = function (canvas, dark) {
+	icons.turtle = function (canvas) {
 		// draws literally a turtle
 		let ctx = canvas.getContext("2d");
 
@@ -723,7 +723,7 @@ export const icons = (function () {
 		ctx.stroke();
 	};
 
-	icons.canvas = function (canvas, dark) {
+	icons.canvas = function (canvas) {
 		let ctx = canvas.getContext("2d");
 
 		ctx.fillStyle = "#333";
@@ -746,7 +746,7 @@ export const icons = (function () {
 		ctx.stroke();
 	};
 
-	/*icons.tutorial = function (canvas, dark) {
+	/*icons.tutorial = function (canvas) {
         let ctx = canvas.getContext("2d");
 
         ctx.strokeStyle = "#666";

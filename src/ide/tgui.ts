@@ -6,12 +6,19 @@ var interact = require("interactjs");
 // simplistic GUI framework
 //
 
+// TODO: declare interfaces for various description objects
 export let tgui = (function () {
 	let module: any = {};
 
 	// global mapping of hotkeys to handlers
 	let hotkeys = {};
 	let hotkeyElement = null;
+
+	type IconDrawingFunctionDynamic = (canvas: HTMLCanvasElement, dark: boolean) => void; // length = 2
+	type IconDrawingFunctionStatic = (canvas: HTMLCanvasElement) => void; // length = 1
+	type IconDrawingFunction = IconDrawingFunctionDynamic | IconDrawingFunctionStatic;
+	const iconDrawingFuncs = new WeakMap<HTMLCanvasElement, IconDrawingFunction>();
+
 	module.theme = "default";
 	function isDarkTheme(theme: string) {
 		return theme.includes("dark");
@@ -236,11 +243,10 @@ export let tgui = (function () {
 	}
 
 	function renderCanvas(canvas, draw) {
-		if (typeof draw === "string") {
-			console.assert(draw.substring(0, 5) == "icon:");
-			let id = draw.substring(5);
-			icons[id](canvas, isDarkTheme(module.theme));
-		} else draw(canvas);
+		if(draw.length == 2)
+			draw(canvas, isDarkTheme(module.theme))
+		else
+			draw(canvas);
 	}
 
 	// Create a canvas icon element with automaticly zoomed contents
@@ -259,13 +265,20 @@ export let tgui = (function () {
 			width: description.width + "px",
 			height: description.height + "px",
 		};
+
+		console.assert(typeof description.draw == "function");
+
+		// draw.length = 1 -> IconDrawingFunctionStatic
+		// draw.length = 2 -> IconDrawingFunctionDynamic
+		let isDynamic = description.draw.length == 2;
+
 		if (description.hasOwnProperty("style"))
 			Object.assign(style, description.style);
 		let canvas = module.createElement({
 			type: "canvas",
 			parent: description.parent,
 			classname:
-				"tgui-dynamic-canvas " +
+				(isDynamic ? "tgui-dynamic-canvas " : "") +
 				(description.hasOwnProperty("classname")
 					? description["classname"]
 					: "tgui"),
@@ -274,8 +287,8 @@ export let tgui = (function () {
 		canvas.width = description.width;
 		canvas.height = description.height;
 
-		if (typeof description.draw === "string")
-			canvas.setAttribute("tgui_draw", description.draw);
+		if(isDynamic)
+			iconDrawingFuncs.set(canvas, description.draw);
 
 		setupCanvasZoom(canvas);
 		renderCanvas(canvas, description.draw);
@@ -878,7 +891,7 @@ export let tgui = (function () {
 		free_panel_id++;
 
 		if (!control.hasOwnProperty("icondraw"))
-			control.icondraw = "icon:window";
+			control.icondraw = icons.window;
 
 		// register the panel
 		module.panels.push(control);
@@ -924,7 +937,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: "icon:dockLeft",
+			draw: icons.dockLeft,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Dock left",
@@ -936,7 +949,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: "icon:dockRight",
+			draw: icons.dockRight,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Dock right",
@@ -948,7 +961,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: "icon:maximize",
+			draw: icons.maximize,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Maximize",
@@ -960,7 +973,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: "icon:float",
+			draw: icons.float,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Floating",
@@ -972,7 +985,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: "icon:minimize",
+			draw: icons.minimize,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Minimize",
@@ -1481,7 +1494,7 @@ export let tgui = (function () {
 					},
 					width: 20,
 					height: 20,
-					draw: "icon:help",
+					draw: icons.help,
 					classname: "tgui-panel-dockbutton",
 					"tooltip-right": "Help",
 				});
@@ -1494,7 +1507,7 @@ export let tgui = (function () {
 				},
 				width: 20,
 				height: 20,
-				draw: "icon:close",
+				draw: icons.close,
 				classname: "tgui-panel-dockbutton",
 				"tooltip-right": "Close",
 			});
@@ -1557,9 +1570,9 @@ export let tgui = (function () {
 		tgui.startModal(dlg);
 	};
 
-	module.msgBoxQuestion = "icon:msgBoxQuestion";
+	module.msgBoxQuestion = icons.msgBoxQuestion;
 
-	module.msgBoxExclamation = "icon:msgBoxExclamation";
+	module.msgBoxExclamation = icons.msgBoxExclamation;
 
 	// Show a (newly created) modal dialog, that was created by createModal.
 	// Modal dialogs can be stacked. The dialog should not have been shown yet.
@@ -1700,6 +1713,18 @@ export let tgui = (function () {
 		return true;
 	});
 
+
+	function updateCanvasIcons(rootElement) {
+		rootElement
+			.querySelectorAll(".tgui-dynamic-canvas")
+			.forEach((canvas: any) => {
+				let ctx = canvas.getContext("2d");
+				//ctx.resetTransform();
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				renderCanvas(canvas, iconDrawingFuncs.get(canvas));
+			});
+	}
+
 	module.setTheme = function (theme: string) {
 		if (module.theme != theme) {
 			if (theme == "default")
@@ -1713,16 +1738,14 @@ export let tgui = (function () {
 				);
 
 			module.theme = theme;
-			document
-				.querySelectorAll(".tgui-dynamic-canvas")
-				.forEach((canvas: any) => {
-					if (canvas.hasAttribute("tgui_draw")) {
-						let ctx = canvas.getContext("2d");
-						//ctx.resetTransform();
-						ctx.clearRect(0, 0, canvas.width, canvas.height);
-						renderCanvas(canvas, canvas.getAttribute("tgui_draw"));
-					}
-				});
+			updateCanvasIcons(document);
+			// update icons in hidden panels separately, because
+			// these are not part of the document dom
+			for(let p of module.panels)
+			{
+				if(!p.dom.parentNode)
+					updateCanvasIcons(p.dom);
+			}
 		}
 	};
 

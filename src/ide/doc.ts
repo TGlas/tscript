@@ -23,22 +23,19 @@ export const doc = (function () {
 	let doctree: any = null;
 
 	// check if dark theme is activated
-	function loadConfig() {
+	function loadTheme() {
 		let str = localStorage.getItem("tscript.ide.config");
 		if (str) {
 			let config = JSON.parse(str);
 			if (config.hasOwnProperty("theme")) {
 				let theme = config.theme;
 				if (theme) {
-					document.addEventListener("DOMContentLoaded", function () {
-						document.body.classList.add(`${theme}-theme`);
-					});
+					document.body.classList.add(`${theme}-theme`);
 				}
 			}
 		}
 		return null;
 	}
-	loadConfig(); // TODO should this be here?
 
 	// This function copies #text to the clipboard when run
 	// from within an event handler.
@@ -750,7 +747,11 @@ export const doc = (function () {
 			};
 
 		module.embedded = options.embedded;
-		if (!options.embedded) document.title = "TScript Documentation";
+		if (!options.embedded) 
+		{
+			document.title = "TScript Documentation";
+			loadTheme();
+		}
 
 		// create the framing html elements
 		module.dom_container = container;
