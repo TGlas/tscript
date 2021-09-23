@@ -747,8 +747,7 @@ export const doc = (function () {
 			};
 
 		module.embedded = options.embedded;
-		if (!options.embedded) 
-		{
+		if (!options.embedded) {
 			document.title = "TScript Documentation";
 			loadTheme();
 		}

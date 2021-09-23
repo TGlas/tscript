@@ -14,10 +14,18 @@ export let tgui = (function () {
 	let hotkeys = {};
 	let hotkeyElement = null;
 
-	type IconDrawingFunctionDynamic = (canvas: HTMLCanvasElement, dark: boolean) => void; // length = 2
+	type IconDrawingFunctionDynamic = (
+		canvas: HTMLCanvasElement,
+		dark: boolean
+	) => void; // length = 2
 	type IconDrawingFunctionStatic = (canvas: HTMLCanvasElement) => void; // length = 1
-	type IconDrawingFunction = IconDrawingFunctionDynamic | IconDrawingFunctionStatic;
-	const iconDrawingFuncs = new WeakMap<HTMLCanvasElement, IconDrawingFunction>();
+	type IconDrawingFunction =
+		| IconDrawingFunctionDynamic
+		| IconDrawingFunctionStatic;
+	const iconDrawingFuncs = new WeakMap<
+		HTMLCanvasElement,
+		IconDrawingFunction
+	>();
 
 	module.theme = "default";
 	function isDarkTheme(theme: string) {
@@ -243,10 +251,8 @@ export let tgui = (function () {
 	}
 
 	function renderCanvas(canvas, draw) {
-		if(draw.length == 2)
-			draw(canvas, isDarkTheme(module.theme))
-		else
-			draw(canvas);
+		if (draw.length == 2) draw(canvas, isDarkTheme(module.theme));
+		else draw(canvas);
 	}
 
 	// Create a canvas icon element with automaticly zoomed contents
@@ -287,8 +293,7 @@ export let tgui = (function () {
 		canvas.width = description.width;
 		canvas.height = description.height;
 
-		if(isDynamic)
-			iconDrawingFuncs.set(canvas, description.draw);
+		if (isDynamic) iconDrawingFuncs.set(canvas, description.draw);
 
 		setupCanvasZoom(canvas);
 		renderCanvas(canvas, description.draw);
@@ -1713,7 +1718,6 @@ export let tgui = (function () {
 		return true;
 	});
 
-
 	function updateCanvasIcons(rootElement) {
 		rootElement
 			.querySelectorAll(".tgui-dynamic-canvas")
@@ -1741,10 +1745,8 @@ export let tgui = (function () {
 			updateCanvasIcons(document);
 			// update icons in hidden panels separately, because
 			// these are not part of the document dom
-			for(let p of module.panels)
-			{
-				if(!p.dom.parentNode)
-					updateCanvasIcons(p.dom);
+			for (let p of module.panels) {
+				if (!p.dom.parentNode) updateCanvasIcons(p.dom);
 			}
 		}
 	};
