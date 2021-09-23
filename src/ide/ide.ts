@@ -1005,7 +1005,7 @@ export let ide = (function () {
 			type: "div",
 			text: "status: preparing ...",
 			classname: "ide-export-status",
-			style: { top: "20px"},
+			style: { top: "20px" },
 		});
 		let download_turtle = tgui.createElement({
 			parent: dlg.content,
@@ -1013,7 +1013,7 @@ export let ide = (function () {
 			properties: { target: "_blank", download: fn },
 			text: "download standalone turtle application",
 			classname: "ide-export-download",
-			style: { top: "80px"},
+			style: { top: "80px" },
 		});
 		let download_canvas = tgui.createElement({
 			parent: dlg.content,
@@ -1021,7 +1021,7 @@ export let ide = (function () {
 			properties: { target: "_blank", download: fn },
 			text: "download standalone canvas application",
 			classname: "ide-export-download",
-			style: { top: "140px"},
+			style: { top: "140px" },
 		});
 
 		tgui.startModal(dlg);
