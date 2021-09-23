@@ -205,3 +205,30 @@ button {
 .tgui-label.ide-state-finished {
 	background-color: #88e;
 }
+
+.ide-export-status {
+	position: absolute;
+	width: 80%;
+	left: 10%;
+	height: 40px;
+	line-height: 35px;
+	color: #000;
+	padding: 2px 10px;
+	vertical-align: middle;
+	border: 1px solid #000;
+}
+
+.ide-export-download {
+	position: absolute;
+	width: 80%;
+	left: 10%;
+	height: 40px;
+	line-height: 35px;
+	background: #fff;
+	color: #44c !important;
+	font-decoration: underline;
+	padding: 2px 10px;
+	vertical-align: middle;
+	border: 1px solid #000;
+	display: none;
+}

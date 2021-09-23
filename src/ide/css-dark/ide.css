@@ -121,3 +121,15 @@
 	background-color: #139;
 	color: #8cf;
 }
+
+
+.dark-theme .ide-export-status {
+	color: #fff;
+	border-color: #fff;
+}
+
+.dark-theme .ide-export-download {
+	background: #222;
+	color: #46f !important;
+	border-color: #fff;
+}
