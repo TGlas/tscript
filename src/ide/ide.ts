@@ -1864,6 +1864,7 @@ export let ide = (function () {
 				group: "export",
 			});
 		}
+
 		buttons.push({
 			click: function () {
 				configDlg();
@@ -1898,19 +1899,6 @@ export let ide = (function () {
 			buttons[i].control = tgui.createButton(description);
 		}
 
-		/*tgui.createButton({
-			click: function () {
-				configDlg();
-				return false;
-			},
-			width: 20,
-			height: 20,
-			draw: icons.config,
-			parent: module.toolbar,
-			style: { float: "left" },
-			tooltip: "Configuration",
-		});*/
-
 		tgui.createElement({
 			type: "div",
 			parent: module.toolbar,
@@ -1930,7 +1918,6 @@ export let ide = (function () {
 				"text-overflow": "ellipsis clip",
 
 				"text-align": "center",
-				//background: "#fff",
 			},
 		});
 
