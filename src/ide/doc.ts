@@ -22,6 +22,21 @@ export const doc = (function () {
 	let docpath = "";
 	let doctree: any = null;
 
+	// check if dark theme is activated
+	function loadTheme() {
+		let str = localStorage.getItem("tscript.ide.config");
+		if (str) {
+			let config = JSON.parse(str);
+			if (config.hasOwnProperty("theme")) {
+				let theme = config.theme;
+				if (theme) {
+					document.body.classList.add(`${theme}-theme`);
+				}
+			}
+		}
+		return null;
+	}
+
 	// This function copies #text to the clipboard when run
 	// from within an event handler.
 	function toClipboard(text) {
@@ -732,7 +747,10 @@ export const doc = (function () {
 			};
 
 		module.embedded = options.embedded;
-		if (!options.embedded) document.title = "TScript Documentation";
+		if (!options.embedded) {
+			document.title = "TScript Documentation";
+			loadTheme();
+		}
 
 		// create the framing html elements
 		module.dom_container = container;

@@ -1,15 +1,36 @@
+import { icons } from "./icons";
+
 var interact = require("interactjs");
 
 ///////////////////////////////////////////////////////////
 // simplistic GUI framework
 //
 
+// TODO: declare interfaces for various description objects
 export let tgui = (function () {
 	let module: any = {};
 
 	// global mapping of hotkeys to handlers
 	let hotkeys = {};
 	let hotkeyElement = null;
+
+	type IconDrawingFunctionDynamic = (
+		canvas: HTMLCanvasElement,
+		dark: boolean
+	) => void; // length = 2
+	type IconDrawingFunctionStatic = (canvas: HTMLCanvasElement) => void; // length = 1
+	type IconDrawingFunction =
+		| IconDrawingFunctionDynamic
+		| IconDrawingFunctionStatic;
+	const iconDrawingFuncs = new WeakMap<
+		HTMLCanvasElement,
+		IconDrawingFunction
+	>();
+
+	module.theme = "default";
+	function isDarkTheme(theme: string) {
+		return theme.includes("dark");
+	}
 
 	// normalize the hotkey to lowercase
 	module.normalizeHotkey = function (hotkey) {
@@ -67,6 +88,7 @@ export let tgui = (function () {
 
 	// Create a new DOM element, acting as the control's main DOM element.
 	// Several standard properties of the description are honored.
+	// see createElement
 	function createControl(type, description, classname) {
 		let element = document.createElement(type);
 
@@ -118,10 +140,10 @@ export let tgui = (function () {
 		}
 
 		// add arbitrary event handlers
-		if (description.hasOwnProperty("event")) {
-			for (let key in description.event) {
-				if (!description.event.hasOwnProperty(key)) continue;
-				element.addEventListener(key, description.event[key]);
+		if (description.hasOwnProperty("events")) {
+			for (let key in description.events) {
+				if (!description.events.hasOwnProperty(key)) continue;
+				element.addEventListener(key, description.events[key]);
 			}
 		}
 
@@ -153,16 +175,29 @@ export let tgui = (function () {
 
 	// Convenience function for creating an HTML element.
 	// Fields of the description object:
-	// * type - HTML element type name, e.g., "div"
-	// * classname - optional CSS class
-	// * properties - dictionary of properties of the HTML document (should not be used for id, className, and innerHTML)
-	// * style - dictionary of CSS styles
-	// * parent - optionl DOM object containing the element
-	// * id - optional ID of the element
-	// * tooltip - optional tooltip
-	// * text - optional text to be added to the element as a text node
-	// * html - optional innerHTML to be added after the text
-	// * click - optional click handler
+	// * type 				- HTML element type name, e.g., "div"
+	//
+	// The following properties can be set directly
+	// * id 				- optional ID of the element
+	// * style 				- dictionary of CSS styles
+	// * classname 			- optional CSS class
+	// * tooltip[-right] 	- optional tooltip
+	// * tabindex 			- optional tabindex property
+	// Other attributes might be set through 'properties':
+	// * properties 		- dictionary of properties of the HTML document
+	//						  (should not be used for id, className, and innerHTML)
+	//
+	// The following event handlers can be set directly
+	// * click 				- optional click handler
+	// * dblclick 			- optional double click handler
+	// Other events might be set through 'events'
+	// * events 			- dictional of event handlers
+	//
+	// In addition the following fields have special meaning
+	// * text 				- optional text to be added to the element as a text node
+	// * html 				- optional innerHTML to be added after the text
+	// * parent 			- optionl DOM object containing the element
+	//
 	module.createElement = function (description) {
 		return createControl(
 			description.type,
@@ -176,7 +211,7 @@ export let tgui = (function () {
 	// Fields of the #description object:
 	// * text - for text buttons, default: ""
 	// * style - dictionary of CSS styles
-	// * parent - optionl DOM object containing the control
+	// * parent - optional DOM object containing the control
 	// * id - optional ID of the control
 	// * tooltip - optional tooltip
 	module.createLabel = function (description) {
@@ -202,6 +237,24 @@ export let tgui = (function () {
 		};
 	};
 
+	function setupCanvasZoom(canvas) {
+		// zoom
+		// TODO: programmaticly detect whenever zoom changes
+		let zoom = 2; // Good enough
+		//let zoom = window.devicePixelRatio;
+		if (zoom > 1) {
+			canvas.width *= zoom;
+			canvas.height *= zoom;
+			let ctx = canvas.getContext("2d");
+			ctx.scale(zoom, zoom);
+		}
+	}
+
+	function renderCanvas(canvas, draw) {
+		if (draw.length == 2) draw(canvas, isDarkTheme(module.theme));
+		else draw(canvas);
+	}
+
 	// Create a canvas icon element with automaticly zoomed contents
 	// if the website is zoomed to 200% then the actual width of the
 	// canvas is twice as large. The draw function does not need to
@@ -218,30 +271,32 @@ export let tgui = (function () {
 			width: description.width + "px",
 			height: description.height + "px",
 		};
+
+		console.assert(typeof description.draw == "function");
+
+		// draw.length = 1 -> IconDrawingFunctionStatic
+		// draw.length = 2 -> IconDrawingFunctionDynamic
+		let isDynamic = description.draw.length == 2;
+
 		if (description.hasOwnProperty("style"))
 			Object.assign(style, description.style);
 		let canvas = module.createElement({
 			type: "canvas",
 			parent: description.parent,
-			classname: description.hasOwnProperty("classname")
-				? description["classname"]
-				: "tgui",
+			classname:
+				(isDynamic ? "tgui-dynamic-canvas " : "") +
+				(description.hasOwnProperty("classname")
+					? description["classname"]
+					: "tgui"),
 			style: style,
 		});
 		canvas.width = description.width;
 		canvas.height = description.height;
 
-		// zoom
-		// TODO: programmaticly detect whenever zoom changes
-		let zoom = 2; // Good enough
-		//let zoom = window.devicePixelRatio;
-		if (zoom > 1) {
-			canvas.width *= zoom;
-			canvas.height *= zoom;
-			let ctx = canvas.getContext("2d");
-			ctx.scale(zoom, zoom);
-		}
-		description.draw(canvas);
+		if (isDynamic) iconDrawingFuncs.set(canvas, description.draw);
+
+		setupCanvasZoom(canvas);
+		renderCanvas(canvas, description.draw);
 
 		return canvas;
 	};
@@ -841,18 +896,7 @@ export let tgui = (function () {
 		free_panel_id++;
 
 		if (!control.hasOwnProperty("icondraw"))
-			control.icondraw = function (canvas) {
-				let ctx = canvas.getContext("2d");
-				ctx.lineWidth = 1;
-				ctx.fillStyle = "#fff";
-				ctx.fillRect(2.5, 2.5, 15, 15);
-				ctx.strokeStyle = "#000";
-				ctx.beginPath();
-				ctx.rect(2.5, 2.5, 15, 15);
-				ctx.fillStyle = "#00c";
-				ctx.fillRect(2.5, 2.5, 15, 3);
-				ctx.stroke();
-			};
+			control.icondraw = icons.window;
 
 		// register the panel
 		module.panels.push(control);
@@ -898,22 +942,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: function (canvas) {
-				let ctx = canvas.getContext("2d");
-				ctx.lineWidth = 1;
-				ctx.strokeStyle = "#666";
-				ctx.beginPath();
-				ctx.rect(2.5, 2.5, 13, 13);
-				ctx.stroke();
-				ctx.fillStyle = "#fff";
-				ctx.fillRect(2.5, 2.5, 7, 13);
-				ctx.strokeStyle = "#000";
-				ctx.beginPath();
-				ctx.rect(2.5, 2.5, 7, 13);
-				ctx.fillStyle = "#00c";
-				ctx.fillRect(2.5, 2.5, 7, 3);
-				ctx.stroke();
-			},
+			draw: icons.dockLeft,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Dock left",
@@ -925,22 +954,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: function (canvas) {
-				let ctx = canvas.getContext("2d");
-				ctx.lineWidth = 1;
-				ctx.strokeStyle = "#666";
-				ctx.beginPath();
-				ctx.rect(2.5, 2.5, 13, 13);
-				ctx.stroke();
-				ctx.fillStyle = "#fff";
-				ctx.fillRect(8.5, 2.5, 7, 13);
-				ctx.strokeStyle = "#000";
-				ctx.beginPath();
-				ctx.rect(8.5, 2.5, 7, 13);
-				ctx.fillStyle = "#00c";
-				ctx.fillRect(8.5, 2.5, 7, 3);
-				ctx.stroke();
-			},
+			draw: icons.dockRight,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Dock right",
@@ -952,18 +966,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: function (canvas) {
-				let ctx = canvas.getContext("2d");
-				ctx.lineWidth = 1;
-				ctx.fillStyle = "#fff";
-				ctx.fillRect(2.5, 2.5, 13, 13);
-				ctx.strokeStyle = "#000";
-				ctx.beginPath();
-				ctx.rect(2.5, 2.5, 13, 13);
-				ctx.fillStyle = "#00c";
-				ctx.fillRect(2.5, 2.5, 13, 3);
-				ctx.stroke();
-			},
+			draw: icons.maximize,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Maximize",
@@ -975,22 +978,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: function (canvas) {
-				let ctx = canvas.getContext("2d");
-				ctx.lineWidth = 1;
-				ctx.strokeStyle = "#666";
-				ctx.beginPath();
-				ctx.rect(2.5, 2.5, 13, 13);
-				ctx.stroke();
-				ctx.fillStyle = "#fff";
-				ctx.fillRect(4.5, 5.5, 9, 8);
-				ctx.strokeStyle = "#000";
-				ctx.beginPath();
-				ctx.rect(4.5, 5.5, 9, 8);
-				ctx.fillStyle = "#00c";
-				ctx.fillRect(4.5, 5.5, 9, 3);
-				ctx.stroke();
-			},
+			draw: icons.float,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Floating",
@@ -1002,15 +990,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: function (canvas) {
-				let ctx = canvas.getContext("2d");
-				ctx.lineWidth = 2.5;
-				ctx.strokeStyle = "#000";
-				ctx.beginPath();
-				ctx.moveTo(3, 14.5);
-				ctx.lineTo(15, 14.5);
-				ctx.stroke();
-			},
+			draw: icons.minimize,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Minimize",
@@ -1519,20 +1499,7 @@ export let tgui = (function () {
 					},
 					width: 20,
 					height: 20,
-					draw: function (canvas) {
-						let ctx = canvas.getContext("2d");
-						ctx.lineWidth = 2;
-						ctx.strokeStyle = "#000";
-						ctx.beginPath();
-						ctx.arc(9, 6, 4, 1 * Math.PI, 2.25 * Math.PI, false);
-						ctx.lineTo(9, 11.5);
-						ctx.lineTo(9, 13);
-						ctx.stroke();
-						ctx.beginPath();
-						ctx.moveTo(9, 15);
-						ctx.lineTo(9, 17);
-						ctx.stroke();
-					},
+					draw: icons.help,
 					classname: "tgui-panel-dockbutton",
 					"tooltip-right": "Help",
 				});
@@ -1545,19 +1512,7 @@ export let tgui = (function () {
 				},
 				width: 20,
 				height: 20,
-				draw: function (canvas) {
-					let ctx = canvas.getContext("2d");
-					ctx.lineWidth = 2;
-					ctx.strokeStyle = "#000";
-					ctx.beginPath();
-					ctx.moveTo(4, 4);
-					ctx.lineTo(14, 14);
-					ctx.stroke();
-					ctx.beginPath();
-					ctx.moveTo(4, 14);
-					ctx.lineTo(14, 4);
-					ctx.stroke();
-				},
+				draw: icons.close,
 				classname: "tgui-panel-dockbutton",
 				"tooltip-right": "Close",
 			});
@@ -1620,57 +1575,9 @@ export let tgui = (function () {
 		tgui.startModal(dlg);
 	};
 
-	module.msgBoxQuestion = function (canvas) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 2;
-		ctx.strokeStyle = "#04d";
-		ctx.fillStyle = "#16f";
-		ctx.beginPath();
-		ctx.arc(20, 20, 18.5, 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+	module.msgBoxQuestion = icons.msgBoxQuestion;
 
-		ctx.strokeStyle = "#fff";
-		ctx.beginPath();
-		ctx.arc(20, 15, 7, 1 * Math.PI, 2.25 * Math.PI, false);
-		ctx.lineTo(20, 25);
-
-		ctx.lineTo(20, 28);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(20, 31);
-		ctx.lineTo(20, 34);
-		ctx.stroke();
-	};
-
-	module.msgBoxExclamation = function (canvas) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 2;
-		ctx.strokeStyle = "#a91";
-		ctx.fillStyle = "#ec2";
-		ctx.beginPath();
-		//ctx.arc(20, 20, 18.5, 0, 2*Math.PI);
-		ctx.lineTo(19, 2);
-		ctx.lineTo(21, 2);
-		ctx.lineTo(38, 36);
-		ctx.lineTo(37, 38);
-		ctx.lineTo(3, 38);
-		ctx.lineTo(2, 36);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
-
-		ctx.strokeStyle = "#000";
-		ctx.beginPath();
-		ctx.moveTo(20, 10);
-		ctx.lineTo(20, 28);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(20, 31);
-		ctx.lineTo(20, 34);
-		ctx.stroke();
-	};
+	module.msgBoxExclamation = icons.msgBoxExclamation;
 
 	// Show a (newly created) modal dialog, that was created by createModal.
 	// Modal dialogs can be stacked. The dialog should not have been shown yet.
@@ -1810,6 +1717,39 @@ export let tgui = (function () {
 		}
 		return true;
 	});
+
+	function updateCanvasIcons(rootElement) {
+		rootElement
+			.querySelectorAll(".tgui-dynamic-canvas")
+			.forEach((canvas: any) => {
+				let ctx = canvas.getContext("2d");
+				//ctx.resetTransform();
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				renderCanvas(canvas, iconDrawingFuncs.get(canvas));
+			});
+	}
+
+	module.setTheme = function (theme: string) {
+		if (module.theme != theme) {
+			if (theme == "default")
+				document.body.classList.remove(`${module.theme}-theme`);
+			else if (module.theme == "default")
+				document.body.classList.add(`${theme}-theme`);
+			else
+				document.body.classList.replace(
+					`${module.theme}-theme`,
+					`${theme}-theme`
+				);
+
+			module.theme = theme;
+			updateCanvasIcons(document);
+			// update icons in hidden panels separately, because
+			// these are not part of the document dom
+			for (let p of module.panels) {
+				if (!p.dom.parentNode) updateCanvasIcons(p.dom);
+			}
+		}
+	};
 
 	return module;
 })();

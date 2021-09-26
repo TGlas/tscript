@@ -1,0 +1,187 @@
+/* general page styles */
+
+.dark-theme #doc-main {
+	color: #fff;
+}
+
+.dark-theme #searchtext {
+	background: #222;
+	color: #fff;
+	border-color: #888;
+}
+
+.dark-theme input:focus {
+	background: #222;
+	color: #fff;
+	border-color: #fff;
+}
+
+.dark-theme #sidebar {
+	background: #272727;
+}
+
+.dark-theme #version {
+	color: #fff;
+	background: #272727;
+}
+
+.dark-theme #search {
+	color: #fff;
+	background: #57f;
+}
+
+.dark-theme #tree {
+	color: #fff;
+	background: #272727;
+}
+
+.dark-theme #content {
+	color: #fff;
+	background: #222;
+	border-left: solid 5px #347;
+	border-right: solid 5px #347;
+}
+
+.dark-theme .related {
+	background: #272727;
+	border-color: #57f;
+}
+
+/* styles for the content */
+
+.dark-theme a:link,
+.dark-theme a:visited {
+	color: #57f;
+}
+
+.dark-theme a:active,
+.dark-theme a:hover {
+	color: #f44;
+}
+
+.dark-theme hr {
+	background: #151515;
+}
+
+.dark-theme .nicetable th {
+	border: 2px solid #854;
+	background: #432;
+}
+
+.dark-theme .nicetable td {
+	border: 2px solid #568;
+	background: #234;
+}
+
+.dark-theme .nicetable th a {
+	color: #fff;
+}
+
+.dark-theme .nicetable td a {
+	color: #fff;
+}
+
+.dark-theme .methods th {
+	border-color: #888;
+	background: #543;
+}
+
+.dark-theme .methods td {
+	border-color: #888;
+}
+
+.dark-theme .searchresults {
+	color: #666;
+}
+
+/* styles for the tree view */
+
+.dark-theme .current {
+	color: #fa4;
+	background: #654;
+}
+
+.dark-theme .tgui-tree {
+	color: #fff;
+}
+
+.dark-theme .tgui-tree-toggle {
+	color: #fff;
+}
+
+.dark-theme .tgui-tree-toggle:hover {
+	color: #fff;
+}
+
+.dark-theme .tgui-tree-element:hover {
+	background: #444;
+}
+
+/* highlighting */
+
+.dark-theme .example {
+	border-color: #c66;
+}
+
+.dark-theme .warning {
+	border-color: #c66;
+	background: #633;
+}
+
+.dark-theme .keyword {
+	background: #333;
+	border-color: #333;
+}
+
+.dark-theme .code {
+	background: #151515;
+}
+.dark-theme .code-keyword {
+	color: #4af;
+}
+.dark-theme .code-identifier {
+	color: #fff;
+}
+.dark-theme .code-integer {
+	color: #4fe;
+}
+.dark-theme .code-real {
+	color: #4f4;
+}
+.dark-theme .code-string {
+	color: #f44;
+}
+.dark-theme .code-operator {
+	color: #fff;
+}
+.dark-theme .code-grouping {
+	color: #4f4;
+}
+.dark-theme .code-delimiter {
+	color: #fff;
+}
+.dark-theme .code-comment {
+	color: #888;
+}
+
+.dark-theme .ebnf {
+	background: #151919;
+}
+.dark-theme .ebnf-identifier {
+	color: #f44;
+}
+.dark-theme .ebnf-literal {
+	color: #4f4;
+}
+.dark-theme .ebnf-special {
+	color: #c4f;
+}
+.dark-theme .ebnf-operator {
+	color: #fff;
+}
+.dark-theme .ebnf-grouping {
+	color: #c80;
+}
+.dark-theme .ebnf-delimiter {
+	color: #888;
+}

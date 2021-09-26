@@ -9,6 +9,12 @@ import "./css/codemirror.css";
 import "./css/documentation.css";
 import "./css/tutorial.css";
 
+import "./css-dark/ide.css";
+import "./css-dark/tgui.css";
+import "./css-dark/codemirror.css";
+import "./css-dark/documentation.css";
+import "./css-dark/tutorial.css";
+
 window.addEventListener(
 	"load",
 	function (event) {

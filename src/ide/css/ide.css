@@ -181,3 +181,54 @@ button {
 .ide-userclass {
 	color: #000;
 }
+
+.tgui-label.ide-state-unchecked {
+	background-color: #ee8;
+}
+
+.tgui-label.ide-state-error {
+	background-color: #f44;
+}
+
+.tgui-label.ide-state-running {
+	background-color: #8e8;
+}
+
+.tgui-label.ide-state-waiting {
+	background-color: #aca;
+}
+
+.tgui-label.ide-state-stepping {
+	background-color: #8ee;
+}
+
+.tgui-label.ide-state-finished {
+	background-color: #88e;
+}
+
+.ide-export-status {
+	position: absolute;
+	width: 80%;
+	left: 10%;
+	height: 40px;
+	line-height: 35px;
+	color: #000;
+	padding: 2px 10px;
+	vertical-align: middle;
+	border: 1px solid #000;
+}
+
+.ide-export-download {
+	position: absolute;
+	width: 80%;
+	left: 10%;
+	height: 40px;
+	line-height: 35px;
+	background: #fff;
+	color: #44c !important;
+	font-decoration: underline;
+	padding: 2px 10px;
+	vertical-align: middle;
+	border: 1px solid #000;
+	display: none;
+}
