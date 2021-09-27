@@ -230,17 +230,14 @@ export let tgui = (function () {
 		};
 	};
 
-	// Create a canvas icon element with automaticly zoomed contents
-	// if the website is zoomed to 200% then the actual width of the
-	// canvas is twice as large. The draw function does not need to
-	// care about this
+	// Create an icon element with automaticly zoomed contents
 	// Fields of the #description object:
-	// * draw - function with a "canvas" argument that draws the canvas icon
-	// * width - canvas width
-	// * height - canvas height
+	// * draw - function taking an SVGDrawingContext that draws the icon
+	// * width - icon width
+	// * height - icon height
 	// * parent - DOM object containing the control
 	// * style - optional dictionary of CSS styles
-	module.createCanvasIcon = function (description) {
+	module.createIcon = function (description) {
 		let style = {
 			display: "block",
 			width: description.width + "px",
@@ -272,9 +269,9 @@ export let tgui = (function () {
 	// Fields of the #description object:
 	// * click - event handler, taking an "event" argument
 	// * text - for text buttons, default: ""
-	// * draw - for canvas buttons, function with a "canvas" argument that draws the button face
-	// * width - for canvas buttons, canvas width
-	// * height - for canvas buttons, canvas height
+	// * draw - for icon buttons, function taking an SVGDrawingContext that draws the icon
+	// * width - for icon buttons, icon width
+	// * height - for icon buttons, icon height
 	// * classname - optional CSS class
 	// * style - optional dictionary of CSS styles
 	// * parent - optionl DOM object containing the control
@@ -287,14 +284,14 @@ export let tgui = (function () {
 			"button",
 			description,
 			"tgui tgui-control tgui-button" +
-				(description.text ? "-text" : "-canvas") +
+				(description.text ? "-text" : "-icon") +
 				(description.classname ? " " + description.classname : "")
 		);
 
 		// create the actual content
 		if (description.draw) {
-			// fancy canvas button
-			let canvas = module.createCanvasIcon({
+			// fancy icon button
+			let icon = module.createIcon({
 				parent: element,
 				draw: description.draw,
 				width: description.width,
@@ -874,7 +871,7 @@ export let tgui = (function () {
 			parent: panel,
 			classname: "tgui tgui-panel-titlebar",
 		});
-		control.titlebar_icon = tgui.createCanvasIcon({
+		control.titlebar_icon = tgui.createIcon({
 			parent: control.titlebar_container,
 			draw: control.icondraw,
 			width: 20,
@@ -1490,7 +1487,7 @@ export let tgui = (function () {
 
 	// Properties of description: prompt, [icon], [buttons], title, [onClose]...
 	// prompt -- the displayed text message
-	// icon   -- an optional canvas drawing function to display the appropriate icon to the message
+	// icon   -- an optional icon drawing function to display the appropriate icon to the message
 	// See `createModal` for more information about these properties
 	module.msgBox = function (description) {
 		let default_description = {
@@ -1510,7 +1507,7 @@ export let tgui = (function () {
 
 		let icon = description.icon;
 		if (icon) {
-			tgui.createCanvasIcon({
+			tgui.createIcon({
 				parent: dlg.content,
 				draw: icon,
 				width: 40,
