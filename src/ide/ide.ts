@@ -1375,7 +1375,7 @@ export let ide = (function () {
 						buttons: [{ text: "Cancel" }],
 						onClose: saveConfig,
 					});
-					let icon = tgui.createCanvasIcon({
+					let icon = tgui.createIcon({
 						parent: dlg.content,
 						width: 20,
 						height: 20,
