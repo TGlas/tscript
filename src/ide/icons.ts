@@ -1,787 +1,516 @@
 "use strict";
 
+import { SVGDrawingContext } from "./svg";
+
 export const icons = (function () {
 	let icons: any = {};
 
-	function iconColorBorder(dark) {
-		return dark ? "#fff" : "#000";
-	}
-	function iconColorBack(dark) {
-		return dark ? "#444" : "#fff";
-	}
-	function iconColorTitle(dark) {
-		return dark ? "#36f" : "#00c";
-	}
-
 	// Gui icons
 
-	icons.window = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 1;
-		ctx.fillStyle = iconColorBack(dark);
-		ctx.fillRect(2.5, 2.5, 15, 15);
-		ctx.strokeStyle = iconColorBorder(dark);
-		ctx.beginPath();
-		ctx.rect(2.5, 2.5, 15, 15);
-		ctx.fillStyle = iconColorTitle(dark);
-		ctx.fillRect(2.5, 2.5, 15, 3);
-		ctx.stroke();
+	icons.window = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-panel-back");
+		draw.rect(2.5, 2.5, 15, 15);
+
+		draw.setClass("icon-panel-title");
+		draw.rect(2.5, 2.5, 15, 3);
+
+		draw.setClass("icon-border");
+		draw.rect(2.5, 2.5, 15, 15);
 	};
 
-	icons.dockLeft = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = "#666";
-		ctx.beginPath();
-		ctx.rect(2.5, 2.5, 13, 13);
-		ctx.stroke();
-		ctx.fillStyle = iconColorBack(dark);
-		ctx.fillRect(2.5, 2.5, 7, 13);
-		ctx.strokeStyle = iconColorBorder(dark);
-		ctx.beginPath();
-		ctx.rect(2.5, 2.5, 7, 13);
-		ctx.fillStyle = iconColorTitle(dark);
-		ctx.fillRect(2.5, 2.5, 7, 3);
-		ctx.stroke();
+	icons.dockLeft = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke: #666; fill: none");
+		draw.rect(2.5, 2.5, 13, 13);
+
+		draw.setClass("icon-panel-back");
+		draw.rect(2.5, 2.5, 7, 13);
+
+		draw.setClass("icon-panel-title");
+		draw.rect(2.5, 2.5, 7, 3);
+
+		draw.setClass("icon-border");
+		draw.rect(2.5, 2.5, 7, 13);
 	};
 
-	icons.dockRight = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = "#666";
-		ctx.beginPath();
-		ctx.rect(2.5, 2.5, 13, 13);
-		ctx.stroke();
-		ctx.fillStyle = iconColorBack(dark);
-		ctx.fillRect(8.5, 2.5, 7, 13);
-		ctx.strokeStyle = iconColorBorder(dark);
-		ctx.beginPath();
-		ctx.rect(8.5, 2.5, 7, 13);
-		ctx.fillStyle = iconColorTitle(dark);
-		ctx.fillRect(8.5, 2.5, 7, 3);
-		ctx.stroke();
+	icons.dockRight = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke: #666; fill: none");
+		draw.rect(2.5, 2.5, 13, 13);
+
+		draw.setClass("icon-panel-back");
+		draw.rect(8.5, 2.5, 7, 13);
+
+		draw.setClass("icon-panel-title");
+		draw.rect(8.5, 2.5, 7, 3);
+
+		draw.setClass("icon-border");
+		draw.rect(8.5, 2.5, 7, 13);
 	};
 
-	icons.maximize = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 1;
-		ctx.fillStyle = iconColorBack(dark);
-		ctx.fillRect(2.5, 2.5, 13, 13);
-		ctx.strokeStyle = iconColorBorder(dark);
-		ctx.beginPath();
-		ctx.rect(2.5, 2.5, 13, 13);
-		ctx.fillStyle = iconColorTitle(dark);
-		ctx.fillRect(2.5, 2.5, 13, 3);
-		ctx.stroke();
+	icons.maximize = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-panel-back");
+		draw.rect(2.5, 2.5, 13, 13);
+
+		draw.setClass("icon-panel-title");
+		draw.rect(2.5, 2.5, 13, 3);
+
+		draw.setClass("icon-border");
+		draw.rect(2.5, 2.5, 13, 13);
 	};
 
-	icons.float = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = "#666";
-		ctx.beginPath();
-		ctx.rect(2.5, 2.5, 13, 13);
-		ctx.stroke();
-		ctx.fillStyle = iconColorBack(dark);
-		ctx.fillRect(4.5, 5.5, 9, 8);
-		ctx.strokeStyle = iconColorBorder(dark);
-		ctx.beginPath();
-		ctx.rect(4.5, 5.5, 9, 8);
-		ctx.fillStyle = iconColorTitle(dark);
-		ctx.fillRect(4.5, 5.5, 9, 3);
-		ctx.stroke();
+	icons.float = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke: #666; fill: none");
+		draw.rect(2.5, 2.5, 13, 13);
+
+		draw.setClass("icon-panel-back");
+		draw.rect(4.5, 5.5, 9, 8);
+
+		draw.setClass("icon-panel-title");
+		draw.rect(4.5, 5.5, 9, 3);
+
+		draw.setClass("icon-border");
+		draw.rect(4.5, 5.5, 9, 8);
 	};
 
-	icons.minimize = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 2.5;
-		ctx.strokeStyle = iconColorBorder(dark);
-		ctx.beginPath();
-		ctx.moveTo(3, 14.5);
-		ctx.lineTo(15, 14.5);
-		ctx.stroke();
+	icons.minimize = function (draw: SVGDrawingContext) {
+		draw.setClassAndStyle("icon-border", "stroke-width: 2.5");
+		draw.line(3, 14.5, 15, 14.5);
 	};
 
-	icons.help = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 2;
-		ctx.strokeStyle = iconColorBorder(dark);
-		ctx.beginPath();
-		ctx.arc(9, 6, 4, 1 * Math.PI, 2.25 * Math.PI, false);
-		ctx.lineTo(9, 11.5);
-		ctx.lineTo(9, 13);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(9, 15);
-		ctx.lineTo(9, 17);
-		ctx.stroke();
+	icons.help = function (draw: SVGDrawingContext) {
+		draw.setClassAndStyle("icon-border", "stroke-width: 2");
+
+		draw.beginPath();
+		draw.arc(9, 6, 4, 1 * Math.PI, 2.25 * Math.PI);
+		draw.lineTo(9, 11.5);
+		draw.lineTo(9, 13);
+		draw.endPath();
+
+		draw.line(9, 15, 9, 17);
 	};
 
-	icons.close = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 2;
-		ctx.strokeStyle = dark ? "#fff" : "#000";
-		ctx.beginPath();
-		ctx.moveTo(4, 4);
-		ctx.lineTo(14, 14);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(4, 14);
-		ctx.lineTo(14, 4);
-		ctx.stroke();
+	icons.close = function (draw: SVGDrawingContext) {
+		draw.setClassAndStyle("icon-border", "stroke-width: 2");
+		draw.line(4, 4, 14, 14);
+		draw.line(4, 14, 14, 4);
 	};
 
 	// Message box icons, larger in size
 
-	icons.msgBoxQuestion = function (canvas) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 2;
-		ctx.strokeStyle = "#04d";
-		ctx.fillStyle = "#16f";
-		ctx.beginPath();
-		ctx.arc(20, 20, 18.5, 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+	icons.msgBoxQuestion = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke-width: 2; stroke: #04d; fill: #16f");
+		draw.circle(20, 20, 18.5);
 
-		ctx.strokeStyle = "#fff";
-		ctx.beginPath();
-		ctx.arc(20, 15, 7, 1 * Math.PI, 2.25 * Math.PI, false);
-		ctx.lineTo(20, 25);
+		draw.setStyle("stroke-width: 2; stroke: #fff; fill: none");
+		draw.beginPath();
+		draw.arc(20, 15, 7, 1 * Math.PI, 2.25 * Math.PI);
+		draw.lineTo(20, 25);
+		draw.lineTo(20, 28);
+		draw.endPath();
 
-		ctx.lineTo(20, 28);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(20, 31);
-		ctx.lineTo(20, 34);
-		ctx.stroke();
+		draw.line(20, 31, 20, 34);
 	};
 
-	icons.msgBoxExclamation = function (canvas) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 2;
-		ctx.strokeStyle = "#a91";
-		ctx.fillStyle = "#ec2";
-		ctx.beginPath();
-		//ctx.arc(20, 20, 18.5, 0, 2*Math.PI);
-		ctx.lineTo(19, 2);
-		ctx.lineTo(21, 2);
-		ctx.lineTo(38, 36);
-		ctx.lineTo(37, 38);
-		ctx.lineTo(3, 38);
-		ctx.lineTo(2, 36);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+	icons.msgBoxExclamation = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke-width: 2; stroke: #a91; fill: #ec2");
+		draw.polygon([19, 2], [21, 2], [38, 36], [37, 38], [3, 38], [2, 36]);
 
-		ctx.strokeStyle = "#000";
-		ctx.beginPath();
-		ctx.moveTo(20, 10);
-		ctx.lineTo(20, 28);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(20, 31);
-		ctx.lineTo(20, 34);
-		ctx.stroke();
+		draw.setStyle("stroke-width: 2; stroke: #000; fill: none");
+		draw.line(20, 10, 20, 28);
+		draw.line(20, 31, 20, 34);
 	};
 
 	// Ide specific icons
 
 	// Toolbar icons
 	// icon parts used several times are written as a function,
-	// the 2d context of the canvas is passed as a parameter,
-	// resulting in less code
 
-	function iconColorRed(dark) {
-		return dark ? "#f31" : "#c00";
-	}
-	function iconColorGreen(dark) {
-		return dark ? "#4c2" : "#080";
-	}
+	function draw_icon_paper(draw: SVGDrawingContext) {
+		draw.setStyle("stroke: #333; fill: #fff");
+		draw.polygon(
+			[4.5, 7.5],
+			[8.5, 3.5],
+			[14.5, 3.5],
+			[14.5, 16.5],
+			[4.5, 16.5]
+		);
 
-	function draw_icon_paper(ctx) {
-		ctx.strokeStyle = "#333";
-		ctx.fillStyle = "#fff";
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.moveTo(4.5, 7.5);
-		ctx.lineTo(8.5, 3.5);
-		ctx.lineTo(14.5, 3.5);
-		ctx.lineTo(14.5, 16.5);
-		ctx.lineTo(4.5, 16.5);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
-
-		ctx.beginPath();
-		ctx.moveTo(4.5, 7.5);
-		ctx.lineTo(8.5, 7.5);
-		ctx.lineTo(8.5, 3.5);
-		ctx.stroke();
+		draw.setStyle("stroke: #333; fill: none");
+		draw.polyline([4.5, 7.5], [8.5, 7.5], [8.5, 3.5]);
 	}
 
-	function draw_icon_floppy_disk(ctx) {
-		ctx.lineWidth = 1;
-		ctx.fillStyle = "#36d";
-		ctx.strokeStyle = "#139";
-		ctx.beginPath();
-		ctx.moveTo(3.5, 3.5);
-		ctx.lineTo(16.5, 3.5);
-		ctx.lineTo(16.5, 16.5);
-		ctx.lineTo(5.5, 16.5);
-		ctx.lineTo(3.5, 14.5);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+	function draw_icon_floppy_disk(draw: SVGDrawingContext) {
+		draw.setStyle("stroke: #139; fill: #36d");
+		draw.polygon(
+			[3.5, 3.5],
+			[16.5, 3.5],
+			[16.5, 16.5],
+			[5.5, 16.5],
+			[3.5, 14.5]
+		);
 
-		ctx.fillStyle = "#eef";
-		ctx.fillRect(7, 11, 6, 5);
-		ctx.fillStyle = "#36d";
-		ctx.fillRect(8, 12, 2, 3);
+		draw.setStyle("stroke: none; fill: #eef");
+		draw.rect(7, 11, 6, 5);
 
-		ctx.fillStyle = "#fff";
-		ctx.fillRect(6, 4, 8, 5);
+		draw.setStyle("stroke: none; fill: #36d");
+		draw.rect(8, 12, 2, 3);
+
+		draw.setStyle("stroke: none; fill: #fff");
+		draw.rect(6, 4, 8, 5);
 	}
 
-	function draw_icon_pencil_overlay(ctx) {
+	function draw_icon_pencil_overlay(draw: SVGDrawingContext) {
 		// draw pencil
 		// shadow
-		ctx.strokeStyle = "#0005";
-		ctx.lineWidth = 3;
-		ctx.beginPath();
-		ctx.moveTo(8, 8);
-		ctx.lineTo(8 + 10, 8 + 10);
-		ctx.stroke();
+		draw.setStyle("stroke-width: 3; stroke: #0005; fill: none");
+		draw.line(8, 8, 8 + 10, 8 + 10);
 
-		ctx.fillStyle = "#fc9";
-		ctx.beginPath();
-		ctx.moveTo(8, 6);
-		ctx.lineTo(11, 7);
-		ctx.lineTo(9, 9);
-		ctx.fill();
+		draw.setStyle("stroke: none; fill: #fc9");
+		draw.polygon([8, 6], [11, 7], [9, 9]);
 
-		ctx.fillStyle = "#000";
-		ctx.beginPath();
-		ctx.moveTo(8, 6);
-		ctx.lineTo(9.5, 6.5);
-		ctx.lineTo(8.5, 7.5);
-		ctx.fill();
+		draw.setStyle("stroke: none; fill: #000");
+		draw.polygon([8, 6], [9.5, 6.5], [8.5, 7.5]);
 
-		ctx.strokeStyle = "#000";
-		ctx.lineWidth = 3;
-		ctx.beginPath();
-		ctx.moveTo(10, 8);
-		ctx.lineTo(18, 16);
-		ctx.stroke();
+		draw.setStyle("stroke-width: 3; stroke: #000; fill: none");
+		draw.line(10, 8, 18, 16);
 
-		ctx.strokeStyle = "#dd0";
-		ctx.lineWidth = 2;
-		ctx.beginPath();
-		ctx.moveTo(10, 8);
-		ctx.lineTo(18, 16);
-		ctx.stroke();
+		draw.setStyle("stroke-width: 2; stroke: #dd0; fill: none");
+		draw.line(10, 8, 18, 16);
 
-		ctx.fillStyle = "#000";
-		ctx.beginPath();
-		ctx.arc(18, 16, 1.5, 1.75 * Math.PI, 2.75 * Math.PI, false);
-		ctx.fill();
+		draw.setStyle("stroke: none; fill: #000");
+		draw.polygon([8, 6], [9.5, 6.5], [8.5, 7.5]);
+		draw.beginPath();
+		draw.arc(18, 16, 1.5, 1.75 * Math.PI, 2.75 * Math.PI);
+		draw.endPath();
 
-		ctx.fillStyle = "#f33";
-		ctx.beginPath();
-		ctx.arc(18, 16, 1, 0, 2 * Math.PI, false);
-		ctx.fill();
+		draw.setStyle("stroke: none; fill: #f33");
+		draw.circle(18, 16, 1);
 	}
 
-	function iconColorHighlight(dark) {
-		return dark ? "#49f" : "#00f";
-	}
-	function iconColorLine(dark) {
-		return dark ? "#ccc" : "#000";
-	}
+	icons.newDocument = function (draw: SVGDrawingContext) {
+		draw_icon_paper(draw);
 
-	icons.newDocument = function (canvas) {
-		let ctx = canvas.getContext("2d");
+		draw.setStyle("stroke: #030; fill: #0a0");
+		draw.circle(14, 14, 4.75);
 
-		draw_icon_paper(ctx);
-
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = "#030";
-		ctx.fillStyle = "#0a0";
-		ctx.beginPath();
-		ctx.arc(14, 14, 4.75, 0, 2 * Math.PI, false);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
-
-		ctx.strokeStyle = "#fff";
-		ctx.lineWidth = 2;
-		ctx.beginPath();
-		ctx.moveTo(14, 17);
-		ctx.lineTo(14, 11);
-		ctx.stroke();
-		ctx.beginPath();
-		ctx.moveTo(11, 14);
-		ctx.lineTo(17, 14);
-		ctx.stroke();
+		draw.setStyle("stroke-width: 2; stroke: #fff; fill: none");
+		draw.line(14, 17, 14, 11);
+		draw.line(11, 14, 17, 14);
 	};
 
-	icons.openDocument = function (canvas) {
-		let ctx = canvas.getContext("2d");
+	icons.openDocument = function (draw: SVGDrawingContext) {
+		draw.setStyle("fill: #ec5; stroke: #330");
+		draw.polygon(
+			[2.5, 4.5],
+			[7.5, 4.5],
+			[9.5, 6.5],
+			[15.5, 6.5],
+			[15.5, 15.5],
+			[2.5, 15.5]
+		);
 
-		ctx.fillStyle = "#ec5";
-		ctx.strokeStyle = "#330";
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.moveTo(2.5, 4.5);
-		ctx.lineTo(7.5, 4.5);
-		ctx.lineTo(9.5, 6.5);
-		ctx.lineTo(15.5, 6.5);
-		ctx.lineTo(15.5, 15.5);
-		ctx.lineTo(2.5, 15.5);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+		draw.setStyle("fill: #fd6; stroke: #330");
 
-		ctx.fillStyle = "#fd6";
-		ctx.strokeStyle = "#330";
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.moveTo(5.5, 8.5);
-		ctx.lineTo(17.5, 8.5);
-		ctx.lineTo(15.5, 15.5);
-		ctx.lineTo(3.5, 15.5);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+		draw.polygon([5.5, 8.5], [17.5, 8.5], [15.5, 15.5], [3.5, 15.5]);
 	};
 
-	icons.saveDocument = function (canvas) {
-		let ctx = canvas.getContext("2d");
-
-		draw_icon_floppy_disk(ctx);
+	icons.saveDocument = function (draw: SVGDrawingContext) {
+		draw_icon_floppy_disk(draw);
 	};
 
-	icons.saveDocumentAs = function (canvas) {
-		let ctx = canvas.getContext("2d");
-
-		draw_icon_floppy_disk(ctx);
-		draw_icon_pencil_overlay(ctx);
+	icons.saveDocumentAs = function (draw: SVGDrawingContext) {
+		draw_icon_floppy_disk(draw);
+		draw_icon_pencil_overlay(draw);
 	};
 
-	icons.run = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.fillStyle = iconColorGreen(dark);
-		ctx.beginPath();
-		ctx.moveTo(5, 5);
-		ctx.lineTo(15, 10);
-		ctx.lineTo(5, 15);
-		ctx.fill();
+	icons.run = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-green-fill");
+		draw.polygon([5, 5], [15, 10], [5, 15]);
 	};
 
-	icons.interrupt = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.fillStyle = iconColorRed(dark);
-		ctx.fillRect(5, 5, 4, 10);
-		ctx.fillRect(11, 5, 4, 10);
+	icons.interrupt = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-red-fill");
+		draw.rect(5, 5, 4, 10);
+		draw.rect(11, 5, 4, 10);
 	};
 
-	icons.reset = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.fillStyle = iconColorRed(dark);
-		ctx.fillRect(5, 5, 10, 10);
+	icons.reset = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-red-fill");
+		draw.rect(5, 5, 10, 10);
 	};
 
-	icons.stepInto = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.fillStyle = iconColorLine(dark);
-		ctx.fillRect(10, 3, 7, 2);
-		ctx.fillRect(13, 6, 4, 2);
-		ctx.fillRect(13, 9, 4, 2);
-		ctx.fillRect(13, 12, 4, 2);
-		ctx.fillRect(10, 15, 7, 2);
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = iconColorHighlight(dark);
-		ctx.beginPath();
-		ctx.moveTo(8, 4);
-		ctx.lineTo(3, 4);
-		ctx.lineTo(3, 10);
-		ctx.lineTo(6, 10);
-		ctx.stroke();
-		ctx.fillStyle = iconColorHighlight(dark);
-		ctx.beginPath();
-		ctx.moveTo(5, 7);
-		ctx.lineTo(5, 13);
-		ctx.lineTo(9.5, 10);
-		ctx.fill();
+	icons.stepInto = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-neutral-fill");
+		draw.rect(10, 3, 7, 2);
+		draw.rect(13, 6, 4, 2);
+		draw.rect(13, 9, 4, 2);
+		draw.rect(13, 12, 4, 2);
+		draw.rect(10, 15, 7, 2);
+
+		draw.setClass("icon-blue-line");
+		draw.polyline([8, 4], [3, 4], [3, 10], [6, 10]);
+
+		draw.setClass("icon-blue-fill");
+		draw.polygon([5, 7], [5, 13], [9.5, 10]);
 	};
 
-	icons.stepOver = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.fillStyle = iconColorLine(dark);
-		ctx.fillRect(10, 3, 7, 2);
-		ctx.fillRect(13, 6, 4, 2);
-		ctx.fillRect(13, 9, 4, 2);
-		ctx.fillRect(13, 12, 4, 2);
-		ctx.fillRect(10, 15, 7, 2);
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = iconColorHighlight(dark);
-		ctx.beginPath();
-		ctx.moveTo(8, 4);
-		ctx.lineTo(3, 4);
-		ctx.lineTo(3, 16);
-		ctx.lineTo(6, 16);
-		ctx.stroke();
-		ctx.fillStyle = iconColorHighlight(dark);
-		ctx.beginPath();
-		ctx.moveTo(5, 13);
-		ctx.lineTo(5, 19);
-		ctx.lineTo(9.5, 16);
-		ctx.fill();
+	icons.stepOver = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-neutral-fill");
+		draw.rect(10, 3, 7, 2);
+		draw.rect(13, 6, 4, 2);
+		draw.rect(13, 9, 4, 2);
+		draw.rect(13, 12, 4, 2);
+		draw.rect(10, 15, 7, 2);
+
+		draw.setClass("icon-blue-line");
+		draw.polyline([8, 4], [3, 4], [3, 16], [6, 16]);
+
+		draw.setClass("icon-blue-fill");
+		draw.polygon([5, 13], [5, 19], [9.5, 16]);
 	};
 
-	icons.stepOut = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.fillStyle = iconColorLine(dark);
-		ctx.fillRect(10, 3, 7, 2);
-		ctx.fillRect(13, 6, 4, 2);
-		ctx.fillRect(13, 9, 4, 2);
-		ctx.fillRect(13, 12, 4, 2);
-		ctx.fillRect(10, 15, 7, 2);
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = iconColorHighlight(dark);
-		ctx.beginPath();
-		ctx.moveTo(11, 10);
-		ctx.lineTo(3, 10);
-		ctx.lineTo(3, 16);
-		ctx.lineTo(6, 16);
-		ctx.stroke();
-		ctx.fillStyle = iconColorHighlight(dark);
-		ctx.beginPath();
-		ctx.moveTo(5, 13);
-		ctx.lineTo(5, 19);
-		ctx.lineTo(9.5, 16);
-		ctx.fill();
+	icons.stepOut = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-neutral-fill");
+		draw.rect(10, 3, 7, 2);
+		draw.rect(13, 6, 4, 2);
+		draw.rect(13, 9, 4, 2);
+		draw.rect(13, 12, 4, 2);
+		draw.rect(10, 15, 7, 2);
+
+		draw.setClass("icon-blue-line");
+		draw.polyline([11, 10], [3, 10], [3, 16], [6, 16]);
+
+		draw.setClass("icon-blue-fill");
+		draw.polygon([5, 13], [5, 19], [9.5, 16]);
 	};
 
-	icons.breakPoint = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.fillStyle = iconColorRed(dark);
-		ctx.arc(10, 10, 3.9, 0, 2 * Math.PI, false);
-		ctx.fill();
+	icons.breakPoint = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-red-fill");
+		draw.circle(10, 10, 3.9);
 	};
 
-	/*icons.search = function(canvas) {
-        let ctx = canvas.getContext("2d");
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 1.5;
-        ctx.arc(8, 8, 5, 0.25*Math.PI, 2.25*Math.PI, false); // starting/ending point at 45 degrees south-east
-        ctx.lineTo(17, 17);
-        ctx.stroke();
-    };*/
+	/*icons.search = function(draw: SVGDrawingContext) {
+		draw.setClassAndStyle("icon-neutral-line", "stroke-width: 1.5");
+		draw.beginPath();
+		draw.arc(8, 8, 5, 0.25*Math.PI, 2.25*Math.PI, false); // starting/ending point at 45 degrees south-east
+		draw.lineTo(17, 17);
+		draw.endPath();
+	};*/
 
-	icons.export = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		ctx.strokeStyle = iconColorGreen(dark);
-		ctx.lineWidth = 2;
-		ctx.beginPath();
-		ctx.moveTo(3, 7);
-		ctx.lineTo(10, 7);
-		ctx.lineTo(10, 3);
-		ctx.lineTo(17, 10);
-		ctx.lineTo(10, 17);
-		ctx.lineTo(10, 13);
-		ctx.lineTo(3, 13);
-		ctx.closePath();
-		ctx.stroke();
+	icons.export = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-green-frame");
+		draw.polygon(
+			[3, 7],
+			[10, 7],
+			[10, 3],
+			[17, 10],
+			[10, 17],
+			[10, 13],
+			[3, 13]
+		);
 	};
 
-	icons.config = function (canvas, dark) {
-		let ctx = canvas.getContext("2d");
-		let col = iconColorLine(dark);
-		ctx.fillStyle = col;
-		ctx.strokeStyle = col;
-		ctx.arc(10, 10, 2.0, 0, 2 * Math.PI, false);
-		ctx.closePath();
-		ctx.fill();
-		ctx.lineWidth = 2;
-		ctx.strokeStyle = col;
-		ctx.beginPath();
-		ctx.arc(10, 10, 5.7, 0, 2 * Math.PI, false);
-		ctx.closePath();
-		ctx.stroke();
-		ctx.lineWidth = 2;
-		ctx.beginPath();
+	icons.config = function (draw: SVGDrawingContext) {
+		draw.setClass("icon-neutral-fill");
+		draw.circle(10, 10, 2.0);
+
+		draw.setClassAndStyle("icon-neutral-line", "stroke-width: 2");
+		draw.circle(10, 10, 5.7);
+
 		for (let i = 0; i < 12; i++) {
 			let a = ((i + 0.5) * Math.PI) / 6;
-			ctx.moveTo(10 + 6.0 * Math.cos(a), 10 + 6.0 * Math.sin(a));
-			ctx.lineTo(10 + 9.4 * Math.cos(a), 10 + 9.4 * Math.sin(a));
+			draw.line(
+				10 + 6.0 * Math.cos(a),
+				10 + 6.0 * Math.sin(a),
+				10 + 9.4 * Math.cos(a),
+				10 + 9.4 * Math.sin(a)
+			);
 		}
-		ctx.stroke();
 	};
 
-	icons.restorePanels = function (canvas) {
-		let ctx = canvas.getContext("2d");
-		ctx.lineWidth = 1;
-		ctx.fillStyle = "#fff";
-		ctx.strokeStyle = "#aaa";
+	icons.restorePanels = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke: #aaa; fill: #fff");
+		draw.rect(2.5, 2.5, 15, 15);
 
-		ctx.beginPath();
-		ctx.rect(2.5, 2.5, 15, 15);
-		ctx.fill();
-		ctx.stroke();
+		draw.setStyle("stroke: none; fill: #ccc");
+		draw.rect(11, 3, 1, 14);
 
-		ctx.fillStyle = "#ccc";
-		ctx.fillRect(11, 3, 1, 14);
+		draw.setStyle("stroke: none; fill: #77f");
+		draw.rect(3, 3, 14, 1);
+		draw.rect(3, 12, 8, 1);
 
-		ctx.fillStyle = "#77f";
-		ctx.fillRect(3, 3, 14, 1);
-		ctx.fillRect(3, 12, 8, 1);
+		draw.setStyle("stroke: #222; stroke-width: 1.7; fill: none");
+		draw.beginPath();
+		draw.arc(9.5, 10.5, 4, 1.25 * Math.PI, 2.6 * Math.PI);
+		draw.endPath();
 
-		ctx.strokeStyle = "#222";
-		ctx.lineWidth = 1.7;
-		ctx.beginPath();
-		ctx.arc(9.5, 10.5, 4, 1.25 * Math.PI, 2.6 * Math.PI);
-		ctx.stroke();
-
-		ctx.fillStyle = "#222";
-		ctx.beginPath();
-		ctx.moveTo(5, 5);
-		ctx.lineTo(5, 10);
-		ctx.lineTo(10, 10);
-		ctx.fill();
+		draw.setStyle("stroke: none; fill: #222");
+		draw.polygon([5, 5], [5, 10], [10, 10]);
 	};
 
 	// Panel icons
-	icons.editor = function (canvas) {
-		let ctx = canvas.getContext("2d");
-		draw_icon_paper(ctx);
+	icons.editor = function (draw: SVGDrawingContext) {
+		draw_icon_paper(draw);
 
-		ctx.fillStyle = "#777";
-		ctx.fillRect(10, 5, 3, 1);
-		ctx.fillRect(10, 7, 2, 1);
-		ctx.fillRect(7, 9, 4, 1);
-		ctx.fillRect(6, 11, 7, 1);
-		ctx.fillRect(9, 13, 4, 1);
+		draw.setStyle("stroke: none; fill: #777");
+		draw.rect(10, 5, 3, 1);
+		draw.rect(10, 7, 2, 1);
+		draw.rect(7, 9, 4, 1);
+		draw.rect(6, 11, 7, 1);
+		draw.rect(9, 13, 4, 1);
 	};
 
-	icons.messages = function (canvas) {
-		let ctx = canvas.getContext("2d");
+	icons.messages = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke: #222; fill: #fff");
+		draw.beginPath();
+		draw.ellipse(9.5, 8.5, 7, 6, 0, 0.73 * Math.PI, 2.57 * Math.PI);
+		draw.lineTo(4.5, 17);
+		draw.closePath();
+		draw.endPath();
 
-		ctx.fillStyle = "#fff";
-		ctx.strokeStyle = "#222";
-		ctx.beginPath();
-		ctx.ellipse(9.5, 8.5, 7, 6, 0, 0.73 * Math.PI, 2.57 * Math.PI, false);
-		ctx.lineTo(4.5, 17);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
-
-		ctx.fillStyle = "#777";
-		ctx.fillRect(8, 6, 3, 1);
-		ctx.fillRect(6, 8, 2, 1);
-		ctx.fillRect(9, 8, 5, 1);
-		ctx.fillRect(7, 10, 4, 1);
+		draw.setStyle("stroke: none; fill: #777");
+		draw.rect(8, 6, 3, 1);
+		draw.rect(6, 8, 2, 1);
+		draw.rect(9, 8, 5, 1);
+		draw.rect(7, 10, 4, 1);
 	};
 
-	icons.stackView = function (canvas) {
-		let ctx = canvas.getContext("2d");
-
-		ctx.strokeStyle = "#222";
-		ctx.lineWidth = 0.6;
-
+	icons.stackView = function (draw: SVGDrawingContext) {
 		// white top
-		ctx.fillStyle = "#fff";
-		ctx.beginPath();
-		ctx.moveTo(4, 5.5);
-		ctx.lineTo(10, 8.5);
-		ctx.lineTo(16, 5.5);
-		ctx.lineTo(10, 2.5);
-		ctx.fill();
+		draw.setStyle("stroke: none; fill: #fff");
+		draw.polygon([4, 5.5], [10, 8.5], [16, 5.5], [10, 2.5]);
 
 		// shaded lower pages
-		ctx.fillStyle = "#bbb";
-		ctx.beginPath();
-		ctx.moveTo(4, 5.5);
-		ctx.lineTo(4, 14.5);
-		ctx.lineTo(10, 17.5);
-		ctx.lineTo(10, 8.5);
-		ctx.fill();
+		draw.setStyle("stroke: none; fill: #bbb");
+		draw.polygon([4, 5.5], [4, 14.5], [10, 17.5], [10, 8.5]);
 
-		ctx.fillStyle = "#999";
-		ctx.beginPath();
-		ctx.moveTo(10, 17.5);
-		ctx.lineTo(16, 14.5);
-		ctx.lineTo(16, 5.5);
-		ctx.lineTo(10, 8.5);
-		ctx.fill();
+		draw.setStyle("stroke: none; fill: #999");
+		draw.polygon([10, 17.5], [16, 14.5], [16, 5.5], [10, 8.5]);
 
+		draw.setStyle("stroke-width: 0.6; stroke: #222; fill: none");
 		for (let i = 8; i < 17; i += 3) {
-			ctx.beginPath();
-			ctx.moveTo(3, i + 0.5);
-			ctx.lineTo(10, i + 3.5);
-			ctx.lineTo(17, i + 0.5);
-			ctx.stroke();
+			draw.polyline([3, i + 0.5], [10, i + 3.5], [17, i + 0.5]);
 		}
 
 		// top frame
-		ctx.beginPath();
-		ctx.moveTo(3.5, 5.3);
-		ctx.lineTo(3.5, 5.7);
-		ctx.lineTo(10, 8.5);
-		ctx.lineTo(16.5, 5.7);
-		ctx.lineTo(16.5, 5.3);
-		ctx.lineTo(10, 2.5);
-		ctx.closePath();
-		ctx.stroke();
+		draw.polygon(
+			[3.5, 5.3],
+			[3.5, 5.7],
+			[10, 8.5],
+			[16.5, 5.7],
+			[16.5, 5.3],
+			[10, 2.5]
+		);
 	};
 
-	icons.programView = function (canvas) {
-		let ctx = canvas.getContext("2d");
-
+	icons.programView = function (draw: SVGDrawingContext) {
 		// Outline
-		ctx.fillStyle = "#eeeeeec0";
-		ctx.moveTo(3, 2);
-		ctx.lineTo(13, 2);
-		ctx.lineTo(13, 5);
-		ctx.lineTo(15, 5);
-		ctx.lineTo(15, 8);
-		ctx.lineTo(17, 8);
-		ctx.lineTo(17, 12);
-		ctx.lineTo(13, 12);
-		ctx.lineTo(13, 14);
-		ctx.lineTo(15, 14);
-		ctx.lineTo(15, 18);
-		ctx.lineTo(5, 18);
-		ctx.lineTo(5, 15);
-		ctx.lineTo(3, 15);
-		ctx.lineTo(3, 11);
-		ctx.lineTo(7, 11);
-		ctx.lineTo(7, 9);
-		ctx.lineTo(5, 9);
-		ctx.lineTo(5, 6);
-		ctx.lineTo(3, 6);
-		ctx.fill();
+		draw.setStyle("stroke:none; fill: #eeeeeec0");
+		draw.polygon(
+			[3, 2],
+			[13, 2],
+			[13, 5],
+			[15, 5],
+			[15, 8],
+			[17, 8],
+			[17, 12],
+			[13, 12],
+			[13, 14],
+			[15, 14],
+			[15, 18],
+			[5, 18],
+			[5, 15],
+			[3, 15],
+			[3, 11],
+			[7, 11],
+			[7, 9],
+			[5, 9],
+			[5, 6],
+			[3, 6]
+		);
 
 		// Black boxes
-		ctx.fillStyle = "#000";
-		ctx.fillRect(4, 3, 8, 2);
-		ctx.fillRect(6, 6, 8, 2);
-		ctx.fillRect(8, 9, 8, 2);
-		ctx.fillRect(4, 12, 8, 2);
-		ctx.fillRect(6, 15, 8, 2);
+		draw.setStyle("stroke:none; fill: #000");
+		draw.rect(4, 3, 8, 2);
+		draw.rect(6, 6, 8, 2);
+		draw.rect(8, 9, 8, 2);
+		draw.rect(4, 12, 8, 2);
+		draw.rect(6, 15, 8, 2);
 	};
 
-	icons.turtle = function (canvas) {
+	icons.turtle = function (draw: SVGDrawingContext) {
 		// draws literally a turtle
-		let ctx = canvas.getContext("2d");
 
-		ctx.lineWidth = 1;
-		ctx.fillStyle = "#2c3";
-		ctx.strokeStyle = "#070";
+		draw.setStyle("stroke: #070; fill: #2c3");
 
 		// head
-		ctx.beginPath();
-		ctx.ellipse(9.5, 5, 2, 2.5, 0, 0 * Math.PI, 2 * Math.PI, false);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+		draw.beginPath();
+		draw.ellipse(9.5, 5, 2, 2.5, 0, 0 * Math.PI, 2 * Math.PI);
+		draw.closePath();
+		draw.endPath();
 
 		// legs
-		ctx.lineWidth = 1.6;
+		draw.setStyle("stroke-width: 1.6; stroke: #070; fill: none");
 
-		ctx.beginPath();
-		ctx.moveTo(3.5, 6);
-		ctx.lineTo(9.5, 11);
-		ctx.lineTo(15.5, 6);
-		ctx.stroke();
+		draw.polyline([3.5, 6], [9.5, 11], [15.5, 6]);
 
-		ctx.beginPath();
-		ctx.moveTo(4.5, 17);
-		ctx.lineTo(9.5, 10);
-		ctx.lineTo(14.5, 17);
-		ctx.stroke();
+		draw.polyline([4.5, 17], [9.5, 10], [14.5, 17]);
 
 		// tail
-		ctx.lineWidth = 1.3;
-
-		ctx.beginPath();
-		ctx.moveTo(9.5, 17);
-		ctx.lineTo(8.5, 19);
-		ctx.stroke();
+		draw.setStyle("stroke-width: 1.3; stroke: #070; fill: none");
+		draw.line(9.5, 17, 8.5, 19);
 
 		// main body
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.ellipse(9.5, 11.5, 4, 5, 0, 0 * Math.PI, 2 * Math.PI, false);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+		draw.setStyle("stroke: #070; fill: #2c3");
+		draw.beginPath();
+		draw.ellipse(9.5, 11.5, 4, 5, 0, 0 * Math.PI, 2 * Math.PI);
+		draw.closePath();
+		draw.endPath();
 
-		ctx.strokeStyle = "#0709";
-		ctx.beginPath();
-		ctx.ellipse(8.7, 10.7, 4, 5, 0, -0.3 * Math.PI, 0.8 * Math.PI, false);
-		ctx.stroke();
+		draw.setStyle("stroke: #0709; fill: none");
+		draw.beginPath();
+		draw.ellipse(8.8, 10.8, 4, 5, 0, -0.3 * Math.PI, 0.7 * Math.PI);
+		draw.endPath();
 	};
 
-	icons.canvas = function (canvas) {
-		let ctx = canvas.getContext("2d");
+	icons.canvas = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke: none; fill: #333");
+		draw.rect(3, 2, 14, 16);
 
-		ctx.fillStyle = "#333";
-		ctx.fillRect(3, 2, 14, 16);
-		ctx.fillStyle = "#fff";
-		ctx.fillRect(4, 3, 12, 14);
-		ctx.fillStyle = "#00c8";
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = "#00cc";
-		ctx.beginPath();
-		ctx.rect(5.5, 5.5, 6, 6);
-		ctx.fill();
-		ctx.stroke();
-		ctx.fillStyle = "#c008";
-		ctx.strokeStyle = "#c00c";
-		ctx.beginPath();
-		ctx.arc(11, 11, 3.5, 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
+		draw.setStyle("stroke: none; fill: #fff");
+		draw.rect(4, 3, 12, 14);
+
+		draw.setStyle("stroke: #00cc; fill: #00c8");
+		draw.rect(5.5, 5.5, 6, 6);
+
+		draw.setStyle("stroke: #c00c; fill: #c008");
+		draw.circle(11, 11, 3.5);
 	};
 
-	/*icons.tutorial = function (canvas) {
-        let ctx = canvas.getContext("2d");
+	/*icons.tutorial = function (draw: SVGDrawingContext) {
+		draw.setStyle("stroke-width: 3; stroke: #666; fill: none");
 
-        ctx.strokeStyle = "#666";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(5.0, 20);
-        ctx.lineTo(9.0, 2);
-        ctx.lineTo(11.0, 2);
-        ctx.lineTo(15.0, 20);
-        ctx.stroke();
+		draw.beginPath();
+		draw.moveTo(5.0, 20);
+		draw.lineTo(9.0, 2);
+		draw.lineTo(11.0, 2);
+		draw.lineTo(15.0, 20);
+		draw.endPath();
 
-        ctx.strokeStyle = "#db7";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(5, 20);
-        ctx.lineTo(9, 2);
-        ctx.lineTo(11, 2);
-        ctx.lineTo(15, 20);
-        ctx.stroke();
+		draw.setStyle("stroke-width: 2; stroke: #db7; fill: none");
+		draw.polyline([5, 20], [9, 2], [11, 2], [15, 20]);
 
-        ctx.fillStyle = "#666";
-        ctx.fillRect(1.5, 2.5, 17, 12);
-        ctx.fillStyle = "#db7";
-        ctx.fillRect(2, 3, 16, 11);
-        ctx.fillStyle = "#000";
-        ctx.fillRect(3, 4, 14, 9);
+		draw.setStyle("stroke: none; fill: #666");
+		draw.rect(1.5, 2.5, 17, 12);
 
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "#fff";
-        ctx.beginPath();
-        ctx.moveTo(5, 6);
-        ctx.lineTo(7, 8);
-        ctx.lineTo(5, 10);
-        ctx.stroke();
-    };*/
+		draw.setStyle("stroke: none; fill: #db7");
+		draw.rect(2, 3, 16, 11);
+
+		draw.setStyle("stroke: none; fill: #000");
+		draw.rect(3, 4, 14, 9);
+
+		draw.setStyle("stroke: #fff; fill: none");
+		draw.polyline([5, 6], [7, 8], [5, 10]);
+	};*/
 
 	return icons;
 })();

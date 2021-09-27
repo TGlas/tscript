@@ -1,4 +1,5 @@
 import { icons } from "./icons";
+import { createSvg, SVGDrawingContext } from "./svg";
 
 var interact = require("interactjs");
 
@@ -14,18 +15,7 @@ export let tgui = (function () {
 	let hotkeys = {};
 	let hotkeyElement = null;
 
-	type IconDrawingFunctionDynamic = (
-		canvas: HTMLCanvasElement,
-		dark: boolean
-	) => void; // length = 2
-	type IconDrawingFunctionStatic = (canvas: HTMLCanvasElement) => void; // length = 1
-	type IconDrawingFunction =
-		| IconDrawingFunctionDynamic
-		| IconDrawingFunctionStatic;
-	const iconDrawingFuncs = new WeakMap<
-		HTMLCanvasElement,
-		IconDrawingFunction
-	>();
+	type IconDrawingFunction = (draw: SVGDrawingContext) => void;
 
 	module.theme = "default";
 	function isDarkTheme(theme: string) {
@@ -91,9 +81,12 @@ export let tgui = (function () {
 	// see createElement
 	function createControl(type, description, classname) {
 		let element = document.createElement(type);
+		return setupControl(element, description, classname);
+	}
 
+	function setupControl(element, description, classname) {
 		// set classes
-		if (classname) element.className = classname;
+		if (classname) element.setAttribute("class", classname);
 
 		// set ID
 		if (description.hasOwnProperty("id")) element.id = description.id;
@@ -237,24 +230,6 @@ export let tgui = (function () {
 		};
 	};
 
-	function setupCanvasZoom(canvas) {
-		// zoom
-		// TODO: programmaticly detect whenever zoom changes
-		let zoom = 2; // Good enough
-		//let zoom = window.devicePixelRatio;
-		if (zoom > 1) {
-			canvas.width *= zoom;
-			canvas.height *= zoom;
-			let ctx = canvas.getContext("2d");
-			ctx.scale(zoom, zoom);
-		}
-	}
-
-	function renderCanvas(canvas, draw) {
-		if (draw.length == 2) draw(canvas, isDarkTheme(module.theme));
-		else draw(canvas);
-	}
-
 	// Create a canvas icon element with automaticly zoomed contents
 	// if the website is zoomed to 200% then the actual width of the
 	// canvas is twice as large. The draw function does not need to
@@ -272,33 +247,25 @@ export let tgui = (function () {
 			height: description.height + "px",
 		};
 
-		console.assert(typeof description.draw == "function");
-
-		// draw.length = 1 -> IconDrawingFunctionStatic
-		// draw.length = 2 -> IconDrawingFunctionDynamic
-		let isDynamic = description.draw.length == 2;
-
 		if (description.hasOwnProperty("style"))
 			Object.assign(style, description.style);
-		let canvas = module.createElement({
-			type: "canvas",
-			parent: description.parent,
-			classname:
-				(isDynamic ? "tgui-dynamic-canvas " : "") +
-				(description.hasOwnProperty("classname")
-					? description["classname"]
-					: "tgui"),
-			style: style,
-		});
-		canvas.width = description.width;
-		canvas.height = description.height;
 
-		if (isDynamic) iconDrawingFuncs.set(canvas, description.draw);
+		let svg: SVGSVGElement = createSvg(style.width, style.height);
+		let draw_context: SVGDrawingContext = new SVGDrawingContext(svg);
+		description.draw(draw_context);
 
-		setupCanvasZoom(canvas);
-		renderCanvas(canvas, description.draw);
+		setupControl(
+			svg,
+			{
+				parent: description.parent,
+				style: style,
+			},
+			description.hasOwnProperty("classname")
+				? description["classname"]
+				: "tgui"
+		);
 
-		return canvas;
+		return svg;
 	};
 
 	// Create a new button.
@@ -1718,17 +1685,6 @@ export let tgui = (function () {
 		return true;
 	});
 
-	function updateCanvasIcons(rootElement) {
-		rootElement
-			.querySelectorAll(".tgui-dynamic-canvas")
-			.forEach((canvas: any) => {
-				let ctx = canvas.getContext("2d");
-				//ctx.resetTransform();
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				renderCanvas(canvas, iconDrawingFuncs.get(canvas));
-			});
-	}
-
 	module.setTheme = function (theme: string) {
 		if (module.theme != theme) {
 			if (theme == "default")
@@ -1742,12 +1698,6 @@ export let tgui = (function () {
 				);
 
 			module.theme = theme;
-			updateCanvasIcons(document);
-			// update icons in hidden panels separately, because
-			// these are not part of the document dom
-			for (let p of module.panels) {
-				if (!p.dom.parentNode) updateCanvasIcons(p.dom);
-			}
 		}
 	};
 
