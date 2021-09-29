@@ -1,5 +1,4 @@
 import { icons } from "./icons";
-import { createSvg, SVGDrawingContext } from "./svg";
 
 var interact = require("interactjs");
 
@@ -14,8 +13,6 @@ export let tgui = (function () {
 	// global mapping of hotkeys to handlers
 	let hotkeys = {};
 	let hotkeyElement = null;
-
-	type IconDrawingFunction = (draw: SVGDrawingContext) => void;
 
 	module.theme = "default";
 	function isDarkTheme(theme: string) {
@@ -247,9 +244,18 @@ export let tgui = (function () {
 		if (description.hasOwnProperty("style"))
 			Object.assign(style, description.style);
 
+		function createSvg(width: string, height: string): SVGSVGElement {
+			let svg: SVGSVGElement = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"svg"
+			);
+			svg.setAttribute("width", width);
+			svg.setAttribute("height", height);
+			return svg;
+		}
+
 		let svg: SVGSVGElement = createSvg(style.width, style.height);
-		let draw_context: SVGDrawingContext = new SVGDrawingContext(svg);
-		description.draw(draw_context);
+		svg.innerHTML = description.draw;
 
 		setupControl(
 			svg,

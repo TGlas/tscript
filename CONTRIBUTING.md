@@ -18,3 +18,9 @@ This project uses [Prettier](https://prettier.io/) for code formatting. Many edi
 If the `check-format` check fails on your pull request, it's most likely enough to run `npm run prettier` and commit the changes.
 
 If there's something that Prettier complains about that you _absolutely_ need to be formatted in a specific way, you can use `prettier-ignore` comments to tell prettier to ignore a part of a file ([see documentation](https://prettier.io/docs/en/ignore.html)).
+
+# Generating the resources
+
+Various resources like icons are created by code. To generate the corresponding data, which is included in the website, special scripts need to be executed.
+
+-   `npm run gen-icons` generates the icon resources, you might need to call `npm run gen-icons && npm run prettier`

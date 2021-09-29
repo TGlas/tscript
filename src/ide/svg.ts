@@ -1,54 +1,108 @@
-export function createSvg(width: string, height: string): SVGSVGElement {
-	let svg: SVGSVGElement = document.createElementNS(
-		"http://www.w3.org/2000/svg",
-		"svg"
-	);
+"use strict";
+// This file is considered to be used by 'gen-icons.ts' and
+// would not be part of the output
+
+class SVGNode {
+	type: string;
+	attributes: Map<string, string>;
+	childs: SVGNode[];
+	constructor(url, type) {
+		// url ignored
+		this.type = type;
+		this.attributes = new Map<string, string>();
+		this.childs = [];
+	}
+	setAttribute(name, value) {
+		this.attributes.set(name, value);
+	}
+
+	appendChild(node: SVGNode) {
+		this.childs.push(node);
+	}
+
+	serialize(): string {
+		// like outerHTML
+		// serialize attributes
+		let attrs = "";
+		for (let [name, value] of this.attributes.entries()) {
+			attrs += ` ${name}="${value}"`;
+		}
+		let childs = this.serialize_childs();
+		if (childs) return `<${this.type}${attrs}>${childs}</${this.type}>`;
+		else return `<${this.type}${attrs}/>`;
+	}
+	serialize_childs(): string {
+		// like innerHTML
+		let childs = "";
+		for (let child of this.childs) {
+			childs += child.serialize();
+		}
+		return childs;
+	}
+}
+
+// Round number and return it as a string
+function num2str(n: number): string {
+	let v = n.toFixed(2);
+	// remove trailing zeros in the decimal part
+	while (v.includes(".") && (v.slice(-1) === "0" || v.slice(-1) === ".")) {
+		v = v.slice(0, -1);
+	}
+	return v;
+}
+
+export function createSvg(width: string, height: string): SVGNode {
+	//document.createElementNS
+	let svg: SVGNode = new SVGNode("http://www.w3.org/2000/svg", "svg");
 	svg.setAttribute("width", width);
 	svg.setAttribute("height", height);
+
 	return svg;
 }
 
 function createSvgElement(type, properties) {
-	let el = document.createElementNS("http://www.w3.org/2000/svg", type);
+	let el = new SVGNode("http://www.w3.org/2000/svg", type);
 	for (let p in properties) {
-		if (properties.hasOwnProperty(p)) el.setAttribute(p, properties[p]);
+		let v = properties[p];
+		if (typeof v == "number") v = num2str(v);
+		if (properties.hasOwnProperty(p)) el.setAttribute(p, v);
 	}
 	return el;
 }
 
 export class SVGDrawingContext {
-	public readonly svg: SVGSVGElement;
-	#classname: string;
-	#style: string;
-	#path?: string;
+	public readonly svg: SVGNode;
+	protected classname: string;
+	protected style: string;
+	protected path?: string;
 
-	constructor(svg: SVGSVGElement) {
+	constructor(svg: SVGNode) {
 		this.svg = svg;
-		this.#classname = "";
-		this.#style = "";
+		this.classname = "";
+		this.style = "";
 	}
 
 	setClass(classname: string): SVGDrawingContext {
-		this.#classname = classname;
-		this.#style = "";
+		this.classname = classname;
+		this.style = "";
 		return this;
 	}
 
 	setStyle(style: string): SVGDrawingContext {
-		this.#classname = "";
-		this.#style = style;
+		this.classname = "";
+		this.style = style;
 		return this;
 	}
 
 	setClassAndStyle(classname: string, style: string): SVGDrawingContext {
-		this.#style = style;
-		this.#classname = classname;
+		this.style = style;
+		this.classname = classname;
 		return this;
 	}
 
-	#addElement(el: SVGElement) {
-		if (this.#classname) el.setAttribute("class", this.#classname);
-		if (this.#style) el.setAttribute("style", this.#style);
+	protected addElement(el: SVGNode) {
+		if (this.classname) el.setAttribute("class", this.classname);
+		if (this.style) el.setAttribute("style", this.style);
 		this.svg.appendChild(el);
 		return this;
 	}
@@ -61,25 +115,25 @@ export class SVGDrawingContext {
 	): SVGDrawingContext {
 		let el = createSvgElement("rect", { x, y, width, height });
 
-		this.#addElement(el);
+		this.addElement(el);
 		return this;
 	}
 
 	circle(cx: number, cy: number, r: number): SVGDrawingContext {
 		let el = createSvgElement("circle", { cx, cy, r });
 
-		this.#addElement(el);
+		this.addElement(el);
 		return this;
 	}
 
 	line(x1: number, y1: number, x2: number, y2: number): SVGDrawingContext {
 		let el = createSvgElement("line", { x1, y1, x2, y2 });
 
-		this.#addElement(el);
+		this.addElement(el);
 		return this;
 	}
 
-	_accumulatePoints(points: Array<[number, number]>): string {
+	protected accumulatePoints(points: Array<[number, number]>): string {
 		let p = "";
 		for (let i = 0; i < points.length; ++i) {
 			if (p) p += " ";
@@ -89,36 +143,36 @@ export class SVGDrawingContext {
 	}
 
 	polygon(...points_args: Array<[number, number]>): SVGDrawingContext {
-		let points = this._accumulatePoints(points_args);
+		let points = this.accumulatePoints(points_args);
 		let el = createSvgElement("polygon", { points });
 
-		this.#addElement(el);
+		this.addElement(el);
 		return this;
 	}
 	polyline(...points_args: Array<[number, number]>): SVGDrawingContext {
-		let points = this._accumulatePoints(points_args);
+		let points = this.accumulatePoints(points_args);
 		let el = createSvgElement("polyline", { points });
 
-		this.#addElement(el);
+		this.addElement(el);
 		return this;
 	}
 
 	beginPath(): SVGDrawingContext {
-		this.#path = "";
+		this.path = "";
 		return this;
 	}
-	#appendPath(s: string) {
-		if (this.#path) this.#path += " ";
-		this.#path += s;
+	protected appendPath(s: string) {
+		if (this.path) this.path += " ";
+		this.path += s;
 	}
 	// the following methods should be called between beginPath and endPath
 
 	moveTo(x: number, y: number): SVGDrawingContext {
-		this.#appendPath(`M ${x} ${y}`);
+		this.appendPath(`M ${num2str(x)} ${num2str(y)}`);
 		return this;
 	}
 	lineTo(x: number, y: number): SVGDrawingContext {
-		this.#appendPath(`L ${x} ${y}`);
+		this.appendPath(`L ${num2str(x)} ${num2str(y)}`);
 		return this;
 	}
 	ellipse(
@@ -146,11 +200,18 @@ export class SVGDrawingContext {
 		let ym = y + Math.sin((startAngle + endAngle) / 2) * ry;
 		let r = (rotation * 180) / Math.PI;
 
-		this.#appendPath(`M ${x0},${y0}`);
-		this.#appendPath(`A ${rx},${ry} ${r} 0 1 ${xm},${ym}`);
-		this.#appendPath(`A ${rx},${ry} ${r} 0 1 ${x1},${y1}`);
+		this.appendPath(`M ${num2str(x0)},${num2str(y0)}`);
+		this.appendPath(
+			`A ${num2str(rx)},${num2str(ry)} ${num2str(r)} 0 1 ${num2str(
+				xm
+			)},${num2str(ym)}`
+		);
+		this.appendPath(
+			`A ${num2str(rx)},${num2str(ry)} ${num2str(r)} 0 1 ${num2str(
+				x1
+			)},${num2str(y1)}`
+		);
 
-		//this._appendPath(`L ${x1},${y1}`);
 		return this;
 	}
 	arc(
@@ -165,15 +226,15 @@ export class SVGDrawingContext {
 	}
 
 	closePath(): SVGDrawingContext {
-		this.#appendPath("Z");
+		this.appendPath("Z");
 		return this;
 	}
 	endPath(): SVGDrawingContext {
-		let d = this.#path;
-		this.#path = undefined;
+		let d = this.path;
+		this.path = undefined;
 		let el = createSvgElement("path", { d });
 
-		this.#addElement(el);
+		this.addElement(el);
 		return this;
 	}
 }
