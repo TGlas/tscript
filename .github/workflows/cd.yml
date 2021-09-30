@@ -38,17 +38,16 @@ jobs:
         run: npm test
 
       # Deploy to GitHub Pages
-      - name: Commit distribution artifacts
+      - name: Prepare deployment
         run: |
-          git checkout --orphan dist
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git reset
-          git add -f ./distribution/index.html
-          git commit -m "Deploy site"
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+          rm ./out/tscript.js
+          mkdir ./out/distribution
+          mv ./src/ide/redirect.html ./out/distribution/index.html
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
-          force: true
+          folder: ./out
+          single-commit: true
+          git-config-name: github-actions[bot]
+          git-config-email: 41898282+github-actions[bot]@users.noreply.github.com
