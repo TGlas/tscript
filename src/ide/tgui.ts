@@ -1,4 +1,4 @@
-import { icons } from "./icons";
+import { SVGIcon, icons } from "./icons";
 
 var interact = require("interactjs");
 
@@ -229,7 +229,7 @@ export let tgui = (function () {
 
 	// Create an icon element with automaticly zoomed contents
 	// Fields of the #description object:
-	// * draw - function taking an SVGDrawingContext that draws the icon
+	// * icon - SVGIcon
 	// * width - icon width
 	// * height - icon height
 	// * parent - DOM object containing the control
@@ -244,18 +244,18 @@ export let tgui = (function () {
 		if (description.hasOwnProperty("style"))
 			Object.assign(style, description.style);
 
-		function createSvg(width: string, height: string): SVGSVGElement {
+		function createSvg(icon: SVGIcon): SVGSVGElement {
 			let svg: SVGSVGElement = document.createElementNS(
 				"http://www.w3.org/2000/svg",
 				"svg"
 			);
-			svg.setAttribute("width", width);
-			svg.setAttribute("height", height);
+			svg.setAttribute("width", icon.width + "px");
+			svg.setAttribute("height", icon.height + "px");
+			svg.innerHTML = icon.innerSVG;
 			return svg;
 		}
 
-		let svg: SVGSVGElement = createSvg(style.width, style.height);
-		svg.innerHTML = description.draw;
+		let svg: SVGSVGElement = createSvg(description.icon);
 
 		setupControl(
 			svg,
@@ -275,7 +275,7 @@ export let tgui = (function () {
 	// Fields of the #description object:
 	// * click - event handler, taking an "event" argument
 	// * text - for text buttons, default: ""
-	// * draw - for icon buttons, function taking an SVGDrawingContext that draws the icon
+	// * icon - for icon buttons, SVGIcon
 	// * width - for icon buttons, icon width
 	// * height - for icon buttons, icon height
 	// * classname - optional CSS class
@@ -295,16 +295,16 @@ export let tgui = (function () {
 		);
 
 		// create the actual content
-		if (description.draw) {
+		if (description.icon) {
 			// fancy icon button
 			let icon = module.createIcon({
 				parent: element,
-				draw: description.draw,
+				icon: description.icon,
 				width: description.width,
 				height: description.height,
 			});
 		} else if (!description.text)
-			throw "[tgui.createButton] either .text or .draw are required";
+			throw "[tgui.createButton] either .text or .icon are required";
 
 		// add a hotkey
 		module.setHotkey(description.hotkey, description.click);
@@ -809,7 +809,7 @@ export let tgui = (function () {
 	// - floatingsize: [width, height] size in floating state
 	// - dockedheight: height in left or right state
 	// - state:        current state, i.e., "left", "right", "max", "float", "icon", "disabled"
-	// - icondraw:     draw function for the icon representing the panel in "icon" mode, also drawn in the titlebar of the panel
+	// - icon:         SVGIcon for the icon representing the panel in "icon" mode, also drawn in the titlebar of the panel
 	// - onResize:     callback function(width, height) on resize
 	// - onArrange:    callback function() on arranging (possible position/size change)
 	// those properties are carried over to the returned object
@@ -865,8 +865,7 @@ export let tgui = (function () {
 		control.panelID = free_panel_id;
 		free_panel_id++;
 
-		if (!control.hasOwnProperty("icondraw"))
-			control.icondraw = icons.window;
+		if (!control.hasOwnProperty("icon")) control.icon = icons.window;
 
 		// register the panel
 		module.panels.push(control);
@@ -879,7 +878,7 @@ export let tgui = (function () {
 		});
 		control.titlebar_icon = tgui.createIcon({
 			parent: control.titlebar_container,
-			draw: control.icondraw,
+			icon: control.icon,
 			width: 20,
 			height: 20,
 			classname: "tgui-panel-titlebar-icon",
@@ -912,7 +911,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.dockLeft,
+			icon: icons.dockLeft,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Dock left",
@@ -924,7 +923,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.dockRight,
+			icon: icons.dockRight,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Dock right",
@@ -936,7 +935,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.maximize,
+			icon: icons.maximize,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Maximize",
@@ -948,7 +947,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.float,
+			icon: icons.float,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Floating",
@@ -960,7 +959,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.minimize,
+			icon: icons.minimize,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Minimize",
@@ -981,7 +980,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: control.icondraw,
+			icon: control.icon,
 			tooltip: control.title,
 			style: {
 				margin: "0 0 0 1px", // 1 px as a separator between multiple icons
@@ -1469,7 +1468,7 @@ export let tgui = (function () {
 					},
 					width: 20,
 					height: 20,
-					draw: icons.help,
+					icon: icons.help,
 					classname: "tgui-panel-dockbutton",
 					"tooltip-right": "Help",
 				});
@@ -1482,7 +1481,7 @@ export let tgui = (function () {
 				},
 				width: 20,
 				height: 20,
-				draw: icons.close,
+				icon: icons.close,
 				classname: "tgui-panel-dockbutton",
 				"tooltip-right": "Close",
 			});
@@ -1493,7 +1492,7 @@ export let tgui = (function () {
 
 	// Properties of description: prompt, [icon], [buttons], title, [onClose]...
 	// prompt -- the displayed text message
-	// icon   -- an optional icon drawing function to display the appropriate icon to the message
+	// icon   -- an optional SVGIcon to display the appropriate icon to the message
 	// See `createModal` for more information about these properties
 	module.msgBox = function (description) {
 		let default_description = {
@@ -1515,7 +1514,7 @@ export let tgui = (function () {
 		if (icon) {
 			tgui.createIcon({
 				parent: dlg.content,
-				draw: icon,
+				icon: icon,
 				width: 40,
 				height: 40,
 				classname: "tgui-panel-titlebar-icon",
@@ -1689,8 +1688,18 @@ export let tgui = (function () {
 	});
 
 	module.setTheme = function (theme: string) {
-		if (module.theme != theme) {
-			if (theme == "default")
+		if (theme === "auto") {
+			// Auto detect theme of the operating system
+			if (window.matchMedia) {
+				var q = window.matchMedia("(prefers-color-scheme: dark)");
+				theme = q.matches ? "dark" : "default";
+			} else {
+				theme = "default";
+			}
+		}
+
+		if (module.theme !== theme) {
+			if (theme === "default")
 				document.body.classList.remove(`${module.theme}-theme`);
 			else if (module.theme == "default")
 				document.body.classList.add(`${theme}-theme`);

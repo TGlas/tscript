@@ -6,6 +6,11 @@
 
 /* PADDING */
 
+.dark-theme .CodeMirror-scrollbar-filler,
+.dark-theme .CodeMirror-gutter-filler {
+	background-color: #1e1e1e; /* The little square between H and V scrollbars */
+}
+
 /* GUTTER */
 
 .dark-theme .CodeMirror-gutters {

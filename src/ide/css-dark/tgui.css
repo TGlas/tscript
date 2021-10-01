@@ -1,3 +1,8 @@
+.dark-theme {
+	/* dark theme for scrollbars, etc */
+	color-scheme: dark;
+}
+
 .dark-theme .tgui-control {
 	color: #fff;
 }

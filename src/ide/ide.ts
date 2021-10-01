@@ -34,7 +34,7 @@ export let ide = (function () {
 
 	let module: any = {};
 	let options: any = {};
-	let theme: string = "default";
+	let theme: string = "auto";
 
 	function guid() {
 		return (
@@ -1197,84 +1197,84 @@ export let ide = (function () {
 	let buttons: any = [
 		{
 			click: cmd_new,
-			draw: icons.newDocument,
+			icon: icons.newDocument,
 			tooltip: "New document",
 			hotkey: "shift-control-n",
 			group: "file",
 		},
 		{
 			click: cmd_load,
-			draw: icons.openDocument,
+			icon: icons.openDocument,
 			tooltip: "Open document",
 			hotkey: "control-o",
 			group: "file",
 		},
 		{
 			click: cmd_save,
-			draw: icons.saveDocument,
+			icon: icons.saveDocument,
 			tooltip: "Save document",
 			hotkey: "control-s",
 			group: "file",
 		},
 		{
 			click: cmd_save_as,
-			draw: icons.saveDocumentAs,
+			icon: icons.saveDocumentAs,
 			tooltip: "Save document as ...",
 			hotkey: "shift-control-s",
 			group: "file",
 		},
 		{
 			click: cmd_run,
-			draw: icons.run,
+			icon: icons.run,
 			tooltip: "Run/continue program",
 			hotkey: "F7",
 			group: "execution",
 		},
 		{
 			click: cmd_interrupt,
-			draw: icons.interrupt,
+			icon: icons.interrupt,
 			tooltip: "Interrupt program",
 			hotkey: "shift-F7",
 			group: "execution",
 		},
 		{
 			click: cmd_reset,
-			draw: icons.reset,
+			icon: icons.reset,
 			tooltip: "Abort program",
 			hotkey: "F10",
 			group: "execution",
 		},
 		{
 			click: cmd_step_into,
-			draw: icons.stepInto,
+			icon: icons.stepInto,
 			tooltip: "Run current command, step into function calls",
 			hotkey: "shift-control-F11",
 			group: "debug",
 		},
 		{
 			click: cmd_step_over,
-			draw: icons.stepOver,
+			icon: icons.stepOver,
 			tooltip: "Run current line of code, do no step into function calls",
 			hotkey: "control-F11",
 			group: "debug",
 		},
 		{
 			click: cmd_step_out,
-			draw: icons.stepOut,
+			icon: icons.stepOut,
 			tooltip: "Step out of current function",
 			hotkey: "shift-F11",
 			group: "debug",
 		},
 		{
 			click: cmd_toggle_breakpoint,
-			draw: icons.breakPoint,
+			icon: icons.breakPoint,
 			tooltip: "Toggle breakpoint",
 			hotkey: "F8",
 			group: "debug",
 		},
 		/*{
 				click: function() { module.sourcecode.execCommand("findPersistent"); },
-				draw: icons.search,
+				icon: icons.search,
 				tooltip: "Search",
 				group: "edit",
 			},*/
@@ -1379,7 +1379,7 @@ export let ide = (function () {
 						parent: dlg.content,
 						width: 20,
 						height: 20,
-						draw: buttons[btn].draw,
+						icon: buttons[btn].icon,
 						style: {
 							position: "absolute",
 							left: "15px",
@@ -1504,6 +1504,7 @@ export let ide = (function () {
 				type: "p",
 			});
 			const themes = [
+				{ id: "auto", display: "Auto" },
 				{ id: "default", display: "Default" },
 				{ id: "dark", display: "Default dark" },
 			];
@@ -1859,7 +1860,7 @@ export let ide = (function () {
 		if (options["export-button"]) {
 			buttons.push({
 				click: cmd_export,
-				draw: icons.export,
+				icon: icons.export,
 				tooltip: "Export program as webpage",
 				group: "export",
 			});
@@ -1870,7 +1871,7 @@ export let ide = (function () {
 				configDlg();
 				return false;
 			},
-			draw: icons.config,
+			icon: icons.config,
 			tooltip: "Configuration",
 			hotkey: "control-p",
 			group: "config",
@@ -1971,7 +1972,7 @@ export let ide = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.restorePanels,
+			icon: icons.restorePanels,
 			parent: module.toolbar,
 			style: { float: "left" },
 			tooltip: "Restore panels",
@@ -2058,7 +2059,7 @@ export let ide = (function () {
 			onArrange: function () {
 				if (module.sourcecode) module.sourcecode.refresh();
 			},
-			icondraw: icons.editor,
+			icon: icons.editor,
 		});
 		panel_editor.textarea = tgui.createElement({
 			type: "textarea",
@@ -2123,7 +2124,7 @@ export let ide = (function () {
 			title: "Messages",
 			state: "left",
 			dockedheight: 200,
-			icondraw: icons.messages,
+			icon: icons.messages,
 		});
 		module.messagecontainer = tgui.createElement({
 			type: "div",
@@ -2143,7 +2144,7 @@ export let ide = (function () {
 			title: "Stack",
 			state: "icon",
 			fallbackState: "right",
-			icondraw: icons.stackView,
+			icon: icons.stackView,
 		});
 		module.stacktree = tgui.createTreeControl({
 			parent: panel_stackview.content,
@@ -2155,7 +2156,7 @@ export let ide = (function () {
 			title: "Program",
 			state: "icon",
 			fallbackState: "right",
-			icondraw: icons.programView,
+			icon: icons.programView,
 		});
 		module.programtree = tgui.createTreeControl({
 			parent: panel_programview.content,
@@ -2172,7 +2173,7 @@ export let ide = (function () {
 			title: "Turtle",
 			state: "right",
 			fallbackState: "float",
-			icondraw: icons.turtle,
+			icon: icons.turtle,
 		});
 		module.turtle = tgui.createElement({
 			type: "canvas",
@@ -2248,7 +2249,7 @@ export let ide = (function () {
 					module.interpreter.enqueueEvent("canvas.resize", e);
 				}
 			},
-			icondraw: icons.canvas,
+			icon: icons.canvas,
 		});
 		module.canvas = tgui.createElement({
 			type: "canvas",
@@ -2410,7 +2411,7 @@ export let ide = (function () {
 			title: "Tutorial",
 			state: "right",
 			dockedheight: 400,
-			icondraw: icons.tutorial,
+			icon: icons.tutorial,
 		});
 		let tutorial_container = tgui.createElement({
 			type: "div",

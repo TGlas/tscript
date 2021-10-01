@@ -3,12 +3,44 @@
 
 import { SVGDrawingContext, createSvg } from "./svg";
 
-const icon_funcs = (function () {
+type SVGDrawingFunction = (draw: SVGDrawingContext) => void;
+
+interface SVGIcon {
+	width: number;
+	height: number;
+	innerSVG: string;
+}
+
+function svgIcon(
+	width: number,
+	height: number,
+	draw: SVGDrawingFunction
+): SVGIcon {
+	let svg = createSvg(width + "px", height + "px");
+
+	draw(new SVGDrawingContext(svg));
+
+	return {
+		width: width,
+		height: height,
+		innerSVG: svg.serialize_childs(),
+	};
+}
+
+const icons = (function () {
 	let icons: any = {};
+
+	// Icon Sizes
+	// ----------
+	//
+	// Titlebar Buttons:  18x18 px
+	// Titlebar Icons:    20x20 px
+	// Toolbar Buttons:   20x20 px
+	// Message Box Icon:  40x40 px
 
 	// Gui icons
 
-	icons.window = function (draw: SVGDrawingContext) {
+	icons.window = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-panel-back");
 		draw.rect(2.5, 2.5, 15, 15);
 
@@ -17,10 +49,9 @@ const icon_funcs = (function () {
 
 		draw.setClass("icon-border");
 		draw.rect(2.5, 2.5, 15, 15);
-	};
+	});
 
-	icons.dockLeft_size = [18, 18];
-	icons.dockLeft = function (draw: SVGDrawingContext) {
+	icons.dockLeft = svgIcon(18, 18, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke: #666; fill: none");
 		draw.rect(2.5, 2.5, 13, 13);
 
@@ -32,10 +63,9 @@ const icon_funcs = (function () {
 
 		draw.setClass("icon-border");
 		draw.rect(2.5, 2.5, 7, 13);
-	};
+	});
 
-	icons.dockRight_size = [18, 18];
-	icons.dockRight = function (draw: SVGDrawingContext) {
+	icons.dockRight = svgIcon(18, 18, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke: #666; fill: none");
 		draw.rect(2.5, 2.5, 13, 13);
 
@@ -47,10 +77,9 @@ const icon_funcs = (function () {
 
 		draw.setClass("icon-border");
 		draw.rect(8.5, 2.5, 7, 13);
-	};
+	});
 
-	icons.maximize_size = [18, 18];
-	icons.maximize = function (draw: SVGDrawingContext) {
+	icons.maximize = svgIcon(18, 18, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-panel-back");
 		draw.rect(2.5, 2.5, 13, 13);
 
@@ -59,10 +88,9 @@ const icon_funcs = (function () {
 
 		draw.setClass("icon-border");
 		draw.rect(2.5, 2.5, 13, 13);
-	};
+	});
 
-	icons.float_size = [18, 18];
-	icons.float = function (draw: SVGDrawingContext) {
+	icons.float = svgIcon(18, 18, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke: #666; fill: none");
 		draw.rect(2.5, 2.5, 13, 13);
 
@@ -74,16 +102,14 @@ const icon_funcs = (function () {
 
 		draw.setClass("icon-border");
 		draw.rect(4.5, 5.5, 9, 8);
-	};
+	});
 
-	icons.minimize_size = [18, 18];
-	icons.minimize = function (draw: SVGDrawingContext) {
+	icons.minimize = svgIcon(18, 18, (draw: SVGDrawingContext) => {
 		draw.setClassAndStyle("icon-border", "stroke-width: 2.5");
 		draw.line(3, 14.5, 15, 14.5);
-	};
+	});
 
-	icons.help_size = [18, 18];
-	icons.help = function (draw: SVGDrawingContext) {
+	icons.help = svgIcon(18, 18, (draw: SVGDrawingContext) => {
 		draw.setClassAndStyle("icon-border", "stroke-width: 2");
 
 		draw.beginPath();
@@ -93,19 +119,17 @@ const icon_funcs = (function () {
 		draw.endPath();
 
 		draw.line(9, 15, 9, 17);
-	};
+	});
 
-	icons.close_size = [18, 18];
-	icons.close = function (draw: SVGDrawingContext) {
+	icons.close = svgIcon(18, 18, (draw: SVGDrawingContext) => {
 		draw.setClassAndStyle("icon-border", "stroke-width: 2");
 		draw.line(4, 4, 14, 14);
 		draw.line(4, 14, 14, 4);
-	};
+	});
 
 	// Message box icons, larger in size
 
-	icons.msgBoxQuestion_size = [40, 40];
-	icons.msgBoxQuestion = function (draw: SVGDrawingContext) {
+	icons.msgBoxQuestion = svgIcon(40, 40, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke-width: 2; stroke: #04d; fill: #16f");
 		draw.circle(20, 20, 18.5);
 
@@ -117,17 +141,16 @@ const icon_funcs = (function () {
 		draw.endPath();
 
 		draw.line(20, 31, 20, 34);
-	};
+	});
 
-	icons.msgBoxExclamation_size = [40, 40];
-	icons.msgBoxExclamation = function (draw: SVGDrawingContext) {
+	icons.msgBoxExclamation = svgIcon(40, 40, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke-width: 2; stroke: #a91; fill: #ec2");
 		draw.polygon([19, 2], [21, 2], [38, 36], [37, 38], [3, 38], [2, 36]);
 
 		draw.setStyle("stroke-width: 2; stroke: #000; fill: none");
 		draw.line(20, 10, 20, 28);
 		draw.line(20, 31, 20, 34);
-	};
+	});
 
 	// Ide specific icons
 
@@ -196,7 +219,7 @@ const icon_funcs = (function () {
 		draw.circle(18, 16, 1);
 	}
 
-	icons.newDocument = function (draw: SVGDrawingContext) {
+	icons.newDocument = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw_icon_paper(draw);
 
 		draw.setStyle("stroke: #030; fill: #0a0");
@@ -205,9 +228,9 @@ const icon_funcs = (function () {
 		draw.setStyle("stroke-width: 2; stroke: #fff; fill: none");
 		draw.line(14, 17, 14, 11);
 		draw.line(11, 14, 17, 14);
-	};
+	});
 
-	icons.openDocument = function (draw: SVGDrawingContext) {
+	icons.openDocument = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setStyle("fill: #ec5; stroke: #330");
 		draw.polygon(
 			[2.5, 4.5],
@@ -221,34 +244,34 @@ const icon_funcs = (function () {
 		draw.setStyle("fill: #fd6; stroke: #330");
 
 		draw.polygon([5.5, 8.5], [17.5, 8.5], [15.5, 15.5], [3.5, 15.5]);
-	};
+	});
 
-	icons.saveDocument = function (draw: SVGDrawingContext) {
+	icons.saveDocument = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw_icon_floppy_disk(draw);
-	};
+	});
 
-	icons.saveDocumentAs = function (draw: SVGDrawingContext) {
+	icons.saveDocumentAs = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw_icon_floppy_disk(draw);
 		draw_icon_pencil_overlay(draw);
-	};
+	});
 
-	icons.run = function (draw: SVGDrawingContext) {
+	icons.run = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-green-fill");
 		draw.polygon([5, 5], [15, 10], [5, 15]);
-	};
+	});
 
-	icons.interrupt = function (draw: SVGDrawingContext) {
+	icons.interrupt = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-red-fill");
 		draw.rect(5, 5, 4, 10);
 		draw.rect(11, 5, 4, 10);
-	};
+	});
 
-	icons.reset = function (draw: SVGDrawingContext) {
+	icons.reset = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-red-fill");
 		draw.rect(5, 5, 10, 10);
-	};
+	});
 
-	icons.stepInto = function (draw: SVGDrawingContext) {
+	icons.stepInto = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-neutral-fill");
 		draw.rect(10, 3, 7, 2);
 		draw.rect(13, 6, 4, 2);
@@ -261,9 +284,9 @@ const icon_funcs = (function () {
 
 		draw.setClass("icon-blue-fill");
 		draw.polygon([5, 7], [5, 13], [9.5, 10]);
-	};
+	});
 
-	icons.stepOver = function (draw: SVGDrawingContext) {
+	icons.stepOver = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-neutral-fill");
 		draw.rect(10, 3, 7, 2);
 		draw.rect(13, 6, 4, 2);
@@ -276,9 +299,9 @@ const icon_funcs = (function () {
 
 		draw.setClass("icon-blue-fill");
 		draw.polygon([5, 13], [5, 19], [9.5, 16]);
-	};
+	});
 
-	icons.stepOut = function (draw: SVGDrawingContext) {
+	icons.stepOut = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-neutral-fill");
 		draw.rect(10, 3, 7, 2);
 		draw.rect(13, 6, 4, 2);
@@ -291,22 +314,22 @@ const icon_funcs = (function () {
 
 		draw.setClass("icon-blue-fill");
 		draw.polygon([5, 13], [5, 19], [9.5, 16]);
-	};
+	});
 
-	icons.breakPoint = function (draw: SVGDrawingContext) {
+	icons.breakPoint = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-red-fill");
 		draw.circle(10, 10, 3.9);
-	};
+	});
 
-	/*icons.search = function (draw: SVGDrawingContext) {
+	icons.search = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClassAndStyle("icon-neutral-line", "stroke-width: 1.5");
 		draw.beginPath();
 		draw.arc(8, 8, 5, 0.25 * Math.PI, 2.25 * Math.PI); // starting/ending point at 45 degrees south-east
 		draw.lineTo(17, 17);
 		draw.endPath();
-	};*/
+	}); //*/
 
-	icons.export = function (draw: SVGDrawingContext) {
+	icons.export = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-green-frame");
 		draw.polygon(
 			[3, 7],
@@ -317,9 +340,9 @@ const icon_funcs = (function () {
 			[10, 13],
 			[3, 13]
 		);
-	};
+	});
 
-	icons.config = function (draw: SVGDrawingContext) {
+	icons.config = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-neutral-fill");
 		draw.circle(10, 10, 2.0);
 
@@ -335,9 +358,9 @@ const icon_funcs = (function () {
 				10 + 9.4 * Math.sin(a)
 			);
 		}
-	};
+	});
 
-	icons.restorePanels = function (draw: SVGDrawingContext) {
+	icons.restorePanels = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke: #aaa; fill: #fff");
 		draw.rect(2.5, 2.5, 15, 15);
 
@@ -355,10 +378,10 @@ const icon_funcs = (function () {
 
 		draw.setStyle("stroke: none; fill: #222");
 		draw.polygon([5, 5], [5, 10], [10, 10]);
-	};
+	});
 
 	// Panel icons
-	icons.editor = function (draw: SVGDrawingContext) {
+	icons.editor = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw_icon_paper(draw);
 
 		draw.setStyle("stroke: none; fill: #777");
@@ -367,9 +390,9 @@ const icon_funcs = (function () {
 		draw.rect(7, 9, 4, 1);
 		draw.rect(6, 11, 7, 1);
 		draw.rect(9, 13, 4, 1);
-	};
+	});
 
-	icons.messages = function (draw: SVGDrawingContext) {
+	icons.messages = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke: #222; fill: #fff");
 		draw.beginPath();
 		draw.ellipse(9.5, 8.5, 7, 6, 0, 0.73 * Math.PI, 2.57 * Math.PI);
@@ -382,9 +405,9 @@ const icon_funcs = (function () {
 		draw.rect(6, 8, 2, 1);
 		draw.rect(9, 8, 5, 1);
 		draw.rect(7, 10, 4, 1);
-	};
+	});
 
-	icons.stackView = function (draw: SVGDrawingContext) {
+	icons.stackView = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		// white top
 		draw.setStyle("stroke: none; fill: #fff");
 		draw.polygon([4, 5.5], [10, 8.5], [16, 5.5], [10, 2.5]);
@@ -410,9 +433,9 @@ const icon_funcs = (function () {
 			[16.5, 5.3],
 			[10, 2.5]
 		);
-	};
+	});
 
-	icons.programView = function (draw: SVGDrawingContext) {
+	icons.programView = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		// Outline
 		draw.setStyle("stroke:none; fill: #eeeeeec0");
 		draw.polygon(
@@ -445,9 +468,9 @@ const icon_funcs = (function () {
 		draw.rect(8, 9, 8, 2);
 		draw.rect(4, 12, 8, 2);
 		draw.rect(6, 15, 8, 2);
-	};
+	});
 
-	icons.turtle = function (draw: SVGDrawingContext) {
+	icons.turtle = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		// draws literally a turtle
 
 		draw.setStyle("stroke: #070; fill: #2c3");
@@ -480,9 +503,9 @@ const icon_funcs = (function () {
 		draw.beginPath();
 		draw.ellipse(8.8, 10.8, 4, 5, 0, -0.3 * Math.PI, 0.7 * Math.PI);
 		draw.endPath();
-	};
+	});
 
-	icons.canvas = function (draw: SVGDrawingContext) {
+	icons.canvas = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke: none; fill: #333");
 		draw.rect(3, 2, 14, 16);
 
@@ -494,9 +517,9 @@ const icon_funcs = (function () {
 
 		draw.setStyle("stroke: #c00c; fill: #c008");
 		draw.circle(11, 11, 3.5);
-	};
+	});
 
-	/*icons.tutorial = function (draw: SVGDrawingContext) {
+	icons.tutorial = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke-width: 3; stroke: #666; fill: none");
 
 		draw.beginPath();
@@ -520,39 +543,28 @@ const icon_funcs = (function () {
 
 		draw.setStyle("stroke: #fff; fill: none");
 		draw.polyline([5, 6], [7, 8], [5, 10]);
-	};*/
+	}); //*/
 
 	return icons;
 })();
 
-const icons = (() => {
-	let ics = icon_funcs;
-	let icons = Object();
-	for (let name in ics) {
-		if (!ics.hasOwnProperty(name)) continue;
-		if (typeof ics[name] != "function") continue;
-
-		let svg;
-		if (ics.hasOwnProperty(name + "_size")) {
-			let size: [number, number] = ics[name + "_size"];
-			svg = createSvg(size[0] + "px", size[1] + "px");
-		} else svg = createSvg("20px", "20px");
-		ics[name](new SVGDrawingContext(svg));
-		//icons_xml[name] = svg.outerHTML;
-		icons[name] = svg.serialize_childs(); //svg.innerHTML;
-		//console.log(icons[name]);
-	}
-
-	return icons;
-})();
+// Generate file
 
 const OUT_FILE = "src/ide/icons.ts";
 
 const fs = require("fs");
+console.log("serializing icons");
 const json = JSON.stringify(icons);
 const code = `"use strict";
 // Auto generated by 'gen-icons.ts'
-export const icons = ${json};
+
+export interface SVGIcon {
+	width: number;
+	height: number;
+	innerSVG: string;
+}
+
+export const icons: { [id: string]: SVGIcon; } = ${json};
 `;
 console.log(`writing to '${OUT_FILE}'`);
 fs.writeFileSync(OUT_FILE, code);

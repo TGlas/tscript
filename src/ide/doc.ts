@@ -29,9 +29,19 @@ export const doc = (function () {
 			let config = JSON.parse(str);
 			if (config.hasOwnProperty("theme")) {
 				let theme = config.theme;
-				if (theme) {
-					document.body.classList.add(`${theme}-theme`);
+				if (!theme || theme === "auto") {
+					// Auto detect theme of the operating system
+					if (window.matchMedia) {
+						var q = window.matchMedia(
+							"(prefers-color-scheme: dark)"
+						);
+						theme = q.matches ? "dark" : "default";
+					} else {
+						theme = "default";
+					}
 				}
+				if (theme !== "default")
+					document.body.classList.add(`${theme}-theme`);
 			}
 		}
 		return null;
