@@ -12,3 +12,4 @@ LICENSE
 # copied from .gitignore
 node_modules/
 distribution/
+out/

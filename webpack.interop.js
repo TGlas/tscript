@@ -15,7 +15,7 @@ module.exports = {
 		extensions: [".ts"],
 	},
 	output: {
-		path: path.resolve(__dirname, "./distribution"),
+		path: path.resolve(__dirname, "./out"),
 		library: "TScript",
 		libraryTarget: "var",
 		filename: "tscript.js",

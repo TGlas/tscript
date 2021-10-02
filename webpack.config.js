@@ -48,7 +48,7 @@ module.exports = (_, options) => {
 		},
 		plugins,
 		output: {
-			path: path.resolve(__dirname, "./distribution"),
+			path: path.resolve(__dirname, "./out"),
 			filename: "[name].js",
 		},
 	};
