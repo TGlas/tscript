@@ -1,5 +1,10 @@
 "use strict";
-// This file is only used for generating resources before build time
+// This file is only used for generating resources before build time.
+// It generates `icons.ts`
+//
+// call this by `npm run gen-icons`
+// You might need to call `npm run prettier`, because the generated
+// file is unformatted.
 
 import { SVGDrawingContext, createSvg } from "./svg";
 
@@ -568,5 +573,3 @@ export const icons: { [id: string]: SVGIcon; } = ${json};
 `;
 console.log(`writing to '${OUT_FILE}'`);
 fs.writeFileSync(OUT_FILE, code);
-
-// > node ./src/ide/gen-icons.mts
