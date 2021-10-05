@@ -1,7 +1,7 @@
-import { ide } from "./ide";
-import { doc } from "./doc";
-import { tutorial } from "./tutorial";
-import { handleCanvas, handleTurtle } from "./standalone";
+import DocumentationPageController from "./DocumentationPageController";
+import IDEPageController from "./IDEPageController";
+import { initializeNavigation, replaceUrl } from "./navigation";
+import { showStandalonePage } from "./standalone";
 
 import "./css/ide.css";
 import "./css/tgui.css";
@@ -15,50 +15,49 @@ import "./css-dark/codemirror.css";
 import "./css-dark/documentation.css";
 import "./css-dark/tutorial.css";
 
-window.addEventListener(
-	"load",
-	function (event) {
-		let container: any = document.getElementById("ide-container");
-		container.innerHTML = "";
-		let w: any = window;
-		if (typeof w.TScript !== "undefined") {
-			let TS = w.TScript;
-			ide.standalone = true;
-			ide.create(container);
-			ide.sourcecode.setValue(TS.code);
-			ide.prepare_run();
-			switch (TS.mode) {
-				case "canvas":
-					handleCanvas();
-					break;
-				case "turtle":
-					handleTurtle();
-					break;
-			}
-			ide.interpreter.run();
-		} else {
-			switch (window.location.search.slice(1)) {
-				case "doc":
-					doc.create(container);
-					break;
-				case "run":
-					fetch(decodeURI(window.location.hash.slice(1)))
-						.then((rsp) =>
-							rsp.text().then((data) => {
-								ide.create(container);
-								ide.sourcecode.setValue(data);
-							})
-						)
-						.catch((err) => {
-							ide.create(container);
-							ide.sourcecode.setValue(err);
-						});
-					break;
-				default:
-					ide.create(container);
-					break;
-			}
-		}
-	},
-	false
-);
+window.addEventListener("load", () => {
+	const container = document.getElementById("ide-container")!;
+	container.replaceChildren(); // empties the container
+
+	// handle standalone pages
+	const standaloneData = window["TScript"];
+	if (typeof standaloneData === "object") {
+		showStandalonePage(container, standaloneData);
+		return;
+	}
+
+	let currentUrl = new URL(location.href);
+
+	// handle legacy urls
+	const redirectUrl = translateLegacyURL(currentUrl);
+	if (redirectUrl) {
+		replaceUrl(redirectUrl);
+		currentUrl = redirectUrl;
+	}
+
+	initializeNavigation(currentUrl, container, (url) => {
+		if (url.searchParams.has("doc")) return DocumentationPageController;
+		return IDEPageController;
+	});
+});
+
+function translateLegacyURL(currentUrl: URL): URL | null {
+	if (currentUrl.search === "?doc") {
+		const hash = currentUrl.hash.slice(1);
+		const docParams = new URLSearchParams(
+			hash.startsWith("search/")
+				? { doc: "search", q: hash.slice(7).split("/").join(" ") }
+				: { doc: hash }
+		);
+		return new URL("?" + docParams.toString(), location.href);
+	}
+
+	if (currentUrl.search === "?run") {
+		const loadParams = new URLSearchParams({
+			load: decodeURI(currentUrl.hash.slice(1)),
+		});
+		return new URL("?" + loadParams.toString(), location.href);
+	}
+
+	return null;
+}
