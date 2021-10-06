@@ -27,8 +27,9 @@ let createSearchEngine = function () {
 	module.dictionary = {};
 
 	// Tokenize an input string into words, discard white space and rubbish.
-	module.tokenize = function (s) {
+	module.tokenize = function (s: string): string[] {
 		let words = s.toLowerCase().match(/[a-z0-9äöüß-]+\w+/g);
+		if (!words) return [];
 		let ret = new Array();
 		for (let i = 0; i < words.length; i++) {
 			let w = words[i];
