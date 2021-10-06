@@ -1334,7 +1334,7 @@ export let tgui = (function () {
 					event.preventDefault();
 					event.stopPropagation();
 				}
-				control.onHelp?.(event instanceof KeyboardEvent);
+				control.onHelp(event instanceof KeyboardEvent);
 				return false;
 			};
 		} else control.handleHelp = null;
@@ -1682,7 +1682,7 @@ export let tgui = (function () {
 					return dlg.handleClose(event);
 				}
 				if (event.key == "F1") {
-					return dlg.handleHelp(event);
+					return dlg.handleHelp?.(event);
 				} else if (
 					event.key == "Enter" &&
 					dlg.hasOwnProperty("enterConfirms") &&
