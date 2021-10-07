@@ -154,6 +154,15 @@ export const doc = (function () {
 				if (c == "$") break;
 			}
 			return { type: "special" };
+		} else if (c == "#") {
+			// line comment
+			state.advance();
+			while (state.good()) {
+				let c = state.current();
+				state.advance();
+				if (c == "\n") break;
+			}
+			return { type: "comment" };
 		} else {
 			// all the rest, including operators
 			state.advance();

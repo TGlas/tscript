@@ -185,3 +185,6 @@
 .dark-theme .ebnf-delimiter {
 	color: #888;
 }
+.dark-theme .ebnf-comment {
+	color: #888;
+}

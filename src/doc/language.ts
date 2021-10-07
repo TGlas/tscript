@@ -2157,7 +2157,7 @@ print(r > s);                           # prints true, as the first comparison t
 			<p>
 			A function call is an expression with the following syntax:
 			<ebnf>
-				function-call = expression "(" argument { "," argument } ")" ";" ;          '# example("example");'
+				function-call = expression "(" argument { "," argument } ")" ";" ;          # example("example");
 				argument = [ identifier "=" ] expression ;
 			</ebnf>
 			The first expression must resolve to a callable object, hereafter
