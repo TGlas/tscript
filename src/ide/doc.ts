@@ -89,6 +89,7 @@ export const doc = (function () {
 		let c = state.current();
 		if ((c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || c == "_") {
 			// parse an identifier or a keyword
+			let value = c;
 			state.advance();
 			while (state.good()) {
 				let c = state.current();
@@ -98,14 +99,17 @@ export const doc = (function () {
 					(c >= "0" && c <= "9") ||
 					c == "_" ||
 					c == "-"
-				)
+				) {
+					value += c;
 					state.advance();
+				}
 				else break;
 			}
-			return { type: "identifier" };
+			return { type: "identifier", value: value };
 		} else if (c == '"') {
 			// parse string literal
 			state.advance();
+			let value = "";
 			while (true) {
 				if (!state.good())
 					state.error(
@@ -119,12 +123,16 @@ export const doc = (function () {
 				else if (c == '"') {
 					state.advance();
 					break;
-				} else state.advance();
+				} else {
+					value += c;
+					state.advance();
+				}
 			}
-			return { type: "literal" };
+			return { type: "literal", value: value };
 		} else if (c == "'") {
 			// parse string literal
 			state.advance();
+			let value = "";
 			while (true) {
 				if (!state.good())
 					state.error(
@@ -138,12 +146,16 @@ export const doc = (function () {
 				else if (c == "'") {
 					state.advance();
 					break;
-				} else state.advance();
+				} else {
+					value += c;
+					state.advance();
+				}
 			}
-			return { type: "literal" };
+			return { type: "literal", value: value };
 		} else if (c == "$") {
 			// parse special
 			state.advance();
+			let value = "";
 			while (true) {
 				if (!state.good())
 					state.error(
@@ -152,23 +164,27 @@ export const doc = (function () {
 				let c = state.current();
 				state.advance();
 				if (c == "$") break;
+				value += c;
 			}
-			return { type: "special" };
+			return { type: "special", value: value };
 		} else if (c == "#") {
-			// line comment
+			// line comment   TODO: EBNF defines block comments (* ... *) instead
 			state.advance();
+			let value = "";
 			while (state.good()) {
 				let c = state.current();
+				value += c;
 				state.advance();
 				if (c == "\n") break;
 			}
-			return { type: "comment" };
+			return { type: "comment", value: value };
 		} else {
 			// all the rest, including operators
 			state.advance();
-			if ("=-*|".indexOf(c) >= 0) return { type: "operator" };
-			if ("()[]{}".indexOf(c) >= 0) return { type: "grouping" };
-			if (";".indexOf(c) >= 0) return { type: "delimiter" };
+//			if ("=-*|".indexOf(c) >= 0) return { type: "operator", value: c };
+			if ("=,-|".indexOf(c) >= 0) return { type: "operator", value: c };
+			if ("()[]{}".indexOf(c) >= 0) return { type: "grouping", value: c };
+			if (";".indexOf(c) >= 0) return { type: "delimiter", value: c };
 			state.error("EBNF syntax error; invalid character '" + c + "'");
 		}
 	};
@@ -251,108 +267,7 @@ export const doc = (function () {
 			return ret;
 		} else {
 			// single line
-			let state: any = {
-				source: code,
-				pos: 0, // zero-based position in the source code string
-				good: function () {
-					return this.pos < this.source.length;
-				},
-				bad: function () {
-					return !this.good();
-				},
-				eof: function () {
-					return this.pos >= this.source.length;
-				},
-				indentation: function () {
-					return 0;
-				},
-				error: function (path, args) {
-					if (args === undefined) args = [];
-					let str =
-						"documentation internal error in code: '" +
-						this.source +
-						"'";
-					throw new Error(str);
-				},
-				current: function () {
-					return this.pos >= this.source.length
-						? ""
-						: this.source[this.pos];
-				},
-				lookahead: function (num) {
-					return this.pos + num >= this.source.length
-						? ""
-						: this.source[this.pos + num];
-				},
-				next: function () {
-					return this.lookahead(1);
-				},
-				get: function () {
-					return { pos: this.pos, line: this.line, ch: this.ch };
-				},
-				set: function (where) {
-					this.pos = where.pos;
-					(this.line = where.line), (this.ch = where.ch);
-				},
-				advance: function (n) {
-					if (n === undefined) n = 1;
-					if (this.pos + n > this.source.length)
-						n = this.source.length - this.pos;
-					for (let i = 0; i < n; i++) {
-						let c = this.current();
-						if (c == "\n") {
-							this.line++;
-							this.ch = 0;
-						}
-						this.pos++;
-						this.ch++;
-					}
-				},
-				skip: function () {
-					while (this.good()) {
-						let c = this.current();
-						if (c == "#") {
-							this.pos++;
-							this.ch++;
-							if (this.current() == "*") {
-								this.pos++;
-								this.ch++;
-								let star = false;
-								while (this.good()) {
-									if (this.current() == "\n") {
-										this.pos++;
-										this.line++;
-										this.ch = 0;
-										star = false;
-										continue;
-									}
-									if (star && this.current() == "#") {
-										this.pos++;
-										this.ch++;
-										break;
-									}
-									star = this.current() == "*";
-									this.pos++;
-									this.ch++;
-								}
-							} else {
-								while (this.good() && this.current() != "\n") {
-									this.pos++;
-									this.ch++;
-								}
-							}
-							continue;
-						}
-						if (c != " " && c != "\t" && c != "\r" && c != "\n")
-							break;
-						if (c == "\n") {
-							this.line++;
-							this.ch = 0;
-						} else this.ch++;
-						this.pos++;
-					}
-				},
-			};
+			let state = createState(code);
 
 			let ret = '<code class="' + css_prefix + '">';
 			while (!state.eof()) {
@@ -407,6 +322,168 @@ export const doc = (function () {
 			alert("code sample failed to run:\n" + code);
 	}
 
+	// Check an EBNF definition for syntactical correctness.
+	// On success, the function does nothing, otherwise is throws an error message.
+	function checkEBNF(ebnf) {
+		let state = createState(ebnf);
+
+		// parse an alternating sequence of expressions and binary operators
+		function parseSequence() {
+			let expressionExpected = true;
+			while (state.good()) {
+				state.skip();
+				let token = get_token_ebnf(state);
+				if (! token) return null;
+				if (token.type == "comment") continue;
+				else if (token.type == "grouping") {
+					if (")]}".indexOf(token.value) >= 0) return token;
+					else {
+						if (! expressionExpected) state.error("EBNF syntax error: operator or closing bracket expected");
+						let end = parseSequence();
+						if (end === null) state.error("EBNF: opening " + token.value + " not properly closed");
+						expressionExpected = false;
+					}
+				} else if (token.type == "identifier" || token.type == "literal" || token.type == "special") {
+					if (! expressionExpected) state.error("EBNF syntax error: operator or closing bracket expected");
+					expressionExpected = false;
+				} else if (token.type == "operator") {
+					if (expressionExpected) state.error("EBNF syntax error: expression expected before operator " + token.value);
+					if (token.value == "=") state.error("EBNF syntax error: assignment does not work here");
+					expressionExpected = true;
+				} else if (token.type == "delimiter") {
+					if (expressionExpected) state.error("EBNF syntax error: expression expected before semicolon");
+					return token;
+				} else state.error("unexpected token type in checkEBNF");
+			}
+			return null;
+		}
+
+		let first = true;   // be prepared for a single identifier
+		while (true)
+		{
+			// parse one rule
+			state.skip();
+			if (! state.good()) break;
+			let lhs = get_token_ebnf(state);
+			if (lhs?.type != "identifier") state.error("EBNF syntax error: left-hand-side must be an identifier");
+			state.skip();
+			if (! state.good()) {
+				if (first) break;
+				else state.error("EBNF syntax error: assignment operator '=' expected");
+			}
+			let assignment = get_token_ebnf(state);
+			if (! assignment) break;
+			if (assignment.type != "operator" || assignment.value != "=") state.error("EBNF syntax error: assignment operator '=' expected");
+			let closing = parseSequence();
+			if (closing?.value != ";") state.error("EBNF syntax error: final semicolon expected");
+			first = false;
+		}
+	}
+
+	// Create a state object for lexing, operating on a state.
+	function createState(str) {
+		return {
+			source: str,
+			pos: 0, // zero-based position in the source code string
+			good: function () {
+				return this.pos < this.source.length;
+			},
+			bad: function () {
+				return !this.good();
+			},
+			eof: function () {
+				return this.pos >= this.source.length;
+			},
+			indentation: function () {
+				return 0;
+			},
+			error: function (path, args = []) {
+				let str =
+					"documentation internal error in code: '" +
+					this.source +
+					"' (" + path + ")";
+				throw new Error(str);
+			},
+			current: function () {
+				return this.pos >= this.source.length
+					? ""
+					: this.source[this.pos];
+			},
+			lookahead: function (num) {
+				return this.pos + num >= this.source.length
+					? ""
+					: this.source[this.pos + num];
+			},
+			next: function () {
+				return this.lookahead(1);
+			},
+			get: function () {
+				return { pos: this.pos, line: this.line, ch: this.ch };
+			},
+			set: function (where) {
+				this.pos = where.pos;
+				(this.line = where.line), (this.ch = where.ch);
+			},
+			advance: function (n = 1) {
+				if (this.pos + n > this.source.length)
+					n = this.source.length - this.pos;
+				for (let i = 0; i < n; i++) {
+					let c = this.current();
+					if (c == "\n") {
+						this.line++;
+						this.ch = 0;
+					}
+					this.pos++;
+					this.ch++;
+				}
+			},
+			skip: function () {
+				while (this.good()) {
+					let c = this.current();
+					if (c == "#") {
+						this.pos++;
+						this.ch++;
+						if (this.current() == "*") {
+							this.pos++;
+							this.ch++;
+							let star = false;
+							while (this.good()) {
+								if (this.current() == "\n") {
+									this.pos++;
+									this.line++;
+									this.ch = 0;
+									star = false;
+									continue;
+								}
+								if (star && this.current() == "#") {
+									this.pos++;
+									this.ch++;
+									break;
+								}
+								star = this.current() == "*";
+								this.pos++;
+								this.ch++;
+							}
+						} else {
+							while (this.good() && this.current() != "\n") {
+								this.pos++;
+								this.ch++;
+							}
+						}
+						continue;
+					}
+					if (c != " " && c != "\t" && c != "\r" && c != "\n")
+						break;
+					if (c == "\n") {
+						this.line++;
+						this.ch = 0;
+					} else this.ch++;
+					this.pos++;
+				}
+			},
+		};
+	}
+
 	// This function returns an altered version of the pseudo-html #content
 	// suitable for placing it as innerHTML into the DOM. It performs a
 	// number of stylistic replacements:
@@ -431,6 +508,14 @@ export const doc = (function () {
 			start = pos;
 			if (search.substr(start, 6) == "<ebnf>") {
 				start += 6;
+				let end = search.indexOf("</ebnf>", start);
+				if (end < 0) throw "[doc] <ebnf> tag not closed";
+				let ebnf = content.substr(start, end - start);
+				start = end + 7;
+				if (!tutorial) checkEBNF(ebnf);
+				ret += processCode(ebnf, "ebnf", get_token_ebnf);
+			} else if (search.substr(start, 19) == "<ebnf do-not-check>") {
+				start += 19;
 				let end = search.indexOf("</ebnf>", start);
 				if (end < 0) throw "[doc] <ebnf> tag not closed";
 				let ebnf = content.substr(start, end - start);

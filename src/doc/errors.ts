@@ -2490,9 +2490,9 @@ print(arr.sort(order2));                        # works fine
 					id: "ne-23",
 					content: `
 			<p>
-			When importing all name from a namespace with a
+			When importing all names from a namespace with a
 			<a href="?doc#/language/directives/use">use directive</a> of the form
-			<ebnf>"use" "namespace" use-name</ebnf>, then the namespace is
+			<ebnf do-not-check>"use", "namespace", use-name</ebnf>, then the namespace is
 			provided as a name. This is done in the assumption that the name
 			indeed refers to a namespace, otherwise this error is triggered.
 			</p>

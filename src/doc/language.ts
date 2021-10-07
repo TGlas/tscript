@@ -114,11 +114,11 @@ export const doc_language: Documentation = {
 				carriage-return = $ U+000A $ ;
 				line-feed = $ U+000D $ ;
 				comment = line-comment | block-comment ;
-				line-comment = "#" (unicode-char - "*" - line-feed)
-				                   { unicode-char - line-feed } ;                           "example: # this is a comment       "
-				block-comment = "#*" { (unicode-char - "*")                                 "example: #* this is a              "
-				                       | ("*" { "*" } (unicode-char - "#"))                 "            multiline comment *#   "
-				                     } "*#" ;
+				line-comment = "#", (unicode-char - "*" - line-feed),
+				                   { unicode-char - line-feed } ;                           # example: # this is a comment
+				block-comment = "#*", { (unicode-char - "*")                                # example: #* this is a
+				                        | ("*", { "*" }, (unicode-char - "#"))              #             multiline comment *#
+				                      }, "*#" ;
 				unicode-char = $ any Unicode character U+0000 to U+FFFF $ ;
 			</ebnf>
 			</p>
@@ -127,8 +127,8 @@ export const doc_language: Documentation = {
 			<p>
 			An identifier is defined as follows:
 			<ebnf>
-				identifier = id_or_key - keyword ;                                          "example: _x, x, X, x2 are correct identifiers  "
-				id_or_key = (letter | "_") { letter | digit | "_" } ;                       "example: 2X, 3x, var  are incorrect identifiers"
+				identifier = id_or_key - keyword ;                                          # example: _x, x, X, x2 are correct identifiers
+				id_or_key = (letter | "_"), { letter | digit | "_" } ;                      # example: 2X, 3x, var  are incorrect identifiers
 				letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
 				       | "H" | "I" | "J" | "K" | "L" | "M" | "N"
 				       | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
@@ -152,7 +152,7 @@ export const doc_language: Documentation = {
 			An integer is simply defined as a non-empty sequence of
 			digits:
 			<ebnf>
-				integer = digit { digit } ;
+				integer = digit, { digit } ;
 			</ebnf>
 			Too large tokens exceeding the
 			<a href="?doc#/language/types/integer">integer</a> range result
@@ -164,9 +164,9 @@ export const doc_language: Documentation = {
 			<p>
 			A real must contain a fractional part, or an exponent, or both:
 			<ebnf>
-				real = integer "." integer                                                  "example: 2.523                     "
-					 | integer ("e" | "E") [ "+" | "-" ] integer                            "example: 1e2, 1e-5                 "
-				     | integer "." integer ("e" | "E") [ "+" | "-" ] integer ;              "example: 1.5e3                     "
+				real = integer, ".", integer                                                # example: 2.523
+					 | integer, ("e" | "E"), [ "+" | "-" ], integer                         # example: 1e2, 1e-5
+				     | integer, ".", integer, ("e" | "E"), [ "+" | "-" ], integer ;         # example: 1.5e3
 			</ebnf>
 			</p>
 
@@ -176,16 +176,16 @@ export const doc_language: Documentation = {
 			quotes. A string token can contain escape sequences. It is
 			defined as follows:
 			<ebnf>
-				string = '"' { (unicode-char - "\\" - line-feed) | escape } '"' ;
-				escape = "\\" "\\"
-				       | "\\" '"'
-				       | "\\" "r"
-				       | "\\" "n"
-				       | "\\" "t"
-				       | "\\" "f"
-				       | "\\" "b"
-				       | "\\" "/"
-				       | "\\" "u" hex hex hex hex ;
+				string = '"', { (unicode-char - "\\" - line-feed) | escape }, '"' ;
+				escape = "\\", "\\"
+				       | "\\", '"'
+				       | "\\", "r"
+				       | "\\", "n"
+				       | "\\", "t"
+				       | "\\", "f"
+				       | "\\", "b"
+				       | "\\", "/"
+				       | "\\", "u", hex, hex, hex, hex ;
 				hex = digit | "A" | "B" | "C" | "D" | "E" | "F"
 				            | "a" | "b" | "c" | "d" | "e" | "f" ;
 			</ebnf>
@@ -368,14 +368,14 @@ export const doc_language: Documentation = {
 			carriage-return = $ U+000A $ ;
 			line-feed = $ U+000D $ ;
 			comment = line-comment | block-comment ;
-			line-comment = "#" (unicode-char - "*" - line-feed)
+			line-comment = "#", (unicode-char - "*" - line-feed),
 			                   { unicode-char - line-feed } ;
-			block-comment = "#*" { (unicode-char - "*")
-			                       | ("*" { "*" } (unicode-char - "#"))
-			                     } "*#" ;
+			block-comment = "#*", { (unicode-char - "*")
+			                       | ("*", { "*" }, (unicode-char - "#"))
+			                     }, "*#" ;
 			unicode-char = $ any Unicode character U+0000 to U+FFFF $ ;
 			identifier = id_or_key - keyword ;
-			id_or_key = (letter | "_") { letter | digit | "_" } ;
+			id_or_key = (letter | "_"), { letter | digit | "_" } ;
 			letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
 			       | "H" | "I" | "J" | "K" | "L" | "M" | "N"
 			       | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
@@ -393,20 +393,20 @@ export const doc_language: Documentation = {
 			        | "static" | "super" | "then" | "this" | "throw"
 			        | "true" | "try" | "use" | "var" | "while" | "xor" ;
 
-			integer = digit { digit } ;
-			real = integer "." integer
-				 | integer ("e" | "E") [ "+" | "-" ] integer
-			     | integer "." integer ("e" | "E") [ "+" | "-" ] integer ;
-			string = '"' { (unicode-char - "\\" - line-feed) | escape } '"' ;
-			escape = "\\" "\\"
-			       | "\\" '"'
-			       | "\\" "r"
-			       | "\\" "n"
-			       | "\\" "t"
-			       | "\\" "f"
-			       | "\\" "b"
-			       | "\\" "/"
-			       | "\\" "u" hex hex hex hex ;
+			integer = digit, { digit } ;
+			real = integer, ".", integer
+				 | integer, ("e" | "E"), [ "+" | "-" ], integer
+			     | integer, ".", integer, ("e" | "E"), [ "+" | "-" ], integer ;
+			string = '"', { (unicode-char - "\\" - line-feed) | escape }, '"' ;
+			escape = "\\", "\\"
+			       | "\\", '"'
+			       | "\\", "r"
+			       | "\\", "n"
+			       | "\\", "t"
+			       | "\\", "f"
+			       | "\\", "b"
+			       | "\\", "/"
+			       | "\\", "u", hex, hex, hex, hex ;
 			hex = digit | "A" | "B" | "C" | "D" | "E" | "F"
 			            | "a" | "b" | "c" | "d" | "e" | "f" ;
 
@@ -422,32 +422,32 @@ export const doc_language: Documentation = {
 			            | class-decl
 			            | namespace-decl ;
 
-			var-decl = "var" single-var { "," single-var } ";" ;
-			single-var = identifier [ "=" expression ] ;
-			func-decl = "function" identifier "(" param-list ")" func-body ;
-			param-list = [ param-decl { "," param-decl } ] ;
-			param-decl = identifier [ "=" constant-ex ] ;
+			var-decl = "var", single-var, { ",", single-var }, ";" ;
+			single-var = identifier, [ "=", expression ] ;
+			func-decl = "function", identifier, "(", param-list, ")", func-body ;
+			param-list = [ param-decl, { ",", param-decl } ] ;
+			param-decl = identifier, [ "=", constant-ex ] ;
 			constant-ex = $ expression that evaluates to a constant $ ;
-			func-body = "{" { declaration | statement | directive } "}" ;
-			class-decl = "class" identifier [ ":" name ] class-body ;
-			class-body = "{" "}" | "{" visibility { visibility
-			                                        | constructor
-			                                        | [ "static" ] declaration
-			                                        | directive }
-			                         "}" ;
-			visibility = ("public" | "procected" | "private") ":" ;
-			constructor = "constructor" "(" param-list ")"
-			         [ ":" "super" "(" [ expression { "," expression } ] ")" ]
+			func-body = "{", { declaration | statement | directive }, "}" ;
+			class-decl = "class", identifier, [ ":", name ], class-body ;
+			class-body = "{", "}" | "{", visibility, { visibility
+			                                           | constructor
+			                                           | [ "static" ], declaration
+			                                           | directive },
+			                        "}" ;
+			visibility = ("public" | "procected" | "private"), ":" ;
+			constructor = "constructor", "(", param-list, ")",
+			         [ ":", "super", "(", [ expression, { ",", expression } ], ")", ],
 			         func-body ;
-			namespace-decl = "namespace" identifier namespace-body ;
-			namespace-body = "{" { declaration | statement | directive } "}"
+			namespace-decl = "namespace", identifier, namespace-body ;
+			namespace-body = "{", { declaration | statement | directive }, "}" ;
 
 			directive = use ;
-			use-directive = [ "from" name ] "use" name-import
-			                                     { "," name-import } ";" ;
-			name-import = ("namespace" use-name)
-			            | (use-name [ "as" identifier ]) ;
-			use-name = identifier { "." identifier } ;
+			use-directive = [ "from", name ], "use", name-import,
+			                                     { ",", name-import }, ";" ;
+			name-import = ("namespace", use-name)
+			            | (use-name, [ "as", identifier ]) ;
+			use-name = identifier, { ".", identifier } ;
 
 			expression = literal
 			           | group
@@ -461,46 +461,46 @@ export const doc_language: Documentation = {
 			        | boolean
 			        | integer
 			        | real
-			        | string { string }
+			        | string, { string }
 			        | array
 			        | dictionary
 			        | lambda ;
 			null = "null" ;
 			boolean = "true" | "false" ;
 			array = empty-array | nonempty-array ;
-			empty-array = "[" "]" ;
-			nonempty-array = "[" expression { "," expression } [ "," ] "]" ;
+			empty-array = "[", "]" ;
+			nonempty-array = "[", expression, { ",", expression }, [ "," ], "]" ;
 			dictionary = empty-dictionary | nonempty-dictionary ;
-			empty-dictionary = "{" "}" ;
-			nonempty-dictionary = "{" key-value { "," key-value } [ "," ] "}" ;
-			key-value = (string | identifier) ":" expression ;
-			lambda = "function" [ closure ] "(" param-list ")" func-body ;
-			closure = "[" [ closure-param { "," closure-param } ] "]" ;
-			closure-param = [ identifier "=" ] expression ;
-			param-list = [ param-decl { "," param-decl } ] ;
-			param-decl = identifier [ "=" constant-ex ] ;
+			empty-dictionary = "{", "}" ;
+			nonempty-dictionary = "{", key-value, { ",", key-value }, [ "," ], "}" ;
+			key-value = (string | identifier), ":", expression ;
+			lambda = "function", [ closure ], "(", param-list, ")", func-body ;
+			closure = "[", [ closure-param, { ",", closure-param, } ], "]" ;
+			closure-param = [ identifier, "=" ], expression ;
+			param-list = [ param-decl, { ",", param-decl } ] ;
+			param-decl = identifier, [ "=", constant-ex ] ;
 			constant-ex = $ expression that evaluates to a constant $ ;
-			func-body = "{" { declaration | statement | directive } "}" ;
-			name = ("super" "." identifier) | (identifier {"." identifier})
+			func-body = "{", { declaration | statement | directive }, "}" ;
+			name = ("super", ".", identifier) | (identifier, {".", identifier}) ;
 
-			block = "{" { declaration | statement | directive } "}" ;
-			assignment = lhs assign-op expression ";" ;
+			block = "{", { declaration | statement | directive }, "}" ;
+			assignment = lhs, assign-op, expression, ";" ;
 			lhs = name
-			        | expression "[" expression "]"
-			        | expression "." identifier ;
+			        | expression, "[", expression, "]"
+			        | expression, ".", identifier ;
 			assign-op = "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ;
-			condition = "if" expression "then" statement
-			                          [ "else" statement ] ;
-			for-loop = "for" [ loop-var "in" ] expression "do" statement ;
-			loop-var = ("var" identifier) | name ;
-			while-do-loop = "while" expression "do" statement ;
-			do-while-loop = "do" statement "while" expression ";" ;
-			break = "break" ";" ;
-			continue = "continue" ";" ;
-			return = "return" [ expression ] ";" ;
-			throw = "throw" expression ";" ;
-			try-catch = "try" statement
-			            "catch" "var" identifier "do" statement ;
+			condition = "if", expression, "then", statement,
+			                          [ "else", statement ] ;
+			for-loop = "for", [ loop-var, "in" ], expression, "do", statement ;
+			loop-var = ("var", identifier) | name ;
+			while-do-loop = "while", expression, "do", statement ;
+			do-while-loop = "do", statement, "while", expression, ";" ;
+			break = "break", ";" ;
+			continue = "continue", ";" ;
+			return = "return", [ expression ], ";" ;
+			throw = "throw", expression, ";" ;
+			try-catch = "try", statement,
+			            "catch", "var", identifier, "do", statement ;
 
 			program = { declaration | statement | directive } ;
 			</ebnf>
@@ -542,8 +542,8 @@ export const doc_language: Documentation = {
 			<p>
 			Variables are declared with following syntax:
 			<ebnf>
-				var-decl = "var" single-var { "," single-var } ";" ;    "# var ex, am, ple;"
-				  single-var = identifier [ "=" expression ] ;          "# ex = 1, am, ple"
+				var-decl = "var", single-var, { ",", single-var }, ";" ;    # var ex, am, ple;
+				  single-var = identifier, [ "=", expression ] ;            # ex = 1, am, ple
 			</ebnf>
 			They are referenced by their name.
 			</p>
@@ -688,11 +688,11 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			<p>
 			Functions are declared with the following syntax:
 			<ebnf>
-				func-decl = "function" identifier "(" param-list ")" func-body ;    "# function example() {}"
-				  param-list = [ param-decl { "," param-decl } ] ;                  "# (ex, am, ple)"
-				  param-decl = identifier [ "=" constant-ex ] ;                     "# ex or ex = 1"
+				func-decl = "function", identifier, "(", param-list, ")", func-body ;   # function example() {}
+				  param-list = [ param-decl, { ",", param-decl } ] ;                    # (ex, am, ple)
+				  param-decl = identifier, [ "=", constant-ex ] ;                       # ex or ex = 1
 				  constant-ex = $ expression that evaluates to a constant $ ;
-				  func-body = "{" { declaration | statement | directive } "}" ;     "# { . . . }"
+				  func-body = "{", { declaration | statement | directive }, "}" ;       # { . . . }
 			</ebnf>
 			It is referenced by its name, and invoked by
 			<a href="?doc#/language/expressions/function-calls">providing
@@ -741,17 +741,17 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			<p>
 			A class is declared with the following syntax:
 			<ebnf>
-				class-decl = "class" identifier [ ":" name ] class-body ;
-				  class-body = "{" [ directive ] "}"
-				             | "{" [ directive ] visibility
+				class-decl = "class", identifier, [ ":", name ], class-body ;
+				  class-body = "{", [ directive ], "}"
+				             | "{", [ directive ], visibility,
 				                  { visibility
-         				           | constructor
-		         		           | [ "static" ] declaration
-				                    | directive }
+         				            | constructor
+		         		            | [ "static" ], declaration
+				                    | directive },
          				      "}" ;
-				  visibility = ("public" | "procected" | "private") ":" ;
-				  constructor = "constructor" "(" param-list ")"
-				         [ ":" "super" "(" [ expression { "," expression } ] ")" ]
+				  visibility = ("public" | "procected" | "private"), ":" ;
+				  constructor = "constructor", "(", param-list, ")",
+				         [ ":", "super", "(", [ expression, { ",", expression } ], ")" ],
 				         func-body ;
 			</ebnf>
 			Refer to <a href="?doc#/language/declarations/functions">functions</a>
@@ -989,8 +989,8 @@ print(c.description());
 			Namespaces are declared with the following syntax:
 			<p>
 			<ebnf>
-				namespace-decl = "namespace" identifier namespace-body ;                    "# namespace example {}"
-				  namespace-body = "{" { declaration | statement | directive } "}" ;        "# { . . . }"
+				namespace-decl = "namespace", identifier, namespace-body ;                 # namespace example {}
+				  namespace-body = "{", { declaration | statement | directive }, "}" ;     # { . . . }
 			</ebnf>
 			Namespaces can only be declared at global scope or within other
 			namespaces. However, the same namespace can be declared multiple
@@ -1081,25 +1081,25 @@ print(c.description());
 			easier access to names that are otherwise lengthy to write
 			out. The syntax is as follows:
 			<ebnf>
-				use-directive = [ "from" name ] "use" name-import
-				                                     { "," name-import } ";" ;
-				name-import = ("namespace" use-name)
-				            | (use-name [ "as" identifier ]) ;
-				use-name = identifier { "." identifier } ;
+				use-directive = [ "from", name ], "use", name-import,
+				                                     { ",", name-import }, ";" ;
+				name-import = ("namespace", use-name)
+				            | (use-name, [ "as", identifier ]) ;
+				use-name = identifier, { ".", identifier } ;
 			</ebnf>
 			</p>
 			<p>
 			A <ebnf>name</ebnf> refers to a declaration inside
 			a namespace, possibly to a namespace itself. The first form
-			<ebnf>"namespace" name</ebnf> imports all names <i>inside</i>
+			<ebnf do-not-check>namespace name</ebnf> imports all names <i>inside</i>
 			the the referenced namespace into the current scope. The
-			second form <ebnf>name ["as" identifier]</ebnf> imports a
+			second form <ebnf do-not-check>name ["as" identifier]</ebnf> imports a
 			single name. In the latter case the optional identifier is
 			a new alias name under which the original declaration is
 			made available. If it is not provided, then the last identifier
 			of the fully qualified name is used, e.g., <code class="code">c</code>
 			is used when importing the name <code class="code">a.b.c</code>.
-			If <ebnf>"from" name</ebnf> is provided,
+			If <ebnf do-not-check>"from" name</ebnf> is provided,
 			then all subsequent names are looked up in the context of
 			the given namespace, not in the context of the current
 			scope.
@@ -1204,7 +1204,7 @@ print(c.description());
 			        | boolean
 			        | integer
 			        | real
-			        | string { string }
+			        | string, { string }
 			        | array
 			        | dictionary
 			        | lambda ;
@@ -1400,8 +1400,8 @@ print("multi "                                              # prints: multi line
 				become the items of the array literal:
 				<ebnf>
 					array = empty-array | nonempty-array ;
-					  empty-array = "[" "]" ;
-					  nonempty-array = "[" expression { "," expression } [ "," ] "]" ;
+					  empty-array = "[", "]" ;
+					  nonempty-array = "[", expression, { ",", expression }, [ "," ], "]" ;
 				</ebnf>
 				</p>
 				<div class="example">
@@ -1436,9 +1436,9 @@ print("multi "                                              # prints: multi line
 				arbitrary expression:
 				<ebnf>
 					dictionary = empty-dictionary | nonempty-dictionary ;
-					  empty-dictionary = "{" "}" ;
-					  nonempty-dictionary = "{" key-value { "," key-value } [ "," ] "}" ;
-					  key-value = (string | identifier) ":" expression ;
+					  empty-dictionary = "{", "}" ;
+					  nonempty-dictionary = "{", key-value, { ",", key-value }, [ "," ], "}" ;
+					  key-value = (string | identifier), ":", expression ;
 				</ebnf>
 				The key-value pairs become the items of the
 				dictionary literal. Importantly, the identifier is not looked up as
@@ -1485,13 +1485,13 @@ print("multi "                                              # prints: multi line
 				<p>
 				An anonymous function or lambda function follows the syntax:
 				<ebnf>
-					lambda = "function" [ closure ] "(" param-list ")" func-body ;
-					  closure = "[" [ closure-param { "," closure-param } ] "]" ;
-					  closure-param = [ identifier "=" ] expression ;
-					  param-list = [ param-decl { "," param-decl } ] ;
-					  param-decl = identifier [ "=" constant-ex ] ;
+					lambda = "function", [ closure ], "(", param-list, ")", func-body ;
+					  closure = "[", [ closure-param, { ",", closure-param } ], "]" ;
+					  closure-param = [ identifier, "=" ], expression ;
+					  param-list = [ param-decl, { ",", param-decl } ] ;
+					  param-decl = identifier, [ "=", constant-ex ] ;
 					  constant-ex = $ expression that evaluates to a constant $ ;
-					  func-body = "{" { declaration | statement | directive } "}" ;
+					  func-body = "{", { declaration | statement | directive }, "}" ;
 				</ebnf>
 				In contrast to a <a href="?doc#/language/declarations/functions">function
 				declaration</a> it does not have a name by which is could be referenced.
@@ -2157,8 +2157,8 @@ print(r > s);                           # prints true, as the first comparison t
 			<p>
 			A function call is an expression with the following syntax:
 			<ebnf>
-				function-call = expression "(" argument { "," argument } ")" ";" ;          # example("example");
-				argument = [ identifier "=" ] expression ;
+				function-call = expression, "(", argument, { ",", argument }, ")", ";" ;   # example("example");
+				argument = [ identifier, "=" ], expression ;
 			</ebnf>
 			The first expression must resolve to a callable object, hereafter
 			referred to as the function for short, which is a
@@ -2193,7 +2193,7 @@ print(r > s);                           # prints true, as the first comparison t
 			If a parameter of a function specifies a default value then the
 			corresponding argument can be dropped. A neat way of providing
 			values only for some parameters is to use <i>named</i> arguments,
-			i.e., arguments with <ebnf>identifier "="</ebnf>
+			i.e., arguments with <ebnf do-not-check>identifier "="</ebnf>
 			present. Named arguments must not be followed by positional arguments,
 			since that would be extremely confusing and error-prone. Also
 			arguments without default values can be specified by name, although
@@ -2222,7 +2222,7 @@ print(r > s);                           # prints true, as the first comparison t
 			<p>
 			An item access is an expression with the following syntax:
 			<ebnf>
-				item-access = expression "[" expression "]" ";" ;
+				item-access = expression, "[", expression, "]", ";" ;
 			</ebnf>
 			The first (base) expression must resolve to a
 			<a href="?doc#/language/types/string">string</a>,
@@ -2284,7 +2284,7 @@ print(r[1:2]);                  # prints 2:3
 			<p>
 			A member access is an expression with the following syntax:
 			<ebnf>
-				member-access = expression "." identifier ;
+				member-access = expression, ".", identifier ;
 			</ebnf>
 			The expression evaluates to a public member of the object to
 			which the <ebnf>expression</ebnf> evaluates. If the expression
@@ -2331,7 +2331,7 @@ print(e.ex);                        # works fine
 			<p>
 			A name has the syntax
 			<ebnf>
-				name = ("super" "." identifier) | (identifier {"." identifier})
+				name = ("super", ".", identifier) | (identifier, {".", identifier}) ;
 			</ebnf>
 			where all but the last <ebnf>identifier</ebnf> must refer to
 			a <a href="?doc#/language/declarations/namespaces">namespace</a>.
@@ -2679,7 +2679,7 @@ print(e.ex);                        # works fine
 		<ebnf>
 			statement = block
 			          | assignment
-			          | expression ";"
+			          | expression, ";"
 			          | condition
 			          | for-loop
 			          | while-do-loop
@@ -2688,7 +2688,7 @@ print(e.ex);                        # works fine
 			          | continue
 			          | return
 			          | throw
-			          | try-catch
+			          | try-catch ;
 		</ebnf>
 		</p>
         <div class="example">
@@ -2714,7 +2714,7 @@ for 0:3 do      # statement
 			<p>
 			A block of statements has the following syntax:
 			<ebnf>
-				block = "{" { declaration | statement | directive } "}" ;
+				block = "{", { declaration | statement | directive }, "}" ;
 			</ebnf>
 			The whole block can take the role of a single statement,
 			allowing to execute multiple statements where a single one
@@ -2758,10 +2758,10 @@ example();                      # works fine
 			<p>
 			Assignments have the following form:
 			<ebnf>
-				assignment = lhs assign-op expression ";" ;                         "example: var example = 28;"
+				assignment = lhs, assign-op, expression, ";" ;                  # example: var example = 28;
 				  lhs = name
-				        | expression "[" expression "]"
-				        | expression "." identifier ;
+				        | expression, "[", expression, "]"
+				        | expression, ".", identifier ;
 				  assign-op = "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ;
 			</ebnf>
 			The expression <ebnf>lhs</ebnf> on the left-hand-side (lhs) of the
@@ -2848,8 +2848,8 @@ example();                      # works fine
 			<p>
 			A conditional control structure is denoted as follows:
 			<ebnf>
-			condition = "if" expression "then" statement
-			                          [ "else" statement ] ;
+			condition = "if", expression, "then", statement,
+			                            [ "else", statement ] ;
 			</ebnf>
 			The <ebnf>expression</ebnf> must evaluate to a
 			<a href="?doc#/language/types/boolean">Boolean</a>, otherwise an error
@@ -2881,8 +2881,8 @@ if 3 < 5 then {}             # works
 			<p>
 			A for-loop has the following syntax:
 			<ebnf>
-			for-loop = "for" [ loop-var "in" ] expression "do" statement ;
-			  loop-var = ("var" identifier) | name ;
+			for-loop = "for", [ loop-var, "in" ], expression, "do", statement ;
+			  loop-var = ("var", identifier) | name ;
 			</ebnf>
 			The <ebnf>expression</ebnf> must evaluate to a
 			<a href="?doc#/language/types/range">Range</a> or an
@@ -2906,7 +2906,7 @@ if 3 < 5 then {}             # works
 			variable, which is referenced by the given <ebnf>name</ebnf>, so it
 			can even be declared in another namespace.
 			Alternatively, a new variable can declared with the
-			<ebnf>"var" identifier</ebnf> syntax. This variable belongs to the
+			<ebnf do-not-check>"var" identifier</ebnf> syntax. This variable belongs to the
 			loop, which acts as its scope, hence its name does not collide with
 			other declarations outside the loop, and the variable goes out of
 			scope after the last loop iteration. It is common to execute
@@ -3013,7 +3013,7 @@ if 3 < 5 then {}             # works
 			<p>
 			The while-do-loop syntax is as follows:
 			<ebnf>
-				while-do-loop = "while" expression "do" statement ;
+				while-do-loop = "while", expression, "do", statement ;
 			</ebnf>
 			The loop evaluates the <ebnf>expression</ebnf>. If it does not result in
 			a <a href="?doc#/language/types/boolean">Boolean</a>, then an error is emitted.
@@ -3059,7 +3059,7 @@ if 3 < 5 then {}             # works
 			<p>
 			The do-while-loop syntax is as follows:
 			<ebnf>
-				do-while-loop = "do" statement "while" expression ";" ;
+				do-while-loop = "do", statement, "while", expression, ";" ;
 			</ebnf>
 			The loop executes the <ebnf>statement</ebnf>. Then it evaluates the
 			<ebnf>expression</ebnf>. If it does not result in a
@@ -3109,8 +3109,8 @@ if 3 < 5 then {}             # works
 			function. The break statement exits the loop. The continue statement
 			skips the remainder of a loop iteration. Their syntax is trivial:
 			<ebnf>
-				break = "break" ";" ;
-				continue = "continue" ";" ;
+				break = "break", ";" ;
+				continue = "continue", ";" ;
 			</ebnf>
 			After a continue statement, the loop jumps to its check of the stopping
 			criterion. If it does not stop then it continues with the next loop
@@ -3156,7 +3156,7 @@ if 3 < 5 then {}             # works
 			The return statement immediately returns from a function.
 			Its syntax is as follows:
 			<ebnf>
-				return = "return" [ expression ] ";" ;
+				return = "return", [ expression ], ";" ;
 			</ebnf>
 			If the optional <ebnf>expression</ebnf> is not present, then
 			<keyword>null</keyword> is used as the default value.
@@ -3202,7 +3202,7 @@ print("example");               # will not be executed
 			<p>
 			An exception is thrown with the following syntax:
 			<ebnf>
-				throw = "throw" expression ";" ;
+				throw = "throw", expression, ";" ;
 			</ebnf>
 			The result of evaluating the <ebnf>expression</ebnf> is called
 			an exception.
@@ -3248,8 +3248,8 @@ print("example");               # will not be executed
 			The syntax of a <keyword>try</keyword>-<keyword>catch</keyword>
 			statement is as follows:
 			<ebnf>
-				try-catch = "try" statement
-				            "catch" "var" identifier "do" statement ;
+				try-catch = "try", statement,
+				            "catch", "var", identifier, "do", statement ;
 			</ebnf>
 			Under normal conditions, the try-catch-block executes only
 			the statement following <keyword>try</keyword>. This is nearly
