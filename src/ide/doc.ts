@@ -102,8 +102,7 @@ export const doc = (function () {
 				) {
 					value += c;
 					state.advance();
-				}
-				else break;
+				} else break;
 			}
 			return { type: "identifier", value: value };
 		} else if (c == '"') {
@@ -181,7 +180,7 @@ export const doc = (function () {
 		} else {
 			// all the rest, including operators
 			state.advance();
-//			if ("=-*|".indexOf(c) >= 0) return { type: "operator", value: c };
+			//			if ("=-*|".indexOf(c) >= 0) return { type: "operator", value: c };
 			if ("=,-|".indexOf(c) >= 0) return { type: "operator", value: c };
 			if ("()[]{}".indexOf(c) >= 0) return { type: "grouping", value: c };
 			if (";".indexOf(c) >= 0) return { type: "delimiter", value: c };
@@ -333,49 +332,83 @@ export const doc = (function () {
 			while (state.good()) {
 				state.skip();
 				let token = get_token_ebnf(state);
-				if (! token) return null;
+				if (!token) return null;
 				if (token.type == "comment") continue;
 				else if (token.type == "grouping") {
 					if (")]}".indexOf(token.value) >= 0) return token;
 					else {
-						if (! expressionExpected) state.error("EBNF syntax error: operator or closing bracket expected");
+						if (!expressionExpected)
+							state.error(
+								"EBNF syntax error: operator or closing bracket expected"
+							);
 						let end = parseSequence();
-						if (end === null) state.error("EBNF: opening " + token.value + " not properly closed");
+						if (end === null)
+							state.error(
+								"EBNF: opening " +
+									token.value +
+									" not properly closed"
+							);
 						expressionExpected = false;
 					}
-				} else if (token.type == "identifier" || token.type == "literal" || token.type == "special") {
-					if (! expressionExpected) state.error("EBNF syntax error: operator or closing bracket expected");
+				} else if (
+					token.type == "identifier" ||
+					token.type == "literal" ||
+					token.type == "special"
+				) {
+					if (!expressionExpected)
+						state.error(
+							"EBNF syntax error: operator or closing bracket expected"
+						);
 					expressionExpected = false;
 				} else if (token.type == "operator") {
-					if (expressionExpected) state.error("EBNF syntax error: expression expected before operator " + token.value);
-					if (token.value == "=") state.error("EBNF syntax error: assignment does not work here");
+					if (expressionExpected)
+						state.error(
+							"EBNF syntax error: expression expected before operator " +
+								token.value
+						);
+					if (token.value == "=")
+						state.error(
+							"EBNF syntax error: assignment does not work here"
+						);
 					expressionExpected = true;
 				} else if (token.type == "delimiter") {
-					if (expressionExpected) state.error("EBNF syntax error: expression expected before semicolon");
+					if (expressionExpected)
+						state.error(
+							"EBNF syntax error: expression expected before semicolon"
+						);
 					return token;
 				} else state.error("unexpected token type in checkEBNF");
 			}
 			return null;
 		}
 
-		let first = true;   // be prepared for a single identifier
-		while (true)
-		{
+		let first = true; // be prepared for a single identifier
+		while (true) {
 			// parse one rule
 			state.skip();
-			if (! state.good()) break;
+			if (!state.good()) break;
 			let lhs = get_token_ebnf(state);
-			if (lhs?.type != "identifier") state.error("EBNF syntax error: left-hand-side must be an identifier");
+			if (lhs?.type != "identifier")
+				state.error(
+					"EBNF syntax error: left-hand-side must be an identifier"
+				);
 			state.skip();
-			if (! state.good()) {
+			if (!state.good()) {
 				if (first) break;
-				else state.error("EBNF syntax error: assignment operator '=' expected");
+				else
+					state.error(
+						"EBNF syntax error: assignment operator '=' expected"
+					);
 			}
 			let assignment = get_token_ebnf(state);
-			if (! assignment) break;
-			if (assignment.type != "operator" || assignment.value != "=") state.error("EBNF syntax error: assignment operator '=' expected");
+			if (!assignment) break;
+			if (assignment.type != "operator" || assignment.value != "=")
+				state.error(
+					"EBNF syntax error: assignment operator '=' expected"
+				);
 			let closing = parseSequence();
-			if (closing?.value != ";") state.error("EBNF syntax error: final semicolon expected");
+			if (closing?.value != ";")
+				state.error("EBNF syntax error: final semicolon expected");
 			first = false;
 		}
 	}
@@ -401,7 +434,9 @@ export const doc = (function () {
 				let str =
 					"documentation internal error in code: '" +
 					this.source +
-					"' (" + path + ")";
+					"' (" +
+					path +
+					")";
 				throw new Error(str);
 			},
 			current: function () {
@@ -472,8 +507,7 @@ export const doc = (function () {
 						}
 						continue;
 					}
-					if (c != " " && c != "\t" && c != "\r" && c != "\n")
-						break;
+					if (c != " " && c != "\t" && c != "\r" && c != "\n") break;
 					if (c == "\n") {
 						this.line++;
 						this.ch = 0;
