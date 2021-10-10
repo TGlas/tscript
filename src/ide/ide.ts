@@ -34,7 +34,7 @@ export let ide = (function () {
 
 	let module: any = {};
 	let options: any = {};
-	let theme: string = "auto";
+	let theme: string = "default";
 
 	function guid() {
 		return (
@@ -1296,12 +1296,10 @@ export let ide = (function () {
 			}
 			if (config.hasOwnProperty("theme")) {
 				theme = config.theme;
-				if (theme !== "default") {
-					document.addEventListener("DOMContentLoaded", function () {
-						tgui.setTheme(theme);
-					});
-				}
 			}
+			document.addEventListener("DOMContentLoaded", function () {
+				tgui.setTheme(theme);
+			});
 		}
 		return null;
 	}
@@ -1504,9 +1502,9 @@ export let ide = (function () {
 				type: "p",
 			});
 			const themes = [
-				{ id: "auto", display: "Auto" },
-				{ id: "default", display: "Default" },
-				{ id: "dark", display: "Default dark" },
+				{ id: "default", display: "System Default" },
+				{ id: "light", display: "Light" },
+				{ id: "dark", display: "Dark" },
 			];
 
 			let lbl = tgui.createElement({

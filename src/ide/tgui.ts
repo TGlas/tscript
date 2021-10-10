@@ -14,10 +14,9 @@ export let tgui = (function () {
 	let hotkeys = {};
 	let hotkeyElement = null;
 
-	module.theme = "default";
-	function isDarkTheme(theme: string) {
-		return theme.includes("dark");
-	}
+	// light theme, indicated by no theme css class in the body dom element
+	// which is the initial state
+	module.theme = "light";
 
 	// normalize the hotkey to lowercase
 	module.normalizeHotkey = function (hotkey) {
@@ -1688,20 +1687,21 @@ export let tgui = (function () {
 	});
 
 	module.setTheme = function (theme: string) {
-		if (theme === "auto") {
+		if (theme === "default") {
 			// Auto detect theme of the operating system
 			if (window.matchMedia) {
 				var q = window.matchMedia("(prefers-color-scheme: dark)");
-				theme = q.matches ? "dark" : "default";
+				theme = q.matches ? "dark" : "light";
 			} else {
-				theme = "default";
+				theme = "light";
 			}
 		}
 
+		// Note that the light theme is represented in the body tag by no class at all
 		if (module.theme !== theme) {
-			if (theme === "default")
+			if (theme === "light")
 				document.body.classList.remove(`${module.theme}-theme`);
-			else if (module.theme == "default")
+			else if (module.theme == "light")
 				document.body.classList.add(`${theme}-theme`);
 			else
 				document.body.classList.replace(
