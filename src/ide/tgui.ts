@@ -1,4 +1,4 @@
-import { icons } from "./icons";
+import { SVGIcon, icons } from "./icons";
 
 var interact = require("interactjs");
 
@@ -14,23 +14,9 @@ export let tgui = (function () {
 	let hotkeys = {};
 	let hotkeyElement = null;
 
-	type IconDrawingFunctionDynamic = (
-		canvas: HTMLCanvasElement,
-		dark: boolean
-	) => void; // length = 2
-	type IconDrawingFunctionStatic = (canvas: HTMLCanvasElement) => void; // length = 1
-	type IconDrawingFunction =
-		| IconDrawingFunctionDynamic
-		| IconDrawingFunctionStatic;
-	const iconDrawingFuncs = new WeakMap<
-		HTMLCanvasElement,
-		IconDrawingFunction
-	>();
-
-	module.theme = "default";
-	function isDarkTheme(theme: string) {
-		return theme.includes("dark");
-	}
+	// light theme, indicated by no theme css class in the body dom element
+	// which is the initial state
+	module.theme = "light";
 
 	// normalize the hotkey to lowercase
 	module.normalizeHotkey = function (hotkey) {
@@ -91,9 +77,12 @@ export let tgui = (function () {
 	// see createElement
 	function createControl(type, description, classname) {
 		let element = document.createElement(type);
+		return setupControl(element, description, classname);
+	}
 
+	function setupControl(element, description, classname) {
 		// set classes
-		if (classname) element.className = classname;
+		if (classname) element.setAttribute("class", classname);
 
 		// set ID
 		if (description.hasOwnProperty("id")) element.id = description.id;
@@ -237,77 +226,57 @@ export let tgui = (function () {
 		};
 	};
 
-	function setupCanvasZoom(canvas) {
-		// zoom
-		// TODO: programmaticly detect whenever zoom changes
-		let zoom = 2; // Good enough
-		//let zoom = window.devicePixelRatio;
-		if (zoom > 1) {
-			canvas.width *= zoom;
-			canvas.height *= zoom;
-			let ctx = canvas.getContext("2d");
-			ctx.scale(zoom, zoom);
-		}
-	}
-
-	function renderCanvas(canvas, draw) {
-		if (draw.length == 2) draw(canvas, isDarkTheme(module.theme));
-		else draw(canvas);
-	}
-
-	// Create a canvas icon element with automaticly zoomed contents
-	// if the website is zoomed to 200% then the actual width of the
-	// canvas is twice as large. The draw function does not need to
-	// care about this
+	// Create an icon element with automaticly zoomed contents
 	// Fields of the #description object:
-	// * draw - function with a "canvas" argument that draws the canvas icon
-	// * width - canvas width
-	// * height - canvas height
+	// * icon - SVGIcon
+	// * width - icon width
+	// * height - icon height
 	// * parent - DOM object containing the control
 	// * style - optional dictionary of CSS styles
-	module.createCanvasIcon = function (description) {
+	module.createIcon = function (description) {
 		let style = {
 			display: "block",
 			width: description.width + "px",
 			height: description.height + "px",
 		};
 
-		console.assert(typeof description.draw == "function");
-
-		// draw.length = 1 -> IconDrawingFunctionStatic
-		// draw.length = 2 -> IconDrawingFunctionDynamic
-		let isDynamic = description.draw.length == 2;
-
 		if (description.hasOwnProperty("style"))
 			Object.assign(style, description.style);
-		let canvas = module.createElement({
-			type: "canvas",
-			parent: description.parent,
-			classname:
-				(isDynamic ? "tgui-dynamic-canvas " : "") +
-				(description.hasOwnProperty("classname")
-					? description["classname"]
-					: "tgui"),
-			style: style,
-		});
-		canvas.width = description.width;
-		canvas.height = description.height;
 
-		if (isDynamic) iconDrawingFuncs.set(canvas, description.draw);
+		function createSvg(icon: SVGIcon): SVGSVGElement {
+			let svg: SVGSVGElement = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"svg"
+			);
+			svg.setAttribute("width", icon.width + "px");
+			svg.setAttribute("height", icon.height + "px");
+			svg.innerHTML = icon.innerSVG;
+			return svg;
+		}
 
-		setupCanvasZoom(canvas);
-		renderCanvas(canvas, description.draw);
+		let svg: SVGSVGElement = createSvg(description.icon);
 
-		return canvas;
+		setupControl(
+			svg,
+			{
+				parent: description.parent,
+				style: style,
+			},
+			description.hasOwnProperty("classname")
+				? description["classname"]
+				: "tgui"
+		);
+
+		return svg;
 	};
 
 	// Create a new button.
 	// Fields of the #description object:
 	// * click - event handler, taking an "event" argument
 	// * text - for text buttons, default: ""
-	// * draw - for canvas buttons, function with a "canvas" argument that draws the button face
-	// * width - for canvas buttons, canvas width
-	// * height - for canvas buttons, canvas height
+	// * icon - for icon buttons, SVGIcon
+	// * width - for icon buttons, icon width
+	// * height - for icon buttons, icon height
 	// * classname - optional CSS class
 	// * style - optional dictionary of CSS styles
 	// * parent - optionl DOM object containing the control
@@ -320,21 +289,21 @@ export let tgui = (function () {
 			"button",
 			description,
 			"tgui tgui-control tgui-button" +
-				(description.text ? "-text" : "-canvas") +
+				(description.text ? "-text" : "-icon") +
 				(description.classname ? " " + description.classname : "")
 		);
 
 		// create the actual content
-		if (description.draw) {
-			// fancy canvas button
-			let canvas = module.createCanvasIcon({
+		if (description.icon) {
+			// fancy icon button
+			let icon = module.createIcon({
 				parent: element,
-				draw: description.draw,
+				icon: description.icon,
 				width: description.width,
 				height: description.height,
 			});
 		} else if (!description.text)
-			throw "[tgui.createButton] either .text or .draw are required";
+			throw "[tgui.createButton] either .text or .icon are required";
 
 		// add a hotkey
 		module.setHotkey(description.hotkey, description.click);
@@ -839,7 +808,7 @@ export let tgui = (function () {
 	// - floatingsize: [width, height] size in floating state
 	// - dockedheight: height in left or right state
 	// - state:        current state, i.e., "left", "right", "max", "float", "icon", "disabled"
-	// - icondraw:     draw function for the icon representing the panel in "icon" mode, also drawn in the titlebar of the panel
+	// - icon:         SVGIcon for the icon representing the panel in "icon" mode, also drawn in the titlebar of the panel
 	// - onResize:     callback function(width, height) on resize
 	// - onArrange:    callback function() on arranging (possible position/size change)
 	// those properties are carried over to the returned object
@@ -895,8 +864,7 @@ export let tgui = (function () {
 		control.panelID = free_panel_id;
 		free_panel_id++;
 
-		if (!control.hasOwnProperty("icondraw"))
-			control.icondraw = icons.window;
+		if (!control.hasOwnProperty("icon")) control.icon = icons.window;
 
 		// register the panel
 		module.panels.push(control);
@@ -907,9 +875,9 @@ export let tgui = (function () {
 			parent: panel,
 			classname: "tgui tgui-panel-titlebar",
 		});
-		control.titlebar_icon = tgui.createCanvasIcon({
+		control.titlebar_icon = tgui.createIcon({
 			parent: control.titlebar_container,
-			draw: control.icondraw,
+			icon: control.icon,
 			width: 20,
 			height: 20,
 			classname: "tgui-panel-titlebar-icon",
@@ -942,7 +910,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.dockLeft,
+			icon: icons.dockLeft,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Dock left",
@@ -954,7 +922,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.dockRight,
+			icon: icons.dockRight,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Dock right",
@@ -966,7 +934,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.maximize,
+			icon: icons.maximize,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Maximize",
@@ -978,7 +946,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.float,
+			icon: icons.float,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Floating",
@@ -990,7 +958,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: icons.minimize,
+			icon: icons.minimize,
 			parent: control.titlebar_container,
 			classname: "tgui-panel-dockbutton",
 			"tooltip-right": "Minimize",
@@ -1011,7 +979,7 @@ export let tgui = (function () {
 			},
 			width: 20,
 			height: 20,
-			draw: control.icondraw,
+			icon: control.icon,
 			tooltip: control.title,
 			style: {
 				margin: "0 0 0 1px", // 1 px as a separator between multiple icons
@@ -1499,7 +1467,7 @@ export let tgui = (function () {
 					},
 					width: 20,
 					height: 20,
-					draw: icons.help,
+					icon: icons.help,
 					classname: "tgui-panel-dockbutton",
 					"tooltip-right": "Help",
 				});
@@ -1512,7 +1480,7 @@ export let tgui = (function () {
 				},
 				width: 20,
 				height: 20,
-				draw: icons.close,
+				icon: icons.close,
 				classname: "tgui-panel-dockbutton",
 				"tooltip-right": "Close",
 			});
@@ -1523,7 +1491,7 @@ export let tgui = (function () {
 
 	// Properties of description: prompt, [icon], [buttons], title, [onClose]...
 	// prompt -- the displayed text message
-	// icon   -- an optional canvas drawing function to display the appropriate icon to the message
+	// icon   -- an optional SVGIcon to display the appropriate icon to the message
 	// See `createModal` for more information about these properties
 	module.msgBox = function (description) {
 		let default_description = {
@@ -1543,9 +1511,9 @@ export let tgui = (function () {
 
 		let icon = description.icon;
 		if (icon) {
-			tgui.createCanvasIcon({
+			tgui.createIcon({
 				parent: dlg.content,
-				draw: icon,
+				icon: icon,
 				width: 40,
 				height: 40,
 				classname: "tgui-panel-titlebar-icon",
@@ -1718,22 +1686,22 @@ export let tgui = (function () {
 		return true;
 	});
 
-	function updateCanvasIcons(rootElement) {
-		rootElement
-			.querySelectorAll(".tgui-dynamic-canvas")
-			.forEach((canvas: any) => {
-				let ctx = canvas.getContext("2d");
-				//ctx.resetTransform();
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				renderCanvas(canvas, iconDrawingFuncs.get(canvas));
-			});
-	}
-
 	module.setTheme = function (theme: string) {
-		if (module.theme != theme) {
-			if (theme == "default")
+		if (theme === "default") {
+			// Auto detect theme of the operating system
+			if (window.matchMedia) {
+				var q = window.matchMedia("(prefers-color-scheme: dark)");
+				theme = q.matches ? "dark" : "light";
+			} else {
+				theme = "light";
+			}
+		}
+
+		// Note that the light theme is represented in the body tag by no class at all
+		if (module.theme !== theme) {
+			if (theme === "light")
 				document.body.classList.remove(`${module.theme}-theme`);
-			else if (module.theme == "default")
+			else if (module.theme == "light")
 				document.body.classList.add(`${theme}-theme`);
 			else
 				document.body.classList.replace(
@@ -1742,12 +1710,6 @@ export let tgui = (function () {
 				);
 
 			module.theme = theme;
-			updateCanvasIcons(document);
-			// update icons in hidden panels separately, because
-			// these are not part of the document dom
-			for (let p of module.panels) {
-				if (!p.dom.parentNode) updateCanvasIcons(p.dom);
-			}
 		}
 	};
 

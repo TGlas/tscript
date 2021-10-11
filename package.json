@@ -9,7 +9,8 @@
     "interop": "webpack --mode=production --config webpack.interop.js",
     "test": "mocha -r ts-node/register \"src/**/*.test.ts\"",
     "test:fmt": "prettier --check \"**/*\"",
-    "prettier": "prettier --write \"**/*\""
+    "prettier": "prettier --write \"**/*\"",
+    "gen-icons": "npx ts-node ./src/ide/gen-icons.ts"
   },
   "devDependencies": {
     "@interactjs/types": "^1.10.2",

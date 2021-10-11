@@ -27,12 +27,9 @@ export const doc = (function () {
 		let str = localStorage.getItem("tscript.ide.config");
 		if (str) {
 			let config = JSON.parse(str);
-			if (config.hasOwnProperty("theme")) {
-				let theme = config.theme;
-				if (theme) {
-					document.body.classList.add(`${theme}-theme`);
-				}
-			}
+			let theme = "default";
+			if (config.hasOwnProperty("theme")) theme = config.theme;
+			tgui.setTheme(theme);
 		}
 		return null;
 	}

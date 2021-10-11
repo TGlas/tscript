@@ -105,7 +105,7 @@
 	box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 0px 1px 1px #ffffff20;
 }
 
-.tgui-button-canvas {
+.tgui-button-icon {
 	cursor: pointer;
 
 	background: #ddd;
@@ -119,16 +119,16 @@
 	border-radius: 1.5px;
 }
 
-.tgui-button-canvas:hover {
+.tgui-button-icon:hover {
 	background: #eee;
 	border-color: #fff;
 }
 
-.tgui-button-canvas:focus {
+.tgui-button-icon:focus {
 	border-color: #222;
 }
 
-.tgui-button-canvas:active {
+.tgui-button-icon:active {
 	background: #bbb;
 	border-color: #888;
 	box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 0px 1px 1px #ffffff20;

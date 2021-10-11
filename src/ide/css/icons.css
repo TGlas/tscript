@@ -1,0 +1,45 @@
+.icon-border {
+	stroke: #000;
+	fill: none;
+}
+
+.icon-panel-back {
+	stroke: none;
+	fill: #fff;
+}
+
+.icon-panel-title {
+	stroke: none;
+	fill: #00c;
+}
+
+.icon-red-fill {
+	stroke: none;
+	fill: #c00;
+}
+.icon-green-fill {
+	stroke: none;
+	fill: #080;
+}
+.icon-green-frame {
+	stroke: #080;
+	stroke-width: 2;
+	fill: none;
+}
+.icon-blue-fill {
+	stroke: none;
+	fill: #00f;
+}
+.icon-blue-line {
+	stroke: #00f;
+	fill: none;
+}
+
+.icon-neutral-line {
+	stroke: #000;
+	fill: none;
+}
+.icon-neutral-fill {
+	stroke: none;
+	fill: #000;
+}
