@@ -1,6 +1,11 @@
-import DocumentationPageController from "./DocumentationPageController";
-import IDEPageController from "./IDEPageController";
-import { initializeNavigation, replaceUrl } from "./navigation";
+import { doc } from "./doc";
+import { ide } from "./ide";
+import {
+	initializeNavigation,
+	IPageController,
+	replaceUrl,
+} from "./navigation";
+import { searchengine } from "./search";
 import { showStandalonePage } from "./standalone";
 
 import "./css/ide.css";
@@ -60,4 +65,56 @@ function translateLegacyURL(currentUrl: URL): URL | null {
 	}
 
 	return null;
+}
+
+class IDEPageController implements IPageController {
+	constructor(container: HTMLElement, location: URL) {
+		ide.create(container);
+
+		const loadUrl = location.searchParams.get("load");
+		if (loadUrl) loadScriptFromUrl(loadUrl);
+	}
+
+	checkUnsavedChanges(): boolean {
+		return true;
+	}
+}
+
+async function loadScriptFromUrl(url: string): Promise<void> {
+	try {
+		const response = await fetch(url);
+		const text = await response.text();
+		ide.sourcecode.setValue(text);
+	} catch (error) {
+		if ((error && typeof error === "object") || typeof error === "string")
+			alert("The program could not be loaded:\n" + error.toString());
+		else alert("The program could not be loaded.");
+	}
+}
+
+class DocumentationPageController implements IPageController {
+	constructor(container: HTMLElement, location: URL) {
+		doc.create(container);
+		this.showPage(location.searchParams);
+	}
+
+	navigate(newLocation: URL): boolean {
+		if (newLocation.searchParams.has("doc")) {
+			this.showPage(newLocation.searchParams);
+			return true;
+		}
+
+		return false;
+	}
+
+	private showPage(params: URLSearchParams): void {
+		const docPage = params.get("doc") ?? "";
+		if (docPage === "search") {
+			const searchQuery = params.get("q") ?? "";
+			const tokens = searchengine.tokenize(searchQuery);
+			doc.setpath("search/" + tokens.join("/"));
+		} else {
+			doc.setpath(docPage);
+		}
+	}
 }
