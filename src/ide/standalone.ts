@@ -1,7 +1,32 @@
 import { ide } from "./ide";
 import { tgui } from "./tgui";
 
-export function handleTurtle() {
+export type StandaloneData = {
+	code: string;
+	mode: "canvas" | "turtle";
+};
+
+export function showStandalonePage(
+	container: HTMLElement,
+	data: StandaloneData
+): void {
+	ide.standalone = true;
+	ide.create(container);
+	ide.sourcecode.setValue(data.code);
+	ide.prepare_run();
+
+	switch (data.mode) {
+		case "canvas":
+			handleCanvas();
+			break;
+		case "turtle":
+			handleTurtle();
+			break;
+	}
+	ide.interpreter.run();
+}
+
+function handleTurtle(): void {
 	tgui.releaseAllHotkeys();
 	ide.turtle.parentNode.removeChild(ide.turtle);
 	document.body.innerHTML = "";
@@ -10,7 +35,7 @@ export function handleTurtle() {
 	ide.turtle.style.height = "100vh";
 }
 
-export function handleCanvas() {
+function handleCanvas(): void {
 	tgui.releaseAllHotkeys();
 	let cv = ide.canvas.parentNode;
 	cv.parentNode.removeChild(cv);

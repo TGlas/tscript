@@ -1,14 +1,10 @@
-"use strict";
-
-import { Typeid } from "../lang/helpers/typeIds";
 import { TScript } from "../lang";
-import { tgui } from "./tgui";
-import { icons } from "./icons";
-import { tutorial } from "./tutorial";
-import { Parser } from "../lang/parser";
-import { Interpreter } from "../lang/interpreter/interpreter";
-import { defaultOptions } from "../lang/helpers/options";
+import { Typeid } from "../lang/helpers/typeIds";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
+import { Interpreter } from "../lang/interpreter/interpreter";
+import { Parser } from "../lang/parser";
+import { icons } from "./icons";
+import { tgui } from "./tgui";
 
 import CodeMirror from "codemirror";
 
@@ -29,9 +25,6 @@ import "./codemirror-tscriptmode";
 //
 
 export let ide = (function () {
-	if (window.location.search != "" && window.location.search !== "?run")
-		return null;
-
 	let module: any = {};
 	let options: any = {};
 	let theme: string = "default";
@@ -67,8 +60,7 @@ export let ide = (function () {
 	// manage documentation container or window
 	module.onDocumentationClick = null;
 	module.documentationWindow = null;
-	function showdoc(path) {
-		if (!path) path = "";
+	function showdoc(path = "") {
 		if (module.onDocumentationClick) {
 			// notify a surrounding application of a doc link click
 			module.onDocumentationClick(path);
@@ -78,17 +70,21 @@ export let ide = (function () {
 				module.documentationWindow.close();
 				module.documentationWindow = null;
 			}
-			let fn = location.pathname.substring(
-				location.pathname.lastIndexOf("/") + 1
-			);
-			module.documentationWindow = window.open(
-				fn + "?doc" + path,
-				"TScript documentation"
-			);
+			if (path.startsWith("#/")) path = path.slice(1);
+			showdocWindow("?doc=" + path);
 		}
 	}
 
-	function showdocConfirm(path: string, search_string: string = "") {
+	function showdocWindow(href: string) {
+		// open documentation in a new window; this enables proper browser navigation
+		if (module.documentationWindow) {
+			module.documentationWindow.close();
+			module.documentationWindow = null;
+		}
+		module.documentationWindow = window.open(href, "TScript documentation");
+	}
+
+	function showdocConfirm(path?: string, search_string?: string) {
 		// The dialog is added here, because some browsers disallow
 		// that a new tab/window is created, when not initiated by a button press.
 		// In this case the user would simply press [Enter] which should be no problem.
@@ -99,7 +95,16 @@ export let ide = (function () {
 			buttons: [
 				{
 					text: "Open tab",
-					onClick: () => showdoc(path),
+					onClick: () => {
+						if (search_string) {
+							showdocWindow(
+								"?doc=search&q=" +
+									encodeURIComponent(search_string)
+							);
+						} else {
+							showdoc(path);
+						}
+					},
 					isDefault: true,
 				},
 				{ text: "Cancel" },
@@ -112,14 +117,16 @@ export let ide = (function () {
 			text: "Open the documentation in another tab?",
 		});
 
-		tgui.createElement({
-			parent: dlg.content,
-			type: "div",
-			style: { "margin-top": "10px" },
-			text: search_string
-				? 'Search for "' + search_string + '"?'
-				: 'Go to "' + path + '"?',
-		});
+		if (path || search_string) {
+			tgui.createElement({
+				parent: dlg.content,
+				type: "div",
+				style: { "margin-top": "10px" },
+				text: search_string
+					? 'Search for "' + search_string + '"?'
+					: 'Go to "' + path + '"?',
+			});
+		}
 
 		tgui.startModal(dlg);
 	}
@@ -2027,14 +2034,8 @@ export let ide = (function () {
 					);
 				}
 				selection = selection.substr(0, 30);
-				let words = selection.match(/[a-z]+/gi); // global case insensitive
-				let href = "";
-
-				if (words) {
-					href = "#search/" + words.join("/");
-				}
-
-				showdocConfirm(href, words.join(" "));
+				const words = selection.match(/[a-z]+/gi); // global case insensitive
+				showdocConfirm(undefined, words?.join(" "));
 			});
 		}
 
@@ -2436,10 +2437,3 @@ export let ide = (function () {
 
 	return module;
 })();
-
-window.onbeforeunload = function (event) {
-	if (String(document.title).startsWith("TScript IDE")) {
-		event.preventDefault();
-		event.returnValue = "";
-	}
-};

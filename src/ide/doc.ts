@@ -1,16 +1,14 @@
-"use strict";
-
-import { ErrorHelper } from "../lang/errors/ErrorHelper";
-import { tgui } from "./tgui";
-import { defaultOptions } from "../lang/helpers/options";
-import { Interpreter } from "../lang/interpreter/interpreter";
-import { Lexer } from "../lang/parser/lexer";
-import { Parser } from "../lang/parser";
-import { TScript } from "../lang";
-import { Version } from "../lang/version";
-import { searchengine } from "./search";
 import { documentationData } from "../doc";
+import { ErrorHelper } from "../lang/errors/ErrorHelper";
+import { defaultOptions } from "../lang/helpers/options";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
+import { Interpreter } from "../lang/interpreter/interpreter";
+import { Parser } from "../lang/parser";
+import { Lexer } from "../lang/parser/lexer";
+import { Version } from "../lang/version";
+import { navigate } from "./navigation";
+import { searchengine } from "./search";
+import { tgui } from "./tgui";
 
 ///////////////////////////////////////////////////////////
 // TScript documentation
@@ -703,7 +701,7 @@ export const doc = (function () {
 					let path = results[i].id;
 					let node = getnode(path)[0];
 					html +=
-						'<li><a href="#' +
+						'<li><a href="?doc=' +
 						path +
 						'">' +
 						node.title +
@@ -746,7 +744,7 @@ export const doc = (function () {
 					html += "<h2>Related Topics</h2>\n<ul>\n";
 					if (parent) {
 						html +=
-							'back to enclosing topic: <a href="#' +
+							'back to enclosing topic: <a href="?doc=' +
 							parentpath +
 							'">' +
 							parent.name +
@@ -754,7 +752,7 @@ export const doc = (function () {
 						if (index > 0) {
 							let sibling = parent.children[index - 1];
 							html +=
-								'previous topic: <a href="#' +
+								'previous topic: <a href="?doc=' +
 								parentpath +
 								"/" +
 								sibling.id +
@@ -765,7 +763,7 @@ export const doc = (function () {
 						if (index + 1 < parent.children.length) {
 							let sibling = parent.children[index + 1];
 							html +=
-								'next topic: <a href="#' +
+								'next topic: <a href="?doc=' +
 								parentpath +
 								"/" +
 								sibling.id +
@@ -778,7 +776,7 @@ export const doc = (function () {
 						html += "<h3>Subordinate Topics</h3>\n<ul>\n";
 						for (let i = 0; i < node.children.length; i++)
 							html +=
-								'<li><a href="#' +
+								'<li><a href="?doc=' +
 								path +
 								"/" +
 								node.children[i].id +
@@ -835,9 +833,9 @@ export const doc = (function () {
 			pos = node.content.indexOf('"', start);
 			let s = node.content.substr(start, pos - start);
 			start = pos + 1;
-			if (s.length > 0 && s[0] == "#") {
+			if (s.startsWith("?doc=")) {
 				try {
-					getnode(s.substr(1));
+					getnode(s.slice(5));
 				} catch (ex) {
 					// invalid link
 					alert(
@@ -920,9 +918,8 @@ export const doc = (function () {
 		window.setTimeout(function (event) {
 			module.dom_version.innerHTML = Version.full();
 			module.dom_version.addEventListener("click", function (event) {
-				let base = window.location.href.split("#")[0];
-				window.location.href = base + "#/legal";
-				module.setpath("/legal");
+				if (module.embedded) module.setpath("/legal");
+				else navigate("?doc=/legal");
 			});
 		}, 100);
 
@@ -951,11 +948,8 @@ export const doc = (function () {
 			parent: module.dom_tree,
 			info: docinfo,
 			nodeclick: function (event, value, id) {
-				if (!module.embedded) {
-					let base = window.location.href.split("#")[0];
-					window.location.href = base + "#" + id;
-				}
-				module.setpath(id);
+				if (module.embedded) module.setpath(id);
+				else navigate("?doc=" + id);
 			},
 		});
 
@@ -965,39 +959,36 @@ export const doc = (function () {
 		module.dom_searchtext.addEventListener("keypress", function (event) {
 			if (event.key != "Enter") return;
 
-			let keys = searchengine.tokenize(module.dom_searchtext.value);
-			let h = "#search";
-			for (let i = 0; i < keys.length; i++) h += "/" + keys[i];
 			if (module.embedded) {
+				let keys = searchengine.tokenize(module.dom_searchtext.value);
+				let h = "#search";
+				for (let i = 0; i < keys.length; i++) h += "/" + keys[i];
 				window.sessionStorage.setItem("docpath", h);
 				module.setpath(h);
-			} else window.location.hash = h;
+			} else {
+				const searchParams = new URLSearchParams({
+					doc: "search",
+					q: module.dom_searchtext.value,
+				});
+				navigate("?" + searchParams.toString());
+			}
 		});
 
 		// check all internal links
-		checklinks(doc, "#");
+		checklinks(doc, "");
 
 		if (options.embedded) {
 			let path = window.sessionStorage.getItem("docpath");
 			if (!path) path = "#";
 			module.setpath(path);
-		} else {
-			// process the "anchor" part of the URL
-			window.addEventListener("hashchange", function () {
-				let path = window.location.hash;
-				module.setpath(path);
-			});
-			let path = window.location.hash;
-			module.setpath(path);
-		}
 
-		if (module.embedded) {
 			document.addEventListener("click", function (event) {
 				let target: any = event.target || event.srcElement;
 				if (target.tagName === "A") {
 					let href = target.getAttribute("href");
 					if (href.length == 0) return true;
-					if (href[0] != "#") return true;
+					if (!href.startsWith("?doc=")) return true;
+					href = href.replace("?doc=", "#");
 					window.sessionStorage.setItem("docpath", href);
 					module.setpath(href);
 					event.preventDefault();

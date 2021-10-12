@@ -80,7 +80,7 @@ export const doc_ide: Documentation = {
 		The button with the gear symbol opens the configuration dialog.
 		Currently it allows to configure the hotkeys associated with the
 		toolbar buttons. Furthermore, there is a checkbox that enables
-		<a href="?doc#/concepts/style">style checking mode</a>.
+		<a href="?doc=/concepts/style">style checking mode</a>.
 		</p>
 		<p>
 		It follows a wide element with colored background, called the
@@ -116,7 +116,7 @@ export const doc_ide: Documentation = {
 		</p>
 		<p>
 		Besides the hotkeys defined for the
-		<a href="?doc#/ide/toolbar">toolbar</a> buttons, the editor provides
+		<a href="?doc=/ide/toolbar">toolbar</a> buttons, the editor provides
 		the following hotkeys:
 		<table class="nicetable">
 			<tr><th>key</th><th>effect</th></tr>
@@ -146,7 +146,7 @@ export const doc_ide: Documentation = {
 			content: `
 		<p>
 		The message area contains two types of entities: text printed by
-		the program with the <a href="?doc#/library/core">print</a> function,
+		the program with the <a href="?doc=/library/core">print</a> function,
 		and error messages. Errors are clickable, highlighting the line
 		of code in which the error occurred. Also, there is a clickable
 		information symbol &#128712; that opens the documentation of the
