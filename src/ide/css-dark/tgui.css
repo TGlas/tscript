@@ -1,3 +1,8 @@
+.dark-theme {
+	/* dark theme for scrollbars, etc */
+	color-scheme: dark;
+}
+
 .dark-theme .tgui-control {
 	color: #fff;
 }
@@ -42,21 +47,21 @@
 	box-shadow: inset 0px 0px 2px #000;
 }
 
-.dark-theme .tgui-button-canvas {
+.dark-theme .tgui-button-icon {
 	background: #373737;
 	border-color: #444;
 }
 
-.dark-theme .tgui-button-canvas:hover {
+.dark-theme .tgui-button-icon:hover {
 	background: #444;
 	border-color: #666;
 }
 
-.dark-theme .tgui-button-canvas:focus {
+.dark-theme .tgui-button-icon:focus {
 	border-color: #fff;
 }
 
-.dark-theme .tgui-button-canvas:active {
+.dark-theme .tgui-button-icon:active {
 	background: #222;
 	border-color: #000;
 	box-shadow: inset 0px 0px 2px #000;

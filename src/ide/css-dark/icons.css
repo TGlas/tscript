@@ -1,0 +1,34 @@
+.dark-theme .icon-border {
+	stroke: #fff;
+}
+
+.dark-theme .icon-panel-back {
+	fill: #444;
+}
+
+.dark-theme .icon-panel-title {
+	fill: #36f;
+}
+
+.dark-theme .icon-red-fill {
+	fill: #f31;
+}
+.dark-theme .icon-green-fill {
+	fill: #4c2;
+}
+.dark-theme .icon-green-frame {
+	stroke: #4c2;
+}
+
+.dark-theme .icon-blue-fill {
+	fill: #49f;
+}
+.dark-theme .icon-blue-line {
+	stroke: #49f;
+}
+.dark-theme .icon-neutral-line {
+	stroke: #ccc;
+}
+.dark-theme .icon-neutral-fill {
+	fill: #ccc;
+}

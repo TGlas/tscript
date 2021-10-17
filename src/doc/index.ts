@@ -45,10 +45,10 @@ Being a reference documentation, this collection of documents is not
 designed for being read front to end, but rather as a resource for
 looking up information. For programmers experienced with other
 programming languages, the section
-<a href="?doc#/concepts">core concepts</a> is a good starting point, the
-<a href="?doc#/cheatsheet">cheat sheet</a> provides the most
+<a href="?doc=/concepts">core concepts</a> is a good starting point, the
+<a href="?doc=/cheatsheet">cheat sheet</a> provides the most
 important bits in compact form, and for the impatient there are a few
-<a href="?doc#/examples">examples</a>.
+<a href="?doc=/examples">examples</a>.
 </p>
 `,
 };
