@@ -809,6 +809,7 @@ export let ide = (function () {
 			module.interpreter.service.documentation_mode = false;
 			module.interpreter.service.print = function (msg) {
 				module.addMessage("print", msg);
+				module.interpreter.flush();
 			};
 			module.interpreter.service.alert = function (msg) {
 				alert(msg);

@@ -83,6 +83,15 @@ export class Interpreter {
 		}
 	}
 
+	// Request to interrupt the current chunk of code.
+	// This gives the browser the opportunity to render updates before the next command is executed.
+	public flush() {
+		if (this.status === "running") {
+			this.status = "waiting";
+			this.waittime = new Date().getTime();
+		}
+	}
+
 	// reset the program state, set the instruction pointer to its start
 	public reset() {
 		this.halt = null;
