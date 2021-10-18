@@ -66,19 +66,20 @@ export const tutorial_helloworld = {
 			</p>
 			<p>
 			If you made a mistake, usually a typo, then running the program
-			fails. In this case you get an error message, which also appears
-			in the message area. Try removing a parenthesis, a double quote
-			or the semicolon. Now, running the program will result in an
-			error message. That's what we meant before when stating that
-			each command follows a strict syntax.
+			fails. In this case you get an error message. Try removing a
+			parenthesis, a double quote or the semicolon. Now, running the
+			program will result in an error message. That's what we meant
+			before when stating that each command follows a strict syntax.
 			</p>
 			<p>
 			For the purpose of this tutorial, use F7 or the "Run" button for
 			code testing. Once you are done, press the "solve task" button
-			below. If will give you feedback on your code. If you have
-			solved the task correctly and completely, then it moves on to
-			the next section of the tutorial. You can also skip the
-			programming task by clicking the "continue" button.
+			below. It will give you feedback on your code. If a test fails,
+			then the error message can be clicked for further details. If
+			you have solved the task correctly and completely, then it moves
+			on to the next section of the tutorial. You can also skip the
+			programming task by clicking the "continue" button, or you can
+			view a reference solution.
 			</p>
 			`,
 			correct: `print("Hello World!");`,

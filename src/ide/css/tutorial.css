@@ -48,3 +48,11 @@
 	content: "[exercise] ";
 	font-weight: bold;
 }
+
+.tutorial-error {
+	width: 100%;
+	padding: 10px;
+	margin: 5px 0;
+	border: 3px solid #f00;
+	cursor: pointer;
+}

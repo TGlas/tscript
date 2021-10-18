@@ -6,6 +6,20 @@ import { doc } from "./doc";
 import { evaluation } from "../eval";
 import { tutorialData } from "../tutorial";
 
+import CodeMirror from "codemirror";
+
+// CodeMirror Addons
+import "codemirror/addon/selection/active-line";
+import "codemirror/addon/comment/comment";
+import "codemirror/addon/dialog/dialog";
+import "codemirror/addon/dialog/dialog.css";
+import "codemirror/addon/search/jump-to-line";
+import "codemirror/addon/search/search";
+import "codemirror/addon/search/searchcursor";
+import "codemirror/addon/edit/matchbrackets";
+import "codemirror/addon/edit/closebrackets";
+import "./codemirror-tscriptmode";
+
 ///////////////////////////////////////////////////////////
 // TScript tutorial
 //
@@ -154,6 +168,61 @@ export const tutorial = (function () {
 				text: module.data[module.state.unit].title,
 			});
 
+			// add the "reference solution" button
+			function addReferenceButton(correct, parent) {
+				if (!correct) return;
+				tgui.createElement({
+					type: "button",
+					classname: "tgui-modal-default-button tutorial-nav-button",
+					parent: parent,
+					text: "reference solution",
+					style: { width: "160px" },
+					click: (function (correct) {
+						return function (event) {
+							let dlg = tgui.createModal({
+								title: "reference solution",
+								scalesize: [0.6, 0.6],
+								minsize: [400, 250],
+								buttons: [{ text: "Close" }],
+							});
+
+							let textarea = tgui.createElement({
+								type: "textarea",
+								parent: dlg.content,
+								properties: {
+									rows: "20",
+									cols: "50",
+									value: correct,
+								},
+							});
+							let cm = CodeMirror.fromTextArea(textarea, {
+								gutters: [
+									"CodeMirror-linenumbers",
+									"breakpoints",
+								],
+								lineNumbers: true,
+								matchBrackets: true,
+								styleActiveLine: true,
+								mode: "text/tscript",
+								indentUnit: 4,
+								tabSize: 4,
+								indentWithTabs: true,
+								extraKeys: {
+									"Ctrl-Up": "scrollUp",
+									"Ctrl-Down": "scrollDown",
+								},
+							});
+							cm.setOption("readOnly", true);
+
+							window.setTimeout(function () {
+								cm.refresh();
+							}, 20);
+							tgui.startModal(dlg);
+						};
+					})(correct),
+				});
+			}
+
 			// content sections
 			for (let i = 0; i <= module.state.section; i++) {
 				let content =
@@ -164,10 +233,16 @@ export const tutorial = (function () {
 					parent: module.dom,
 					html: content,
 				});
+				if (i < module.state.section) {
+					addReferenceButton(
+						module.data[module.state.unit].sections[i].correct,
+						module.dom
+					);
+				}
 			}
 
 			// navigation elements
-			let details = tgui.createElement({
+			let error = tgui.createElement({
 				type: "div",
 				parent: module.dom,
 			});
@@ -192,9 +267,40 @@ export const tutorial = (function () {
 							function (result) {
 								if (result.error) {
 									// evaluation failed; report the problem
-									module.showErrorMessage(result.error);
-									if (result.details)
-										details.innerHTML = result.details;
+									error.innerHTML = "";
+									tgui.createElement({
+										type: "div",
+										parent: error,
+										classname: "tutorial-error",
+										text: result.error,
+										click: function (event) {
+											let dlg = tgui.createModal({
+												title: "error details",
+												scalesize: [0.6, 0.6],
+												minsize: [300, 300],
+												buttons: [{ text: "Close" }],
+											});
+											if (result.details) {
+												dlg.content.innerHTML =
+													"<h1>" +
+													result.error +
+													"</h1>" +
+													"<p>The following table lists events generated  by your " +
+													"code and by the reference solution, up to the first " +
+													"(essential) difference. That difference highlights the " +
+													"problem with your solution.</p>" +
+													result.details;
+											} else {
+												dlg.content.innerHTML =
+													"<h1>" +
+													result.error +
+													"</h1>" +
+													"<p>Sorry, there are no further details available for " +
+													"this error.</p>";
+											}
+											tgui.startModal(dlg);
+										},
+									});
 								} else {
 									// evaluation succeeded; move on to the next section
 									tgui.msgBox({
@@ -244,6 +350,7 @@ export const tutorial = (function () {
 						display();
 					},
 				});
+				addReferenceButton(d.correct, nav);
 			} else if (
 				module.state.unit + 1 < module.data.length ||
 				module.state.section + 1 <

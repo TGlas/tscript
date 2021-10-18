@@ -5,6 +5,7 @@ import { Interpreter } from "../lang/interpreter/interpreter";
 import { Parser } from "../lang/parser";
 import { icons } from "./icons";
 import { tgui } from "./tgui";
+import { tutorial } from "./tutorial";
 
 import CodeMirror from "codemirror";
 
