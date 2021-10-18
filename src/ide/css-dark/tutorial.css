@@ -1,0 +1,19 @@
+.dark-theme .tutorial-toc {
+	color: #44c;
+}
+
+.dark-theme .code-evaluation th {
+	background: #468;
+	color: #fff;
+}
+
+.dark-theme .code-evaluation td {
+	background: #222;
+	border-color: #444;
+}
+
+.dark-theme .tutorial-exercise {
+	color: #fff;
+	background: #222;
+	border-color: #444;
+}

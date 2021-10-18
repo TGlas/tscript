@@ -1,0 +1,134 @@
+.dark-theme button {
+	border-color: #fff;
+}
+
+.dark-theme .ide-main {
+	color: #fff;
+	background: #f00;
+}
+
+.dark-theme .ide-panel-area {
+	background: #111;
+}
+
+.dark-theme .ide-toolbar {
+	background: #303030;
+	color: #fff;
+	border-bottom: #222 solid 1px;
+	box-shadow: inset 0px -1px 0px #292929;
+}
+
+.dark-theme .ide-sourcecode {
+	/* overridden in file codemirror.css, class .CodeMirror */
+	background: #222;
+	color: #fff;
+}
+
+.dark-theme .ide-stackview {
+	background: #222;
+	color: #fff;
+}
+
+.dark-theme .ide-programview {
+	background: #222;
+	color: #fff;
+}
+
+.dark-theme .ide-messages {
+	background: #222;
+	color: #fff;
+}
+
+.dark-theme .ide-message:hover {
+	background: #449;
+}
+
+.dark-theme .ide-errormessage {
+	color: #f44;
+}
+
+.dark-theme .ide-program-ancestor {
+	color: #fc6;
+	background: #653;
+}
+
+.dark-theme .ide-program-current {
+	color: #fc6;
+	background: #863;
+}
+
+.dark-theme .ide-turtle {
+	background: #333;
+}
+
+.dark-theme .ide-tutorial {
+	background: #222;
+	color: #fff;
+}
+
+.dark-theme .ide-index {
+	color: #26f;
+}
+
+.dark-theme .ide-integer {
+	color: #4fe;
+}
+.dark-theme .ide-real {
+	color: #4f4;
+}
+.dark-theme .ide-string {
+	color: #f44;
+}
+.dark-theme .ide-collection {
+	color: #fa4;
+}
+.dark-theme .ide-keyword {
+	color: #4af;
+}
+.dark-theme .ide-builtin {
+	color: #c4f;
+}
+.dark-theme .ide-userclass {
+	color: #fff;
+}
+
+.dark-theme .tgui-label.ide-state-unchecked {
+	background-color: #970;
+	color: #fe8;
+}
+
+.dark-theme .tgui-label.ide-state-error {
+	background-color: #c32;
+	color: #fc8;
+}
+
+.dark-theme .tgui-label.ide-state-running {
+	background-color: #2a2;
+	color: #cfc;
+}
+
+.dark-theme .tgui-label.ide-state-waiting {
+	background-color: #171;
+	color: #8f8;
+}
+
+.dark-theme .tgui-label.ide-state-stepping {
+	background-color: #0ab;
+	color: #cff;
+}
+
+.dark-theme .tgui-label.ide-state-finished {
+	background-color: #139;
+	color: #8cf;
+}
+
+.dark-theme .ide-export-status {
+	color: #fff;
+	border-color: #fff;
+}
+
+.dark-theme .ide-export-download {
+	background: #222;
+	color: #46f !important;
+	border-color: #fff;
+}

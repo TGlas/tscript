@@ -1,3 +1,5 @@
+/*TODO remove classes from modal components, instead: .tgui-modal button ...*/
+
 .tgui {
 	margin: 0;
 	padding: 0;
@@ -100,10 +102,10 @@
 .tgui-button-text:active {
 	background: #bbb;
 	border-color: #888;
-	box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 0px 1px 1px #ffffff20;
 }
 
-.tgui-button-canvas {
+.tgui-button-icon {
 	cursor: pointer;
 
 	background: #ddd;
@@ -117,16 +119,16 @@
 	border-radius: 1.5px;
 }
 
-.tgui-button-canvas:hover {
+.tgui-button-icon:hover {
 	background: #eee;
 	border-color: #fff;
 }
 
-.tgui-button-canvas:focus {
+.tgui-button-icon:focus {
 	border-color: #222;
 }
 
-.tgui-button-canvas:active {
+.tgui-button-icon:active {
 	background: #bbb;
 	border-color: #888;
 	box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 0px 1px 1px #ffffff20;
@@ -139,20 +141,18 @@
 }
 
 .tgui-list-box {
+	background-color: #fff;
 	box-shadow: 0px 0px 2px #00000030;
 	border-radius: 2px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #ccc;
+	border: 1px solid #ccc;
 	padding: 3px;
 }
 
 .tgui-text-box {
+	background-color: #fff;
 	box-shadow: 0px 0px 2px #00000030;
 	border-radius: 2px;
-	border-style: solid;
-	border-width: 1px;
-	border-color: #ccc;
+	border: 1px solid #ccc;
 	padding: 0 0 0 3px;
 }
 
@@ -320,6 +320,14 @@
 	border-width: 2px;
 	border-color: #000;
 	box-shadow: inset 0px 0px 3px #00000066;
+}
+
+.tgui-modal-dropdown {
+	background-color: #fff;
+	box-shadow: 0px 0px 2px #00000030;
+	border-radius: 2px;
+	border: 1px solid #ccc;
+	padding: 3px;
 }
 
 .tgui-panel-container {

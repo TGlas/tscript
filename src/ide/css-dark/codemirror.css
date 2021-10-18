@@ -1,0 +1,197 @@
+/* BASICS */
+
+.dark-theme .CodeMirror {
+	color: white;
+}
+
+/* PADDING */
+
+.dark-theme .CodeMirror-scrollbar-filler,
+.dark-theme .CodeMirror-gutter-filler {
+	background-color: #1e1e1e; /* The little square between H and V scrollbars */
+}
+
+/* GUTTER */
+
+.dark-theme .CodeMirror-gutters {
+	border-right-color: #333;
+	background-color: #242424;
+}
+
+.dark-theme .CodeMirror-linenumber {
+	color: #777;
+}
+
+.dark-theme .breakpoints {
+	background: #272727;
+}
+
+.dark-theme .CodeMirror-guttermarker {
+	color: #fff;
+}
+.dark-theme .CodeMirror-guttermarker-subtle {
+	color: #777;
+}
+
+/* CURSOR */
+
+.dark-theme .CodeMirror-cursor {
+	border-left-color: #fff;
+}
+/* Shown when moving in bi-directional text */
+.dark-theme .CodeMirror div.CodeMirror-secondarycursor {
+	border-left-color: silver;
+}
+
+.dark-theme .CodeMirror-ruler {
+	border-left-color: #555;
+}
+
+/* DEFAULT THEME */
+
+.dark-theme .cm-s-default .cm-header {
+	color: #4af;
+}
+.dark-theme .cm-s-default .cm-quote {
+	color: #4f4;
+}
+.dark-theme .cm-negative {
+	color: #d44;
+}
+.dark-theme .cm-positive {
+	color: #292;
+}
+
+.dark-theme .cm-s-default .cm-keyword {
+	color: #4af;
+}
+.dark-theme .cm-s-default .cm-atom {
+	color: #4fe;
+}
+.dark-theme .cm-s-default .cm-number {
+	color: #4f4;
+}
+.dark-theme .cm-s-default .cm-def {
+	color: #4af;
+}
+.dark-theme .cm-s-default .cm-variable {
+	color: #fff;
+}
+.dark-theme .cm-s-default .cm-punctuation {
+	color: #fff;
+}
+.dark-theme .cm-s-default .cm-property {
+	color: #fff;
+}
+.dark-theme .cm-s-default .cm-operator {
+	color: #fff;
+}
+.dark-theme .cm-s-default .cm-variable-2 {
+	color: #4df;
+}
+/*.cm-s-default .cm-variable-3,
+.cm-s-default .cm-type {
+	color: #085;
+}*/
+.dark-theme .cm-s-default .cm-comment {
+	color: #888;
+}
+.dark-theme .cm-s-default .cm-string {
+	color: #f44;
+}
+.dark-theme .cm-s-default .cm-string-2 {
+	color: #f50;
+}
+.dark-theme .cm-s-default .cm-meta {
+	color: #bbb;
+}
+.dark-theme .cm-s-default .cm-qualifier {
+	color: #bbb;
+}
+.dark-theme .cm-s-default .cm-builtin {
+	color: #c4f;
+}
+.dark-theme .cm-s-default .cm-bracket {
+	color: #4f4;
+}
+.dark-theme .cm-s-default .cm-tag {
+	color: #7f4;
+}
+.dark-theme .cm-s-default .cm-attribute {
+	color: #44f;
+}
+.dark-theme .cm-s-default .cm-hr {
+	color: #999;
+}
+.dark-theme .cm-s-default .cm-link {
+	color: #44f;
+}
+
+.dark-theme .cm-invalidchar {
+	color: #f44;
+}
+
+/* Default styles for common addons */
+
+.dark-theme div.CodeMirror span.CodeMirror-matchingbracket {
+	color: #8f4;
+}
+.dark-theme div.CodeMirror span.CodeMirror-nonmatchingbracket {
+	color: #f44;
+}
+.dark-theme .CodeMirror-matchingtag {
+	background: rgba(255, 150, 0, 0.3);
+}
+.dark-theme .CodeMirror-activeline-background {
+	background: #333337;
+}
+
+/* STOP */
+
+/* The rest of this file contains styles related to the mechanics of
+   the editor. You probably shouldn't touch them. */
+
+.dark-theme .CodeMirror {
+	background: #222;
+}
+
+.dark-theme .CodeMirror-gutter-wrapper {
+	background: none !important;
+	border: none !important;
+}
+
+.dark-theme .CodeMirror-selected {
+	background: #445;
+}
+.dark-theme .CodeMirror-focused .CodeMirror-selected {
+	background: #449;
+}
+.dark-theme .CodeMirror-line::selection,
+.dark-theme .CodeMirror-line > span::selection,
+.dark-theme .CodeMirror-line > span > span::selection {
+	background: #449;
+}
+.dark-theme .CodeMirror-line::-moz-selection,
+.dark-theme .CodeMirror-line > span::-moz-selection,
+.dark-theme .CodeMirror-line > span > span::-moz-selection {
+	background: #449;
+}
+
+.dark-theme .cm-searching {
+	background-color: #333;
+	background-color: rgba(255, 255, 0, 0.4);
+}
+
+.dark-theme .CodeMirror-dialog {
+	background: #333;
+}
+
+.dark-theme .CodeMirror-dialog input {
+	color: #fff;
+	background-color: #222;
+	border-color: #888;
+}
+
+.dark-theme .CodeMirror-dialog input:focus {
+	border-color: #fff;
+}

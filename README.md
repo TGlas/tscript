@@ -7,7 +7,7 @@ programming language.
 
 TScript comes as a single html file. It does not require installation.
 Simply open the file in a modern browser and you are ready to go.
-[Click here for a quick test.](https://tglas.github.io/tscript/distribution/)
+[Click here for a quick test.](https://tglas.github.io/tscript/)
 For more serious use it is recommended to store the page in your local
 file system &mdash; use "save link as" (or similar) from the context
 menu.
@@ -28,16 +28,16 @@ print("Hello World");
 For proper example code have a look at the [examples](https://github.com/TGlas/tscript/tree/master/examples)
 directory.
 
--   [turtle graphics: snowflake](https://tglas.github.io/tscript/distribution?run#https://raw.githubusercontent.com/TGlas/tscript/master/examples/snowflake.tscript)
--   [canvas graphics: game of life](https://tglas.github.io/tscript/distribution?run#https://raw.githubusercontent.com/TGlas/tscript/master/examples/gameoflife.tscript)
--   [canvas graphics: 3D cube](https://tglas.github.io/tscript/distribution?run#https://raw.githubusercontent.com/TGlas/tscript/master/examples/cube3D.tscript)
--   [audio sine wave](https://tglas.github.io/tscript/distribution?run#https://raw.githubusercontent.com/TGlas/tscript/master/examples/audio.tscript)
+-   [turtle graphics: snowflake](https://tglas.github.io/tscript/?load=https://raw.githubusercontent.com/TGlas/tscript/master/examples/snowflake.tscript)
+-   [canvas graphics: game of life](https://tglas.github.io/tscript/?load=https://raw.githubusercontent.com/TGlas/tscript/master/examples/gameoflife.tscript)
+-   [canvas graphics: 3D cube](https://tglas.github.io/tscript/?load=https://raw.githubusercontent.com/TGlas/tscript/master/examples/cube3D.tscript)
+-   [audio sine wave](https://tglas.github.io/tscript/?load=https://raw.githubusercontent.com/TGlas/tscript/master/examples/audio.tscript)
 
 ## Documentation
 
 The documentation is included in the IDE. It can be accessed with the
 button at the top right. It is also available
-[here.](https://tglas.github.io/tscript/distribution/index.html?doc)
+[here.](https://tglas.github.io/tscript/?doc=)
 
 ## Bugs
 

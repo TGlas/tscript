@@ -29,7 +29,7 @@ export const doc_language: Documentation = {
 		<p>
 		The documents within this section define various general aspects
 		of the TScript syntax. For completeness sake, we also provide a
-		<a href="?doc#/language/syntax/EBNF-syntax">complete formal EBNF definition of the TScript syntax</a>.
+		<a href="?doc=/language/syntax/EBNF-syntax">complete formal EBNF definition of the TScript syntax</a>.
 		</p>
 	`,
 			children: [
@@ -53,8 +53,8 @@ export const doc_language: Documentation = {
 			</p>
 			<p>
 			Outside of
-			<a href="?doc#/language/syntax/comments">comments</a> and
-			<a href="?doc#/language/expressions/literals/strings">string literals</a>,
+			<a href="?doc=/language/syntax/comments">comments</a> and
+			<a href="?doc=/language/expressions/literals/strings">string literals</a>,
 			only the printable ASCII range U+0020 to U+007E and the
 			ASCII control characters U+0009 (horizontal tabulator),
 			U+000A (line feed), and U+000D (carriage return) are valid.
@@ -105,7 +105,7 @@ export const doc_language: Documentation = {
 			<h2>Whitespace and Comments</h2>
 			<p>
 			Whitespace and
-			<a href="?doc#/language/syntax/comments">comments</a> are not
+			<a href="?doc=/language/syntax/comments">comments</a> are not
 			by themselves considered tokens, but they separate tokens
 			and therefore they must be defined:
 			<ebnf>
@@ -114,11 +114,11 @@ export const doc_language: Documentation = {
 				carriage-return = $ U+000A $ ;
 				line-feed = $ U+000D $ ;
 				comment = line-comment | block-comment ;
-				line-comment = "#" (unicode-char - "*" - line-feed)
-				                   { unicode-char - line-feed } ;                           "example: # this is a comment       "
-				block-comment = "#*" { (unicode-char - "*")                                 "example: #* this is a              "
-				                       | ("*" { "*" } (unicode-char - "#"))                 "            multiline comment *#   "
-				                     } "*#" ;
+				line-comment = "#", (unicode-char - "*" - line-feed),
+				                   { unicode-char - line-feed } ;                           # example: # this is a comment
+				block-comment = "#*", { (unicode-char - "*")                                # example: #* this is a
+				                        | ("*", { "*" }, (unicode-char - "#"))              #             multiline comment *#
+				                      }, "*#" ;
 				unicode-char = $ any Unicode character U+0000 to U+FFFF $ ;
 			</ebnf>
 			</p>
@@ -127,8 +127,8 @@ export const doc_language: Documentation = {
 			<p>
 			An identifier is defined as follows:
 			<ebnf>
-				identifier = id_or_key - keyword ;                                          "example: _x, x, X, x2 are correct identifiers  "
-				id_or_key = (letter | "_") { letter | digit | "_" } ;                       "example: 2X, 3x, var  are incorrect identifiers"
+				identifier = id_or_key - keyword ;                                          # example: _x, x, X, x2 are correct identifiers
+				id_or_key = (letter | "_"), { letter | digit | "_" } ;                      # example: 2X, 3x, var  are incorrect identifiers
 				letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
 				       | "H" | "I" | "J" | "K" | "L" | "M" | "N"
 				       | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
@@ -144,7 +144,7 @@ export const doc_language: Documentation = {
 			It is essentially a non-empty name consisting of letters,
 			digits and underscores that does not start with a digit.
 			For the definition of <ebnf>keyword</ebnf> see the
-			<a href="?doc#/language/syntax/keywords">list of keywords</a>.
+			<a href="?doc=/language/syntax/keywords">list of keywords</a>.
 			</p>
 
 			<h2>Integers</h2>
@@ -152,10 +152,10 @@ export const doc_language: Documentation = {
 			An integer is simply defined as a non-empty sequence of
 			digits:
 			<ebnf>
-				integer = digit { digit } ;
+				integer = digit, { digit } ;
 			</ebnf>
 			Too large tokens exceeding the
-			<a href="?doc#/language/types/integer">integer</a> range result
+			<a href="?doc=/language/types/integer">integer</a> range result
 			in an error message when parsing the literal formed from the
 			token.
 			</p>
@@ -164,9 +164,9 @@ export const doc_language: Documentation = {
 			<p>
 			A real must contain a fractional part, or an exponent, or both:
 			<ebnf>
-				real = integer "." integer                                                  "example: 2.523                     "
-					 | integer ("e" | "E") [ "+" | "-" ] integer                            "example: 1e2, 1e-5                 "
-				     | integer "." integer ("e" | "E") [ "+" | "-" ] integer ;              "example: 1.5e3                     "
+				real = integer, ".", integer                                                # example: 2.523
+					 | integer, ("e" | "E"), [ "+" | "-" ], integer                         # example: 1e2, 1e-5
+				     | integer, ".", integer, ("e" | "E"), [ "+" | "-" ], integer ;         # example: 1.5e3
 			</ebnf>
 			</p>
 
@@ -176,20 +176,20 @@ export const doc_language: Documentation = {
 			quotes. A string token can contain escape sequences. It is
 			defined as follows:
 			<ebnf>
-				string = '"' { (unicode-char - "\\" - line-feed) | escape } '"' ;
-				escape = "\\" "\\"
-				       | "\\" '"'
-				       | "\\" "r"
-				       | "\\" "n"
-				       | "\\" "t"
-				       | "\\" "f"
-				       | "\\" "b"
-				       | "\\" "/"
-				       | "\\" "u" hex hex hex hex ;
+				string = '"', { (unicode-char - "\\" - line-feed) | escape }, '"' ;
+				escape = "\\", "\\"
+				       | "\\", '"'
+				       | "\\", "r"
+				       | "\\", "n"
+				       | "\\", "t"
+				       | "\\", "f"
+				       | "\\", "b"
+				       | "\\", "/"
+				       | "\\", "u", hex, hex, hex, hex ;
 				hex = digit | "A" | "B" | "C" | "D" | "E" | "F"
 				            | "a" | "b" | "c" | "d" | "e" | "f" ;
 			</ebnf>
-			A <a href="?doc#/language/expressions/literals/strings">string literal</a>
+			A <a href="?doc=/language/expressions/literals/strings">string literal</a>
 			can consist of multiple such tokens.
 			</p>
 
@@ -368,14 +368,14 @@ export const doc_language: Documentation = {
 			carriage-return = $ U+000A $ ;
 			line-feed = $ U+000D $ ;
 			comment = line-comment | block-comment ;
-			line-comment = "#" (unicode-char - "*" - line-feed)
+			line-comment = "#", (unicode-char - "*" - line-feed),
 			                   { unicode-char - line-feed } ;
-			block-comment = "#*" { (unicode-char - "*")
-			                       | ("*" { "*" } (unicode-char - "#"))
-			                     } "*#" ;
+			block-comment = "#*", { (unicode-char - "*")
+			                       | ("*", { "*" }, (unicode-char - "#"))
+			                     }, "*#" ;
 			unicode-char = $ any Unicode character U+0000 to U+FFFF $ ;
 			identifier = id_or_key - keyword ;
-			id_or_key = (letter | "_") { letter | digit | "_" } ;
+			id_or_key = (letter | "_"), { letter | digit | "_" } ;
 			letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
 			       | "H" | "I" | "J" | "K" | "L" | "M" | "N"
 			       | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
@@ -393,20 +393,20 @@ export const doc_language: Documentation = {
 			        | "static" | "super" | "then" | "this" | "throw"
 			        | "true" | "try" | "use" | "var" | "while" | "xor" ;
 
-			integer = digit { digit } ;
-			real = integer "." integer
-				 | integer ("e" | "E") [ "+" | "-" ] integer
-			     | integer "." integer ("e" | "E") [ "+" | "-" ] integer ;
-			string = '"' { (unicode-char - "\\" - line-feed) | escape } '"' ;
-			escape = "\\" "\\"
-			       | "\\" '"'
-			       | "\\" "r"
-			       | "\\" "n"
-			       | "\\" "t"
-			       | "\\" "f"
-			       | "\\" "b"
-			       | "\\" "/"
-			       | "\\" "u" hex hex hex hex ;
+			integer = digit, { digit } ;
+			real = integer, ".", integer
+				 | integer, ("e" | "E"), [ "+" | "-" ], integer
+			     | integer, ".", integer, ("e" | "E"), [ "+" | "-" ], integer ;
+			string = '"', { (unicode-char - "\\" - line-feed) | escape }, '"' ;
+			escape = "\\", "\\"
+			       | "\\", '"'
+			       | "\\", "r"
+			       | "\\", "n"
+			       | "\\", "t"
+			       | "\\", "f"
+			       | "\\", "b"
+			       | "\\", "/"
+			       | "\\", "u", hex, hex, hex, hex ;
 			hex = digit | "A" | "B" | "C" | "D" | "E" | "F"
 			            | "a" | "b" | "c" | "d" | "e" | "f" ;
 
@@ -422,32 +422,32 @@ export const doc_language: Documentation = {
 			            | class-decl
 			            | namespace-decl ;
 
-			var-decl = "var" single-var { "," single-var } ";" ;
-			single-var = identifier [ "=" expression ] ;
-			func-decl = "function" identifier "(" param-list ")" func-body ;
-			param-list = [ param-decl { "," param-decl } ] ;
-			param-decl = identifier [ "=" constant-ex ] ;
+			var-decl = "var", single-var, { ",", single-var }, ";" ;
+			single-var = identifier, [ "=", expression ] ;
+			func-decl = "function", identifier, "(", param-list, ")", func-body ;
+			param-list = [ param-decl, { ",", param-decl } ] ;
+			param-decl = identifier, [ "=", constant-ex ] ;
 			constant-ex = $ expression that evaluates to a constant $ ;
-			func-body = "{" { declaration | statement | directive } "}" ;
-			class-decl = "class" identifier [ ":" name ] class-body ;
-			class-body = "{" "}" | "{" visibility { visibility
-			                                        | constructor
-			                                        | [ "static" ] declaration
-			                                        | directive }
-			                         "}" ;
-			visibility = ("public" | "procected" | "private") ":" ;
-			constructor = "constructor" "(" param-list ")"
-			         [ ":" "super" "(" [ expression { "," expression } ] ")" ]
+			func-body = "{", { declaration | statement | directive }, "}" ;
+			class-decl = "class", identifier, [ ":", name ], class-body ;
+			class-body = "{", "}" | "{", visibility, { visibility
+			                                           | constructor
+			                                           | [ "static" ], declaration
+			                                           | directive },
+			                        "}" ;
+			visibility = ("public" | "procected" | "private"), ":" ;
+			constructor = "constructor", "(", param-list, ")",
+			         [ ":", "super", "(", [ expression, { ",", expression } ], ")", ],
 			         func-body ;
-			namespace-decl = "namespace" identifier namespace-body ;
-			namespace-body = "{" { declaration | statement | directive } "}"
+			namespace-decl = "namespace", identifier, namespace-body ;
+			namespace-body = "{", { declaration | statement | directive }, "}" ;
 
 			directive = use ;
-			use-directive = [ "from" name ] "use" name-import
-			                                     { "," name-import } ";" ;
-			name-import = ("namespace" use-name)
-			            | (use-name [ "as" identifier ]) ;
-			use-name = identifier { "." identifier } ;
+			use-directive = [ "from", name ], "use", name-import,
+			                                     { ",", name-import }, ";" ;
+			name-import = ("namespace", use-name)
+			            | (use-name, [ "as", identifier ]) ;
+			use-name = identifier, { ".", identifier } ;
 
 			expression = literal
 			           | group
@@ -461,46 +461,46 @@ export const doc_language: Documentation = {
 			        | boolean
 			        | integer
 			        | real
-			        | string { string }
+			        | string, { string }
 			        | array
 			        | dictionary
 			        | lambda ;
 			null = "null" ;
 			boolean = "true" | "false" ;
 			array = empty-array | nonempty-array ;
-			empty-array = "[" "]" ;
-			nonempty-array = "[" expression { "," expression } [ "," ] "]" ;
+			empty-array = "[", "]" ;
+			nonempty-array = "[", expression, { ",", expression }, [ "," ], "]" ;
 			dictionary = empty-dictionary | nonempty-dictionary ;
-			empty-dictionary = "{" "}" ;
-			nonempty-dictionary = "{" key-value { "," key-value } [ "," ] "}" ;
-			key-value = (string | identifier) ":" expression ;
-			lambda = "function" [ closure ] "(" param-list ")" func-body ;
-			closure = "[" [ closure-param { "," closure-param } ] "]" ;
-			closure-param = [ identifier "=" ] expression ;
-			param-list = [ param-decl { "," param-decl } ] ;
-			param-decl = identifier [ "=" constant-ex ] ;
+			empty-dictionary = "{", "}" ;
+			nonempty-dictionary = "{", key-value, { ",", key-value }, [ "," ], "}" ;
+			key-value = (string | identifier), ":", expression ;
+			lambda = "function", [ closure ], "(", param-list, ")", func-body ;
+			closure = "[", [ closure-param, { ",", closure-param, } ], "]" ;
+			closure-param = [ identifier, "=" ], expression ;
+			param-list = [ param-decl, { ",", param-decl } ] ;
+			param-decl = identifier, [ "=", constant-ex ] ;
 			constant-ex = $ expression that evaluates to a constant $ ;
-			func-body = "{" { declaration | statement | directive } "}" ;
-			name = ("super" "." identifier) | (identifier {"." identifier})
+			func-body = "{", { declaration | statement | directive }, "}" ;
+			name = ("super", ".", identifier) | (identifier, {".", identifier}) ;
 
-			block = "{" { declaration | statement | directive } "}" ;
-			assignment = lhs assign-op expression ";" ;
+			block = "{", { declaration | statement | directive }, "}" ;
+			assignment = lhs, assign-op, expression, ";" ;
 			lhs = name
-			        | expression "[" expression "]"
-			        | expression "." identifier ;
+			        | expression, "[", expression, "]"
+			        | expression, ".", identifier ;
 			assign-op = "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ;
-			condition = "if" expression "then" statement
-			                          [ "else" statement ] ;
-			for-loop = "for" [ loop-var "in" ] expression "do" statement ;
-			loop-var = ("var" identifier) | name ;
-			while-do-loop = "while" expression "do" statement ;
-			do-while-loop = "do" statement "while" expression ";" ;
-			break = "break" ";" ;
-			continue = "continue" ";" ;
-			return = "return" [ expression ] ";" ;
-			throw = "throw" expression ";" ;
-			try-catch = "try" statement
-			            "catch" "var" identifier "do" statement ;
+			condition = "if", expression, "then", statement,
+			                          [ "else", statement ] ;
+			for-loop = "for", [ loop-var, "in" ], expression, "do", statement ;
+			loop-var = ("var", identifier) | name ;
+			while-do-loop = "while", expression, "do", statement ;
+			do-while-loop = "do", statement, "while", expression, ";" ;
+			break = "break", ";" ;
+			continue = "continue", ";" ;
+			return = "return", [ expression ], ";" ;
+			throw = "throw", expression, ";" ;
+			try-catch = "try", statement,
+			            "catch", "var", identifier, "do", statement ;
 
 			program = { declaration | statement | directive } ;
 			</ebnf>
@@ -542,8 +542,8 @@ export const doc_language: Documentation = {
 			<p>
 			Variables are declared with following syntax:
 			<ebnf>
-				var-decl = "var" single-var { "," single-var } ";" ;    "# var ex, am, ple;"
-				  single-var = identifier [ "=" expression ] ;          "# ex = 1, am, ple"
+				var-decl = "var", single-var, { ",", single-var }, ";" ;    # var ex, am, ple;
+				  single-var = identifier, [ "=", expression ] ;            # ex = 1, am, ple
 			</ebnf>
 			They are referenced by their name.
 			</p>
@@ -578,7 +578,7 @@ export const doc_language: Documentation = {
 			</p>
 			<p>
 			Multiple variables can refer to the same value.
-			<a href="?doc#/language/statements/assignments">Assigning</a> a value
+			<a href="?doc=/language/statements/assignments">Assigning</a> a value
 			to a variable only references the value, it does not copy the value.
 			It is different from initialization, and the variable itself may
 			appear on the right hand side, referring to the old value before
@@ -605,7 +605,7 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			<p>
 			Parameters of functions are also variables, although they are
 			declared without <keyword>var</keyword>
-			(see <a href="?doc#/language/declarations/functions">functions</a>).
+			(see <a href="?doc=/language/declarations/functions">functions</a>).
 			They are initialized to a value provided by the function
 			call or to their default value, if present. Default values
 			are limited to constant expressions.
@@ -688,14 +688,14 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			<p>
 			Functions are declared with the following syntax:
 			<ebnf>
-				func-decl = "function" identifier "(" param-list ")" func-body ;    "# function example() {}"
-				  param-list = [ param-decl { "," param-decl } ] ;                  "# (ex, am, ple)"
-				  param-decl = identifier [ "=" constant-ex ] ;                     "# ex or ex = 1"
+				func-decl = "function", identifier, "(", param-list, ")", func-body ;   # function example() {}
+				  param-list = [ param-decl, { ",", param-decl } ] ;                    # (ex, am, ple)
+				  param-decl = identifier, [ "=", constant-ex ] ;                       # ex or ex = 1
 				  constant-ex = $ expression that evaluates to a constant $ ;
-				  func-body = "{" { declaration | statement | directive } "}" ;     "# { . . . }"
+				  func-body = "{", { declaration | statement | directive }, "}" ;       # { . . . }
 			</ebnf>
 			It is referenced by its name, and invoked by
-			<a href="?doc#/language/expressions/function-calls">providing
+			<a href="?doc=/language/expressions/function-calls">providing
 			values for the parameters in parentheses</a>. The effect of invoking a
 			function is that the control flow is transferred to the function body.
 			After the function body is left with a <keyword>return</keyword>
@@ -717,11 +717,11 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			<p>
 			Parameters of functions are always named, with an optional default value.
 			As can be seen in the above example, function names are valid expressions
-			(of type <a href="?doc#/language/types/function">Function</a>).
+			(of type <a href="?doc=/language/types/function">Function</a>).
 			</p>
 			<p>
 			An alternative way to define functions are
-			<a href="?doc#/language/expressions/literals/anonymous-functions">anonymous
+			<a href="?doc=/language/expressions/literals/anonymous-functions">anonymous
 			functions</a>.
 			</p>
 		`,
@@ -741,20 +741,20 @@ print(d);               # prints [0, 1, 2] ==> d only copied the value of c
 			<p>
 			A class is declared with the following syntax:
 			<ebnf>
-				class-decl = "class" identifier [ ":" name ] class-body ;
-				  class-body = "{" [ directive ] "}"
-				             | "{" [ directive ] visibility
+				class-decl = "class", identifier, [ ":", name ], class-body ;
+				  class-body = "{", [ directive ], "}"
+				             | "{", [ directive ], visibility,
 				                  { visibility
-         				           | constructor
-		         		           | [ "static" ] declaration
-				                    | directive }
+         				            | constructor
+		         		            | [ "static" ], declaration
+				                    | directive },
          				      "}" ;
-				  visibility = ("public" | "procected" | "private") ":" ;
-				  constructor = "constructor" "(" param-list ")"
-				         [ ":" "super" "(" [ expression { "," expression } ] ")" ]
+				  visibility = ("public" | "procected" | "private"), ":" ;
+				  constructor = "constructor", "(", param-list, ")",
+				         [ ":", "super", "(", [ expression, { ",", expression } ], ")" ],
 				         func-body ;
 			</ebnf>
-			Refer to <a href="?doc#/language/declarations/functions">functions</a>
+			Refer to <a href="?doc=/language/declarations/functions">functions</a>
 			for a definition of <ebnf>param-list</ebnf> and <ebnf>func-body</ebnf>.
 			</p>
 			<div class="example">
@@ -820,7 +820,7 @@ print("The circle has radius " + c2.radius() + " and area " + c2.area() + "."); 
 			A public member of a class is referenced with the dot-operator, as seen
 			in the example above. Inside the class, its members can be accessed by
 			their names. The object itself, i.e., the left-hand-side of the
-			<a href="?doc#/language/expressions/member-access">dot operator</a>,
+			<a href="?doc=/language/expressions/member-access">dot operator</a>,
 			is available under the name <keyword>this</keyword>. A static function
 			can be invoked without referring to an instance of the class, and hence
 			<keyword>this</keyword> is undefined in a static function. The following
@@ -851,7 +851,7 @@ print("The circle has radius " + c2.radius() + " and area " + c2.area() + "."); 
 			<p>
 			Member name lookup of the form <code class="code">a.numberOfInstances</code>
 			in the above code happens dynamically at runtime. The result of the
-			<a href="?doc#/language/expressions/member-access">member access</a> (and
+			<a href="?doc=/language/expressions/member-access">member access</a> (and
 			therefore, in this context, the invoked function) depends on the type
 			of the left-hand-side, provided that multiple classes declare a member
 			of the same name. This is an elegant mechanism for creating implicit
@@ -908,7 +908,7 @@ print("The circle has radius " + c2.radius() + " and area " + c2.area() + "."); 
 			<h2>Inheritance</h2>
 			<p>
 			A class can be based on any other type, including all the
-			<a href="?doc#/language/types">built-in types</a> (however, note that
+			<a href="?doc=/language/types">built-in types</a> (however, note that
 			aggregation is often preferable over inheriting an immutable type).
 			This means that the type, also known as the sub-class in this context,
 			inherits all properties and members from its super-class.
@@ -989,8 +989,8 @@ print(c.description());
 			Namespaces are declared with the following syntax:
 			<p>
 			<ebnf>
-				namespace-decl = "namespace" identifier namespace-body ;                    "# namespace example {}"
-				  namespace-body = "{" { declaration | statement | directive } "}" ;        "# { . . . }"
+				namespace-decl = "namespace", identifier, namespace-body ;                 # namespace example {}
+				  namespace-body = "{", { declaration | statement | directive }, "}" ;     # { . . . }
 			</ebnf>
 			Namespaces can only be declared at global scope or within other
 			namespaces. However, the same namespace can be declared multiple
@@ -1042,7 +1042,7 @@ print(c.description());
 			As a price, the full names of declarations get longer, since the
 			namespace name is prepended to the declared name, separated with a dot.
 			This is not necessarily an issue since individual names and even whole
-			namespaces can be <a href="?doc#/language/directives/use">imported</a> into
+			namespaces can be <a href="?doc=/language/directives/use">imported</a> into
 			the scopes where they are used. Since import is usually selective, name
 			collisions are still rate.
 			</p>
@@ -1064,7 +1064,7 @@ print(c.description());
 			directive = use ;
 		</ebnf>
 		Currently, the only directive is the
-		<a href="?doc#/language/directives/use">use</a> directive. There exist
+		<a href="?doc=/language/directives/use">use</a> directive. There exist
 		plans to add directives for including external files and libraries
 		in the future.
 		</p>
@@ -1081,25 +1081,25 @@ print(c.description());
 			easier access to names that are otherwise lengthy to write
 			out. The syntax is as follows:
 			<ebnf>
-				use-directive = [ "from" name ] "use" name-import
-				                                     { "," name-import } ";" ;
-				name-import = ("namespace" use-name)
-				            | (use-name [ "as" identifier ]) ;
-				use-name = identifier { "." identifier } ;
+				use-directive = [ "from", name ], "use", name-import,
+				                                     { ",", name-import }, ";" ;
+				name-import = ("namespace", use-name)
+				            | (use-name, [ "as", identifier ]) ;
+				use-name = identifier, { ".", identifier } ;
 			</ebnf>
 			</p>
 			<p>
 			A <ebnf>name</ebnf> refers to a declaration inside
 			a namespace, possibly to a namespace itself. The first form
-			<ebnf>"namespace" name</ebnf> imports all names <i>inside</i>
+			<ebnf do-not-check>namespace name</ebnf> imports all names <i>inside</i>
 			the the referenced namespace into the current scope. The
-			second form <ebnf>name ["as" identifier]</ebnf> imports a
+			second form <ebnf do-not-check>name ["as" identifier]</ebnf> imports a
 			single name. In the latter case the optional identifier is
 			a new alias name under which the original declaration is
 			made available. If it is not provided, then the last identifier
 			of the fully qualified name is used, e.g., <code class="code">c</code>
 			is used when importing the name <code class="code">a.b.c</code>.
-			If <ebnf>"from" name</ebnf> is provided,
+			If <ebnf do-not-check>"from" name</ebnf> is provided,
 			then all subsequent names are looked up in the context of
 			the given namespace, not in the context of the current
 			scope.
@@ -1182,10 +1182,10 @@ print(c.description());
 		that is unrelated to the computation of the expression result. In many
 		cases, the only purpose of evaluating such expressions is to invoke the
 		side effects. A simple example is the
-		<a href="?doc#/library/core">print</a> function:
+		<a href="?doc=/library/core">print</a> function:
 		it prints its argument as a side effect and return <keyword>null</keyword>.
 		In order to facilitate the invocation of such functions,
-		<a href="?doc#/language/statements/expressions">expressions can be used as
+		<a href="?doc=/language/statements/expressions">expressions can be used as
 		statements</a>.
 		</p>
 	`,
@@ -1204,7 +1204,7 @@ print(c.description());
 			        | boolean
 			        | integer
 			        | real
-			        | string { string }
+			        | string, { string }
 			        | array
 			        | dictionary
 			        | lambda ;
@@ -1219,7 +1219,7 @@ print(c.description());
 							content: `
 				<p>
 				There is only one value of type
-				<a href="?doc#/language/types/null">Null</a>,
+				<a href="?doc=/language/types/null">Null</a>,
 				denoted by the keyword <keyword>null</keyword>:
 				<ebnf>
 					null = "null" ;
@@ -1244,7 +1244,7 @@ print(c.description());
 							title: "Boolean Literals",
 							content: `
 				<p>
-				The <a href="?doc#/language/types/boolean">Boolean</a> type represent the
+				The <a href="?doc=/language/types/boolean">Boolean</a> type represent the
 				logical values <keyword>true</keyword> and <keyword>false</keyword>,
 				both of which are keywords. They result from comparisons, and act as
 				input to if-conditions and loop-statements:
@@ -1274,8 +1274,8 @@ print(c.description());
 							content: `
 				<p>
 				An Integer literal represents a constant of type
-				<a href="?doc#/language/types/integer">Integer</a>. It is denoted by
-				an integer <a href="?doc#/language/syntax/tokens">token</a>.
+				<a href="?doc=/language/types/integer">Integer</a>. It is denoted by
+				an integer <a href="?doc=/language/syntax/tokens">token</a>.
 				The value must lie in the integer range, i.e., it must not exceed
 				2<sup>31</sup> - 1 = 2147483647.
 				</p>
@@ -1299,17 +1299,17 @@ print(c.description());
 							content: `
 				<p>
 				A Real literal represents a constant of type
-				<a href="?doc#/language/types/real">Real</a>. It is denoted by a
-				real <a href="?doc#/language/syntax/tokens">token</a>.
+				<a href="?doc=/language/types/real">Real</a>. It is denoted by a
+				real <a href="?doc=/language/syntax/tokens">token</a>.
 				</p>
 				<p>
 				There is no syntax for denoting the special IEEE floating point
 				values INF (infinity) and NaN (not a number) as literals. Instead
-				the functions <a href="?doc#/language/types/real">Real.inf()</a> and
-				<a href="?doc#/language/types/real">Real.nan()</a> can be used to create such
-				literals. The methods <a href="?doc#/language/types/real">Real.isFinite()</a>,
-				<a href="?doc#/language/types/real">Real.isInfinite()</a>, and
-				<a href="?doc#/language/types/real">Real.isNan()</a> test for degenerate values.
+				the functions <a href="?doc=/language/types/real">Real.inf()</a> and
+				<a href="?doc=/language/types/real">Real.nan()</a> can be used to create such
+				literals. The methods <a href="?doc=/language/types/real">Real.isFinite()</a>,
+				<a href="?doc=/language/types/real">Real.isInfinite()</a>, and
+				<a href="?doc=/language/types/real">Real.isNan()</a> test for degenerate values.
 				Real numbers that exceed the range specified in the
 				<a href="https://de.wikipedia.org/wiki/IEEE_754" target="_blank">IEEE 754 standard</a>
 				overflow to positive or negative infinity, or underflow to zero.
@@ -1343,16 +1343,16 @@ print(nan.isNan());             # prints true
 							name: "String Literals",
 							title: "String Literals",
 							content: `
-				<p>A <a href="?doc#/language/types/string">String</a>
+				<p>A <a href="?doc=/language/types/string">String</a>
 				literal consists of a sequence of
-				<a href="?doc#/language/syntax/tokens">string tokens</a>,
+				<a href="?doc=/language/syntax/tokens">string tokens</a>,
 				each of which is text enclosed in double quotes within a
 				single line of code. String tokens must be separated only
 				by whitespace including newlines, and comments.
 				</p>
 				<p>
 				Every
-				<a href="?doc#/language/syntax/character-set">character</a>
+				<a href="?doc=/language/syntax/character-set">character</a>
 				in between the double quotes is a part of the text
 				belonging to the string literal, with one exception: the
 				backslash '\\' acts as a so-called escape character. This
@@ -1394,14 +1394,14 @@ print("multi "                                              # prints: multi line
 							name: "Array Literals",
 							title: "Array Literals",
 							content: `
-				<p><a href="?doc#/language/types/array">Array</a>
+				<p><a href="?doc=/language/types/array">Array</a>
 				literals are comma-separated sequences of expressions enclosed
 				in square brackets. The results of evaluating the expressions
 				become the items of the array literal:
 				<ebnf>
 					array = empty-array | nonempty-array ;
-					  empty-array = "[" "]" ;
-					  nonempty-array = "[" expression { "," expression } [ "," ] "]" ;
+					  empty-array = "[", "]" ;
+					  nonempty-array = "[", expression, { ",", expression }, [ "," ], "]" ;
 				</ebnf>
 				</p>
 				<div class="example">
@@ -1429,16 +1429,16 @@ print("multi "                                              # prints: multi line
 							name: "Dictionary Literals",
 							title: "Dictionary Literals",
 							content: `
-				<p><a href="?doc#/language/types/dictionary">Dictionary</a>
+				<p><a href="?doc=/language/types/dictionary">Dictionary</a>
 				literals are comma-separated sequences of key-value pairs enclosed
 				in curly braces. A key-value pair consists of a key, which is either
 				a string or an identifier, and a value, which is the result of an
 				arbitrary expression:
 				<ebnf>
 					dictionary = empty-dictionary | nonempty-dictionary ;
-					  empty-dictionary = "{" "}" ;
-					  nonempty-dictionary = "{" key-value { "," key-value } [ "," ] "}" ;
-					  key-value = (string | identifier) ":" expression ;
+					  empty-dictionary = "{", "}" ;
+					  nonempty-dictionary = "{", key-value, { ",", key-value }, [ "," ], "}" ;
+					  key-value = (string | identifier), ":", expression ;
 				</ebnf>
 				The key-value pairs become the items of the
 				dictionary literal. Importantly, the identifier is not looked up as
@@ -1453,7 +1453,7 @@ print("multi "                                              # prints: multi line
 				short-notation, simply because they are not valid identifiers. Also
 				note that this means that string variables cannot act as keys in
 				string literals; this can be achieved with the
-				<a href="?doc#/language/expressions/item-access">item access operator</a>.
+				<a href="?doc=/language/expressions/item-access">item access operator</a>.
 				</p>
 				<div class="example">
 					<h3>Example</h3>
@@ -1485,19 +1485,19 @@ print("multi "                                              # prints: multi line
 				<p>
 				An anonymous function or lambda function follows the syntax:
 				<ebnf>
-					lambda = "function" [ closure ] "(" param-list ")" func-body ;
-					  closure = "[" [ closure-param { "," closure-param } ] "]" ;
-					  closure-param = [ identifier "=" ] expression ;
-					  param-list = [ param-decl { "," param-decl } ] ;
-					  param-decl = identifier [ "=" constant-ex ] ;
+					lambda = "function", [ closure ], "(", param-list, ")", func-body ;
+					  closure = "[", [ closure-param, { ",", closure-param } ], "]" ;
+					  closure-param = [ identifier, "=" ], expression ;
+					  param-list = [ param-decl, { ",", param-decl } ] ;
+					  param-decl = identifier, [ "=", constant-ex ] ;
 					  constant-ex = $ expression that evaluates to a constant $ ;
-					  func-body = "{" { declaration | statement | directive } "}" ;
+					  func-body = "{", { declaration | statement | directive }, "}" ;
 				</ebnf>
-				In contrast to a <a href="?doc#/language/declarations/functions">function
+				In contrast to a <a href="?doc=/language/declarations/functions">function
 				declaration</a> it does not have a name by which is could be referenced.
 				However, being an expression it can be stored in a variable or returned
 				from a function. An anonymous function is of type
-				<a href="?doc#/language/types/function">Function</a>.
+				<a href="?doc=/language/types/function">Function</a>.
 				</p>
 				<p>
 				Anonymous functions can enclose variables from their surrounding scopes,
@@ -1598,8 +1598,8 @@ print(lambda());   # prints 9*pi = 28.2743...
 				<keyword>false</keyword> and for <keyword>false</keyword> it returns
 				<keyword>true</keyword>, and it flips all 32 bits of an integer.
 				When applied to a value that is not a
-				<a href="?doc#/language/types/boolean">Boolean</a> or an
-				<a href="?doc#/language/types/integer">Integer</a> then the operator
+				<a href="?doc=/language/types/boolean">Boolean</a> or an
+				<a href="?doc=/language/types/integer">Integer</a> then the operator
 				reports an error.
 				</p>
 				<p>
@@ -1625,8 +1625,8 @@ not 20 in binary:   11111111 11111111 11111111 11101011
 				The unary <code class="code">operator +</code> represents "no sign
 				change". In other words, it returns its argument unaltered.
 				When applied to a non-numeric argument, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, the operator reports an
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, the operator reports an
 				error.
 				</p>
                 <div class="example">
@@ -1651,12 +1651,12 @@ print(+example);    # prints 2.5
 				The unary <code class="code">operator -</code> represents algebraic
 				negation, which is a change of sign; it returns "minus" its argument.
 				When applied to a non-numeric argument, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, the operator reports an
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, the operator reports an
 				error.
 				</p>
 				<p>
-				When applied to an <a href="?doc#/language/types/integer">Integer</a>,
+				When applied to an <a href="?doc=/language/types/integer">Integer</a>,
 				then the operator is subject to integer overflow. Overflow happens
 				only in a single case:
 				<tscript>
@@ -1698,9 +1698,9 @@ print(-example);       # -2147483648 due to overflow
 				its arguments. If at least one argument is a string, then the
 				concatenation of the arguments converted to strings.
 				If one of its arguments is non-numeric, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, and if not at least one of
-				the arguments is a <a href="?doc#/language/types/string">String</a>,
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, and if not at least one of
+				the arguments is a <a href="?doc=/language/types/string">String</a>,
 				then the operator reports an error.
 				</p>
 				<p>
@@ -1711,7 +1711,7 @@ print(-example);       # -2147483648 due to overflow
 				</p>
 				<p>
 				For string concatenation, a non-string arguments is first converted
-				to a string with the <a href="?doc#/language/types/string">String</a>
+				to a string with the <a href="?doc=/language/types/string">String</a>
 				constructor. For core types like booleans, numeric types, array
 				and dictionary containers and ranges this usually gives the desired
 				result.
@@ -1740,8 +1740,8 @@ print(5.5 + true);              # error
 				The binary <code class="code">operator -</code> returns the
 				difference between its arguments.
 				If one of its arguments is non-numeric, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, then the operator reports
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, then the operator reports
 				an error.
 				</p>
 				<p>
@@ -1771,8 +1771,8 @@ print(5.5 - true);              # error
 				The binary <code class="code">operator *</code> returns the
 				product of its arguments.
 				If one of its arguments is non-numeric, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, then the operator reports
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, then the operator reports
 				an error.
 				</p>
 				<p>
@@ -1802,8 +1802,8 @@ print(5.5 * true);              # error
 				The binary <code class="code">operator /</code> returns the
 				quotient of its arguments.
 				If one of its arguments is non-numeric, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, then the operator reports
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, then the operator reports
 				an error.
 				</p>
 				<p>
@@ -1831,8 +1831,8 @@ print(5.5 / true);              # error
 				The binary <code class="code">operator //</code> returns the
 				quotient of its arguments, rounded down to the nearest integer.
 				If one of its arguments is non-numeric, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, then the operator reports
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, then the operator reports
 				an error.
 				</p>
 				<p>
@@ -1863,12 +1863,12 @@ print(a // -1);                 # -2147483648 due to overflow
 				<p>
 				The binary <code class="code">operator %</code> returns the
 				remainder of the
-				<a href="?doc#/language/expressions/binary-operators/integer-division">integer division</a>
+				<a href="?doc=/language/expressions/binary-operators/integer-division">integer division</a>
 				of its arguments:</br>
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="code">a % b = a - (a // b) * b</code></br>
 				If one of the arguments is non-numeric, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, then the operator reports
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, then the operator reports
 				an error.
 				</p>
 				<p>
@@ -1899,8 +1899,8 @@ print(5.5 % true);              # error
 				The binary <code class="code">operator ^</code> returns its
 				left argument to the power of its right arguments.
 				If one of its arguments is non-numeric, i.e., a value that is neither
-				an integer <a href="?doc#/language/types/integer">Integer</a> nor a
-				<a href="?doc#/language/types/real">Real</a>, then the operator reports
+				an integer <a href="?doc=/language/types/integer">Integer</a> nor a
+				<a href="?doc=/language/types/real">Real</a>, then the operator reports
 				an error.
 				</p>
 				<p>
@@ -1911,7 +1911,7 @@ print(5.5 % true);              # error
 				</p>
 				<p>
 				This behavior may not always be desired. The function
-				<a href="?doc#/library/math">math.pow</a> performs the same operation, but it always
+				<a href="?doc=/library/math">math.pow</a> performs the same operation, but it always
 				applies floating point arithmetics.
 				</p>
                 <div class="example">
@@ -1936,7 +1936,7 @@ print(5.5 / true);          # error
 				<p>
 				Two values can be compared for equality with
 				<code class="code">operator ==</code>. Given two arbitrary values, the
-				operator returns a <a href="?doc#/language/types/boolean">Boolean</a>.
+				operator returns a <a href="?doc=/language/types/boolean">Boolean</a>.
 				Equivalently, <code class="code">operator !=</code> checks for inequality.
 				<code class="code">a != b</code> is equivalent to
 				<code class="code">not a == b</code>.
@@ -2015,7 +2015,7 @@ print(a() == b());                      # prints true
 				<p>
 				Two values can be compared for order with
 				<code class="code">operator &lt;</code>. Given two arbitrary values, the
-				operator returns a <a href="?doc#/language/types/boolean">Boolean</a> if the
+				operator returns a <a href="?doc=/language/types/boolean">Boolean</a> if the
 				values can be ordered. Otherwise it reports an error.
 				Equivalently, <code class="code">operator &lt;=</code>,
 				<code class="code">operator &gt;</code>, and
@@ -2069,8 +2069,8 @@ print(r > s);                           # prints true, as the first comparison t
 				<p>
 				The binary <code class="code">operator and</code> returns the
 				logical or bitwise conjunction of its arguments. Both arguments
-				must be <a href="?doc#/language/types/boolean">Boolean</a>s or
-				<a href="?doc#/language/types/integer">Integer</a>s, otherwise
+				must be <a href="?doc=/language/types/boolean">Boolean</a>s or
+				<a href="?doc=/language/types/integer">Integer</a>s, otherwise
 				the operator reports an error. The result is defined as follows:
 				<table class="nicetable">
 					<tr><th>or</th><th>false</th><th>true</th></tr>
@@ -2091,8 +2091,8 @@ print(r > s);                           # prints true, as the first comparison t
 				The binary <code class="code">operator or</code> returns the
 				(non-exclusive) logical or bitwise disjunction of its arguments.
 				Both arguments must be
-				<a href="?doc#/language/types/boolean">Boolean</a>s or
-				<a href="?doc#/language/types/integer">Integer</a>s, otherwise
+				<a href="?doc=/language/types/boolean">Boolean</a>s or
+				<a href="?doc=/language/types/integer">Integer</a>s, otherwise
 				the operator reports an error. The result is defined as follows:
 				<table class="nicetable">
 					<tr><th>or</th><th>false</th><th>true</th></tr>
@@ -2112,8 +2112,8 @@ print(r > s);                           # prints true, as the first comparison t
 				<p>
 				The binary <code class="code">operator xor</code> returns the
 				exclusive logical or bitwise disjunction of its arguments. Both
-				arguments must be <a href="?doc#/language/types/boolean">Boolean</a>s
-				or <a href="?doc#/language/types/integer">Integer</a>s, otherwise
+				arguments must be <a href="?doc=/language/types/boolean">Boolean</a>s
+				or <a href="?doc=/language/types/integer">Integer</a>s, otherwise
 				the operator reports an error. The result is defined as follows:
 				<table class="nicetable">
 					<tr><th>xor</th><th>false</th><th>true</th></tr>
@@ -2136,12 +2136,12 @@ print(r > s);                           # prints true, as the first comparison t
 							content: `
 				<p>
 				The binary <code class="code">operator :</code> constructs a
-				<a href="?doc#/language/types/range">Range</a> from its arguments.
+				<a href="?doc=/language/types/range">Range</a> from its arguments.
 				Both arguments must be integers, or reals with equivalent values,
 				otherwise the operator reports an error. The left-hand-side becomes
 				the begin of the range, the right-hand-side becomes the end.
 				Applying the operator is equivalent to passing the arguments to
-				the <a href="?doc#/language/types/range">Range</a> constructor.
+				the <a href="?doc=/language/types/range">Range</a> constructor.
 				</p>
 			`,
 							children: [],
@@ -2157,15 +2157,15 @@ print(r > s);                           # prints true, as the first comparison t
 			<p>
 			A function call is an expression with the following syntax:
 			<ebnf>
-				function-call = expression "(" argument { "," argument } ")" ";" ;          # example("example");
-				argument = [ identifier "=" ] expression ;
+				function-call = expression, "(", argument, { ",", argument }, ")", ";" ;   # example("example");
+				argument = [ identifier, "=" ], expression ;
 			</ebnf>
 			The first expression must resolve to a callable object, hereafter
 			referred to as the function for short, which is a
-			<a href="?doc#/language/declarations/functions">function</a> or
-			<a href="?doc#/language/declarations/classes">method</a> declaration,
-			a <a href="?doc#/language/types">type</a>, or an
-			<a href="?doc#/language/expressions/literals/anonymous-functions">anonymous function</a>.
+			<a href="?doc=/language/declarations/functions">function</a> or
+			<a href="?doc=/language/declarations/classes">method</a> declaration,
+			a <a href="?doc=/language/types">type</a>, or an
+			<a href="?doc=/language/expressions/literals/anonymous-functions">anonymous function</a>.
 			The arguments must match the function's parameters.
 			</p>
 
@@ -2176,7 +2176,7 @@ print(r > s);                           # prints true, as the first comparison t
 			initialized to the values of the arguments. Then the control flow
 			continues at the beginning of the function body. After the function
 			returns, either by means of an explicit
-			<a href="?doc#/language/statements/return">return</a> statement or when
+			<a href="?doc=/language/statements/return">return</a> statement or when
 			reaching the end of its body, the return value becomes the value
 			of the function call expression, the stack frame is removed, and
 			the program continues in the original frame.
@@ -2193,7 +2193,7 @@ print(r > s);                           # prints true, as the first comparison t
 			If a parameter of a function specifies a default value then the
 			corresponding argument can be dropped. A neat way of providing
 			values only for some parameters is to use <i>named</i> arguments,
-			i.e., arguments with <ebnf>identifier "="</ebnf>
+			i.e., arguments with <ebnf do-not-check>identifier "="</ebnf>
 			present. Named arguments must not be followed by positional arguments,
 			since that would be extremely confusing and error-prone. Also
 			arguments without default values can be specified by name, although
@@ -2222,13 +2222,13 @@ print(r > s);                           # prints true, as the first comparison t
 			<p>
 			An item access is an expression with the following syntax:
 			<ebnf>
-				item-access = expression "[" expression "]" ";" ;
+				item-access = expression, "[", expression, "]", ";" ;
 			</ebnf>
 			The first (base) expression must resolve to a
-			<a href="?doc#/language/types/string">string</a>,
-			<a href="?doc#/language/types/array">array</a>,
-			<a href="?doc#/language/types/dictionary">dictionary</a>, or
-			<a href="?doc#/language/types/range">range</a>.
+			<a href="?doc=/language/types/string">string</a>,
+			<a href="?doc=/language/types/array">array</a>,
+			<a href="?doc=/language/types/dictionary">dictionary</a>, or
+			<a href="?doc=/language/types/range">range</a>.
 			The second (index) expression must resolve to a valid
 			index or key, the type of which depends on the former one.
 			</p>
@@ -2284,7 +2284,7 @@ print(r[1:2]);                  # prints 2:3
 			<p>
 			A member access is an expression with the following syntax:
 			<ebnf>
-				member-access = expression "." identifier ;
+				member-access = expression, ".", identifier ;
 			</ebnf>
 			The expression evaluates to a public member of the object to
 			which the <ebnf>expression</ebnf> evaluates. If the expression
@@ -2298,7 +2298,7 @@ print(r[1:2]);                  # prints 2:3
 			and protected members. This does not even work inside of a
 			class. These members can be accessed by name (with the
 			<ebnf>identifier</ebnf> alone), or with
-			<a href="?doc#/language/declarations/classes">super</a>.
+			<a href="?doc=/language/declarations/classes">super</a>.
 			</p>
             <div class="example">
             <h3>Example</h3>
@@ -2331,13 +2331,13 @@ print(e.ex);                        # works fine
 			<p>
 			A name has the syntax
 			<ebnf>
-				name = ("super" "." identifier) | (identifier {"." identifier})
+				name = ("super", ".", identifier) | (identifier, {".", identifier}) ;
 			</ebnf>
 			where all but the last <ebnf>identifier</ebnf> must refer to
-			a <a href="?doc#/language/declarations/namespaces">namespace</a>.
+			a <a href="?doc=/language/declarations/namespaces">namespace</a>.
 			The keyword <keyword>super</keyword> refers to the super class
 			of the enclosing
-			<a href="?doc#/language/declarations/classes">class</a>, hence
+			<a href="?doc=/language/declarations/classes">class</a>, hence
 			it can be used only inside of a class declaration.
 			The declaration a name refers to is determined by the name
 			lookup rules found below.
@@ -2627,9 +2627,9 @@ print(e.ex);                        # works fine
 			is as default values of function parameters.
 			</p>
 			<p>
-			All <a href="?doc#/language/expressions/literals">literals</a> of
+			All <a href="?doc=/language/expressions/literals">literals</a> of
 			non-container types are constants. This includes all
-			<a href="?doc#/concepts/design">JSON</a> types, but also
+			<a href="?doc=/concepts/design">JSON</a> types, but also
 			functions (excluding non-static methods). Array and dictionary
 			literals are constants if all of their items are constants:
 			<tscript>
@@ -2679,7 +2679,7 @@ print(e.ex);                        # works fine
 		<ebnf>
 			statement = block
 			          | assignment
-			          | expression ";"
+			          | expression, ";"
 			          | condition
 			          | for-loop
 			          | while-do-loop
@@ -2688,7 +2688,7 @@ print(e.ex);                        # works fine
 			          | continue
 			          | return
 			          | throw
-			          | try-catch
+			          | try-catch ;
 		</ebnf>
 		</p>
         <div class="example">
@@ -2714,7 +2714,7 @@ for 0:3 do      # statement
 			<p>
 			A block of statements has the following syntax:
 			<ebnf>
-				block = "{" { declaration | statement | directive } "}" ;
+				block = "{", { declaration | statement | directive }, "}" ;
 			</ebnf>
 			The whole block can take the role of a single statement,
 			allowing to execute multiple statements where a single one
@@ -2724,7 +2724,7 @@ for 0:3 do      # statement
 			</p>
 			<p>
 			At the same time, the block acts as a scope, so the usual
-			<a href="?doc#/language/expressions/names">name lookup</a> rules
+			<a href="?doc=/language/expressions/names">name lookup</a> rules
 			apply. This means that declarations made inside the block
 			become invalid as soon as the block is left. Of course,
 			functions declared inside the block can be returned or
@@ -2758,10 +2758,10 @@ example();                      # works fine
 			<p>
 			Assignments have the following form:
 			<ebnf>
-				assignment = lhs assign-op expression ";" ;                         "example: var example = 28;"
+				assignment = lhs, assign-op, expression, ";" ;                  # example: var example = 28;
 				  lhs = name
-				        | expression "[" expression "]"
-				        | expression "." identifier ;
+				        | expression, "[", expression, "]"
+				        | expression, ".", identifier ;
 				  assign-op = "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "^=" ;
 			</ebnf>
 			The expression <ebnf>lhs</ebnf> on the left-hand-side (lhs) of the
@@ -2790,7 +2790,7 @@ example();                      # works fine
 			called compound assignment operators. The statement
 			<code class="code">a += 3;</code> is equivalent to
 			<code class="code">a = a + 3;</code>, and the same applies to the other
-			binary arithmetic <a href="?doc#/language/expressions/binary-operators">operators</a>.
+			binary arithmetic <a href="?doc=/language/expressions/binary-operators">operators</a>.
 			However, this equivalence is not exact in general, since with compound
 			assignment the lhs expression is evaluated only once. This difference
 			is demonstrated in the following example:
@@ -2848,17 +2848,17 @@ example();                      # works fine
 			<p>
 			A conditional control structure is denoted as follows:
 			<ebnf>
-			condition = "if" expression "then" statement
-			                          [ "else" statement ] ;
+			condition = "if", expression, "then", statement,
+			                            [ "else", statement ] ;
 			</ebnf>
 			The <ebnf>expression</ebnf> must evaluate to a
-			<a href="?doc#/language/types/boolean">Boolean</a>, otherwise an error
+			<a href="?doc=/language/types/boolean">Boolean</a>, otherwise an error
 			is reported.
 			If the <ebnf>expression</ebnf> evaluates to <keyword>true</keyword>
 			then the <ebnf>statement</ebnf> following <keyword>then</keyword>
 			is executed, otherwise the <ebnf>statement</ebnf> following
 			<keyword>else</keyword> is executed, if present. It is common that
-			the statements are <a href="?doc#/language/statements/blocks">blocks</a>.
+			the statements are <a href="?doc=/language/statements/blocks">blocks</a>.
 			</p>
             <div class="example">
             <h3>Example</h3>
@@ -2881,12 +2881,12 @@ if 3 < 5 then {}             # works
 			<p>
 			A for-loop has the following syntax:
 			<ebnf>
-			for-loop = "for" [ loop-var "in" ] expression "do" statement ;
-			  loop-var = ("var" identifier) | name ;
+			for-loop = "for", [ loop-var, "in" ], expression, "do", statement ;
+			  loop-var = ("var", identifier) | name ;
 			</ebnf>
 			The <ebnf>expression</ebnf> must evaluate to a
-			<a href="?doc#/language/types/range">Range</a> or an
-			<a href="?doc#/language/types/array">Array</a>, otherwise an error is
+			<a href="?doc=/language/types/range">Range</a> or an
+			<a href="?doc=/language/types/array">Array</a>, otherwise an error is
 			reported.
 			</p>
 			<div class="example">
@@ -2906,12 +2906,12 @@ if 3 < 5 then {}             # works
 			variable, which is referenced by the given <ebnf>name</ebnf>, so it
 			can even be declared in another namespace.
 			Alternatively, a new variable can declared with the
-			<ebnf>"var" identifier</ebnf> syntax. This variable belongs to the
+			<ebnf do-not-check>"var" identifier</ebnf> syntax. This variable belongs to the
 			loop, which acts as its scope, hence its name does not collide with
 			other declarations outside the loop, and the variable goes out of
 			scope after the last loop iteration. It is common to execute
 			multiple statements in each loop iteration by using a
-			<a href="?doc#/language/statements/blocks">block</a>.
+			<a href="?doc=/language/statements/blocks">block</a>.
 			</p>
 
 			<h2>Repeated Execution</h2>
@@ -2937,8 +2937,8 @@ if 3 < 5 then {}             # works
 			dictionary it is not clear whether the loop variable shall hold
 			keys, values, or both. Therefore an explicit decision must be
 			made by the programmer, using the Dictionary methods
-			<a href="?doc#/language/types/dictionary">keys</a> or
-			<a href="?doc#/language/types/dictionary">values</a>, as shown in
+			<a href="?doc=/language/types/dictionary">keys</a> or
+			<a href="?doc=/language/types/dictionary">values</a>, as shown in
 			the following example:
 			<tscript>
 				var dict = {a: 3, b: 10, c: null};
@@ -2995,11 +2995,11 @@ if 3 < 5 then {}             # works
 			of the loop. We have seen that modifying the loop variable and the
 			loop object does not achieve this effect. Instead, the following two
 			operations work.
-			The loop a a whole can be aborted with <a href="?doc#/language/statements/break-continue">break</a>.
-			The current iteration can be aborted with <a href="?doc#/language/statements/break-continue">continue</a>.
+			The loop a a whole can be aborted with <a href="?doc=/language/statements/break-continue">break</a>.
+			The current iteration can be aborted with <a href="?doc=/language/statements/break-continue">continue</a>.
 			It is not possible to extend a for loop during execution. If this is
 			a requirement then a
-			<a href="?doc#/language/statements/while-do-loops">while-do-loop</a>
+			<a href="?doc=/language/statements/while-do-loops">while-do-loop</a>
 			can be used.
 			</p>
 		`,
@@ -3013,10 +3013,10 @@ if 3 < 5 then {}             # works
 			<p>
 			The while-do-loop syntax is as follows:
 			<ebnf>
-				while-do-loop = "while" expression "do" statement ;
+				while-do-loop = "while", expression, "do", statement ;
 			</ebnf>
 			The loop evaluates the <ebnf>expression</ebnf>. If it does not result in
-			a <a href="?doc#/language/types/boolean">Boolean</a>, then an error is emitted.
+			a <a href="?doc=/language/types/boolean">Boolean</a>, then an error is emitted.
 			If the expression evaluates to <keyword>false</keyword> then the loop is
 			finished. However, if it evaluates to <keyword>true</keyword> then the
 			<ebnf>statement</ebnf> is executed and the loop starts over by re-evaluating
@@ -3059,11 +3059,11 @@ if 3 < 5 then {}             # works
 			<p>
 			The do-while-loop syntax is as follows:
 			<ebnf>
-				do-while-loop = "do" statement "while" expression ";" ;
+				do-while-loop = "do", statement, "while", expression, ";" ;
 			</ebnf>
 			The loop executes the <ebnf>statement</ebnf>. Then it evaluates the
 			<ebnf>expression</ebnf>. If it does not result in a
-			<a href="?doc#/language/types/boolean">Boolean</a>, then an error is emitted.
+			<a href="?doc=/language/types/boolean">Boolean</a>, then an error is emitted.
 			If the expression evaluates to <keyword>false</keyword> then the loop is
 			finished. However, if it evaluates to <keyword>true</keyword> then the
 			loop starts over. This scheme corresponds to a post-checked loop, i.e., a
@@ -3109,8 +3109,8 @@ if 3 < 5 then {}             # works
 			function. The break statement exits the loop. The continue statement
 			skips the remainder of a loop iteration. Their syntax is trivial:
 			<ebnf>
-				break = "break" ";" ;
-				continue = "continue" ";" ;
+				break = "break", ";" ;
+				continue = "continue", ";" ;
 			</ebnf>
 			After a continue statement, the loop jumps to its check of the stopping
 			criterion. If it does not stop then it continues with the next loop
@@ -3156,7 +3156,7 @@ if 3 < 5 then {}             # works
 			The return statement immediately returns from a function.
 			Its syntax is as follows:
 			<ebnf>
-				return = "return" [ expression ] ";" ;
+				return = "return", [ expression ], ";" ;
 			</ebnf>
 			If the optional <ebnf>expression</ebnf> is not present, then
 			<keyword>null</keyword> is used as the default value.
@@ -3202,7 +3202,7 @@ print("example");               # will not be executed
 			<p>
 			An exception is thrown with the following syntax:
 			<ebnf>
-				throw = "throw" expression ";" ;
+				throw = "throw", expression, ";" ;
 			</ebnf>
 			The result of evaluating the <ebnf>expression</ebnf> is called
 			an exception.
@@ -3248,8 +3248,8 @@ print("example");               # will not be executed
 			The syntax of a <keyword>try</keyword>-<keyword>catch</keyword>
 			statement is as follows:
 			<ebnf>
-				try-catch = "try" statement
-				            "catch" "var" identifier "do" statement ;
+				try-catch = "try", statement,
+				            "catch", "var", identifier, "do", statement ;
 			</ebnf>
 			Under normal conditions, the try-catch-block executes only
 			the statement following <keyword>try</keyword>. This is nearly
@@ -3350,7 +3350,7 @@ print("example");               # will not be executed
 					content: `
 			<p>
 			The Null type has only a single value, the
-			<a href="?doc#/language/expressions/literals/null">null literal</a>.
+			<a href="?doc=/language/expressions/literals/null">null literal</a>.
 			This value is immutable. It does not offer any operations.
 			While it is clear that <keyword>null</keyword> cannot represent
 			much useful information, is has a twofold role: first of all, it
@@ -3388,26 +3388,26 @@ if example == null then print("example");     # prints "example"
 					content: `
 			<p>
 			The type Boolean represents the two logical values, denoted by the
-			<a href="?doc#/language/expressions/literals/booleans">literals</a>
+			<a href="?doc=/language/expressions/literals/booleans">literals</a>
 			<keyword>true</keyword> and <keyword>false</keyword>. They are
 			immutable.
 			</p>
 
 			<h2>Operations</h2>
 			Booleans offer a number of operations, namely the operators
-			<a href="?doc#/language/expressions/unary-operators/not">not</a>,
-			<a href="?doc#/language/expressions/binary-operators/and">and</a>,
-			<a href="?doc#/language/expressions/binary-operators/or">or</a>, and
-			<a href="?doc#/language/expressions/binary-operators/xor">xor</a>.
+			<a href="?doc=/language/expressions/unary-operators/not">not</a>,
+			<a href="?doc=/language/expressions/binary-operators/and">and</a>,
+			<a href="?doc=/language/expressions/binary-operators/or">or</a>, and
+			<a href="?doc=/language/expressions/binary-operators/xor">xor</a>.
 			They can be compared for equality with the operators
 			<code class="code">==</code> and <code class="code">!=</code>
 			(and in fact, for Boolean, the operators
 			<code class="code">xor</code> and <code class="code">!=</code>
 			are equivalent), but they cannot be ordered. Booleans are
 			demanded by the language as conditions in
-			<a href="?doc#/language/statements/if-then-else">conditionals</a>
-			and <a href="?doc#/language/statements/while-do-loops">pre-</a> and
-			<a href="?doc#/language/statements/do-while-loops">post-</a>checked
+			<a href="?doc=/language/statements/if-then-else">conditionals</a>
+			and <a href="?doc=/language/statements/while-do-loops">pre-</a> and
+			<a href="?doc=/language/statements/do-while-loops">post-</a>checked
 			loops. Furthermore, they are frequently used as flags, and they
 			can be used to represent single bits.
 			</p>
@@ -3467,7 +3467,7 @@ for var i in 0:10 do {
 			the whole numbers in the range <i>-2147483648 = -2<sup>31</sup></i>
 			to <i>2147483647 = 2<sup>31</sup>-1</i>. Non-negative integers can be
 			represented directly as
-			<a href="?doc#/language/expressions/literals/integers">integer literals</a>.
+			<a href="?doc=/language/expressions/literals/integers">integer literals</a>.
 			The values are immutable.
 			</p>
 
@@ -3591,8 +3591,8 @@ for var i in 0:10 do {
 			</table>
 			<p>
 			Integers can be
-			<a href="?doc#/language/expressions/binary-operators/equality">compared for equality</a>
-			and they are <a href="?doc#/language/expressions/binary-operators/order">ordered</a>.
+			<a href="?doc=/language/expressions/binary-operators/equality">compared for equality</a>
+			and they are <a href="?doc=/language/expressions/binary-operators/order">ordered</a>.
 			</p>
 			<p>
 			Note: bitwise operators have a very low precedence, i.e., a low binding
@@ -3632,7 +3632,7 @@ for var i in 0:10 do {
 			These aspects have been discussed in detail in
 			<a target="_blank" href="https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">this classic article</a>.
 			Positive reals can be represented directly as
-			<a href="?doc#/language/expressions/literals/reals">real literals</a>.
+			<a href="?doc=/language/expressions/literals/reals">real literals</a>.
 			The values are immutable.
 			</p>
 
@@ -3703,8 +3703,8 @@ for var i in 0:10 do {
 			</table>
 			<p>
 			Reals can be
-			<a href="?doc#/language/expressions/binary-operators/equality">compared for equality</a>
-			and they are <a href="?doc#/language/expressions/binary-operators/order">ordered</a>.
+			<a href="?doc=/language/expressions/binary-operators/equality">compared for equality</a>
+			and they are <a href="?doc=/language/expressions/binary-operators/order">ordered</a>.
 			All operations on reals can mix integers and reals. The integer is then
 			converted to a real, and the operation is executed with floating-point
 			logic, even if the numbers represented by the reals could be converted
@@ -3763,11 +3763,11 @@ print(infiniteR.isFinite());        # prints false
 					content: `
 			<p>
 			The type String represents text. A string is a sequence of
-			<a href="?doc#/language/syntax/character-set">characters</a> of
+			<a href="?doc=/language/syntax/character-set">characters</a> of
 			arbitrary length, also known as the <i>size</i> of the string.
 			Although strings can contain any Unicode code point in the
 			range U+0000 to U+FFFF,
-			<a href="?doc#/language/expressions/literals/strings">string
+			<a href="?doc=/language/expressions/literals/strings">string
 			literals</a> allow to encode all characters with plain ASCII.
 			Despite their sequence nature, strings are immutable. Hence
 			when the need for modifying a string arises then a new string
@@ -3806,8 +3806,8 @@ print(infiniteR.isFinite());        # prints false
 			</table>
 			<p>
 			Strings can be
-			<a href="?doc#/language/expressions/binary-operators/equality">compared for equality</a>
-			and they are <a href="?doc#/language/expressions/binary-operators/order">ordered</a>.
+			<a href="?doc=/language/expressions/binary-operators/equality">compared for equality</a>
+			and they are <a href="?doc=/language/expressions/binary-operators/order">ordered</a>.
 			Strings are equal if they have the same length and all characters
 			coincide. They are ordered lexicographically.
 			</p>
@@ -3866,7 +3866,7 @@ print(infiniteR.isFinite());        # prints false
 			called items of the array. Items are arranged in a sequence. They
 			are accessed by integer-valued indices. Arrays are mutable: items
 			can be inserted, deleted, and overwritten. Arrays can be created
-			as <a href="?doc#/language/expressions/literals/arrays">literals</a>.
+			as <a href="?doc=/language/expressions/literals/arrays">literals</a>.
 			These literals can contain arbitrary expressions (not necessarily
 			literals), which evaluate to the items.
 			</p>
@@ -3892,8 +3892,8 @@ print(infiniteR.isFinite());        # prints false
 			</table>
 			<p>
 			Arrays can be
-			<a href="?doc#/language/expressions/binary-operators/equality">compared for equality</a>
-			and they are <a href="?doc#/language/expressions/binary-operators/order">ordered</a>,
+			<a href="?doc=/language/expressions/binary-operators/equality">compared for equality</a>
+			and they are <a href="?doc=/language/expressions/binary-operators/order">ordered</a>,
 			if all of their items are ordered.
 			Arrays are equal if they have the same length and all items compare
 			equal. They are ordered lexicographically. Ordering two array with
@@ -3938,7 +3938,7 @@ print(infiniteR.isFinite());        # prints false
 				sorts the array in-place. Sorting is stable, i.e., the order of
 				equivalent items is preserved. If <i>comparator</i> equals
 				<keyword>null</keyword> then the built-in
-				<a href="?doc#/language/expressions/binary-operators/order">order
+				<a href="?doc=/language/expressions/binary-operators/order">order
 				relation</a> is used for sorting, which means that all items
 				in the array must be ordered. Otherwise <i>comparator</i> is
 				assumed to be a function of two arguments (denoted lhs and rhs)
@@ -3956,12 +3956,12 @@ print(infiniteR.isFinite());        # prints false
 				The <code class="code">function keys()</code> returns the
 				range <code class="code">0:size()</code>. Its main purpose is
 				compatibility with
-				<a href="?doc#/language/types/dictionary">Dictionary.keys</a>.
+				<a href="?doc=/language/types/dictionary">Dictionary.keys</a>.
 			</td></tr>
 			<tr><th>values</th><td>
 				The <code class="code">function values()</code> returns the
 				array itself. Its main purpose is compatibility with
-				<a href="?doc#/language/types/dictionary">Dictionary.values</a>.
+				<a href="?doc=/language/types/dictionary">Dictionary.values</a>.
 			</td></tr>
 			<tr><th>concat</th><td>
 				<code class="code">static function concat(first, second)</code>
@@ -4005,7 +4005,7 @@ print(arr);                                     # prints [1, 2, 3, 4, 5, 6, 7, 8
 			values, called items of the dictionary. Items are accessed with
 			string-valued keys. Dictionaries are mutable: items can be inserted,
 			deleted, and overwritten. Dictionaries can be created as
-			<a href="?doc#/language/expressions/literals/dictionaries">literals</a>.
+			<a href="?doc=/language/expressions/literals/dictionaries">literals</a>.
 			These literals can contain arbitrary expressions (not necessarily
 			literals), which evaluate to the items.
 			</p>
@@ -4037,8 +4037,8 @@ print(arr);                                     # prints [1, 2, 3, 4, 5, 6, 7, 8
 			</table>
 			<p>
 			Dictionaries can be
-			<a href="?doc#/language/expressions/binary-operators/equality">compared for equality</a>,
-			but they are not <a href="?doc#/language/expressions/binary-operators/order">ordered</a>.
+			<a href="?doc=/language/expressions/binary-operators/equality">compared for equality</a>,
+			but they are not <a href="?doc=/language/expressions/binary-operators/order">ordered</a>.
 			Two dictionaries compare equal if they contain the same keys, and if
 			the items associated with these keys compare equal.
 			</p>
@@ -4108,13 +4108,13 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 					content: `
 			<p>
 			The Function type represents
-			<a href="?doc#/language/declarations/functions">function declarations</a>,
-			<a href="?doc#/language/declarations/classes">member function
+			<a href="?doc=/language/declarations/functions">function declarations</a>,
+			<a href="?doc=/language/declarations/classes">member function
 			declarations</a> applied to an object, and
-			<a href="?doc#/language/expressions/literals/anonymous-functions">anonymous
+			<a href="?doc=/language/expressions/literals/anonymous-functions">anonymous
 			functions</a>, possibly with enclosed parameters. This summarizes
 			all blocks of code that can be
-			<a href="?doc#/language/expressions/function-calls">called or invoked</a>
+			<a href="?doc=/language/expressions/function-calls">called or invoked</a>
 			by providing parameters in parentheses.
 			Functions are immutable. The only operation they provide is the call
 			operator.
@@ -4124,14 +4124,14 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 			<table class="methods">
 			<tr><th>function&nbsp;call&nbsp;()</th><td>
 				Calls the function. See
-				<a href="?doc#/language/expressions/function-calls">function calls</a>
+				<a href="?doc=/language/expressions/function-calls">function calls</a>
 				for details.
 			</td></tr>
 			</table>
 			<p>
 			Functions can be
-			<a href="?doc#/language/expressions/binary-operators/equality">compared for equality</a>,
-			but they are not <a href="?doc#/language/expressions/binary-operators/order">ordered</a>.
+			<a href="?doc=/language/expressions/binary-operators/equality">compared for equality</a>,
+			but they are not <a href="?doc=/language/expressions/binary-operators/order">ordered</a>.
 			</p>
 
 			<h2>Methods</h2>
@@ -4156,13 +4156,13 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>{x in N | begin &lt;= x &lt; end}</i>.<br/>
 			Consequently, in case
 			of <i>begin&nbsp;&gt;=&nbsp;end</i> the range is empty. Begin and end
-			can be any values in the valid <a href="?doc#/language/types/integer">integer</a>
+			can be any values in the valid <a href="?doc=/language/types/integer">integer</a>
 			range; in particular, they can be negative.
 			</p>
 			<p>
 			A range can be
 			constructed with the range constructor or with the
-			<a href="?doc#/language/expressions/binary-operators/range">range operator&nbsp;:</a>.
+			<a href="?doc=/language/expressions/binary-operators/range">range operator&nbsp;:</a>.
 			The two options are equivalent:
 			<tscript>
 				var r1 = Range(10, 15);
@@ -4175,7 +4175,7 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 			<h2>Operations</h2>
 			<p>
 			Ranges offer two rather trivial operations, both by means of the
-			<a href="?doc#/language/expressions/item-access">item access operator</a>,
+			<a href="?doc=/language/expressions/item-access">item access operator</a>,
 			namely access of items by index and slicing. The behavior is designed
 			to mimic that of an array holding the elements of the range as items:
 			<tscript>
@@ -4254,8 +4254,8 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 				Testing at runtime whether a value is of a specific type.
 				For example, this allows to test whether a number is an
 				integer or a real, and hence for determining whether
-				<a href="?doc#/language/types/integer">integer</a> or
-				<a href="?doc#/language/types/real">floating point</a> arithmetic
+				<a href="?doc=/language/types/integer">integer</a> or
+				<a href="?doc=/language/types/real">floating point</a> arithmetic
 				is used when applying an operator.
 			</li>
 			<li>
@@ -4323,13 +4323,13 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 					content: `
 			<p>
 			A Class is a user-defined type. It is created through a
-			<a href="?doc#/language/declarations/classes">class declaration</a>;
+			<a href="?doc=/language/declarations/classes">class declaration</a>;
 			the technical aspects of class declarations are discussed right
 			there.
 			</p>
 			<p>
 			Classes allow the programmer to extend the
-			<a href="?doc#/language/types">system of built-in types</a>. They open
+			<a href="?doc=/language/types">system of built-in types</a>. They open
 			up the whole world of
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Object-oriented_programming">object-oriented programming</a>,
 			a programming paradigm in which data and functionality is organized

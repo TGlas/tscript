@@ -1,16 +1,14 @@
-"use strict";
-
-import { ErrorHelper } from "../lang/errors/ErrorHelper";
-import { tgui } from "./tgui";
-import { defaultOptions } from "../lang/helpers/options";
-import { Interpreter } from "../lang/interpreter/interpreter";
-import { Lexer } from "../lang/parser/lexer";
-import { Parser } from "../lang/parser";
-import { TScript } from "../lang";
-import { Version } from "../lang/version";
-import { searchengine } from "./search";
 import { documentationData } from "../doc";
+import { ErrorHelper } from "../lang/errors/ErrorHelper";
+import { defaultOptions } from "../lang/helpers/options";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
+import { Interpreter } from "../lang/interpreter/interpreter";
+import { Parser } from "../lang/parser";
+import { Lexer } from "../lang/parser/lexer";
+import { Version } from "../lang/version";
+import { navigate } from "./navigation";
+import { searchengine } from "./search";
+import { tgui } from "./tgui";
 
 ///////////////////////////////////////////////////////////
 // TScript documentation
@@ -21,6 +19,18 @@ export const doc = (function () {
 	let module: any = documentationData;
 	let docpath = "";
 	let doctree: any = null;
+
+	// check if dark theme is activated
+	function loadTheme() {
+		let str = localStorage.getItem("tscript.ide.config");
+		if (str) {
+			let config = JSON.parse(str);
+			let theme = "default";
+			if (config.hasOwnProperty("theme")) theme = config.theme;
+			tgui.setTheme(theme);
+		}
+		return null;
+	}
 
 	// This function copies #text to the clipboard when run
 	// from within an event handler.
@@ -74,6 +84,7 @@ export const doc = (function () {
 		let c = state.current();
 		if ((c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || c == "_") {
 			// parse an identifier or a keyword
+			let value = c;
 			state.advance();
 			while (state.good()) {
 				let c = state.current();
@@ -83,14 +94,16 @@ export const doc = (function () {
 					(c >= "0" && c <= "9") ||
 					c == "_" ||
 					c == "-"
-				)
+				) {
+					value += c;
 					state.advance();
-				else break;
+				} else break;
 			}
-			return { type: "identifier" };
+			return { type: "identifier", value: value };
 		} else if (c == '"') {
 			// parse string literal
 			state.advance();
+			let value = "";
 			while (true) {
 				if (!state.good())
 					state.error(
@@ -104,12 +117,16 @@ export const doc = (function () {
 				else if (c == '"') {
 					state.advance();
 					break;
-				} else state.advance();
+				} else {
+					value += c;
+					state.advance();
+				}
 			}
-			return { type: "literal" };
+			return { type: "literal", value: value };
 		} else if (c == "'") {
 			// parse string literal
 			state.advance();
+			let value = "";
 			while (true) {
 				if (!state.good())
 					state.error(
@@ -123,12 +140,16 @@ export const doc = (function () {
 				else if (c == "'") {
 					state.advance();
 					break;
-				} else state.advance();
+				} else {
+					value += c;
+					state.advance();
+				}
 			}
-			return { type: "literal" };
+			return { type: "literal", value: value };
 		} else if (c == "$") {
 			// parse special
 			state.advance();
+			let value = "";
 			while (true) {
 				if (!state.good())
 					state.error(
@@ -137,14 +158,27 @@ export const doc = (function () {
 				let c = state.current();
 				state.advance();
 				if (c == "$") break;
+				value += c;
 			}
-			return { type: "special" };
+			return { type: "special", value: value };
+		} else if (c == "#") {
+			// line comment   TODO: EBNF defines block comments (* ... *) instead
+			state.advance();
+			let value = "";
+			while (state.good()) {
+				let c = state.current();
+				value += c;
+				state.advance();
+				if (c == "\n") break;
+			}
+			return { type: "comment", value: value };
 		} else {
 			// all the rest, including operators
 			state.advance();
-			if ("=-*|".indexOf(c) >= 0) return { type: "operator" };
-			if ("()[]{}".indexOf(c) >= 0) return { type: "grouping" };
-			if (";".indexOf(c) >= 0) return { type: "delimiter" };
+			//			if ("=-*|".indexOf(c) >= 0) return { type: "operator", value: c };
+			if ("=,-|".indexOf(c) >= 0) return { type: "operator", value: c };
+			if ("()[]{}".indexOf(c) >= 0) return { type: "grouping", value: c };
+			if (";".indexOf(c) >= 0) return { type: "delimiter", value: c };
 			state.error("EBNF syntax error; invalid character '" + c + "'");
 		}
 	};
@@ -227,108 +261,7 @@ export const doc = (function () {
 			return ret;
 		} else {
 			// single line
-			let state: any = {
-				source: code,
-				pos: 0, // zero-based position in the source code string
-				good: function () {
-					return this.pos < this.source.length;
-				},
-				bad: function () {
-					return !this.good();
-				},
-				eof: function () {
-					return this.pos >= this.source.length;
-				},
-				indentation: function () {
-					return 0;
-				},
-				error: function (path, args) {
-					if (args === undefined) args = [];
-					let str =
-						"documentation internal error in code: '" +
-						this.source +
-						"'";
-					throw new Error(str);
-				},
-				current: function () {
-					return this.pos >= this.source.length
-						? ""
-						: this.source[this.pos];
-				},
-				lookahead: function (num) {
-					return this.pos + num >= this.source.length
-						? ""
-						: this.source[this.pos + num];
-				},
-				next: function () {
-					return this.lookahead(1);
-				},
-				get: function () {
-					return { pos: this.pos, line: this.line, ch: this.ch };
-				},
-				set: function (where) {
-					this.pos = where.pos;
-					(this.line = where.line), (this.ch = where.ch);
-				},
-				advance: function (n) {
-					if (n === undefined) n = 1;
-					if (this.pos + n > this.source.length)
-						n = this.source.length - this.pos;
-					for (let i = 0; i < n; i++) {
-						let c = this.current();
-						if (c == "\n") {
-							this.line++;
-							this.ch = 0;
-						}
-						this.pos++;
-						this.ch++;
-					}
-				},
-				skip: function () {
-					while (this.good()) {
-						let c = this.current();
-						if (c == "#") {
-							this.pos++;
-							this.ch++;
-							if (this.current() == "*") {
-								this.pos++;
-								this.ch++;
-								let star = false;
-								while (this.good()) {
-									if (this.current() == "\n") {
-										this.pos++;
-										this.line++;
-										this.ch = 0;
-										star = false;
-										continue;
-									}
-									if (star && this.current() == "#") {
-										this.pos++;
-										this.ch++;
-										break;
-									}
-									star = this.current() == "*";
-									this.pos++;
-									this.ch++;
-								}
-							} else {
-								while (this.good() && this.current() != "\n") {
-									this.pos++;
-									this.ch++;
-								}
-							}
-							continue;
-						}
-						if (c != " " && c != "\t" && c != "\r" && c != "\n")
-							break;
-						if (c == "\n") {
-							this.line++;
-							this.ch = 0;
-						} else this.ch++;
-						this.pos++;
-					}
-				},
-			};
+			let state = createState(code);
 
 			let ret = '<code class="' + css_prefix + '">';
 			while (!state.eof()) {
@@ -383,6 +316,203 @@ export const doc = (function () {
 			alert("code sample failed to run:\n" + code);
 	}
 
+	// Check an EBNF definition for syntactical correctness.
+	// On success, the function does nothing, otherwise is throws an error message.
+	function checkEBNF(ebnf) {
+		let state = createState(ebnf);
+
+		// parse an alternating sequence of expressions and binary operators
+		function parseSequence() {
+			let expressionExpected = true;
+			while (state.good()) {
+				state.skip();
+				let token = get_token_ebnf(state);
+				if (!token) return null;
+				if (token.type == "comment") continue;
+				else if (token.type == "grouping") {
+					if (")]}".indexOf(token.value) >= 0) return token;
+					else {
+						if (!expressionExpected)
+							state.error(
+								"EBNF syntax error: operator or closing bracket expected"
+							);
+						let end = parseSequence();
+						if (end === null)
+							state.error(
+								"EBNF: opening " +
+									token.value +
+									" not properly closed"
+							);
+						expressionExpected = false;
+					}
+				} else if (
+					token.type == "identifier" ||
+					token.type == "literal" ||
+					token.type == "special"
+				) {
+					if (!expressionExpected)
+						state.error(
+							"EBNF syntax error: operator or closing bracket expected"
+						);
+					expressionExpected = false;
+				} else if (token.type == "operator") {
+					if (expressionExpected)
+						state.error(
+							"EBNF syntax error: expression expected before operator " +
+								token.value
+						);
+					if (token.value == "=")
+						state.error(
+							"EBNF syntax error: assignment does not work here"
+						);
+					expressionExpected = true;
+				} else if (token.type == "delimiter") {
+					if (expressionExpected)
+						state.error(
+							"EBNF syntax error: expression expected before semicolon"
+						);
+					return token;
+				} else state.error("unexpected token type in checkEBNF");
+			}
+			return null;
+		}
+
+		let first = true; // be prepared for a single identifier
+		while (true) {
+			// parse one rule
+			state.skip();
+			if (!state.good()) break;
+			let lhs = get_token_ebnf(state);
+			if (lhs?.type != "identifier")
+				state.error(
+					"EBNF syntax error: left-hand-side must be an identifier"
+				);
+			state.skip();
+			if (!state.good()) {
+				if (first) break;
+				else
+					state.error(
+						"EBNF syntax error: assignment operator '=' expected"
+					);
+			}
+			let assignment = get_token_ebnf(state);
+			if (!assignment) break;
+			if (assignment.type != "operator" || assignment.value != "=")
+				state.error(
+					"EBNF syntax error: assignment operator '=' expected"
+				);
+			let closing = parseSequence();
+			if (closing?.value != ";")
+				state.error("EBNF syntax error: final semicolon expected");
+			first = false;
+		}
+	}
+
+	// Create a state object for lexing, operating on a state.
+	function createState(str) {
+		return {
+			source: str,
+			pos: 0, // zero-based position in the source code string
+			good: function () {
+				return this.pos < this.source.length;
+			},
+			bad: function () {
+				return !this.good();
+			},
+			eof: function () {
+				return this.pos >= this.source.length;
+			},
+			indentation: function () {
+				return 0;
+			},
+			error: function (path, args = []) {
+				let str =
+					"documentation internal error in code: '" +
+					this.source +
+					"' (" +
+					path +
+					")";
+				throw new Error(str);
+			},
+			current: function () {
+				return this.pos >= this.source.length
+					? ""
+					: this.source[this.pos];
+			},
+			lookahead: function (num) {
+				return this.pos + num >= this.source.length
+					? ""
+					: this.source[this.pos + num];
+			},
+			next: function () {
+				return this.lookahead(1);
+			},
+			get: function () {
+				return { pos: this.pos, line: this.line, ch: this.ch };
+			},
+			set: function (where) {
+				this.pos = where.pos;
+				(this.line = where.line), (this.ch = where.ch);
+			},
+			advance: function (n = 1) {
+				if (this.pos + n > this.source.length)
+					n = this.source.length - this.pos;
+				for (let i = 0; i < n; i++) {
+					let c = this.current();
+					if (c == "\n") {
+						this.line++;
+						this.ch = 0;
+					}
+					this.pos++;
+					this.ch++;
+				}
+			},
+			skip: function () {
+				while (this.good()) {
+					let c = this.current();
+					if (c == "#") {
+						this.pos++;
+						this.ch++;
+						if (this.current() == "*") {
+							this.pos++;
+							this.ch++;
+							let star = false;
+							while (this.good()) {
+								if (this.current() == "\n") {
+									this.pos++;
+									this.line++;
+									this.ch = 0;
+									star = false;
+									continue;
+								}
+								if (star && this.current() == "#") {
+									this.pos++;
+									this.ch++;
+									break;
+								}
+								star = this.current() == "*";
+								this.pos++;
+								this.ch++;
+							}
+						} else {
+							while (this.good() && this.current() != "\n") {
+								this.pos++;
+								this.ch++;
+							}
+						}
+						continue;
+					}
+					if (c != " " && c != "\t" && c != "\r" && c != "\n") break;
+					if (c == "\n") {
+						this.line++;
+						this.ch = 0;
+					} else this.ch++;
+					this.pos++;
+				}
+			},
+		};
+	}
+
 	// This function returns an altered version of the pseudo-html #content
 	// suitable for placing it as innerHTML into the DOM. It performs a
 	// number of stylistic replacements:
@@ -407,6 +537,14 @@ export const doc = (function () {
 			start = pos;
 			if (search.substr(start, 6) == "<ebnf>") {
 				start += 6;
+				let end = search.indexOf("</ebnf>", start);
+				if (end < 0) throw "[doc] <ebnf> tag not closed";
+				let ebnf = content.substr(start, end - start);
+				start = end + 7;
+				if (!tutorial) checkEBNF(ebnf);
+				ret += processCode(ebnf, "ebnf", get_token_ebnf);
+			} else if (search.substr(start, 19) == "<ebnf do-not-check>") {
+				start += 19;
 				let end = search.indexOf("</ebnf>", start);
 				if (end < 0) throw "[doc] <ebnf> tag not closed";
 				let ebnf = content.substr(start, end - start);
@@ -563,7 +701,7 @@ export const doc = (function () {
 					let path = results[i].id;
 					let node = getnode(path)[0];
 					html +=
-						'<li><a href="#' +
+						'<li><a href="?doc=' +
 						path +
 						'">' +
 						node.title +
@@ -606,7 +744,7 @@ export const doc = (function () {
 					html += "<h2>Related Topics</h2>\n<ul>\n";
 					if (parent) {
 						html +=
-							'back to enclosing topic: <a href="#' +
+							'back to enclosing topic: <a href="?doc=' +
 							parentpath +
 							'">' +
 							parent.name +
@@ -614,7 +752,7 @@ export const doc = (function () {
 						if (index > 0) {
 							let sibling = parent.children[index - 1];
 							html +=
-								'previous topic: <a href="#' +
+								'previous topic: <a href="?doc=' +
 								parentpath +
 								"/" +
 								sibling.id +
@@ -625,7 +763,7 @@ export const doc = (function () {
 						if (index + 1 < parent.children.length) {
 							let sibling = parent.children[index + 1];
 							html +=
-								'next topic: <a href="#' +
+								'next topic: <a href="?doc=' +
 								parentpath +
 								"/" +
 								sibling.id +
@@ -638,7 +776,7 @@ export const doc = (function () {
 						html += "<h3>Subordinate Topics</h3>\n<ul>\n";
 						for (let i = 0; i < node.children.length; i++)
 							html +=
-								'<li><a href="#' +
+								'<li><a href="?doc=' +
 								path +
 								"/" +
 								node.children[i].id +
@@ -695,9 +833,9 @@ export const doc = (function () {
 			pos = node.content.indexOf('"', start);
 			let s = node.content.substr(start, pos - start);
 			start = pos + 1;
-			if (s.length > 0 && s[0] == "#") {
+			if (s.startsWith("?doc=")) {
 				try {
-					getnode(s.substr(1));
+					getnode(s.slice(5));
 				} catch (ex) {
 					// invalid link
 					alert(
@@ -732,7 +870,10 @@ export const doc = (function () {
 			};
 
 		module.embedded = options.embedded;
-		if (!options.embedded) document.title = "TScript Documentation";
+		if (!options.embedded) {
+			document.title = "TScript Documentation";
+			loadTheme();
+		}
 
 		// create the framing html elements
 		module.dom_container = container;
@@ -777,9 +918,8 @@ export const doc = (function () {
 		window.setTimeout(function (event) {
 			module.dom_version.innerHTML = Version.full();
 			module.dom_version.addEventListener("click", function (event) {
-				let base = window.location.href.split("#")[0];
-				window.location.href = base + "#/legal";
-				module.setpath("/legal");
+				if (module.embedded) module.setpath("/legal");
+				else navigate("?doc=/legal");
 			});
 		}, 100);
 
@@ -808,11 +948,8 @@ export const doc = (function () {
 			parent: module.dom_tree,
 			info: docinfo,
 			nodeclick: function (event, value, id) {
-				if (!module.embedded) {
-					let base = window.location.href.split("#")[0];
-					window.location.href = base + "#" + id;
-				}
-				module.setpath(id);
+				if (module.embedded) module.setpath(id);
+				else navigate("?doc=" + id);
 			},
 		});
 
@@ -822,39 +959,36 @@ export const doc = (function () {
 		module.dom_searchtext.addEventListener("keypress", function (event) {
 			if (event.key != "Enter") return;
 
-			let keys = searchengine.tokenize(module.dom_searchtext.value);
-			let h = "#search";
-			for (let i = 0; i < keys.length; i++) h += "/" + keys[i];
 			if (module.embedded) {
+				let keys = searchengine.tokenize(module.dom_searchtext.value);
+				let h = "#search";
+				for (let i = 0; i < keys.length; i++) h += "/" + keys[i];
 				window.sessionStorage.setItem("docpath", h);
 				module.setpath(h);
-			} else window.location.hash = h;
+			} else {
+				const searchParams = new URLSearchParams({
+					doc: "search",
+					q: module.dom_searchtext.value,
+				});
+				navigate("?" + searchParams.toString());
+			}
 		});
 
 		// check all internal links
-		checklinks(doc, "#");
+		checklinks(doc, "");
 
 		if (options.embedded) {
 			let path = window.sessionStorage.getItem("docpath");
 			if (!path) path = "#";
 			module.setpath(path);
-		} else {
-			// process the "anchor" part of the URL
-			window.addEventListener("hashchange", function () {
-				let path = window.location.hash;
-				module.setpath(path);
-			});
-			let path = window.location.hash;
-			module.setpath(path);
-		}
 
-		if (module.embedded) {
 			document.addEventListener("click", function (event) {
 				let target: any = event.target || event.srcElement;
 				if (target.tagName === "A") {
 					let href = target.getAttribute("href");
 					if (href.length == 0) return true;
-					if (href[0] != "#") return true;
+					if (!href.startsWith("?doc=")) return true;
+					href = href.replace("?doc=", "#");
 					window.sessionStorage.setItem("docpath", href);
 					module.setpath(href);
 					event.preventDefault();
