@@ -1,4 +1,4 @@
-export const tutorial_graphics = {
+export const tutorial_oop = {
 	id: "oop",
 	title: "Object-oriented Programming",
 	sections: [
