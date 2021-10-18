@@ -7,6 +7,7 @@ import { tutorial_ifelse } from "./ifelse";
 import { tutorial_dowhile } from "./dowhile-loop";
 import { tutorial_functions } from "./functions";
 import { tutorial_containers } from "./containers";
+import { tutorial_oop } from "./oop";
 // TODO:                                                                   GÜLTIGKEITSBEREICHE
 // * turtle graphics X
 // * canvas graphics X
@@ -36,5 +37,6 @@ tutorial.push(tutorial_forloop);
 tutorial.push(tutorial_dowhile);
 tutorial.push(tutorial_functions);
 tutorial.push(tutorial_containers);
+tutorial.push(tutorial_oop);
 
 export const tutorialData = tutorial;
