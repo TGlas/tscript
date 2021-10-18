@@ -129,10 +129,12 @@ export const tutorial_forloop = {
             the loop runs through is not bound to start at 0. It is totally possible to start and 
             end at any number you want as long as it is an integer.</p>
             <p>
+            <div class="tutorial-exercise">
             To try this for yourself write a for-loop which prints a multiplication table for the 
             number 5, starting at 2 and ending at 8. Be aware that our multiplication table for 3 
             starts at 1 and ends with 9.
             </p>
+            </div>
 			`,
 			correct: `
 				for var i in 2:9 do
