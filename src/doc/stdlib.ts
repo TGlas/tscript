@@ -294,17 +294,17 @@ print(c);               # prints [0, 1, 2], since it's a copy
 		<tr><th>sin</th><td>
 			The <code class="code">function math.sin(x)</code> returns the
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">sine</a>
-			of its argument.
+			of its argument in radians.
 		</td></tr>
 		<tr><th>cos</th><td>
 			The <code class="code">function math.cos(x)</code> returns the
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">cosine</a>
-			of its argument.
+			of its argument in radians.
 		</td></tr>
 		<tr><th>tan</th><td>
 			The <code class="code">function math.tan(x)</code> returns the
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">tangent</a>
-			of its argument.
+			of its argument in radians.
 		</td></tr>
 		<tr><th>sinh</th><td>
 			The <code class="code">function math.sinh(x)</code> returns the
@@ -324,17 +324,17 @@ print(c);               # prints [0, 1, 2], since it's a copy
 		<tr><th>asin</th><td>
 			The <code class="code">function math.asin(x)</code> returns the inverse
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">sine</a>
-			of its argument.
+			of its argument. The return value is an angle in radians.
 		</td></tr>
 		<tr><th>acos</th><td>
 			The <code class="code">function math.acos(x)</code> returns the inverse
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">cosine</a>
-			of its argument.
+			of its argument. The return value is an angle in radians.
 		</td></tr>
 		<tr><th>atan</th><td>
 			The <code class="code">function math.atan(x)</code> returns the inverse
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">tangent</a>
-			of its argument.
+			of its argument. The return value is an angle in radians.
 		</td></tr>
 		<tr><th>atan2</th><td>
 			The <code class="code">function math.atan2(y, x)</code> returns the inverse
