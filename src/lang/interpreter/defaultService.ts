@@ -36,7 +36,7 @@ export function createDefaultServices() {
 			down: true,
 			rgb: "rgb(0,0,0)",
 			reset: function (x, y, degrees, down) {
-//				console.log("defaultService.reset");
+				//				console.log("defaultService.reset");
 				this.turtle.x = x;
 				this.turtle.y = y;
 				this.turtle.angle = degrees;

@@ -72,9 +72,34 @@ export const core = {
 					TScript.isDerivedFrom(arg.type, Typeid.typeid_real)
 				)
 					object.value.b = arg.value.b;
-				else if (TScript.isDerivedFrom(arg.type, Typeid.typeid_string))
-					object.value.b = Number(arg.value.b);
-				else object.value.b = NaN;
+				else if (
+					TScript.isDerivedFrom(arg.type, Typeid.typeid_string)
+				) {
+					// parse a number by the same rules as Lexer::get_token
+					let s: string = arg.value.b.trim();
+					let pos: number = 0;
+					let error = false;
+					while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+						pos++;
+					if (pos < s.length && s[pos] === ".") {
+						pos++;
+						if (pos >= s.length || s[pos] < "0" || s[pos] > "9")
+							error = true;
+						while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+							pos++;
+					}
+					if (pos < s.length && (s[pos] === "e" || s[pos] === "E")) {
+						pos++;
+						if (s[pos] === "+" || s[pos] === "-") pos++;
+						if (pos >= s.length || s[pos] < "0" || s[pos] > "9")
+							error = true;
+						while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+							pos++;
+					}
+					if (pos < s.length) error = true;
+					if (error) object.value.b = NaN;
+					else object.value.b = Number(arg.value.b);
+				} else object.value.b = NaN;
 			},
 			isFinite: function (object) {
 				return {
