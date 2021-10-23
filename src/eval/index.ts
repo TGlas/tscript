@@ -393,7 +393,7 @@ export const evaluation = (function () {
 			orig_turtle_move.call(this, distance);
 			let x1 = interpreter.service.turtle.x;
 			let y1 = interpreter.service.turtle.y;
-			if (interpreter.service.turtle.down)
+			if (interpreter.service.turtle.down && distance != 0)
 				output.push({
 					type: "turtle line",
 					from: [x0, y0],
