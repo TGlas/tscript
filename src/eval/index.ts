@@ -163,6 +163,7 @@ export const evaluation = (function () {
 					if (!submission.hasOwnProperty(p)) continue;
 					if (p == "type") continue;
 					s +=
+						" " +
 						escape(p) +
 						": " +
 						escape(JSON.stringify(submission[p]));
@@ -176,7 +177,11 @@ export const evaluation = (function () {
 				for (let p in solution) {
 					if (!solution.hasOwnProperty(p)) continue;
 					if (p == "type") continue;
-					s += escape(p) + ": " + escape(JSON.stringify(solution[p]));
+					s +=
+						" " +
+						escape(p) +
+						": " +
+						escape(JSON.stringify(solution[p]));
 				}
 			}
 			s += "</td></tr>\r\n";
