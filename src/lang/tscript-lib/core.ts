@@ -75,10 +75,12 @@ export const core = {
 				else if (
 					TScript.isDerivedFrom(arg.type, Typeid.typeid_string)
 				) {
-					// parse a number by the same rules as Lexer::get_token
+					// parse a number by the same rules as Lexer::get_token, but also accept leading sign characters
 					let s: string = arg.value.b.trim();
 					let pos: number = 0;
 					let error = false;
+					while (pos < s.length && (s[pos] == "-" || s[pos] == "+"))
+						pos++;
 					while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
 						pos++;
 					if (pos < s.length && s[pos] === ".") {
