@@ -341,7 +341,11 @@ export const evaluation = (function () {
 				"internal error: missing return type in compare_runs"
 			);
 
-		if (return_sub_type != return_sol_type)
+		if (
+			return_sub_type != return_sol_type &&
+			(["<Type Integer>", "<Type Real>"].indexOf(return_sub_type) < 0 ||
+				["<Type Integer>", "<Type Real>"].indexOf(return_sol_type) < 0)
+		) {
 			return [
 				"Wrong data type of the return value - expected: " +
 					return_sol_type +
@@ -349,6 +353,8 @@ export const evaluation = (function () {
 					return_sub_type,
 				"",
 			];
+		}
+
 		let cmp = compare_events(return_sub_value, return_sol_value);
 		if (cmp == "") return ["", ""];
 		else
