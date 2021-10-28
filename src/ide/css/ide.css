@@ -198,6 +198,10 @@ button {
 	background-color: #aca;
 }
 
+.tgui-label.ide-state-dialog {
+	background-color: #cac;
+}
+
 .tgui-label.ide-state-stepping {
 	background-color: #8ee;
 }
@@ -231,4 +235,9 @@ button {
 	vertical-align: middle;
 	border: 1px solid #000;
 	display: none;
+}
+
+.ide-prompt-input {
+	width: 100%;
+	padding: 3px 6px;
 }
