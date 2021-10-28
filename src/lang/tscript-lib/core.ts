@@ -957,8 +957,16 @@ export const core = {
 		},
 		alert: function (text) {
 			let s = TScript.toString.call(this, text);
-			if (!this.service.documentation_mode && this.service.alert)
-				this.service.alert(s);
+			if (!this.service.documentation_mode && this.service.alert) {
+				this.status = "dialog";
+				this.dialogResult = null;
+				this.service.alert(s, () => {
+					this.dialogResult = {
+						type: this.program.types[Typeid.typeid_null],
+						value: { b: null },
+					};
+				});
+			}
 			return {
 				type: this.program.types[Typeid.typeid_null],
 				value: { b: null },
@@ -966,34 +974,43 @@ export const core = {
 		},
 		confirm: function (text) {
 			let s = TScript.toString.call(this, text);
-			let ret = false;
-			if (!this.service.documentation_mode && this.service.confirm)
-				ret = this.service.confirm(s);
+			if (!this.service.documentation_mode && this.service.confirm) {
+				this.status = "dialog";
+				this.dialogResult = null;
+				this.service.confirm(s, (result) => {
+					this.dialogResult = {
+						type: this.program.types[Typeid.typeid_boolean],
+						value: { b: result },
+					};
+				});
+			}
 			return {
 				type: this.program.types[Typeid.typeid_boolean],
-				value: { b: ret },
+				value: { b: false },
 			};
 		},
 		prompt: function (text) {
 			let s = TScript.toString.call(this, text);
-			let ret = null;
 			if (!this.service.documentation_mode && this.service.prompt) {
-				ret = this.service.prompt(s);
-				if (ret === null)
-					return {
-						type: this.program.types[Typeid.typeid_null],
-						value: { b: null },
-					};
-				else
-					return {
-						type: this.program.types[Typeid.typeid_string],
-						value: { b: ret },
-					};
-			} else
-				return {
-					type: this.program.types[Typeid.typeid_string],
-					value: { b: "" },
-				};
+				this.status = "dialog";
+				this.dialogResult = null;
+				this.service.prompt(s, (result) => {
+					if (result === null)
+						this.dialogResult = {
+							type: this.program.types[Typeid.typeid_null],
+							value: { b: null },
+						};
+					else
+						this.dialogResult = {
+							type: this.program.types[Typeid.typeid_string],
+							value: { b: result },
+						};
+				});
+			}
+			return {
+				type: this.program.types[Typeid.typeid_string],
+				value: { b: "" },
+			};
 		},
 		wait: function (milliseconds) {
 			if (!TScript.isNumeric(milliseconds.type))

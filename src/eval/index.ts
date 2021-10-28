@@ -379,8 +379,17 @@ export const evaluation = (function () {
 		interpreter.service.print = function (msg) {
 			output.push({ type: "print", value: msg });
 		};
-		interpreter.service.alert = function (msg) {
+		interpreter.service.alert = function (msg, reportValue) {
 			output.push({ type: "alert", value: msg });
+			reportValue();
+		};
+		interpreter.service.confirm = function (msg, reportValue) {
+			if (!inputs || inputs.length == 0) reportValue(false);
+			else reportValue(!!inputs.shift());
+		};
+		interpreter.service.prompt = function (msg, reportValue) {
+			if (!inputs || inputs.length == 0) reportValue("");
+			else reportValue(inputs.shift());
 		};
 		interpreter.service.message = function (
 			msg,
@@ -389,14 +398,6 @@ export const evaluation = (function () {
 			href: any = ""
 		) {
 			output.push({ type: "runtime error", message: msg, line: line });
-		};
-		interpreter.service.confirm = function (msg) {
-			if (!inputs || inputs.length == 0) return false;
-			else return !!inputs.shift();
-		};
-		interpreter.service.prompt = function (msg) {
-			if (!inputs || inputs.length == 0) return "";
-			else return inputs.shift();
 		};
 		interpreter.service.turtle.move = function (distance) {
 			let x0 = interpreter.service.turtle.x;

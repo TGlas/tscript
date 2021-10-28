@@ -622,6 +622,8 @@ export let ide = (function () {
 				else module.programstate.stepping();
 			} else if (module.interpreter.status === "waiting")
 				module.programstate.waiting();
+			else if (module.interpreter.status === "dialog")
+				module.programstate.dialog();
 			else if (module.interpreter.status === "error")
 				module.programstate.error();
 			else if (module.interpreter.status === "finished")
@@ -637,7 +639,8 @@ export let ide = (function () {
 			let should =
 				module.interpreter &&
 				(module.interpreter.status === "running" ||
-					module.interpreter.status === "waiting");
+					module.interpreter.status === "waiting" ||
+					module.interpreter.status === "dialog");
 			if (module.sourcecode.getOption("readOnly") != should) {
 				module.sourcecode.setOption("readOnly", should);
 				let ed: any = document.getElementsByClassName("CodeMirror");
@@ -819,14 +822,92 @@ export let ide = (function () {
 				module.addMessage("print", msg);
 				module.interpreter.flush();
 			};
-			module.interpreter.service.alert = function (msg) {
-				alert(msg);
+			module.interpreter.service.alert = function (msg, reportValue) {
+				let dlg = tgui.msgBox({
+					title: "",
+					prompt: msg,
+					icon: tgui.msgBoxExclamation,
+					buttons: [{ text: "Close", isDefault: true }],
+					enterConfirms: true,
+					onClose: () => {
+						reportValue();
+						return false;
+					},
+				});
 			};
-			module.interpreter.service.confirm = function (msg) {
-				return confirm(msg);
+			module.interpreter.service.confirm = function (msg, reportValue) {
+				let value = false;
+				let dlg = tgui.msgBox({
+					title: "Question",
+					prompt: msg,
+					icon: tgui.msgBoxQuestion,
+					buttons: [
+						{
+							text: "Yes",
+							isDefault: true,
+							onClick: () => {
+								value = true;
+								return false;
+							},
+						},
+						{
+							text: "No",
+							isDefault: false,
+							onClick: () => {
+								value = false;
+								return false;
+							},
+						},
+					],
+					enterConfirms: true,
+					onClose: () => {
+						reportValue(value);
+						return false;
+					},
+				});
 			};
-			module.interpreter.service.prompt = function (msg) {
-				return prompt(msg);
+			module.interpreter.service.prompt = function (msg, reportValue) {
+				let input = tgui.createElement({
+					type: "input",
+					classname: "ide-prompt-input",
+					properties: { type: "text" },
+				});
+				let value = null;
+				let dlg = tgui.createModal({
+					title: "Input",
+					scalesize: [0.2, 0.15],
+					minsize: [300, 150],
+					buttons: [
+						{
+							text: "Okay",
+							isDefault: true,
+							onClick: () => {
+								value = input.value;
+								return false;
+							},
+						},
+						{
+							text: "Cancel",
+							isDefault: false,
+							onClick: () => {
+								return false;
+							},
+						},
+					],
+					enterConfirms: true,
+					onClose: () => {
+						reportValue(value);
+						return false;
+					},
+				});
+				tgui.createElement({
+					type: "p",
+					parent: dlg.content,
+					text: msg,
+				});
+				dlg.content.appendChild(input);
+				tgui.startModal(dlg);
+				input.focus();
 			};
 			module.interpreter.service.message = function (
 				msg,
@@ -898,7 +979,8 @@ export let ide = (function () {
 		if (
 			!module.interpreter ||
 			(module.interpreter.status != "running" &&
-				module.interpreter.status != "waiting")
+				module.interpreter.status != "waiting" &&
+				module.interpreter.status != "dialog")
 		)
 			module.prepare_run();
 		if (!module.interpreter) return;
@@ -910,7 +992,8 @@ export let ide = (function () {
 		if (
 			!module.interpreter ||
 			(module.interpreter.status != "running" &&
-				module.interpreter.status != "waiting")
+				module.interpreter.status != "waiting" &&
+				module.interpreter.status != "dialog")
 		)
 			return;
 		module.interpreter.interrupt();
@@ -920,7 +1003,8 @@ export let ide = (function () {
 		if (
 			!module.interpreter ||
 			(module.interpreter.status != "running" &&
-				module.interpreter.status != "waiting")
+				module.interpreter.status != "waiting" &&
+				module.interpreter.status != "dialog")
 		)
 			module.prepare_run();
 		if (!module.interpreter) return;
@@ -932,7 +1016,8 @@ export let ide = (function () {
 		if (
 			!module.interpreter ||
 			(module.interpreter.status != "running" &&
-				module.interpreter.status != "waiting")
+				module.interpreter.status != "waiting" &&
+				module.interpreter.status != "dialog")
 		)
 			module.prepare_run();
 		if (!module.interpreter) return;
@@ -944,7 +1029,8 @@ export let ide = (function () {
 		if (
 			!module.interpreter ||
 			(module.interpreter.status != "running" &&
-				module.interpreter.status != "waiting")
+				module.interpreter.status != "waiting" &&
+				module.interpreter.status != "dialog")
 		)
 			module.prepare_run();
 		if (!module.interpreter) return;
@@ -957,7 +1043,8 @@ export let ide = (function () {
 		if (module.interpreter) {
 			if (
 				module.interpreter.status === "running" ||
-				module.interpreter.status === "waiting"
+				module.interpreter.status === "waiting" ||
+				module.interpreter.status === "dialog"
 			)
 				return;
 		}
@@ -1952,6 +2039,9 @@ export let ide = (function () {
 		module.programstate.waiting = function () {
 			this.setText("program is waiting").setStateCss("waiting");
 		};
+		module.programstate.dialog = function () {
+			this.setText("modal dialog").setStateCss("dialog");
+		};
 		module.programstate.stepping = function () {
 			this.setText("program is in stepping mode").setStateCss("stepping");
 		};
@@ -2292,7 +2382,8 @@ export let ide = (function () {
 				!module.interpreter ||
 				!module.interpreter.background ||
 				(module.interpreter.status != "running" &&
-					module.interpreter.status != "waiting")
+					module.interpreter.status != "waiting" &&
+					module.interpreter.status != "dialog")
 			)
 				return;
 			let e: any = {
@@ -2315,7 +2406,8 @@ export let ide = (function () {
 				!module.interpreter ||
 				!module.interpreter.background ||
 				(module.interpreter.status != "running" &&
-					module.interpreter.status != "waiting")
+					module.interpreter.status != "waiting" &&
+					module.interpreter.status != "dialog")
 			)
 				return;
 			let e: any = {
@@ -2338,7 +2430,8 @@ export let ide = (function () {
 				!module.interpreter ||
 				!module.interpreter.background ||
 				(module.interpreter.status != "running" &&
-					module.interpreter.status != "waiting")
+					module.interpreter.status != "waiting" &&
+					module.interpreter.status != "dialog")
 			)
 				return;
 			let e: any = {
@@ -2361,7 +2454,8 @@ export let ide = (function () {
 				!module.interpreter ||
 				!module.interpreter.background ||
 				(module.interpreter.status != "running" &&
-					module.interpreter.status != "waiting")
+					module.interpreter.status != "waiting" &&
+					module.interpreter.status != "dialog")
 			)
 				return;
 			let e = {
@@ -2375,7 +2469,8 @@ export let ide = (function () {
 				!module.interpreter ||
 				!module.interpreter.background ||
 				(module.interpreter.status != "running" &&
-					module.interpreter.status != "waiting")
+					module.interpreter.status != "waiting" &&
+					module.interpreter.status != "dialog")
 			)
 				return;
 			let e: any = {
@@ -2393,7 +2488,8 @@ export let ide = (function () {
 				!module.interpreter ||
 				!module.interpreter.background ||
 				(module.interpreter.status != "running" &&
-					module.interpreter.status != "waiting")
+					module.interpreter.status != "waiting" &&
+					module.interpreter.status != "dialog")
 			)
 				return;
 			let e: any = {

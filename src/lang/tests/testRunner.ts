@@ -79,27 +79,28 @@ export class TestRunner {
 		service.print = function (msg) {
 			result.push({ type: "print", message: msg });
 		};
-		service.alert = function (msg) {
+		service.alert = function (msg, reportValue) {
 			result.push({ type: "alert", message: msg });
+			reportValue();
 		};
-		(service.confirm = function (msg) {
+		service.confirm = function (msg, reportValue) {
 			result.push({ type: "confirm", message: msg });
 			let b = input.shift();
 			ErrorHelper.assert(
 				b === true || b === false,
 				"simulated user input is not a boolean"
 			);
-			return b;
-		}),
-			(service.prompt = function (msg) {
-				result.push({ type: "prompt", message: msg });
-				let s = input.shift();
-				ErrorHelper.assert(
-					typeof s == "string",
-					"simulated user input is not a string"
-				);
-				return s;
-			});
+			reportValue(b);
+		};
+		service.prompt = function (msg, reportValue) {
+			result.push({ type: "prompt", message: msg });
+			let s = input.shift();
+			ErrorHelper.assert(
+				typeof s == "string",
+				"simulated user input is not a string"
+			);
+			reportValue(s);
+		};
 		service.message = function (msg, line, ch, href) {
 			result.push({ type: "error", href: href });
 		};
