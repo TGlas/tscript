@@ -111,7 +111,7 @@ class DocumentationPageController implements IPageController {
 
 	private showPage(params: URLSearchParams): void {
 		const docPage = params.get("doc") ?? "";
-		if (docPage === "search") {
+		if (docPage.startsWith("search/")) {
 			const searchQuery = params.get("q") ?? "";
 			const tokens = searchengine.tokenize(searchQuery);
 			doc.setpath("search/" + tokens.join("/"));
