@@ -960,7 +960,7 @@ export const core = {
 			if (!this.service.documentation_mode && this.service.alert) {
 				this.status = "dialog";
 				this.dialogResult = null;
-				this.service.alert(s, () => {
+				this.service.alert(s).then(() => {
 					this.dialogResult = {
 						type: this.program.types[Typeid.typeid_null],
 						value: { b: null },
@@ -977,7 +977,7 @@ export const core = {
 			if (!this.service.documentation_mode && this.service.confirm) {
 				this.status = "dialog";
 				this.dialogResult = null;
-				this.service.confirm(s, (result) => {
+				this.service.confirm(s).then((result) => {
 					this.dialogResult = {
 						type: this.program.types[Typeid.typeid_boolean],
 						value: { b: result },
@@ -994,7 +994,7 @@ export const core = {
 			if (!this.service.documentation_mode && this.service.prompt) {
 				this.status = "dialog";
 				this.dialogResult = null;
-				this.service.prompt(s, (result) => {
+				this.service.prompt(s).then((result) => {
 					if (result === null)
 						this.dialogResult = {
 							type: this.program.types[Typeid.typeid_null],

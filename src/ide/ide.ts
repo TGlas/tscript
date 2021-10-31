@@ -822,92 +822,98 @@ export let ide = (function () {
 				module.addMessage("print", msg);
 				module.interpreter.flush();
 			};
-			module.interpreter.service.alert = function (msg, reportValue) {
-				let dlg = tgui.msgBox({
-					title: "",
-					prompt: msg,
-					icon: tgui.msgBoxExclamation,
-					buttons: [{ text: "Close", isDefault: true }],
-					enterConfirms: true,
-					onClose: () => {
-						reportValue();
-						return false;
-					},
+			module.interpreter.service.alert = function (msg) {
+				return new Promise((resolve, reject) => {
+					let dlg = tgui.msgBox({
+						title: "",
+						prompt: msg,
+						icon: tgui.msgBoxExclamation,
+						buttons: [{ text: "Close", isDefault: true }],
+						enterConfirms: true,
+						onClose: () => {
+							resolve(null);
+							return false;
+						},
+					});
 				});
 			};
-			module.interpreter.service.confirm = function (msg, reportValue) {
-				let value = false;
-				let dlg = tgui.msgBox({
-					title: "Question",
-					prompt: msg,
-					icon: tgui.msgBoxQuestion,
-					buttons: [
-						{
-							text: "Yes",
-							isDefault: true,
-							onClick: () => {
-								value = true;
-								return false;
+			module.interpreter.service.confirm = function (msg) {
+				return new Promise((resolve, reject) => {
+					let value = false;
+					let dlg = tgui.msgBox({
+						title: "Question",
+						prompt: msg,
+						icon: tgui.msgBoxQuestion,
+						buttons: [
+							{
+								text: "Yes",
+								isDefault: true,
+								onClick: () => {
+									value = true;
+									return false;
+								},
 							},
-						},
-						{
-							text: "No",
-							isDefault: false,
-							onClick: () => {
-								value = false;
-								return false;
+							{
+								text: "No",
+								isDefault: false,
+								onClick: () => {
+									value = false;
+									return false;
+								},
 							},
+						],
+						enterConfirms: true,
+						onClose: () => {
+							resolve(value);
+							return false;
 						},
-					],
-					enterConfirms: true,
-					onClose: () => {
-						reportValue(value);
-						return false;
-					},
+					});
 				});
 			};
-			module.interpreter.service.prompt = function (msg, reportValue) {
-				let input = tgui.createElement({
-					type: "input",
-					classname: "ide-prompt-input",
-					properties: { type: "text" },
-				});
-				let value = null;
-				let dlg = tgui.createModal({
-					title: "Input",
-					scalesize: [0.2, 0.15],
-					minsize: [300, 150],
-					buttons: [
-						{
-							text: "Okay",
-							isDefault: true,
-							onClick: () => {
-								value = input.value;
-								return false;
+			module.interpreter.service.prompt = function (msg) {
+				return new Promise((resolve, reject) => {
+					let input = tgui.createElement({
+						type: "input",
+						classname: "ide-prompt-input",
+						properties: { type: "text" },
+					});
+					let value = null;
+					let dlg = tgui.createModal({
+						title: "Input",
+						scalesize: [0.2, 0.15],
+						minsize: [300, 150],
+						buttons: [
+							{
+								text: "Okay",
+								isDefault: true,
+								onClick: () => {
+									value = input.value;
+									return false;
+								},
 							},
-						},
-						{
-							text: "Cancel",
-							isDefault: false,
-							onClick: () => {
-								return false;
+							{
+								text: "Cancel",
+								isDefault: false,
+								onClick: () => {
+									return false;
+								},
 							},
+						],
+						enterConfirms: true,
+						onClose: () => {
+							resolve(value);
+							return false;
 						},
-					],
-					enterConfirms: true,
-					onClose: () => {
-						reportValue(value);
-						return false;
-					},
+					});
+					tgui.createElement({
+						type: "p",
+						parent: dlg.content,
+						text: msg,
+					});
+					dlg.content.appendChild(input);
+					tgui.startModal(dlg);
+					input.focus();
 				});
-				tgui.createElement({
-					type: "p",
-					parent: dlg.content,
-					text: msg,
-				});
-				dlg.content.appendChild(input);
-				tgui.startModal(dlg);
-				input.focus();
 			};
 			module.interpreter.service.message = function (
 				msg,
