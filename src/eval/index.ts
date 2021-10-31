@@ -379,17 +379,23 @@ export const evaluation = (function () {
 		interpreter.service.print = function (msg) {
 			output.push({ type: "print", value: msg });
 		};
-		interpreter.service.alert = function (msg, reportValue) {
-			output.push({ type: "alert", value: msg });
-			reportValue();
+		interpreter.service.alert = function (msg) {
+			return new Promise((resolve, reject) => {
+				output.push({ type: "alert", value: msg });
+				resolve(null);
+			});
 		};
-		interpreter.service.confirm = function (msg, reportValue) {
-			if (!inputs || inputs.length == 0) reportValue(false);
-			else reportValue(!!inputs.shift());
+		interpreter.service.confirm = function (msg) {
+			return new Promise((resolve, reject) => {
+				if (!inputs || inputs.length == 0) resolve(false);
+				else resolve(!!inputs.shift());
+			});
 		};
-		interpreter.service.prompt = function (msg, reportValue) {
-			if (!inputs || inputs.length == 0) reportValue("");
-			else reportValue(inputs.shift());
+		interpreter.service.prompt = function (msg) {
+			return new Promise((resolve, reject) => {
+				if (!inputs || inputs.length == 0) resolve("");
+				else resolve(inputs.shift());
+			});
 		};
 		interpreter.service.message = function (
 			msg,
