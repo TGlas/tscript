@@ -1167,6 +1167,7 @@ export const evaluation = (function () {
 		// extract properties
 		let solution = task.correct;
 		let points = task.points ? task.points : 0;
+		let total = points;
 		let error: null | string = null;
 		let details: null | string = null;
 		let timeout = task.timeout ? task.timeout : 3;
@@ -1246,13 +1247,12 @@ export const evaluation = (function () {
 						details = ed[1];
 					}
 				} else {
+					let fraction = 0.0, use_fraction = false;
 					let call_pos = 0;
 					let code_pos = 0;
-					for (
-						let i = 0;
-						i < task.tests.length && error === null;
-						i++
-					) {
+					for (let i = 0; i < task.tests.length; i++) {
+						// run a single test
+						let success = true;
 						let test = task.tests[i];
 						if (test.type == "call") {
 							let ed = compare_runs(
@@ -1261,11 +1261,11 @@ export const evaluation = (function () {
 								marker
 							);
 							if (ed[0] != "") {
-								points = 0;
+								success = false;
 								error =
-									"Error in the specification of a unit test of type 'call': " +
+									"Error:\n" +
 									ed[0] +
-									"\n" +
+									"\nTest code:\n" +
 									calls[call_pos];
 								details = ed[1];
 							}
@@ -1278,30 +1278,42 @@ export const evaluation = (function () {
 								marker
 							);
 							if (ed[0] != "") {
-								points = 0;
+								success = false;
 								error = ed[0];
-								details = ed[1];
 								if (calls[call_pos] != "") {
 									error =
-										"Error in the specification of a unit test of type 'code': " +
+										"Error:\n" +
 										ed[0] +
-										"\n" +
+										"\nTest code:\n" +
 										calls[call_pos];
-									details = ed[1];
 								}
+								details = ed[1];
 							}
 							code_pos += 2;
 							call_pos++;
 						} else if (test.type == "js") {
 							if (typeof result[code_pos] == "string") {
-								points = 0;
+								success = false;
 								error = result[code_pos];
 								if (test.hasOwnProperty("feedback"))
 									details = test.feedback;
 							}
 							code_pos++;
 						}
+
+						// process the result
+						if (success)
+						{
+							if (test.hasOwnProperty("fraction")) fraction += test.fraction;
+						}
+						else
+						{
+							points = 0;
+							use_fraction = true;
+							if (! test.hasOwnProperty("fatal") || test.fatal) break;
+						}
 					}
+					if (use_fraction) points = fraction * total;
 				}
 			}
 
