@@ -1182,8 +1182,13 @@ export const evaluation = (function () {
 				let test = task.tests[i];
 				if (test.type == "call") {
 					let call = test.code;
+					let context = test.hasOwnProperty("context")
+						? test.context
+						: "";
 					calls.push(call);
 					let sub =
+						context +
+						"\n\n" +
 						submission +
 						"\n\n{var result = " +
 						call +
@@ -1191,6 +1196,8 @@ export const evaluation = (function () {
 						marker +
 						'" + result);\n}\n';
 					let sol =
+						context +
+						"\n\n" +
 						solution +
 						"\n\n{var result = " +
 						call +
@@ -1201,9 +1208,19 @@ export const evaluation = (function () {
 					codes.push(sol);
 				} else if (test.type == "code") {
 					let call = test.code;
+					let context = test.hasOwnProperty("context")
+						? test.context
+						: "";
 					calls.push(call);
-					let sub = submission + "\n\n{" + call + "\n}\n";
-					let sol = solution + "\n\n{" + call + ";\n}\n";
+					let sub =
+						context +
+						"\n\n" +
+						submission +
+						"\n\n{" +
+						call +
+						"\n}\n";
+					let sol =
+						context + "\n\n" + solution + "\n\n{" + call + ";\n}\n";
 					codes.push(sub);
 					codes.push(sol);
 				} else if (test.type == "js") {
