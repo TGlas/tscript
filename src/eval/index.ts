@@ -1170,6 +1170,7 @@ export const evaluation = (function () {
 		let error: null | string = null;
 		let details: null | string = null;
 		let timeout = task.timeout ? task.timeout : 3;
+		let task_context = task.hasOwnProperty("context") ? task.context : "";
 
 		// collect the codes to execute
 		let codes = new Array();
@@ -1183,8 +1184,8 @@ export const evaluation = (function () {
 				if (test.type == "call") {
 					let call = test.code;
 					let context = test.hasOwnProperty("context")
-						? test.context
-						: "";
+						? task_context + test.context
+						: task_context;
 					calls.push(call);
 					let sub =
 						context +
@@ -1209,8 +1210,8 @@ export const evaluation = (function () {
 				} else if (test.type == "code") {
 					let call = test.code;
 					let context = test.hasOwnProperty("context")
-						? test.context
-						: "";
+						? task_context + test.context
+						: task_context;
 					calls.push(call);
 					let sub =
 						context +
