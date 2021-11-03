@@ -441,7 +441,22 @@ export const evaluation = (function () {
 			output.push({ type: "print", value: msg });
 		};
 		interpreter.service.alert = function (msg) {
-			output.push({ type: "alert", value: msg });
+			return new Promise((resolve, reject) => {
+				output.push({ type: "alert", value: msg });
+				resolve(null);
+			});
+		};
+		interpreter.service.confirm = function (msg) {
+			return new Promise((resolve, reject) => {
+				if (!inputs || inputs.length == 0) resolve(false);
+				else resolve(!!inputs.shift());
+			});
+		};
+		interpreter.service.prompt = function (msg) {
+			return new Promise((resolve, reject) => {
+				if (!inputs || inputs.length == 0) resolve("");
+				else resolve(inputs.shift());
+			});
 		};
 		interpreter.service.message = function (
 			msg,
@@ -450,14 +465,6 @@ export const evaluation = (function () {
 			href: any = ""
 		) {
 			output.push({ type: "runtime error", message: msg, line: line });
-		};
-		interpreter.service.confirm = function (msg) {
-			if (!inputs || inputs.length == 0) return false;
-			else return !!inputs.shift();
-		};
-		interpreter.service.prompt = function (msg) {
-			if (!inputs || inputs.length == 0) return "";
-			else return inputs.shift();
 		};
 		interpreter.service.turtle.move = function (distance) {
 			let x0 = interpreter.service.turtle.x;

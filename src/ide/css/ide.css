@@ -232,3 +232,8 @@ button {
 	border: 1px solid #000;
 	display: none;
 }
+
+.ide-prompt-input {
+	width: 100%;
+	padding: 3px 6px;
+}
