@@ -2044,9 +2044,6 @@ export let ide = (function () {
 		module.programstate.waiting = function () {
 			this.setText("program is waiting").setStateCss("waiting");
 		};
-		module.programstate.dialog = function () {
-			this.setText("modal dialog").setStateCss("dialog");
-		};
 		module.programstate.stepping = function () {
 			this.setText("program is in stepping mode").setStateCss("stepping");
 		};
