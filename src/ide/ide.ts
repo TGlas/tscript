@@ -827,8 +827,7 @@ export let ide = (function () {
 					let dlg = tgui.msgBox({
 						title: "",
 						prompt: msg,
-						icon: tgui.msgBoxExclamation,
-						buttons: [{ text: "Close", isDefault: true }],
+						buttons: [{ text: "Okay", isDefault: true }],
 						enterConfirms: true,
 						onClose: () => {
 							resolve(null);
