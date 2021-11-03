@@ -977,6 +977,7 @@ export const core = {
 			let s = TScript.toString.call(this, text);
 			if (!this.service.documentation_mode && this.service.confirm) {
 				this.status = "dialog";
+				this.service.statechanged?.(false);
 				this.dialogResult = null;
 				this.service.confirm(s).then((result) => {
 					this.dialogResult = {
