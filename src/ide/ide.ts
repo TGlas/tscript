@@ -623,7 +623,7 @@ export let ide = (function () {
 			} else if (module.interpreter.status === "waiting")
 				module.programstate.waiting();
 			else if (module.interpreter.status === "dialog")
-				module.programstate.dialog();
+				module.programstate.waiting();
 			else if (module.interpreter.status === "error")
 				module.programstate.error();
 			else if (module.interpreter.status === "finished")
