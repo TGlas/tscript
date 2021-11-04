@@ -232,7 +232,7 @@ export const evaluation = (function () {
 			solution.splice(solution.length - 1, 1);
 		}
 
-		// check for errors
+		// loop over events produced by the submission and check for errors
 		let wanted_errors = {
 			"assertion failed": true,
 			"uncaught exception": true,
@@ -335,13 +335,38 @@ export const evaluation = (function () {
 							escape(JSON.stringify(submission[i][p]));
 					}
 					s +=
-						'</td><td class="error">no matching event was produced by the reference solution</td></tr>\r\n';
+						'</td><td class="error">no matching event was produced by the reference solution. Candidates:<table>';
+					for (let j = 0; j < remaining_solution.length; j++) {
+						s +=
+							'<tr><td class="error">event type: ' +
+							escape(remaining_solution[j].type) +
+							"<br/>";
+						for (let p in remaining_solution[j]) {
+							if (!remaining_solution[j].hasOwnProperty(p))
+								continue;
+							if (p == "type") continue;
+							s +=
+								" " +
+								escape(p) +
+								": " +
+								escape(
+									JSON.stringify(remaining_solution[j][p])
+								);
+						}
+						s += "</td></tr>";
+					}
+					s += "</table></td></tr>\r\n";
 					table += s + "</table>\r\n";
 					return [
 						"unmatched events, see detailed table for more information",
 						table,
 					];
 				}
+				if (type != "marker")
+					table += addrow(
+						remaining_solution[match_index],
+						submission[i]
+					);
 				i++;
 				remaining_solution.splice(match_index, 1);
 			} else {
@@ -365,6 +390,7 @@ export const evaluation = (function () {
 			}
 		}
 
+		// handle missing events
 		if (remaining_solution.length > 0) {
 			table += addrow(remaining_solution[0], null, "error");
 			table += "</table>\r\n";
