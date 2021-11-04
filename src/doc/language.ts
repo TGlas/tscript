@@ -2078,6 +2078,22 @@ print(r > s);                           # prints true, as the first comparison t
 					<tr><th>true</th><td>false</td><td>true</td></tr>
 				</table>
 				It applies to all 32 bits of an integer accordingly.
+				</p><p>
+				Note: The operator does not implement so-called short-circuit
+				behavior! I.e., in the code
+				<tscript>
+				function test(x)
+				{
+					print(x);
+					return x >= 0;
+				}
+				if false and test(7) then print("hello");
+				</tscript>
+				the function <code>test</code> is called, although it can be
+				decided based on the left operand of <code>and</code> that the
+				expression evaluates to false. Hence, the print statement inside
+				of the function is executed. That may be surprising for
+				experienced programmers who got used to short-circuit behavior.
 				</p>
 			`,
 							children: [],
@@ -2100,6 +2116,22 @@ print(r > s);                           # prints true, as the first comparison t
 					<tr><th>true</th><td>true</td><td>true</td></tr>
 				</table>
 				It applies to all 32 bits of an integer accordingly.
+				</p><p>
+				Note: The operator does not implement so-called short-circuit
+				behavior! I.e., in the code
+				<tscript>
+				function test(x)
+				{
+					print(x);
+					return x >= 0;
+				}
+				if true or test(-7) then print("hello");
+				</tscript>
+				the function <code>test</code> is called, although it can be
+				decided based on the left operand of <code>or</code> that the
+				expression evaluates to true. Hence, the print statement inside
+				of the function is executed. That may be surprising for
+				experienced programmers who got used to short-circuit behavior.
 				</p>
 			`,
 							children: [],
