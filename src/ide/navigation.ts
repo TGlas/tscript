@@ -110,7 +110,7 @@ export function navigate(
  * history entry.
  *
  * @param newUrl the URl navigate to
- * @param navigateFallback whether to let the browser load the new URL if replaceState faile
+ * @param navigateFallback whether to let the browser load the new URL if replaceState fails
  */
 export function replaceUrl(
 	newUrl: string | URL,
