@@ -5,16 +5,18 @@ namespace audio{
 		public:
 		constructor(buffer, sampleRate){}
 		function play(){}
-		function pause(){}
-		function setPlaybackRate(speed){}
+		function startLoop(){}
+		function stopLoop(){}
+		function looping(){}
 	}
 	class StereoAudio
 	{
 		public:
 		constructor(leftBuffer, rightBuffer, sampleRate){}
 		function play(){}
-		function pause(){}
-		function setPlaybackRate(speed){}
+		function startLoop(){}
+		function stopLoop(){}
+		function looping(){}
 	}
 }
 `;

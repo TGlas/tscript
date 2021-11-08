@@ -296,12 +296,21 @@ export function createDefaultServices() {
 				ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
 			},
 		},
+
 		audioContext: typeof atx === "undefined" ? undefined : new atx(),
+
 		localStorage:
 			typeof window === "undefined"
 				? fakeLocalStorage
 				: typeof window.localStorage === "undefined"
 				? fakeLocalStorage
 				: window.localStorage,
+
+		startup: function () {
+			if (typeof atx !== "undefined") this.audioContext = new atx();
+		},
+		shutdown: function () {
+			if (this.audioContext) this.audioContext.close();
+		},
 	};
 }

@@ -2107,6 +2107,36 @@ print(arr.sort(order2));                        # works fine
 		`,
 					children: [],
 				},
+				{
+					id: "am-44",
+					content: `
+			<p>
+			When constructing a A <a href="?doc=/library/audio">stereo sound</a>,
+			the buffer arrays of the left and right channels must have the same size.
+			This error indicates that the sizes differ.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-45",
+					content: `
+			<p>
+			The error indicates that a too large object was created.
+			This applies (in theory) to the types
+			Range, Array, and Dictionary, but in practice it applies only
+			to <a href="?doc=/language/types/range">ranges</a>. In the
+			following code
+			<tscript do-not-run>
+				var r = -2000000000:2000000000;
+			</tscript>
+			the range would span 4000000000 (4 billion) numbers. That
+			number exceeds the Integer range and hence triggers this
+			error message.
+			</p>
+		`,
+					children: [],
+				},
 			],
 		},
 		{

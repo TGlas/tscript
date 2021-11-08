@@ -116,6 +116,7 @@ export class Interpreter {
 				variables: [], // array, global variables
 			},
 		];
+		if (this.service.startup) this.service.startup();
 		this.status = "running";
 		if (this.service.statechanged) this.service.statechanged(false);
 	}
@@ -217,6 +218,7 @@ export class Interpreter {
 		if (this.stack.length === 0) {
 			this.status = "finished";
 			if (this.service.statechanged) this.service.statechanged(true);
+			if (this.service.shutdown) this.service.shutdown();
 			return;
 		}
 
@@ -270,6 +272,7 @@ export class Interpreter {
 				}
 				this.status = "error";
 				if (this.service.statechanged) this.service.statechanged(true);
+				if (this.service.shutdown) this.service.shutdown();
 			} else {
 				// report an internal interpreter error
 				console.log("internal runtime error!");
@@ -289,6 +292,7 @@ export class Interpreter {
 				this.background = false;
 				this.status = "error";
 				if (this.service.statechanged) this.service.statechanged(true);
+				if (this.service.shutdown) this.service.shutdown();
 			}
 		}
 	}

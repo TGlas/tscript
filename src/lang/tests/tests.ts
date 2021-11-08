@@ -2113,14 +2113,23 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "audio",
+		name: "audio 1",
 		description: "checks if the audio object rejects invalid samples",
 		code: `
-			use namespace audio;
-			var samples = [];
-			samples.push("hello");
-			var ma = MonoAudio(samples, 48000);
-`,
+			audio.MonoAudio([1,0,-1,0,1,"hello",-1,0,1], 48000);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
+	},
+	{
+		name: "audio 2",
+		description:
+			"checks if the stereo audio object insists on equal buffer sizes",
+		code: `
+			audio.StereoAudio([0.1, 0.2, 0.3], [-0.1, -0.2], 48000);
+		`,
 		expectation: [
 			{ type: "error", href: "#/errors/argument-mismatch/am-44" },
 			"error",
