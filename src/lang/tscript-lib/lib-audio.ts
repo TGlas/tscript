@@ -55,66 +55,69 @@ export const lib_audio = {
 					);
 
 					fillAudioBuffer(buffer, buf.getChannelData(0));
-
-					let sourceNode =
-						this.service.audioContext.createBufferSource();
-					sourceNode.buffer = buf;
-					sourceNode.connect(this.service.audioContext.destination);
-
-					object.value.b = sourceNode;
+					object.value.b = { buffer: buf, soundloop: null };
 				},
+
 				play: function (object) {
-					if (!hasAudioContext.call(this)) return;
-					if (!object.value.b) return;
-					object.value.b.start();
-				},
-				pause: function (object) {
-					if (!hasAudioContext.call(this)) return;
-					if (!object.value.b) return;
-					object.value.b.stop();
-				},
-				setLoop: function (object, looping) {
-					if (
-						!TScript.isDerivedFrom(
-							looping.type,
-							Typeid.typeid_boolean
-						)
-					)
-						ErrorHelper.error(
-							"/argument-mismatch/am-1",
-							[
-								"looping",
-								"audio.MonoAudio.setLoop",
-								"Boolean",
-								TScript.displayname(looping.type),
-							],
-							this.stack
+					if (hasAudioContext.call(this) && object.value.b) {
+						let sourceNode =
+							this.service.audioContext.createBufferSource();
+						sourceNode.buffer = object.value.b.buffer;
+						sourceNode.connect(
+							this.service.audioContext.destination
 						);
-					if (!hasAudioContext.call(this)) return;
-					if (!object.value.b) return;
-					object.value.b.loop = looping.value.b;
+						sourceNode.start();
+					}
+					return {
+						type: this.program.types[Typeid.typeid_null],
+						value: { b: null },
+					};
 				},
-				setPlaybackRate: function (object, speed) {
+				startLoop: function (object) {
 					if (
-						!TScript.isDerivedFrom(
-							speed.type,
-							Typeid.typeid_integer
-						) &&
-						!TScript.isDerivedFrom(speed.type, Typeid.typeid_real)
-					)
-						ErrorHelper.error(
-							"/argument-mismatch/am-1",
-							[
-								"speed",
-								"audio.MonoAudio.setPlaybackRate",
-								"numerical value",
-								TScript.displayname(speed.type),
-							],
-							this.stack
+						hasAudioContext.call(this) &&
+						object.value.b &&
+						!object.value.b.soundloop
+					) {
+						let sourceNode =
+							this.service.audioContext.createBufferSource();
+						sourceNode.buffer = object.value.b.buffer;
+						sourceNode.connect(
+							this.service.audioContext.destination
 						);
-					if (!hasAudioContext.call(this)) return;
-					if (!object.value.b) return;
-					object.value.b.playbackRate.value = speed.value.b;
+						sourceNode.loop = true;
+						sourceNode.start();
+
+						object.value.b.soundloop = sourceNode;
+					}
+					return {
+						type: this.program.types[Typeid.typeid_null],
+						value: { b: null },
+					};
+				},
+				stopLoop: function (object) {
+					if (
+						hasAudioContext.call(this) &&
+						object.value.b &&
+						object.value.b.soundloop
+					) {
+						object.value.b.soundloop.stop();
+						object.value.b.soundloop = null;
+					}
+					return {
+						type: this.program.types[Typeid.typeid_null],
+						value: { b: null },
+					};
+				},
+				looping: function (object) {
+					let b =
+						hasAudioContext.call(this) &&
+						object.value.b &&
+						object.value.b.soundloop;
+					return {
+						type: this.program.types[Typeid.typeid_boolean],
+						value: { b: b },
+					};
 				},
 			},
 			StereoAudio: {
@@ -271,32 +274,6 @@ export const lib_audio = {
 						value: { b: b },
 					};
 				},
-				//				setLoop: function (object, looping) {
-				//					if (!TScript.isDerivedFrom(looping.type, Typeid.typeid_boolean))
-				//						ErrorHelper.error("/argument-mismatch/am-1", [
-				//							"looping",
-				//							"audio.StereoAudio.setLoop",
-				//							"Boolean",
-				//							TScript.displayname(looping.type),
-				//						], this.stack);
-				//					if (!hasAudioContext.call(this)) return;
-				//					if (!object.value.b) return;
-				//					object.value.b.loop = looping.value.b;
-				//				},
-				//				setPlaybackRate: function (object, speed) {
-				//					if (!TScript.isDerivedFrom(speed.type, Typeid.typeid_integer)
-				//							&& !TScript.isDerivedFrom(speed.type, Typeid.typeid_real))
-				//						ErrorHelper.error("/argument-mismatch/am-1", [
-				//							"speed",
-				//							"audio.StereoAudio.setPlaybackRate",
-				//							"numerical value",
-				//							TScript.displayname(speed.type),
-				//						], this.stack);
-				//					if (!hasAudioContext.call(this)) return;
-				//					if (!object.value.b) return;
-				//
-				//					object.value.b.playbackRate.value = speed.value.b;
-				//				},
 			},
 		},
 	},
