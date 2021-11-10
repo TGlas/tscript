@@ -42,6 +42,7 @@ export class Interpreter {
 		if (this.stop) {
 			this.thread = false;
 			this.stop = false;
+			if (this.service.shutdown) this.service.shutdown();
 			return;
 		}
 

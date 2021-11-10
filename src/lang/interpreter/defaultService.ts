@@ -36,7 +36,6 @@ export function createDefaultServices() {
 			down: true,
 			rgb: "rgb(0,0,0)",
 			reset: function (x, y, degrees, down) {
-				//				console.log("defaultService.reset");
 				this.turtle.x = x;
 				this.turtle.y = y;
 				this.turtle.angle = degrees;
@@ -307,6 +306,14 @@ export function createDefaultServices() {
 				: window.localStorage,
 
 		startup: function () {
+			//			this.turtle.reset.call(
+			//				this.turtle,
+			//				0,
+			//				0,
+			//				0,
+			//				true
+			//			);
+
 			if (typeof atx !== "undefined") this.audioContext = new atx();
 		},
 		shutdown: function () {

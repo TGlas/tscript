@@ -301,6 +301,7 @@ export let errors = {
 		"am-42": "deepcopy failed due to $$",
 		"am-43": "infinite recursion due to recursive data structure",
 		"am-44": "left and right buffer arrays have different sizes",
+		"am-44b": "sample frequency out of range",
 		"am-45": "$$ exceeded allowed range $$",
 	},
 	name: {

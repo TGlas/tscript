@@ -1,6 +1,6 @@
 export const tscript_audio = `
 namespace audio{
-	class MonoAudio
+	class MonoSound
 	{
 		public:
 		constructor(buffer, sampleRate){}
@@ -9,7 +9,7 @@ namespace audio{
 		function stopLoop(){}
 		function looping(){}
 	}
-	class StereoAudio
+	class StereoSound
 	{
 		public:
 		constructor(leftBuffer, rightBuffer, sampleRate){}

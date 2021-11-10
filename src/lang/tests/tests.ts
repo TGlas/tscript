@@ -2116,7 +2116,7 @@ export const tests: Array<TscriptTest> = [
 		name: "audio 1",
 		description: "checks if the audio object rejects invalid samples",
 		code: `
-			audio.MonoAudio([1,0,-1,0,1,"hello",-1,0,1], 48000);
+			audio.MonoSound([1,0,-1,0,1,"hello",-1,0,1], 48000);
 		`,
 		expectation: [
 			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
@@ -2128,13 +2128,24 @@ export const tests: Array<TscriptTest> = [
 		description:
 			"checks if the stereo audio object insists on equal buffer sizes",
 		code: `
-			audio.StereoAudio([0.1, 0.2, 0.3], [-0.1, -0.2], 48000);
+			audio.StereoSound([0.1, 0.2, 0.3], [-0.1, -0.2], 48000);
 		`,
 		expectation: [
 			{ type: "error", href: "#/errors/argument-mismatch/am-44" },
 			"error",
 		],
 	},
+	//	{
+	//		name: "audio 3",
+	//		description: "checks if the audio object rejects invalid sample rates",
+	//		code: `
+	//			audio.MonoSound([1,0,-1,0,1,0,-1,0,1], 7999);
+	//		`,
+	//		expectation: [
+	//			{ type: "error", href: "#/errors/argument-mismatch/am-44b" },
+	//			"error",
+	//		],
+	//	},
 	{
 		name: "range size limits",
 		description:

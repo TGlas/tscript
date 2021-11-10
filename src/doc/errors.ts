@@ -2111,9 +2111,21 @@ print(arr.sort(order2));                        # works fine
 					id: "am-44",
 					content: `
 			<p>
-			When constructing a A <a href="?doc=/library/audio">stereo sound</a>,
+			When constructing a <a href="?doc=/library/audio">stereo sound</a>,
 			the buffer arrays of the left and right channels must have the same size.
 			This error indicates that the sizes differ.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-44b",
+					content: `
+			<p>
+			When constructing a <a href="?doc=/library/audio">sound object</a>,
+			the sample frequency must be within a range supported by the underlying
+			system. Browsers are required to support values at least within the
+			range 8000 to 96000.
 			</p>
 		`,
 					children: [],

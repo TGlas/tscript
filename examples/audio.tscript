@@ -4,7 +4,7 @@ use namespace audio;
 var durationInSeconds = 2;
 var l_freq = 440; # frequency in Hz 
 var r_freq = 554;
-var sampleRate = 48000; # sampleRate in Hz
+var sampleRate = 48000; # sample rate in Hz
 
 
 var l_samples = [];
@@ -20,9 +20,9 @@ for var i in 0:(sampleRate * durationInSeconds) do
 	r_samples.push(sin( i * (r_freq / sampleRate) * 2 * pi()));
 }
 
-var a = StereoAudio(l_samples, r_samples, sampleRate);
+var sound = StereoSound(l_samples, r_samples, sampleRate);
 
-# only play 1 of the 2 seconds
-a.play();
-wait(1000);
-a.pause();
+# only play 0.5 of the 2 seconds
+sound.play();
+wait(500);
+# sound stops when the program stops

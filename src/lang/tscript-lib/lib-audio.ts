@@ -7,7 +7,7 @@ export const lib_audio = {
 	source: tscript_audio,
 	impl: {
 		audio: {
-			MonoAudio: {
+			MonoSound: {
 				constructor: function (object, buffer, sampleRate) {
 					if (
 						!TScript.isDerivedFrom(buffer.type, Typeid.typeid_array)
@@ -16,7 +16,7 @@ export const lib_audio = {
 							"/argument-mismatch/am-1",
 							[
 								"buffer",
-								"audio.MonoAudio.constructor",
+								"audio.MonoSound.constructor",
 								"array",
 								TScript.displayname(buffer.type),
 							],
@@ -33,7 +33,7 @@ export const lib_audio = {
 							"/argument-mismatch/am-1",
 							[
 								"sampleRate",
-								"audio.MonoAudio.constructor",
+								"audio.MonoSound.constructor",
 								"integer",
 								TScript.displayname(sampleRate.type),
 							],
@@ -43,16 +43,30 @@ export const lib_audio = {
 					checkAudioBufferCorrectness.call(
 						this,
 						buffer,
-						"MonoAudio",
+						"MonoSound",
 						"buffer"
 					);
 
 					if (!hasAudioContext.call(this)) return;
-					let buf = this.service.audioContext.createBuffer(
-						1,
-						buffer.value.b.length,
-						sampleRate.value.b
-					);
+					let buf;
+					try {
+						if (
+							sampleRate.value.b < 8000 ||
+							sampleRate.value.b > 96000
+						)
+							throw 1;
+						buf = this.service.audioContext.createBuffer(
+							1,
+							buffer.value.b.length,
+							sampleRate.value.b
+						);
+					} catch (ex) {
+						ErrorHelper.error(
+							"/argument-mismatch/am-44b",
+							[],
+							this.stack
+						);
+					}
 
 					fillAudioBuffer(buffer, buf.getChannelData(0));
 					object.value.b = { buffer: buf, soundloop: null };
@@ -120,7 +134,7 @@ export const lib_audio = {
 					};
 				},
 			},
-			StereoAudio: {
+			StereoSound: {
 				constructor: function (
 					object,
 					leftBuffer,
@@ -137,7 +151,7 @@ export const lib_audio = {
 							"/argument-mismatch/am-1",
 							[
 								"leftBuffer",
-								"audio.StereoAudio.constructor",
+								"audio.StereoSound.constructor",
 								"array",
 								TScript.displayname(leftBuffer.type),
 							],
@@ -153,7 +167,7 @@ export const lib_audio = {
 							"/argument-mismatch/am-1",
 							[
 								"rightBuffer",
-								"audio.StereoAudio.constructor",
+								"audio.StereoSound.constructor",
 								"array",
 								TScript.displayname(rightBuffer.type),
 							],
@@ -170,7 +184,7 @@ export const lib_audio = {
 							"/argument-mismatch/am-1",
 							[
 								"sampleRate",
-								"audio.StereoAudio.constructor",
+								"audio.StereoSound.constructor",
 								"integer",
 								TScript.displayname(sampleRate.type),
 							],
@@ -187,13 +201,13 @@ export const lib_audio = {
 					checkAudioBufferCorrectness.call(
 						this,
 						leftBuffer,
-						"StereoAudio",
+						"StereoSound",
 						"leftBuffer"
 					);
 					checkAudioBufferCorrectness.call(
 						this,
 						rightBuffer,
-						"StereoAudio",
+						"StereoSound",
 						"rightBuffer"
 					);
 
@@ -201,12 +215,25 @@ export const lib_audio = {
 						object.value.b = null;
 						return;
 					}
-
-					let buf = this.service.audioContext.createBuffer(
-						2,
-						leftBuffer.value.b.length,
-						sampleRate.value.b
-					);
+					let buf;
+					try {
+						if (
+							sampleRate.value.b < 8000 ||
+							sampleRate.value.b > 96000
+						)
+							throw 1;
+						buf = this.service.audioContext.createBuffer(
+							2,
+							leftBuffer.value.b.length,
+							sampleRate.value.b
+						);
+					} catch (ex) {
+						ErrorHelper.error(
+							"/argument-mismatch/am-44b",
+							[],
+							this.stack
+						);
+					}
 
 					fillAudioBuffer(leftBuffer, buf.getChannelData(0));
 					fillAudioBuffer(rightBuffer, buf.getChannelData(1));

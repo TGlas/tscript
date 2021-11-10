@@ -853,7 +853,8 @@ enterEventMode();
 				constructs a sound sample object, where <code class="code">buffer</code>
 				is an array containing the samples to be played,
 				<code class="code">sampleRate</code> specifies the rate they are to
-				be played at in Hz.
+				be played at in Hz. The sample rate should be in the range 8000&nbsp;Hz
+				to 96000&nbsp;Hz.
 			</td></tr>
 			<tr><th>StereoSound</th><td>
 				<code class="code">StereoSound(leftBuffer, rightBuffer, sampleRate)</code>
@@ -915,9 +916,9 @@ enterEventMode();
 					r_samples.push(sin( i * (r_freq / sampleRate) * 2 * pi()));
 				}
 
-				var a = StereoAudio(l_samples, r_samples, sampleRate);
+				var sound = StereoSound(l_samples, r_samples, sampleRate);
 				# only play 0.5 of 2 seconds
-				a.play();
+				sound.play();
 				wait(500);
 				# all sounds are stopped at the end of the program
 			</tscript>
