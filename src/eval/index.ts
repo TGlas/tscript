@@ -23,11 +23,12 @@ export const evaluation = (function () {
 
 	// Return a number if the string can be parsed into one; otherwise return null
 	function strAsNumber(s) {
+		s = String(s);
 		let pos = 0,
 			size = s.length;
 		if (size == 0) return null;
 		if (s[pos] < "0" || s[pos] > "9") return null;
-		while (pos < size && (s[pos] < "0" || s[pos] > "9")) pos++;
+		while (pos < size && s[pos] >= "0" && s[pos] <= "9") pos++;
 		if (pos < size) {
 			if (s[pos] == ".") {
 				// parse fractional part
@@ -50,6 +51,7 @@ export const evaluation = (function () {
 	// Compare two events.
 	// The function returns an error message, or the empty string in case of equality.
 	function compare_events(submission, solution) {
+		console.log(submission, solution);
 		if (Array.isArray(submission)) {
 			if (!Array.isArray(solution))
 				return "internal error: unexpected data type in compare_events";
@@ -100,6 +102,7 @@ export const evaluation = (function () {
 		) {
 			let sub = strAsNumber(submission);
 			let sol = strAsNumber(solution);
+			console.log("(A)", sub, sol);
 			if (sub === null || sol === null) {
 				if (submission != solution)
 					return (
