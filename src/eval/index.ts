@@ -51,7 +51,6 @@ export const evaluation = (function () {
 	// Compare two events.
 	// The function returns an error message, or the empty string in case of equality.
 	function compare_events(submission, solution) {
-		console.log(submission, solution);
 		if (Array.isArray(submission)) {
 			if (!Array.isArray(solution))
 				return "internal error: unexpected data type in compare_events";
@@ -102,7 +101,6 @@ export const evaluation = (function () {
 		) {
 			let sub = strAsNumber(submission);
 			let sol = strAsNumber(solution);
-			console.log("(A)", sub, sol);
 			if (sub === null || sol === null) {
 				if (submission != solution)
 					return (
