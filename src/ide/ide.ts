@@ -880,7 +880,7 @@ export let ide = (function () {
 					let dlg = tgui.createModal({
 						title: "Input",
 						scalesize: [0.2, 0.15],
-						minsize: [300, 150],
+						minsize: [400, 250],
 						buttons: [
 							{
 								text: "Okay",
