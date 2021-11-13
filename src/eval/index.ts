@@ -750,7 +750,7 @@ export const evaluation = (function () {
 					function monitor() {
 						if (new Date().getTime() > timeout) {
 							interpreter.stopthread();
-							all = null;
+							all = "timeout - program execution took too long";
 							process(all);
 						} else if (
 							interpreter.status == "finished" ||
@@ -1331,6 +1331,9 @@ export const evaluation = (function () {
 		module.run_multiple(codes, timeout, function (result) {
 			if (result === null) {
 				error = "internal error: failed to evaluate the code";
+				points = 0;
+			} else if (typeof result == "string") {
+				error = result;
 				points = 0;
 			} else {
 				// check the result, report success or failure

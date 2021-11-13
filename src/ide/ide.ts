@@ -5,6 +5,7 @@ import { Interpreter } from "../lang/interpreter/interpreter";
 import { Parser } from "../lang/parser";
 import { icons } from "./icons";
 import { tgui } from "./tgui";
+import { toClipboard } from "./clipboard";
 import { tutorial } from "./tutorial";
 
 import CodeMirror from "codemirror";
@@ -744,6 +745,7 @@ export let ide = (function () {
 		module.messagecontainer.scrollTop =
 			module.messagecontainer.scrollHeight;
 		if (href) module.sourcecode.focus();
+		return { symbol: th, content: td };
 	};
 
 	// Stop the interpreter and clear all output,
@@ -819,7 +821,25 @@ export let ide = (function () {
 			);
 			module.interpreter.service.documentation_mode = false;
 			module.interpreter.service.print = function (msg) {
-				module.addMessage("print", msg);
+				if (msg.length > 1000) {
+					let m = module.addMessage(
+						"print",
+						"[truncated long message; click the symbol to copy the full message to the clipboard]\n" +
+							msg.substr(0, 1000) +
+							" \u2026"
+					);
+					m.content.classList.add("ide-truncation");
+					m.symbol.innerHTML = "&#x1f4cb;";
+					m.symbol.style.cursor = "copy";
+					m.symbol.addEventListener(
+						"click",
+						(function (full) {
+							return function (event) {
+								toClipboard(full);
+							};
+						})(msg)
+					);
+				} else module.addMessage("print", msg);
 				module.interpreter.flush();
 			};
 			module.interpreter.service.alert = function (msg) {

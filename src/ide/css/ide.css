@@ -119,6 +119,10 @@ button {
 	background: #cdf;
 }
 
+.ide-truncation {
+	color: #808;
+}
+
 .ide-errormessage {
 	cursor: pointer;
 	color: #f00;
