@@ -2018,7 +2018,10 @@ print(arr.sort(order2));                        # works fine
 					content: `
 			<p>
 			Saving a value with the standard library's <code class="code">save</code>
-			function failed because the value is not a
+			function failed. This happens for two reasons.
+			</p>
+			<p>
+			The first and more usual cause is that the value is not a
 			<a target="_blank" href="http://json.org/">JSON</a> constant.
 			Values of type Null, Boolean, Integer, Real, and String are legal,
 			as well as Array and Dictionary, if all of the values stored
@@ -2031,6 +2034,20 @@ print(arr.sort(order2));                        # works fine
 			class. This error is also reported if the data structure is recursive,
 			i.e., if an array or dictionary contains itself as a value, possibly
 			indirectly.
+			</p>
+			<p>
+			The second reason is that the storage is full, i.e., its quota is
+			exceeded. Webservers usually allow to store data in the order of a
+			few megabytes per origin. When that space is full and the value to
+			be stored would exceed the quota, then this error is reported.
+			</p>
+			<p>
+			Note that the available space is shared between saved programs
+			(usually not very much data) and data stored by <i>all</i> programs.
+			To avoid this error, it can make sense to remove unneeded entries
+			from the browser's local storage. Browser developer tools usually
+			offer a way to view and modify local storage. TScript files are
+			stored under keys starting with <code class="code">tscript.data.</code>
 			</p>
 		`,
 					children: [],
