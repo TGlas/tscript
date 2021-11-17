@@ -890,7 +890,8 @@ enterEventMode();
 			</td></tr>
 			</table>
 
-			<h3> Example</h3>
+			<div class="example">
+			<h3>Example</h3>
 			<p> The following code plays two different tones on the left and right channels
 			of a stereo device. <code class="code">l_freq</code>, <code class="code">r_freq</code>
 			and <code class="code">sampleRate</code> can be modified to alter the tones.
@@ -922,6 +923,7 @@ enterEventMode();
 				wait(500);
 				# all sounds are stopped at the end of the program
 			</tscript>
+			</div>
 		`,
 			children: [],
 		},
