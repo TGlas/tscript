@@ -244,13 +244,14 @@ export class Lexer {
 			} else {
 				let topmost = state.indent[state.indent.length - 1];
 				if (topmost < 0 && line !== -1 - topmost) {
-					if (indent <= state.indent[state.indent.length - 2]) {
+					if (
+						indent <= state.indent[state.indent.length - 2] &&
+						state.current() !== "}"
+					)
 						state.error("/style/ste-1");
-					}
 					state.indent[state.indent.length - 1] = indent;
-				} else if (indent < topmost && state.current() !== "}") {
+				} else if (indent < topmost && state.current() !== "}")
 					state.error("/style/ste-1");
-				}
 			}
 		}
 
