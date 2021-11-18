@@ -9,7 +9,7 @@ import { lib_math } from "../tscript-lib/lib-math";
 import { lib_turtle } from "../tscript-lib/lib-turtle";
 import { lib_audio } from "../tscript-lib/lib-audio";
 import { simfalse } from "../helpers/sims";
-import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
+import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { defaultOptions, Options } from "../helpers/options";
 
 export class Parser {

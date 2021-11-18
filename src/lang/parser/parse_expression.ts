@@ -17,7 +17,7 @@ import { TScript } from "..";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { parse_call } from "./parse_call";
-import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
+import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { parse_name } from "./parse_name";
 
 export function parse_expression(

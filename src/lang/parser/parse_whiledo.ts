@@ -3,7 +3,7 @@ import { Lexer } from "./lexer";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
-import { parse_statement } from "./parse_statment";
+import { parse_statement } from "./parse_statement";
 
 export function parse_whiledo(state, parent, options) {
 	// handle "while" keyword

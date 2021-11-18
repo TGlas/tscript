@@ -4,7 +4,7 @@ import { get_function } from "../interpreter/interpreter_helper";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
-import { parse_statement } from "./parse_statment";
+import { parse_statement } from "./parse_statement";
 import { parse_name } from "./parse_name";
 
 export function parse_for(state, parent, options) {

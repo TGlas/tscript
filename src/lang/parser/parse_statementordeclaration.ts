@@ -1,6 +1,6 @@
 import { create_breakpoint } from "../interpreter/interpreter_helper";
 import { parse_declaration } from "./parse_declaration";
-import { parse_statement } from "./parse_statment";
+import { parse_statement } from "./parse_statement";
 
 export function parse_statement_or_declaration(state, parent, options) {
 	function markAsBuiltin(value) {

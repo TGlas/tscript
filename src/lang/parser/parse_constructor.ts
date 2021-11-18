@@ -5,7 +5,7 @@ import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { callsim, callstep, parse_call } from "./parse_call";
 import { parse_expression } from "./parse_expression";
-import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
+import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { Options } from "../helpers/options";
 
 // Parse a constructor declaration.

@@ -2,7 +2,7 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { get_function } from "../interpreter/interpreter_helper";
 import { simfalse } from "../helpers/sims";
-import { parse_statement } from "./parse_statment";
+import { parse_statement } from "./parse_statement";
 
 export function parse_trycatch(state, parent, options) {
 	// handle "try" keyword
