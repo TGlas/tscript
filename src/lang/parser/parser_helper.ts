@@ -214,9 +214,12 @@ export const binary_operator_impl = {
 					value: { b: d | 0 },
 				};
 			} else {
-				let m = lhs.value.b - rhs.value.b * Math.floor(lhs.value.b / rhs.value.b);
+				let m =
+					lhs.value.b -
+					rhs.value.b * Math.floor(lhs.value.b / rhs.value.b);
 				if (m < 0) m += Math.abs(rhs.value.b);
-				let d = (rhs.value.b === 0)
+				let d =
+					rhs.value.b === 0
 						? lhs.value.b / rhs.value.b
 						: Math.round((lhs.value.b - m) / rhs.value.b);
 				return {

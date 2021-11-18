@@ -1561,10 +1561,13 @@ function example(index) {
 			<p>
 			This error occurs when a value is divided by zero with the
 			integer division operator <code class="code">\/\/</code> or
-			with the modulo operator <code class="code">%</code>. In
-			contrast to this behavior, the real division operator
-			<code class="code">/</code> does not emit an error and instead
-			produces an infinite result or not-a-number.
+			with the modulo operator <code class="code">%</code>. As an
+			exception, integer division by zero applied to type
+			<a href="?doc=/language/types/real">Real</a> results in an
+			infinite value or not-a-number (NaN).
+			In contrast to this behavior, the real division operator
+			<code class="code">/</code> does not emit an error and
+			always produces an infinite result or not-a-number.
 			</p>
 			<div class="example">
 				<h3>Example</h3>
