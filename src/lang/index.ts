@@ -148,11 +148,12 @@ export class TScript {
 	public static mod(lhs: number, rhs: number): number {
 		if (rhs === 0) {
 			(this as any).error("/argument-mismatch/am-15");
-			return 0; /*dummy return will never be reached*/
-		} else
-			return rhs > 0
-				? lhs - rhs * Math.floor(lhs / rhs)
-				: rhs * Math.floor(lhs / rhs) - lhs;
+			return 0; /*dummy; return will never be reached*/
+		} else {
+			let m = lhs - rhs * Math.floor(lhs / rhs);
+			if (m < 0) m += Math.abs(rhs);
+			return m;
+		}
 	}
 
 	public static jsObject2typed(program, object) {
