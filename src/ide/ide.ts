@@ -2324,7 +2324,7 @@ export let ide = (function () {
 					// create the object without calling the constructor, considering default values, etc
 					let obj: any = { type: t, value: { a: [] } };
 					let n = {
-						type: p.types[module.typeid_null],
+						type: p.types[Typeid.typeid_null],
 						value: { b: null },
 					};
 					for (let i = 0; i < t.objectsize; i++) obj.value.a.push(n);
@@ -2481,7 +2481,7 @@ export let ide = (function () {
 			)
 				return;
 			let e = {
-				type: module.interpreter.program.types[module.typeid_null],
+				type: module.interpreter.program.types[Typeid.typeid_null],
 				value: { b: null },
 			};
 			module.interpreter.enqueueEvent("canvas.mouseout", e);
