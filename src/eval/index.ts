@@ -27,6 +27,7 @@ export const evaluation = (function () {
 		let pos = 0,
 			size = s.length;
 		if (size == 0) return null;
+		if (s[pos] == "-") pos++;
 		if (s[pos] < "0" || s[pos] > "9") return null;
 		while (pos < size && s[pos] >= "0" && s[pos] <= "9") pos++;
 		if (pos < size) {
@@ -111,8 +112,8 @@ export const evaluation = (function () {
 					);
 			} else {
 				let close =
-					Math.abs(sub - sol) < 1e-3 ||
-					Math.abs(sub / sol - 1) < 1e-3;
+					Math.abs(sub - sol) < 1e-4 ||
+					Math.abs(sub / sol - 1) < 1e-4;
 				if (!close)
 					return (
 						"Wrong number - expected: " +
@@ -194,6 +195,17 @@ export const evaluation = (function () {
 			s += "</td></tr>\r\n";
 			return s;
 		};
+
+		let marker_sol = solution.findIndex((e) => {
+			return e.type == "print" && e.value == marker;
+		});
+		let marker_sub = submission.findIndex((e) => {
+			return e.type == "print" && e.value == marker;
+		});
+		if (marker_sol >= 0 && marker_sub >= 0) {
+			solution.splice(0, marker_sol + 1);
+			submission.splice(0, marker_sub + 1);
+		}
 
 		// check which event types are present in the sample solution
 		let expected_events: any = {};
