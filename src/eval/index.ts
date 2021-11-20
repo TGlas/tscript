@@ -1299,7 +1299,9 @@ export const evaluation = (function () {
 						context +
 						"\n\n" +
 						submission +
-						"\n\n{var result = " +
+						'\n\n{print("' +
+						marker +
+						'"); var result = ' +
 						call +
 						'; print(Type(result) + "' +
 						marker +
@@ -1308,7 +1310,9 @@ export const evaluation = (function () {
 						context +
 						"\n\n" +
 						solution +
-						"\n\n{var result = " +
+						'\n\n{print("' +
+						marker +
+						'"); var result = ' +
 						call +
 						'; print(Type(result) + "' +
 						marker +
