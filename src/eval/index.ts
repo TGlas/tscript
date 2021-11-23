@@ -256,7 +256,7 @@ export const evaluation = (function () {
 		while (i < submission.length) {
 			if (submission[i].type == "compile error")
 				return [
-					"Failed to parse the code - " + submission[i].message,
+					"Error while parsing the code - " + submission[i].message,
 					"",
 				];
 			let type = submission[i].type;
