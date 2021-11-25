@@ -8,6 +8,10 @@ import { tutorial_dowhile } from "./dowhile-loop";
 import { tutorial_functions } from "./functions";
 import { tutorial_containers } from "./containers";
 import { tutorial_oop } from "./oop";
+import { tutorial_functiontype } from "./functiontype";
+import { tutorial_recursion } from "./recursion";
+import { tutorial_anonymousfunc } from "./anonymousfunc";
+import { tutorial_game } from "./game";
 // TODO:                                                                   GÜLTIGKEITSBEREICHE
 // * turtle graphics X
 // * canvas graphics X
@@ -20,10 +24,10 @@ import { tutorial_forloop } from "./forloop";
 // * functions X
 // * arrays X
 // * dictionaries X
-// * classes, interfaces/information hiding, inheritance
-// * data types "Function" and "Type"
-// * recursion
-// * anonymous functions, closures
+// * classes, interfaces/information hiding, inheritance X
+// * data types "Function" and "Type" X
+// * recursion X
+// * anonymous functions, closures X
 // * final (short) game project
 
 let tutorial = new Array();
@@ -38,5 +42,8 @@ tutorial.push(tutorial_dowhile);
 tutorial.push(tutorial_functions);
 tutorial.push(tutorial_containers);
 tutorial.push(tutorial_oop);
-
+tutorial.push(tutorial_functiontype);
+tutorial.push(tutorial_recursion);
+tutorial.push(tutorial_anonymousfunc);
+tutorial.push(tutorial_game);
 export const tutorialData = tutorial;

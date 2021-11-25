@@ -7,7 +7,7 @@ export const tutorial_dowhile = {
 			<p>
             The for-loop executes a piece of code again and again until
             the loop counter reaches a specific value. This is basically
-            a condition that has to met for the loop to still be executed.
+            a condition that has to be met for the loop to still be executed.
             We now look at another kind of loop where we do not necessarily 
             have to use a loop counter. Instead the loop is executed until
             a certain condition is not met anymore. In the section about 
