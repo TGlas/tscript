@@ -1,20 +1,22 @@
 export const tscript_audio = `
 namespace audio{
-	class MonoAudio
+	class MonoSound
 	{
 		public:
 		constructor(buffer, sampleRate){}
 		function play(){}
-		function pause(){}
-		function setPlaybackRate(speed){}
+		function startLoop(){}
+		function stopLoop(){}
+		function looping(){}
 	}
-	class StereoAudio
+	class StereoSound
 	{
 		public:
 		constructor(leftBuffer, rightBuffer, sampleRate){}
 		function play(){}
-		function pause(){}
-		function setPlaybackRate(speed){}
+		function startLoop(){}
+		function stopLoop(){}
+		function looping(){}
 	}
 }
 `;

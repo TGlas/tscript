@@ -26,7 +26,7 @@ export const tutorial_forloop = {
 			</tscript>
 			Obviously, we don't want to trigger the execution of these two
 			lines four times (aside from the problem that the turtle is
-			reset each time the program start to run).
+			reset each time the program starts).
 			</p>
 			<p>
 			To solve that problem, all we need to do is to copy the above
@@ -76,12 +76,10 @@ export const tutorial_forloop = {
 			</p>
 			</div>
 			`,
-			correct: `
-				for 0:10 do
-				{
-					print("Hello World!");
-				}
-				`,
+			correct: `for 0:10 do
+{
+	print("Hello World!");
+}`,
 			tests: [
 				{
 					type: "code",

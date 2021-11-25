@@ -294,17 +294,17 @@ print(c);               # prints [0, 1, 2], since it's a copy
 		<tr><th>sin</th><td>
 			The <code class="code">function math.sin(x)</code> returns the
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">sine</a>
-			of its argument.
+			of its argument in radians.
 		</td></tr>
 		<tr><th>cos</th><td>
 			The <code class="code">function math.cos(x)</code> returns the
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">cosine</a>
-			of its argument.
+			of its argument in radians.
 		</td></tr>
 		<tr><th>tan</th><td>
 			The <code class="code">function math.tan(x)</code> returns the
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">tangent</a>
-			of its argument.
+			of its argument in radians.
 		</td></tr>
 		<tr><th>sinh</th><td>
 			The <code class="code">function math.sinh(x)</code> returns the
@@ -324,17 +324,17 @@ print(c);               # prints [0, 1, 2], since it's a copy
 		<tr><th>asin</th><td>
 			The <code class="code">function math.asin(x)</code> returns the inverse
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">sine</a>
-			of its argument.
+			of its argument. The return value is an angle in radians.
 		</td></tr>
 		<tr><th>acos</th><td>
 			The <code class="code">function math.acos(x)</code> returns the inverse
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">cosine</a>
-			of its argument.
+			of its argument. The return value is an angle in radians.
 		</td></tr>
 		<tr><th>atan</th><td>
 			The <code class="code">function math.atan(x)</code> returns the inverse
 			<a target="_blank" href="https://en.wikipedia.org/wiki/Trigonometric_functions">tangent</a>
-			of its argument.
+			of its argument. The return value is an angle in radians.
 		</td></tr>
 		<tr><th>atan2</th><td>
 			The <code class="code">function math.atan2(y, x)</code> returns the inverse
@@ -836,38 +836,73 @@ enterEventMode();
 			name: "Audio playback",
 			title: "Audio playback",
 			content: `
-			<p>TScript supports playback of audio. The classes <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code> allow the playback of arbitrary buffers consisting of reals with values from -1 to 1.
-			The playback is performed asynchronously, meaning that a call to <code class="code">play()</code> will return immediately regardless of sound duration.
+			<p>TScript supports playback of audio. The classes
+			<code class="code">MonoSound</code> and <code class="code">StereoSound</code>
+			represent sound samples. A sound sample is represented by a buffer:
+			an array of numbers, with values ranging from -1 to 1.
+			</p><p>
+			Each sound sample can be played an arbitrary number of times, and even
+			repeatedly in a loop. Re-using a sound sample object is much faster than
+			creating a new sound sample object from an array each time the sound
+			shall be played.
 			</p>
-			<h3>Constructors</h3>
+			<h3>Classes and Constructors</h3>
 			<table class="methods">
-			<tr><th>MonoAudio</th><td>
-				<code class="code">MonoAudio(buffer, sampleRate)</code> where <code class="code">buffer</code> is an array containing the samples to be played, <code class="code">sampleRate</code> specifies the rate they are to be played at in Hz.
+			<tr><th>MonoSound</th><td>
+				<code class="code">MonoSound(buffer, sampleRate)</code>
+				constructs a sound sample object, where <code class="code">buffer</code>
+				is an array containing the samples to be played,
+				<code class="code">sampleRate</code> specifies the rate they are to
+				be played at in Hz. The sample rate should be in the range 8000&nbsp;Hz
+				to 96000&nbsp;Hz.
 			</td></tr>
-			<tr><th>StereoAudio</th><td>
-				<code class="code">StereoAudio(leftBuffer, rightBuffer, sampleRate)</code> provides the same functionality as above, but allows playback of stereo audio.
+			<tr><th>StereoSound</th><td>
+				<code class="code">StereoSound(leftBuffer, rightBuffer, sampleRate)</code>
+				provides the same functionality as above, but allows playback of stereo audio.
+				It hence requires the specification of a left and a right channel.
 			</td></tr>
 			</table>
 
 			<h3>Functions</h3>
-			<tscript>
-			function play(){}
-			function pause(){}
-			function setPlaybackRate(speed){}
-			</tscript>
-			Are available on <code class="code">MonoAudio</code> and <code class="code">StereoAudio</code>, they behave as expected.
-			<h3> Example</h3>
-			<p> The following code plays two different tones on the left and right channel. <code class="code">l_freq</code> and <code class="code"> r_freq</code>
-			and the <code class="code"> sampleRate</code> can be modified to alter the tones.
+			<p>Both classes feature the same methods:</p>
+			<table class="methods">
+			<tr><th>play</th><td>
+				The <code class="code">function play</code> starts playing the sound.
+				The playback is asynchronous, meaning that the call returns immediately
+				regardless of sound duration. Further instances of the sound can be
+				played by calling the function again, even while the sound is still
+				playing.
+			</td></tr>
+			<tr><th>startLoop</th><td>
+				The <code class="code">function startLoop()</code> starts looping the
+				sound, i.e., playing the sound repeatedly. The function returns
+				immediately. In contrast to <code>play</code>, for each sound sample
+				object, only a single loop can exist at a time.
+			</td></tr>
+			<tr><th>stopLoop</th><td>
+				The <code class="code">function stopLoop()</code> stops a sound loop
+				that was previously started with <code>startLoop</code>.
+			</td></tr>
+			<tr><th>looping</th><td>
+				The <code class="code">function looping()</code> returns
+				<code>true</code> if the sound loop is currently running, and
+				otherwise <code>false</code>.
+			</td></tr>
+			</table>
+
+			<div class="example">
+			<h3>Example</h3>
+			<p> The following code plays two different tones on the left and right channels
+			of a stereo device. <code class="code">l_freq</code>, <code class="code">r_freq</code>
+			and <code class="code">sampleRate</code> can be modified to alter the tones.
 			<tscript>
 				use namespace math;
 				use namespace audio;
 
-				var durationInSeconds = 0.2;
+				var durationInSeconds = 2;
 				var l_freq = 440; # frequency in Hz
 				var r_freq = 554;
-				var sampleRate = 48000; # sampleRate in Hz
-
+				var sampleRate = 8000; # sampleRate in Hz
 
 				var l_samples = [];
 				var r_samples = [];
@@ -882,13 +917,13 @@ enterEventMode();
 					r_samples.push(sin( i * (r_freq / sampleRate) * 2 * pi()));
 				}
 
-				var a = StereoAudio(l_samples, r_samples, sampleRate);
-				# only play 0.1 of the 0.2 seconds
-				a.play();
-				wait(100);
-				a.pause();
-
+				var sound = StereoSound(l_samples, r_samples, sampleRate);
+				# only play 0.5 of 2 seconds
+				sound.play();
+				wait(500);
+				# all sounds are stopped at the end of the program
 			</tscript>
+			</div>
 		`,
 			children: [],
 		},

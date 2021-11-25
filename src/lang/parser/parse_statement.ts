@@ -9,7 +9,7 @@ import { parse_dowhile } from "./parse_dowhile";
 import { parse_for } from "./parse_for";
 import { parse_ifthenelse } from "./parse_ifthenelse";
 import { parse_return } from "./parse_return";
-import { parse_statement_or_declaration } from "./parse_statmentordeclaration";
+import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { parse_throw } from "./parse_throw";
 import { parse_trycatch } from "./parse_trycatch";
 import { parse_whiledo } from "./parse_whiledo";

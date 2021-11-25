@@ -521,20 +521,22 @@ export const tests: Array<TscriptTest> = [
 			print(-11.5 // -4.5);
 			print(1.0 // 0.0);
 			print(1.0 // -0.0);
+			print(0.0 // 0.0);
 		`,
 		expectation: [
 			{ type: "print", message: "2" },
 			{ type: "print", message: "-3" },
+			{ type: "print", message: "-2" },
+			{ type: "print", message: "3" },
+			{ type: "print", message: "2" },
+			{ type: "print", message: "2" },
+			{ type: "print", message: "2" },
 			{ type: "print", message: "-3" },
-			{ type: "print", message: "2" },
-			{ type: "print", message: "2" },
-			{ type: "print", message: "2" },
-			{ type: "print", message: "2" },
-			{ type: "print", message: "-3" },
-			{ type: "print", message: "-3" },
-			{ type: "print", message: "2" },
+			{ type: "print", message: "-2" },
+			{ type: "print", message: "3" },
 			{ type: "print", message: "Infinity" },
 			{ type: "print", message: "-Infinity" },
+			{ type: "print", message: "NaN" },
 			"finished",
 		],
 	},
@@ -557,14 +559,14 @@ export const tests: Array<TscriptTest> = [
 		expectation: [
 			{ type: "print", message: "3" },
 			{ type: "print", message: "1" },
-			{ type: "print", message: "1" },
 			{ type: "print", message: "3" },
+			{ type: "print", message: "1" },
 			{ type: "print", message: "2" },
 			{ type: "print", message: "3.5" },
 			{ type: "print", message: "2.5" },
 			{ type: "print", message: "2" },
-			{ type: "print", message: "2" },
 			{ type: "print", message: "2.5" },
+			{ type: "print", message: "2" },
 			"finished",
 		],
 	},
@@ -2113,19 +2115,39 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "audio",
+		name: "audio 1",
 		description: "checks if the audio object rejects invalid samples",
 		code: `
-			use namespace audio;
-			var samples = [];
-			samples.push("hello");
-			var ma = MonoAudio(samples, 48000);
-`,
+			audio.MonoSound([1,0,-1,0,1,"hello",-1,0,1], 48000);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
+	},
+	{
+		name: "audio 2",
+		description:
+			"checks if the stereo audio object insists on equal buffer sizes",
+		code: `
+			audio.StereoSound([0.1, 0.2, 0.3], [-0.1, -0.2], 48000);
+		`,
 		expectation: [
 			{ type: "error", href: "#/errors/argument-mismatch/am-44" },
 			"error",
 		],
 	},
+	//	{
+	//		name: "audio 3",
+	//		description: "checks if the audio object rejects invalid sample rates",
+	//		code: `
+	//			audio.MonoSound([1,0,-1,0,1,0,-1,0,1], 7999);
+	//		`,
+	//		expectation: [
+	//			{ type: "error", href: "#/errors/argument-mismatch/am-44b" },
+	//			"error",
+	//		],
+	//	},
 	{
 		name: "range size limits",
 		description:

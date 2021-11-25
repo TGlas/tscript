@@ -7,6 +7,7 @@ import { Lexer } from "./lang/parser/lexer";
 import { Parser } from "./lang/parser";
 import { TScript } from "./lang";
 import { Version } from "./lang/version";
+import { evaluation as _evaluation } from "./eval";
 
 class InteropInterpreter extends _Interpreter {
 	constructor(program) {
@@ -54,3 +55,5 @@ export const keywords = Lexer.keywords;
 export const delimiters = Lexer.delimiters;
 export const groupings = Lexer.groupings;
 export const operators = Lexer.operators;
+
+export const evaluation = _evaluation;

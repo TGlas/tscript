@@ -4,7 +4,7 @@ import { Options } from "../helpers/options";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
-import { parse_statement } from "./parse_statment";
+import { parse_statement } from "./parse_statement";
 
 export function parse_dowhile(state, parent, options: Options) {
 	// handle "do" keyword

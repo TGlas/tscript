@@ -80,26 +80,33 @@ export class TestRunner {
 			result.push({ type: "print", message: msg });
 		};
 		service.alert = function (msg) {
-			result.push({ type: "alert", message: msg });
+			return new Promise((resolve, reject) => {
+				result.push({ type: "alert", message: msg });
+				resolve(null);
+			});
 		};
-		(service.confirm = function (msg) {
-			result.push({ type: "confirm", message: msg });
-			let b = input.shift();
-			ErrorHelper.assert(
-				b === true || b === false,
-				"simulated user input is not a boolean"
-			);
-			return b;
-		}),
-			(service.prompt = function (msg) {
+		service.confirm = function (msg) {
+			return new Promise((resolve, reject) => {
+				result.push({ type: "confirm", message: msg });
+				let b = input.shift();
+				ErrorHelper.assert(
+					b === true || b === false,
+					"simulated user input is not a boolean"
+				);
+				resolve(b);
+			});
+		};
+		service.prompt = function (msg) {
+			return new Promise((resolve, reject) => {
 				result.push({ type: "prompt", message: msg });
 				let s = input.shift();
 				ErrorHelper.assert(
 					typeof s == "string",
 					"simulated user input is not a string"
 				);
-				return s;
+				resolve(s);
 			});
+		};
 		service.message = function (msg, line, ch, href) {
 			result.push({ type: "error", href: href });
 		};

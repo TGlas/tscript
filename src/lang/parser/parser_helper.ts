@@ -207,15 +207,24 @@ export const binary_operator_impl = {
 				TScript.isDerivedFrom(lhs.type, Typeid.typeid_integer) &&
 				TScript.isDerivedFrom(rhs.type, Typeid.typeid_integer)
 			) {
-				if (rhs.value.b === 0) this.error("/argument-mismatch/am-15");
+				let m = TScript.mod.call(this, lhs.value.b, rhs.value.b);
+				let d = Math.round((lhs.value.b - m) / rhs.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_integer],
-					value: { b: Math.floor(lhs.value.b / rhs.value.b) | 0 },
+					value: { b: d | 0 },
 				};
 			} else {
+				let m =
+					lhs.value.b -
+					rhs.value.b * Math.floor(lhs.value.b / rhs.value.b);
+				if (m < 0) m += Math.abs(rhs.value.b);
+				let d =
+					rhs.value.b === 0
+						? lhs.value.b / rhs.value.b
+						: Math.round((lhs.value.b - m) / rhs.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_real],
-					value: { b: Math.floor(lhs.value.b / rhs.value.b) },
+					value: { b: d },
 				};
 			}
 		} else

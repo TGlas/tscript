@@ -119,6 +119,10 @@ button {
 	background: #cdf;
 }
 
+.ide-truncation {
+	color: #808;
+}
+
 .ide-errormessage {
 	cursor: pointer;
 	color: #f00;
@@ -231,4 +235,9 @@ button {
 	vertical-align: middle;
 	border: 1px solid #000;
 	display: none;
+}
+
+.ide-prompt-input {
+	width: 100%;
+	padding: 3px 6px;
 }

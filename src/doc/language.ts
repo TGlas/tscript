@@ -2078,6 +2078,22 @@ print(r > s);                           # prints true, as the first comparison t
 					<tr><th>true</th><td>false</td><td>true</td></tr>
 				</table>
 				It applies to all 32 bits of an integer accordingly.
+				</p><p>
+				Note: The operator does not implement so-called short-circuit
+				behavior! I.e., in the code
+				<tscript>
+				function test(x)
+				{
+					print(x);
+					return x >= 0;
+				}
+				if false and test(7) then print("hello");
+				</tscript>
+				the function <code>test</code> is called, although it can be
+				decided based on the left operand of <code>and</code> that the
+				expression evaluates to false. Hence, the print statement inside
+				of the function is executed. That may be surprising for
+				experienced programmers who got used to short-circuit behavior.
 				</p>
 			`,
 							children: [],
@@ -2100,6 +2116,22 @@ print(r > s);                           # prints true, as the first comparison t
 					<tr><th>true</th><td>true</td><td>true</td></tr>
 				</table>
 				It applies to all 32 bits of an integer accordingly.
+				</p><p>
+				Note: The operator does not implement so-called short-circuit
+				behavior! I.e., in the code
+				<tscript>
+				function test(x)
+				{
+					print(x);
+					return x >= 0;
+				}
+				if true or test(-7) then print("hello");
+				</tscript>
+				the function <code>test</code> is called, although it can be
+				decided based on the left operand of <code>or</code> that the
+				expression evaluates to true. Hence, the print statement inside
+				of the function is executed. That may be surprising for
+				experienced programmers who got used to short-circuit behavior.
 				</p>
 			`,
 							children: [],
@@ -4152,10 +4184,14 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 			<p>
 			The Range type represents a range of integers. It is defined by
 			two integers, <i>begin</i> and <i>end</i>. They define the half-open
-			range<br/>
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>{x in N | begin &lt;= x &lt; end}</i>.<br/>
+			range
+			</p>
+			<div style="width: 100%; text-align: center; font-style: italic;">
+				{n&nbsp;&isin;&nbsp;&#x2124;&nbsp;|&nbsp;begin&nbsp;&le;&nbsp;x&nbsp;&lt;&nbsp;end}.
+			</div>
+			<p>
 			Consequently, in case
-			of <i>begin&nbsp;&gt;=&nbsp;end</i> the range is empty. Begin and end
+			of <i>begin&nbsp;&ge;&nbsp;end</i> the range is empty. Begin and end
 			can be any values in the valid <a href="?doc=/language/types/integer">integer</a>
 			range; in particular, they can be negative.
 			</p>
@@ -4176,7 +4212,7 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 			<p>
 			Ranges offer two rather trivial operations, both by means of the
 			<a href="?doc=/language/expressions/item-access">item access operator</a>,
-			namely access of items by index and slicing. The behavior is designed
+			namely access to items by index, and slicing. The behavior is designed
 			to mimic that of an array holding the elements of the range as items:
 			<tscript>
 				var range = 10:15;   # pretend: var range = [10,11,12,13,14];

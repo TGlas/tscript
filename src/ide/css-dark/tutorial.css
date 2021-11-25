@@ -3,6 +3,18 @@
 }
 
 .dark-theme .code-evaluation th {
+	padding: 5px 10px;
+	background: #468;
+	color: #fff;
+}
+
+.dark-theme .code-evaluation td {
+	padding: 5px 10px;
+	background: #fed;
+	border: 1px solid #aaa;
+}
+
+.dark-theme .code-evaluation th {
 	background: #468;
 	color: #fff;
 }

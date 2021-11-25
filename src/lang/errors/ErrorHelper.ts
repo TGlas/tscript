@@ -294,14 +294,14 @@ export let errors = {
 		"am-37":
 			"condition in while-do-loop is not boolean but rather of type '$$'",
 		"am-38": "loading the value failed, key '$$' does not exist",
-		"am-39": "saving the value failed, JSON expected",
+		"am-39": "saving the value failed",
 		"am-40": "invalid event name '$$'",
 		"am-41":
 			"argument handler passed to setEventHandler must be a function with exactly one parameter",
 		"am-42": "deepcopy failed due to $$",
 		"am-43": "infinite recursion due to recursive data structure",
-		"am-44":
-			"array '$$' contains unexpected data expected values of type '$$'",
+		"am-44": "left and right buffer arrays have different sizes",
+		"am-44b": "sample frequency out of range",
 		"am-45": "$$ exceeded allowed range $$",
 	},
 	name: {

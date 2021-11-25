@@ -5,7 +5,7 @@ import { TScript } from "..";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
-import { parse_statement } from "./parse_statment";
+import { parse_statement } from "./parse_statement";
 
 export function parse_ifthenelse(state, parent, options) {
 	// handle "if" keyword

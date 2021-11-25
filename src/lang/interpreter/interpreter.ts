@@ -9,7 +9,8 @@ export class Interpreter {
 	public stop = false; // request to stop the thread
 	public background = false; // is the thread responsible for running the program?
 	public halt: any = null; // function testing whether the thread should be halted
-	public status = ""; // program status: "running", "waiting", "error", "finished"
+	public status = ""; // program status: "running", "waiting", "dialog", "error", "finished"
+	public dialogResult: any = null; // result (typed value) returned by a modal alert/confirm/prompt dialog
 	public stack: Array<any> = []; // full state of the program
 	public breakpoints = {}; // breakpoints for debugging, keys are lines
 	public stepcounter = 0; // number of program steps already executed
@@ -41,12 +42,24 @@ export class Interpreter {
 		if (this.stop) {
 			this.thread = false;
 			this.stop = false;
+			if (this.service.shutdown) this.service.shutdown();
 			return;
 		}
 
 		if (this.status === "waiting") {
 			let t = new Date().getTime();
 			if (t >= this.waittime) {
+				this.status = "running";
+				if (this.service.statechanged) this.service.statechanged(false);
+			}
+		}
+
+		if (this.status === "dialog") {
+			if (this.dialogResult) {
+				let frame = this.stack[this.stack.length - 1];
+				frame.temporaries[frame.temporaries.length - 1] =
+					this.dialogResult;
+				this.dialogResult = null;
 				this.status = "running";
 				if (this.service.statechanged) this.service.statechanged(false);
 			}
@@ -104,6 +117,7 @@ export class Interpreter {
 				variables: [], // array, global variables
 			},
 		];
+		if (this.service.startup) this.service.startup();
 		this.status = "running";
 		if (this.service.statechanged) this.service.statechanged(false);
 	}
@@ -205,6 +219,7 @@ export class Interpreter {
 		if (this.stack.length === 0) {
 			this.status = "finished";
 			if (this.service.statechanged) this.service.statechanged(true);
+			if (this.service.shutdown) this.service.shutdown();
 			return;
 		}
 
@@ -258,6 +273,7 @@ export class Interpreter {
 				}
 				this.status = "error";
 				if (this.service.statechanged) this.service.statechanged(true);
+				if (this.service.shutdown) this.service.shutdown();
 			} else {
 				// report an internal interpreter error
 				console.log("internal runtime error!");
@@ -277,6 +293,7 @@ export class Interpreter {
 				this.background = false;
 				this.status = "error";
 				if (this.service.statechanged) this.service.statechanged(true);
+				if (this.service.shutdown) this.service.shutdown();
 			}
 		}
 	}

@@ -72,9 +72,45 @@ export const core = {
 					TScript.isDerivedFrom(arg.type, Typeid.typeid_real)
 				)
 					object.value.b = arg.value.b;
-				else if (TScript.isDerivedFrom(arg.type, Typeid.typeid_string))
-					object.value.b = Number(arg.value.b);
-				else object.value.b = NaN;
+				else if (
+					TScript.isDerivedFrom(arg.type, Typeid.typeid_string)
+				) {
+					// parse a number by the same rules as Lexer::get_token, but also accept leading sign characters
+					let s: string = arg.value.b.trim();
+					let start: number = 0;
+					let error = false;
+					let factor = 1.0;
+					while (
+						start < s.length &&
+						(s[start] == "-" || s[start] == "+" || s[start] == " ")
+					) {
+						if (s[start] == "-") factor *= -1.0;
+						start++;
+					}
+					let pos: number = start;
+					if (pos >= s.length || s[pos] < "0" || s[pos] > "9")
+						error = true;
+					while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+						pos++;
+					if (pos < s.length && s[pos] === ".") {
+						pos++;
+						if (pos >= s.length || s[pos] < "0" || s[pos] > "9")
+							error = true;
+						while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+							pos++;
+					}
+					if (pos < s.length && (s[pos] === "e" || s[pos] === "E")) {
+						pos++;
+						if (s[pos] === "+" || s[pos] === "-") pos++;
+						if (pos >= s.length || s[pos] < "0" || s[pos] > "9")
+							error = true;
+						while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+							pos++;
+					}
+					if (pos < s.length) error = true;
+					if (error) object.value.b = NaN;
+					else object.value.b = factor * Number(s.substring(start));
+				} else object.value.b = NaN;
 			},
 			isFinite: function (object) {
 				return {
@@ -921,8 +957,17 @@ export const core = {
 		},
 		alert: function (text) {
 			let s = TScript.toString.call(this, text);
-			if (!this.service.documentation_mode && this.service.alert)
-				this.service.alert(s);
+			if (!this.service.documentation_mode && this.service.alert) {
+				this.status = "dialog";
+				this.service.statechanged?.(false);
+				this.dialogResult = null;
+				this.service.alert(s).then(() => {
+					this.dialogResult = {
+						type: this.program.types[Typeid.typeid_null],
+						value: { b: null },
+					};
+				});
+			}
 			return {
 				type: this.program.types[Typeid.typeid_null],
 				value: { b: null },
@@ -930,34 +975,45 @@ export const core = {
 		},
 		confirm: function (text) {
 			let s = TScript.toString.call(this, text);
-			let ret = false;
-			if (!this.service.documentation_mode && this.service.confirm)
-				ret = this.service.confirm(s);
+			if (!this.service.documentation_mode && this.service.confirm) {
+				this.status = "dialog";
+				this.service.statechanged?.(false);
+				this.dialogResult = null;
+				this.service.confirm(s).then((result) => {
+					this.dialogResult = {
+						type: this.program.types[Typeid.typeid_boolean],
+						value: { b: result },
+					};
+				});
+			}
 			return {
 				type: this.program.types[Typeid.typeid_boolean],
-				value: { b: ret },
+				value: { b: false },
 			};
 		},
 		prompt: function (text) {
 			let s = TScript.toString.call(this, text);
-			let ret = null;
 			if (!this.service.documentation_mode && this.service.prompt) {
-				ret = this.service.prompt(s);
-				if (ret === null)
-					return {
-						type: this.program.types[Typeid.typeid_null],
-						value: { b: null },
-					};
-				else
-					return {
-						type: this.program.types[Typeid.typeid_string],
-						value: { b: ret },
-					};
-			} else
-				return {
-					type: this.program.types[Typeid.typeid_string],
-					value: { b: "" },
-				};
+				this.status = "dialog";
+				this.service.statechanged?.(false);
+				this.dialogResult = null;
+				this.service.prompt(s).then((result) => {
+					if (result === null)
+						this.dialogResult = {
+							type: this.program.types[Typeid.typeid_null],
+							value: { b: null },
+						};
+					else
+						this.dialogResult = {
+							type: this.program.types[Typeid.typeid_string],
+							value: { b: result },
+						};
+				});
+			}
+			return {
+				type: this.program.types[Typeid.typeid_string],
+				value: { b: "" },
+			};
 		},
 		wait: function (milliseconds) {
 			if (!TScript.isNumeric(milliseconds.type))

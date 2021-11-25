@@ -9,6 +9,7 @@ import { Version } from "../lang/version";
 import { navigate } from "./navigation";
 import { searchengine } from "./search";
 import { tgui } from "./tgui";
+import { toClipboard } from "./clipboard";
 
 ///////////////////////////////////////////////////////////
 // TScript documentation
@@ -30,27 +31,6 @@ export const doc = (function () {
 			tgui.setTheme(theme);
 		}
 		return null;
-	}
-
-	// This function copies #text to the clipboard when run
-	// from within an event handler.
-	function toClipboard(text) {
-		// dummy text area
-		let textarea = document.createElement("textarea");
-		textarea.value = text;
-		document.body.appendChild(textarea);
-		textarea.focus();
-		textarea.select();
-
-		try {
-			// actual copy
-			document.execCommand("copy");
-		} catch (err) {
-			// ignore
-		}
-
-		// cleanup
-		document.body.removeChild(textarea);
 	}
 
 	function docinfo(value, node_id) {

@@ -111,7 +111,24 @@ class DocumentationPageController implements IPageController {
 
 	private showPage(params: URLSearchParams): void {
 		const docPage = params.get("doc") ?? "";
-		if (docPage === "search") {
+
+		if (docPage.startsWith("search/")) {
+			// This is not a url that anyone should link to,
+			// but it needs to be handled because paths starting with "search/"
+			// refer to search pages internally.
+
+			const tokens = docPage.slice(7).split("/");
+
+			// Since this is not a URL that should exist,
+			// redirect to the _correct_ one.
+			const redirectParams = new URLSearchParams({
+				doc: "search",
+				q: tokens.join(" "),
+			});
+			replaceUrl("?" + redirectParams.toString());
+
+			doc.setpath("search/" + tokens.join("/"));
+		} else if (docPage === "search") {
 			const searchQuery = params.get("q") ?? "";
 			const tokens = searchengine.tokenize(searchQuery);
 			doc.setpath("search/" + tokens.join("/"));

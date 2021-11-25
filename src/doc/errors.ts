@@ -1561,10 +1561,13 @@ function example(index) {
 			<p>
 			This error occurs when a value is divided by zero with the
 			integer division operator <code class="code">\/\/</code> or
-			with the modulo operator <code class="code">%</code>. In
-			contrast to this behavior, the real division operator
-			<code class="code">/</code> does not emit an error and instead
-			produces an infinite result or not-a-number.
+			with the modulo operator <code class="code">%</code>. As an
+			exception, integer division by zero applied to type
+			<a href="?doc=/language/types/real">Real</a> results in an
+			infinite value or not-a-number (NaN).
+			In contrast to this behavior, the real division operator
+			<code class="code">/</code> does not emit an error and
+			always produces an infinite result or not-a-number.
 			</p>
 			<div class="example">
 				<h3>Example</h3>
@@ -2018,7 +2021,10 @@ print(arr.sort(order2));                        # works fine
 					content: `
 			<p>
 			Saving a value with the standard library's <code class="code">save</code>
-			function failed because the value is not a
+			function failed. This happens for two reasons.
+			</p>
+			<p>
+			The first and more usual cause is that the value is not a
 			<a target="_blank" href="http://json.org/">JSON</a> constant.
 			Values of type Null, Boolean, Integer, Real, and String are legal,
 			as well as Array and Dictionary, if all of the values stored
@@ -2031,6 +2037,20 @@ print(arr.sort(order2));                        # works fine
 			class. This error is also reported if the data structure is recursive,
 			i.e., if an array or dictionary contains itself as a value, possibly
 			indirectly.
+			</p>
+			<p>
+			The second reason is that the storage is full, i.e., its quota is
+			exceeded. Webservers usually allow to store data in the order of a
+			few megabytes per origin. When that space is full and the value to
+			be stored would exceed the quota, then this error is reported.
+			</p>
+			<p>
+			Note that the available space is shared between saved programs
+			(usually not very much data) and data stored by <i>all</i> programs.
+			To avoid this error, it can make sense to remove unneeded entries
+			from the browser's local storage. Browser developer tools usually
+			offer a way to view and modify local storage. TScript files are
+			stored under keys starting with <code class="code">tscript.data.</code>
 			</p>
 		`,
 					children: [],
@@ -2103,6 +2123,48 @@ print(arr.sort(order2));                        # works fine
 				a.push(a);
 				# print(a);          # error; would result in infinite recursion
 			</tscript>
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-44",
+					content: `
+			<p>
+			When constructing a <a href="?doc=/library/audio">stereo sound</a>,
+			the buffer arrays of the left and right channels must have the same size.
+			This error indicates that the sizes differ.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-44b",
+					content: `
+			<p>
+			When constructing a <a href="?doc=/library/audio">sound object</a>,
+			the sample frequency must be within a range supported by the underlying
+			system. Browsers are required to support values at least within the
+			range 8000 to 96000.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-45",
+					content: `
+			<p>
+			The error indicates that a too large object was created.
+			This applies (in theory) to the types
+			Range, Array, and Dictionary, but in practice it applies only
+			to <a href="?doc=/language/types/range">ranges</a>. In the
+			following code
+			<tscript do-not-run>
+				var r = -2000000000:2000000000;
+			</tscript>
+			the range would span 4000000000 (4 billion) numbers. That
+			number exceeds the Integer range and hence triggers this
+			error message.
 			</p>
 		`,
 					children: [],
