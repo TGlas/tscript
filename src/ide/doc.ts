@@ -10,6 +10,7 @@ import { navigate } from "./navigation";
 import { searchengine } from "./search";
 import { tgui } from "./tgui";
 import { toClipboard } from "./clipboard";
+import { escapeHtmlChars } from "../escape";
 
 ///////////////////////////////////////////////////////////
 // TScript documentation
@@ -671,7 +672,7 @@ export const doc = (function () {
 			let html = "<h2>Search Results for <i>&quot;";
 			for (let i = 0; i < keys.length; i++) {
 				if (i != 0) html += " ";
-				html += keys[i];
+				html += escapeHtmlChars(keys[i]);
 			}
 			html += "&quot;</i></h2>";
 			let results = searchengine.find(keys);
