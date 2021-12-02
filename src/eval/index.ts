@@ -5,6 +5,7 @@ import { TScript } from "../lang";
 import { Parser } from "../lang/parser";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
+import { escapeHtmlChars } from "../escape";
 
 //
 // The functions in this module allow running and monitoring the runtime
@@ -135,20 +136,6 @@ export const evaluation = (function () {
 		}
 	}
 
-	function escape(s) {
-		let ret = "";
-		for (let i = 0; i < s.length; i++) {
-			let c = s[i];
-			if (c == "\n") ret += "<br/>";
-			else if (c == '"') ret += "&quot;";
-			else if (c == "<") ret += "&lt;";
-			else if (c == ">") ret += "&gt;";
-			else if (c == "&") ret += "&amp;";
-			else ret += c;
-		}
-		return ret;
-	}
-
 	// Judge the submission relative to the solution based on the generated
 	// sequences of events corresponding to one run each. In case of a discrepancy,
 	// the function returns [error, details]; otherwise both strings are empty.
@@ -166,30 +153,31 @@ export const evaluation = (function () {
 			if (cls != "") s += ' class="' + cls + '"';
 			s += ">";
 			if (submission !== null) {
-				s += "event type: " + escape(submission.type) + "<br/>";
+				s +=
+					"event type: " + escapeHtmlChars(submission.type) + "<br/>";
 				for (let p in submission) {
 					if (!submission.hasOwnProperty(p)) continue;
 					if (p == "type") continue;
 					s +=
 						" " +
-						escape(p) +
+						escapeHtmlChars(p) +
 						": " +
-						escape(JSON.stringify(submission[p]));
+						escapeHtmlChars(JSON.stringify(submission[p]));
 				}
 			}
 			s += "</td><td";
 			if (cls != "") s += ' class="' + cls + '"';
 			s += ">";
 			if (solution !== null) {
-				s += "event type: " + escape(solution.type) + "<br/>";
+				s += "event type: " + escapeHtmlChars(solution.type) + "<br/>";
 				for (let p in solution) {
 					if (!solution.hasOwnProperty(p)) continue;
 					if (p == "type") continue;
 					s +=
 						" " +
-						escape(p) +
+						escapeHtmlChars(p) +
 						": " +
-						escape(JSON.stringify(solution[p]));
+						escapeHtmlChars(JSON.stringify(solution[p]));
 				}
 			}
 			s += "</td></tr>\r\n";
@@ -336,23 +324,23 @@ export const evaluation = (function () {
 				if (match_index < 0) {
 					let s =
 						'<tr><td class="error">event type: ' +
-						escape(submission[i].type) +
+						escapeHtmlChars(submission[i].type) +
 						"<br/>";
 					for (let p in submission[i]) {
 						if (!submission[i].hasOwnProperty(p)) continue;
 						if (p == "type") continue;
 						s +=
 							" " +
-							escape(p) +
+							escapeHtmlChars(p) +
 							": " +
-							escape(JSON.stringify(submission[i][p]));
+							escapeHtmlChars(JSON.stringify(submission[i][p]));
 					}
 					s +=
 						'</td><td class="error">no matching event was produced by the reference solution. Candidates:<table>';
 					for (let j = 0; j < remaining_solution.length; j++) {
 						s +=
 							'<tr><td class="error">event type: ' +
-							escape(remaining_solution[j].type) +
+							escapeHtmlChars(remaining_solution[j].type) +
 							"<br/>";
 						for (let p in remaining_solution[j]) {
 							if (!remaining_solution[j].hasOwnProperty(p))
@@ -360,9 +348,9 @@ export const evaluation = (function () {
 							if (p == "type") continue;
 							s +=
 								" " +
-								escape(p) +
+								escapeHtmlChars(p) +
 								": " +
-								escape(
+								escapeHtmlChars(
 									JSON.stringify(remaining_solution[j][p])
 								);
 						}
