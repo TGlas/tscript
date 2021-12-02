@@ -281,15 +281,20 @@ print(c);               # prints [0, 1, 2], since it's a copy
 		</td></tr>
 		<tr><th>floor</th><td>
 			The <code class="code">function math.floor(x)</code> returns the argument
-			rounded down, i.e., the closest integer not larger than <i>x/<i>.
+			rounded down, i.e., the closest integer not larger than <i>x</i>. Although
+			the return value is an integer, it is of type <code class="code">Real</code>
+			to avoid integer overflow.
 		</td></tr>
 		<tr><th>round</th><td>
 			The <code class="code">function math.round(x)</code> returns the argument
-			rounded to the nearest integer.
+			rounded to the nearest integer. Although the return value is an integer,
+			it is of type <code class="code">Real</code> to avoid integer overflow.
 		</td></tr>
 		<tr><th>ceil</th><td>
 			The <code class="code">function math.ceil(x)</code> returns the argument
-			rounded up, i.e., the closest integer not smaller than <i>x/<i>.
+			rounded up, i.e., the closest integer not smaller than <i>x</i>. Although
+			the return value is an integer, it is of type <code class="code">Real</code>
+			to avoid integer overflow.
 		</td></tr>
 		<tr><th>sin</th><td>
 			The <code class="code">function math.sin(x)</code> returns the
@@ -378,7 +383,8 @@ print(c);               # prints [0, 1, 2], since it's a copy
 		</td></tr>
 		<tr><th>pow</th><td>
 			The <code class="code">function math.pow(b, e)</code> returns the <i>e</i>-th power of <i>b</i>.
-			It is an alternative to <a href="?doc=/language/expressions/binary-operators/power">operator ^</a> that always works with reals.
+			It is an alternative to <a href="?doc=/language/expressions/binary-operators/power">operator ^</a>
+			that always works with data type <code class="code">Real</code>.
 		</td></tr>
 		<tr><th>sign</th><td>
 			The <code class="code">function math.sign(x)</code> returns the
