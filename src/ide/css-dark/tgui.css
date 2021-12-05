@@ -200,3 +200,21 @@
 	background: #222;
 	color: #fff;
 }
+
+.dark-theme .tgui-modal-tab-button {
+	color: #aaa;
+}
+
+.dark-theme .tgui-modal-tab-button:hover {
+	color: #fff;
+	background: #282828;
+}
+
+.dark-theme .tgui-modal-tabs {
+	background: #222;
+}
+
+.dark-theme .tgui-modal-selected-tab-button {
+	color: #fff;
+	background: #333;
+}
