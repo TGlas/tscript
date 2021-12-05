@@ -542,13 +542,4 @@ export namespace storage {
 		focusedElement.focus();
 		return dlg;
 	}
-
-	/*export function fileDlg(
-		title: string,
-		filename: string,
-		allowNewFilename: boolean,
-		confirmText: string,
-		onOkay
-	) {
-	}*/
 }
