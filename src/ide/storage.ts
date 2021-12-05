@@ -57,11 +57,7 @@ export namespace storage {
 		};
 	}
 
-	function saveDevice(
-		filename,
-		text,
-		mime = "text/plain"
-	) {
+	function saveDevice(filename, text, mime = "text/plain") {
 		if (!filename.endsWith(".tscript")) filename += ".tscript";
 
 		var element = document.createElement("a");
