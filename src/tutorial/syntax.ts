@@ -91,7 +91,13 @@ export const tutorial_syntax = {
                 var j;
                 j = 10*i;
                 print(j);
-				`
+				`,
+            tests: [
+                {
+                    type: "code",
+                    code: "print(i); print(j);"
+                }
+            ]
         },
         {
             content: `

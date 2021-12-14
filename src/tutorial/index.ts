@@ -12,7 +12,7 @@ import { tutorial_functiontype } from "./functiontype";
 import { tutorial_recursion } from "./recursion";
 import { tutorial_anonymousfunc } from "./anonymousfunc";
 import { tutorial_game } from "./game";
-// TODO:                                                                   GÜLTIGKEITSBEREICHE
+// 
 // * turtle graphics X
 // * canvas graphics X
 // * variables X
@@ -28,7 +28,7 @@ import { tutorial_forloop } from "./forloop";
 // * data types "Function" and "Type" X
 // * recursion X
 // * anonymous functions, closures X
-// * final (short) game project
+// * final (short) game project X
 
 let tutorial = new Array();
 tutorial.push(tutorial_welcome);

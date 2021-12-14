@@ -119,7 +119,19 @@ export const tutorial_ifelse = {
             statement is evaluated first. With the <i>and</i>-operator the inner statement evaluates 
             to false. Finally the <i>not</i>-operator flips the false to be true and therefore the
             second print is executed. 
-            </p>                                                                                        <!-- kann man hier überhaupt sinnvoll Aufgaben stellen? -->
+            </p>                                                                                  <!-- kann man hier überhaupt sinnvoll Aufgaben stellen? -->
+            <div class="tutorial-exercise">
+			<p>
+			Create a prompt that asks for a random letter. You don't have to worry about the user inputting
+            a wrong data type. If the letter is an 'a' or a 'z', print the letter itself. Else, print
+            'Hello World!'.
+			</p>
+			</div>
+            `,
+            correct: `
+            var s = prompt("Please input a random letter");
+            if (s == "a" or s == "z") then print(s);
+            else print("Hello World!");
             `
         },
         {

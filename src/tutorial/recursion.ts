@@ -39,25 +39,25 @@ export const tutorial_recursion = {
             To better understand the order the functions are run through in recursion, let's 
             take an example of adding 5 to 1:<br>
             <code>
-            add(1, 5)<br>
-            {                                           # function add(1, 5) starts<br>
-                5 > 0 ==> add(2, 4)<br>         
-                {                                       # function add(2, 4) starts<br>
-                    4 > 0 ==> add(3, 3)<br>
-                    {                                   # function add(3, 3) starts<br>
-                        3 > 0 ==> add(4, 2)<br>
-                        {                               # function add(4, 2) starts<br>
-                            2 > 0 ==> add(5, 1)<br>
-                            {                           # function add(5, 1) starts<br>
-                                1 > 0 ==> add(6, 0)<br>
-                                {                       # function add(6, 0) starts<br>
-                                    0 <= 0 ==> return 6;
-                                }                       # function add(6, 0) returns 6 to add(5, 1)<br>
-                            }                           # function add(5, 1) returns 6 to add(4, 2)<br>
-                        }                               # function add(4, 2) returns 6 to add(3, 3)<br>
-                    }                                   # function add(3, 3) returns 6 to add(2, 4)<br>
-                }                                       # function add(2, 4) returns 6 to add(1, 5)<br>
-            }                                           # function add(1, 5) returns 6 to the function call<br>
+            add(1, 5)<br/>
+            {                                           # function add(1, 5) starts<br/>
+            &nbsp;5 > 0 ==> add(2, 4)<br/>
+            &nbsp;{                                      # function add(2, 4) starts<br/>
+            &nbsp;&nbsp;4 > 0 ==> add(3, 3)<br/>
+            &nbsp;&nbsp;{                                 # function add(3, 3) starts<br/>
+            &nbsp;&nbsp;&nbsp;3 > 0 ==> add(4, 2)<br/>
+            &nbsp;&nbsp;&nbsp;{                            # function add(4, 2) starts<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;2 > 0 ==> add(5, 1)<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;{                       # function add(5, 1) starts<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 > 0 ==> add(6, 0)<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{                  # function add(6, 0) starts<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 <= 0 ==> return 6;<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}                  # function add(6, 0) returns 6 to add(5, 1)<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;}                       # function add(5, 1) returns 6 to add(4, 2)<br/>
+            &nbsp;&nbsp;&nbsp;}                            # function add(4, 2) returns 6 to add(3, 3)<br/>
+            &nbsp;&nbsp;}                                 # function add(3, 3) returns 6 to add(2, 4)<br/>
+            &nbsp;}                                      # function add(2, 4) returns 6 to add(1, 5)<br/>
+            }                                           # function add(1, 5) returns 6 to the function call<br/>
             </code>
             What you have now seen is splitting up the full problem into smaller partial
             problems. We split up the process of adding y to x into y parts of incrementing
