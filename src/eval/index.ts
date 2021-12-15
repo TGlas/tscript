@@ -689,7 +689,7 @@ export const evaluation = (function () {
 		let index = 0;
 		let all: any = new Array();
 		let output = new Array();
-		for (let i=0; i<inputs.length; i++) inputs[i] = inputs[i].slice();
+		for (let i = 0; i < inputs.length; i++) inputs[i] = inputs[i].slice();
 
 		function compute() {
 			let c = code[index];
