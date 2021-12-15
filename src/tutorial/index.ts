@@ -9,7 +9,7 @@ import { tutorial_forloop } from "./forloop";
 // TODO:
 // * if-then-else, data type boolean
 // * do-while loops and while-do loops
-import { tutorial_functions } from "./functions";
+//import { tutorial_functions } from "./functions";
 // * functions
 // * arrays
 // * dictionaries
@@ -23,6 +23,6 @@ let tutorial = new Array();
 tutorial.push(tutorial_welcome);
 tutorial.push(tutorial_helloworld);
 tutorial.push(tutorial_forloop);
-tutorial.push(tutorial_functions);
+//tutorial.push(tutorial_functions);
 
 export const tutorialData = tutorial;
