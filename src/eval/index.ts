@@ -680,14 +680,16 @@ export const evaluation = (function () {
 	// The programs are run asynchronously in the background until they finish or time out.
 	// Parameters:
 	//  - code is an array of TScript programs or JS test functions
+	//  - inputs is an array of arrays, containing values returned by consecutive calls to TScript's confirm or prompt.
 	//  - maxseconds is the timeout
 	//  - process is a function taking the array of event arrays as its argument for further processing.
-	module.run_multiple = function (code, maxseconds, process) {
+	module.run_multiple = function (code, inputs, maxseconds, process) {
 		let timeout = new Date().getTime() + 1000 * maxseconds;
 
 		let index = 0;
 		let all: any = new Array();
 		let output = new Array();
+		for (let i = 0; i < inputs.length; i++) inputs[i] = inputs[i].slice();
 
 		function compute() {
 			let c = code[index];
@@ -738,7 +740,7 @@ export const evaluation = (function () {
 					// create an interpreter and prepare it for collecting output events
 					let interpreter = createInterpreter(
 						program,
-						new Array(),
+						inputs[index],
 						output
 					);
 					interpreter.reset();
@@ -1270,10 +1272,13 @@ export const evaluation = (function () {
 
 		// collect the codes to execute
 		let codes = new Array();
+		let inputs = new Array();
 		let calls = new Array();
 		if (!task.hasOwnProperty("tests") || task.tests === null) {
 			codes.push(submission);
+			inputs.push(new Array());
 			codes.push(solution);
+			inputs.push(new Array());
 		} else {
 			for (let i = 0; i < task.tests.length; i++) {
 				let test = task.tests[i];
@@ -1305,8 +1310,13 @@ export const evaluation = (function () {
 						'; print(Type(result) + "' +
 						marker +
 						'" + result);\n}\n';
+					let input = test.hasOwnProperty("input")
+						? test.input
+						: new Array();
 					codes.push(sub);
+					inputs.push(input);
 					codes.push(sol);
+					inputs.push(input);
 				} else if (test.type == "code") {
 					let call = test.code;
 					let context = test.hasOwnProperty("context")
@@ -1322,17 +1332,23 @@ export const evaluation = (function () {
 						"\n}\n";
 					let sol =
 						context + "\n\n" + solution + "\n\n{" + call + ";\n}\n";
+					let input = test.hasOwnProperty("input")
+						? test.input
+						: new Array();
 					codes.push(sub);
+					inputs.push(input);
 					codes.push(sol);
+					inputs.push(input);
 				} else if (test.type == "js") {
 					let call = test.code;
 					codes.push("@" + call + "\n@\n" + submission);
+					inputs.push(new Array());
 				}
 			}
 		}
 
 		// run the code
-		module.run_multiple(codes, timeout, function (result) {
+		module.run_multiple(codes, inputs, timeout, function (result) {
 			if (result === null) {
 				error = "internal error: failed to evaluate the code";
 				points = 0;
