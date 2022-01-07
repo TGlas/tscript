@@ -70,18 +70,38 @@ export const tutorial_containers = {
             </p>
             <div class="tutorial-exercise">
 			<p>
-			Create an array with the numbers 0 to 10. Use a <i>for</i>-loop to print
-            every value of the array from last to first. Remember that ranges can only
-            ascend. 
+			Create a function <i>run</i> that takes an array as its input parameter arr. 
+            Use a <i>for</i>-loop to print every value of the array from last to first. 
+            Remember that ranges can only ascend. 
 			</p>
 			</div>
             `,
             correct: `
-            var a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-            for var i in 0:a.size() do {
-                print(a[a.size() - 1 - i]);
+            function run(arr) {
+                for var i in 0:arr.size() do {
+                    print(arr[arr.size() - 1 - i]);
+                }
             }
             `,
+            tests: [
+                {
+					type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
+                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                    if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
+                    if (isRecursive(program)) return "Please don't use recursion.";`,
+				},
+                {
+                    "type": "code",
+                    "code": "run([4, 2, 5, 6, 7, 2, 4, 6]);",
+                },
+                {
+                    "type": "code",
+                    "code": "run([]));",
+                }
+            ],
         },
         {
             content: `
@@ -146,7 +166,20 @@ export const tutorial_containers = {
     	        a.insert(2*i+1, 10-i);
 	            print(a);
             }
-            `
+            `,
+            tests: [
+                {
+                    type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (hasStructure(program, "{ call(print); call(print); call(print);}")) return "You do not need to use more than two print commands!";
+                    if (isRecursive(program)) return "Please don't use recursion.";`,
+                },
+                {
+                    "type": "code",
+                    "code": "",
+                }
+            ]
         },
         {
             content: `

@@ -80,10 +80,9 @@ export const tutorial_functions = {
             </p>
             <div class="tutorial-exercise">
 			<p>
-			Create a function for your own. It should take one input parameter and count it down to
-            0 using a <i>while-do</i>-loop. Every step print the current state of the parameter.
-            Finally call the function with inputs 5, 10, 15 and -5.
-			</p>
+			Create a function <i>countdown</i> for your own. It should take one input parameter x and 
+            count it down to 0 using a <i>while-do</i>-loop. Every step print the current state 
+            of the parameter.</p>
 			</div>
             <p>
             In this exercise you can see, that it is important to know which data type the function
@@ -97,12 +96,35 @@ export const tutorial_functions = {
                         x = x - 1;
                     }
                 }
-
-                countdown(5);
-                countdown(10);
-                countdown(15);
-                countdown(-5);
 				`,
+            tests:
+            [
+                {
+					type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
+                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                    if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
+                    if (isRecursive(program)) return "Please don't use recursion.";`,
+				},
+                {
+                    "type": "code",
+                    "code": "countdown(5);",
+                },
+                {
+                    "type": "code",
+                    "code": "countdown(10);",
+                },
+                {
+                    "type": "code",
+                    "code": "countdown(-5);",
+                },
+                {
+                    "type": "code",
+                    "code": "countdown(0);",
+                },
+            ]
         },
         {
             content: `
@@ -148,31 +170,37 @@ export const tutorial_functions = {
 			<p>
 			Create a function <i>add</i> which takes a parameter i and an optional parameter
             x and returns i + x. If no value of x is handed over, the function shall return 
-            i + 1. Create a variable j and assign 0. Now call the <i>add</i>-function thrice
-            and assign its returned value to j. After each function call, print the current
-            value of j. The values for the first <i>add</i>-call are j for i and no value for
-            x; j for i and 5 for x for the second call; and j for i and 1 for x for the third
-            call.
+            i + 1.
 			</p>
 			</div>
             <p>
-            You can see that it is possible to hand over the same value as a parameter's default
-            value. 
+            It is possible to hand over the same value as a parameter's default value. 
             </p>
             `,
 			correct: `
 				function add(i, x = 1) {
                     return i + x;
                 }
-
-                var j = 0;
-                j = add(j);
-                print(j);
-                j = add(j, 5);
-                print(j);
-                j = add(j, 1);
-                print(j);
-				`
+				`,
+            tests:
+            [
+                {
+                    "type": "code",
+                    "code": "print(add(2));"
+                },
+                {
+                    "type": "code",
+                    "code": "print(add(20));"
+                },
+                {
+                    "type": "code",
+                    "code": "print(add(2, 5));"
+                },
+                {
+                    "type": "code",
+                    "code": "print(add(-3, -5));"
+                },
+            ]
         },
         {
             content: `

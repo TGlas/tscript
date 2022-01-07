@@ -97,7 +97,48 @@ export const tutorial_anonymousfunc = {
                 functions.push(function[a = i*i](x) {
                     return a*x*x;
                 });
-            }`
+            }`,
+            tests: [
+                {
+                    type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                    if (isRecursive(program)) return "Please don't use recursion.";`,
+                },
+                {
+                    "type": "code",
+                    "code": "print(functions[0](2));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(functions[1](5));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(functions[9](10));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(functions[5](0));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(functions[5](1));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(functions[5](-5));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(functions[5](5));",
+                },
+                /*{
+                    "type": "code",
+                    "code": "print(functions[10](0);",
+                }*/
+            ]
         },
         {
             content:

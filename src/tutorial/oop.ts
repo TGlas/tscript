@@ -155,12 +155,10 @@ export const tutorial_oop = {
             </p>
             <div class="tutorial-exercise">
 			<p>
-            Create a class Animal with a private attribute m_name. Create a public constructor which takes
-            a variable name and assigns it to m_name and a function makeNoise() which simply prints
+            Create a class <i>Animal</i> with a private attribute m_name. Create a public constructor which takes
+            a variable name and assigns it to m_name and a function <i>makeNoise()</i> which simply prints
             "<m_name> makes noise!". Don't forget to implement a getter- and setter-method for your private
-            properties. Create an object of the class and name it "Ted". Call the makeNoise()-method, 
-            print the current name of the object, change the name to "Todd" and finally call the 
-            makeNoise()-method again.
+            properties. Create an object of the class and name it "Ted" and call the makeNoise()-method.
 			</p>
 			</div>
             `,
@@ -170,6 +168,7 @@ export const tutorial_oop = {
                     var m_name;
                     
                 public:
+                    
                     constructor(name) {
                         m_name = name;
                     }
@@ -188,10 +187,25 @@ export const tutorial_oop = {
             }
             
             var a = Animal("Ted");
-            a.makeNoise();
-            print(a.getName());
-            a.setName("Todd");
-            a.makeNoise();`
+            a.makeNoise();`,
+            tests: [
+                {
+                    "type": "code",
+                    "code": "print(a.getName());",
+                },
+                {
+                    "type": "code",
+                    "code": 'a.setName("Todd"); a.makeNoise();',
+                },
+                {
+                    "type": "code",
+                    "code": 'a.m_name = "this should not work";',
+                },
+                {
+                    "type": "code",
+                    "code": 'var b = Animal("B"); b.makeNoise();'
+                }
+            ]
         },
         {
             content: `
@@ -271,7 +285,7 @@ export const tutorial_oop = {
             class Cat that inherits the Animal class. Extend its properties with a color variable and extend
             the constructor to initialize it. Don't forget to create getter- and setter-methods. Finally, 
             overload the makeNoise()-function to print "Miau", every time it is called. What needs to be changed
-            for the function to be able to print the cat's name?
+            for the function to be able to access the cat's name?
 			</p>
 			</div>
             `,
@@ -318,7 +332,33 @@ export const tutorial_oop = {
                     function setRace(race) {
                         m_race = race;
                     }
-            }`
+            }`,
+            tests: [
+                {
+                    "type": "code",
+                    "code": 'var c = Cat("Karl", "Siamese"); c.makeNoise();',
+                },
+                {
+                    "type": "code",
+                    "code": 'var c = Cat("Karl", "Simaese"); print(c.getRace());',
+                },
+                {
+                    "type": "code",
+                    "code": 'var c = Cat("Karl", "Siamese"); c.setRace("Langfell"); print(c.getRace());',
+                },
+                {
+                    "type": "code",
+                    "code": 'var c = Cat("Karl", "Siamese"); print(c.m_name);',
+                },
+                {
+                    "type": "code",
+                    "code": 'var c = Cat("Karl", "Siamese"); print(c.getName());',
+                },
+                {
+                    "type": "code",
+                    "code": 'var c = Cat("Karl"); print(c.getName());'
+                }
+            ]
         }, 
         {
             content: `

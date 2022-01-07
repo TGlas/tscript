@@ -65,7 +65,7 @@ export const tutorial_recursion = {
             </p>
             <p>
             <div class = "tutorial-exercise">
-            Write a recursive function <i>sumRange(n)</i>that returns the summed up range from 0 to parameter
+            Write a recursive function <i>sumRange(n)</i> that returns the summed up range from 0 to parameter
             n. Think about the recursion anchor and how you can achieve that it is actually reached.
             </div>
             </p>
@@ -75,7 +75,35 @@ export const tutorial_recursion = {
                 if (n <= 0) then { return n; }
                 return n + sumRange(n - 1);
             }
-            `
+            `,
+            tests: [
+                {
+                    type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (!isRecursive(program)) return "Please use recursion to solve the problem.";`,
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(0));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(1));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(2));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(-1));"
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(10));"
+                }
+            ]
 		},
         {
             content: `
@@ -115,7 +143,36 @@ export const tutorial_recursion = {
                     n = n - 1;
                 }
                 return res;
-            }`
+            }`,
+            tests: [
+                {
+                    type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (isRecursive(program)) return "Please don't use recursion to solve the problem.";
+                    if (!hasStructure(program, "loop;")) return "Please use a loop to solve the problem."`,
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(0));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(1));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(2));",
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(-1));"
+                },
+                {
+                    "type": "code",
+                    "code": "print(sumRange(10));"
+                }
+            ]
         }, 
         {
             content: `
@@ -191,7 +248,47 @@ export const tutorial_recursion = {
                     print(t*t);
                 }
             }
-            `
+            `,
+            tests: [
+                {
+                    type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (!isRecursive(program)) return "Please use recursion to solve the problem.";`,
+                },
+                {
+                    "type": "code",
+                    "code": "powerTree(10);",
+                },
+                {
+                    "type": "code",
+                    "code": "powerTree(-5);",
+                },
+                {
+                    "type": "code",
+                    "code": "powerTree(0);",
+                },
+                {
+                    "type": "code",
+                    "code": "powerTree([1, 2, 3]);",
+                },
+                {
+                    "type": "code",
+                    "code": 'powerTree({"a": 1, "b": 2});',
+                },
+                {
+                    "type": "code",
+                    "code": 'powerTree([1, {"a": 2}]);',
+                },
+                {
+                    "type": "code",
+                    "code": 'powerTree({"a": [1, 2, 3]});',
+                },
+                {
+                    "type": "code",
+                    "code": 'powerTree({"a": []});',
+                }
+            ]
         },
         {
             content: `

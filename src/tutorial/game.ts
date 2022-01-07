@@ -97,7 +97,7 @@ export const tutorial_game = {
             iterate through every Tile of the field array (remember it being 
             2-dimensional) and call a function called drawTile, handing over
             the loop counter of the outer for-loop first and of the inner
-            for-loop second. Finally, create an empty function drawTile(x, y)
+            for-loop second. Finally, create an empty placeholder function drawTile(x, y)
             at the top of your code to avoid errors.
 			</p>
 			</div>

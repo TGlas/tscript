@@ -60,7 +60,7 @@ export const tutorial_dowhile = {
             </p>
             <div class="tutorial-exercise">
 			<p>
-			Try to create a <i>while-do</i>-loop for yourself. Create a loop counter and set it 
+			Try to create a <i>while-do</i>-loop for yourself. Create a loop counter i and set it 
             to 10. Inside of the <i>while-do</i>-loop use an <i>if</i>-statement to check if the 
             current counter is divisible by 2 (use the modulo operator % for which: x % y = 0, 
             if y divides x without any remains). Only print the current status of the loop 
@@ -78,6 +78,23 @@ export const tutorial_dowhile = {
                     i = i - 1;
                 }
 				`,
+            tests: [
+                {
+                    type: "code",
+                    code: "print(i);",
+                },
+                {
+                    type: "js",
+                    code: `
+                        let program = parse(code).program;
+                        if (! program) return "Failed to parse the program code.";
+                        if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
+                        if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                        if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
+                        if (isRecursive(program)) return "Please don't use recursion.";
+                        `,
+                },
+                ]
         },
         {
             content: `
@@ -96,8 +113,8 @@ export const tutorial_dowhile = {
             <div class="tutorial-exercise">
 			<p>
 			Create a <i>while-do</i>-loop which's condition always evaluates to <i>true</i>. 
-            Count the number of loop runs with a loop counter and break the loop, once the
-            loop has run 100 times. Afterwards print the loop counter.
+            Count the number of loop runs with a loop counter i and break the loop, once the
+            loop has run 100 times.
 			</p>
 			</div>
             `,
@@ -109,8 +126,21 @@ export const tutorial_dowhile = {
                     }
                     i = i + 1;
                 }
-                print(i);
-            `
+            `,
+            tests: [
+				{
+					type: "code",
+					code: "print(i);",
+				},
+				{
+					type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                    if (!hasStructure(program, "loop { condition; }")) return "There needs to be a condition to break the loop at the right time!";
+                    if (isRecursive(program)) return "Please don't use recursion.";`,
+				},
+			],
         },
         {
             content: `
@@ -142,7 +172,21 @@ export const tutorial_dowhile = {
                     print(2*i);
                     i = i + 1;
                 } while (i < 15);
-            `
+            `,
+            tests: [
+                {
+                    type: "code",
+                    code: "print(i);",
+                },
+                {
+					type: "js",
+					code: `let program = parse(code).program;
+                    if (! program) return "Failed to parse the program code.";
+                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                    if (!hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop!";
+                    if (isRecursive(program)) return "Please don't use recursion.";`,
+				},
+            ]
         },
         {
             content: `

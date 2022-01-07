@@ -40,7 +40,8 @@ export const tutorial_graphics = {
             <div class="tutorial-exercise">
             Try the turtle graphics out for yourself. Set the color to a grey value
             with red = blue = green = 0.5 and draw a square using the move- and
-            turn-commands. Use a distance of 200 and an angle of 90&deg;.
+            turn-commands. Use a distance of 200 and an angle of 90&deg;. Start 
+            drawing the square with the move-command.
             </div>
             </p>
 			`,
@@ -54,6 +55,13 @@ export const tutorial_graphics = {
                 turtle.turn(90);
                 turtle.move(200);
 				`,
+            tests: [
+                {
+                "type": "code",
+                "code": "",
+                "ignore-order": "true",
+            }
+        ],
 		},
         {
         content: `

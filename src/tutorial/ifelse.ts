@@ -132,7 +132,39 @@ export const tutorial_ifelse = {
             var s = prompt("Please input a random letter");
             if (s == "a" or s == "z") then print(s);
             else print("Hello World!");
-            `
+            `,
+            tests: [
+                {
+                    "type": "code",
+                    "code": "",
+                    "input": ["a"],
+                },
+                {
+                    "type": "code",
+                    "code": "",
+                    "input": ["aa"],
+                },
+                {
+                    "type": "code",
+                    "code": "",
+                    "input": ["z"],
+                },
+                {
+                    "type": "code",
+                    "code": "",
+                    "input": ["zz"],
+                },
+                {
+                    "type": "code",
+                    "code": "",
+                    "input": [""],
+                },
+                {
+                    "type": "code",
+                    "code": "",
+                    "input": ["c"],
+                }
+            ]
         },
         {
             content: `
