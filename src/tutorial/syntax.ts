@@ -23,8 +23,8 @@ export const tutorial_syntax = {
             </p>
 			`,
 		},
-        {
-            content: `
+		{
+			content: `
             <h2>Declarations</h2>
             <p>To work efficiently and solve tasks as general as possible, 
             we use variables which save specific values, strings or even functions. 
@@ -52,9 +52,9 @@ export const tutorial_syntax = {
             tutorial.
             </p>
             `,
-        },
-        {
-            content: `
+		},
+		{
+			content: `
             <h2>Assignments</h2>
             <p>
             An assignment statement copies a specific value into the storage location of
@@ -83,7 +83,7 @@ export const tutorial_syntax = {
             </tscript>
             </p>
             `,
-            correct: `
+			correct: `
 				var i;
                 i = "Hello World!";
                 print(i);
@@ -92,15 +92,15 @@ export const tutorial_syntax = {
                 j = 10*i;
                 print(j);
 				`,
-            tests: [
-                {
-                    type: "code",
-                    code: "print(i); print(j);"
-                }
-            ]
-        },
-        {
-            content: `
+			tests: [
+				{
+					type: "code",
+					code: "print(i); print(j);",
+				},
+			],
+		},
+		{
+			content: `
             <h2>Wrap-Up</h2>
             <p>
             You are now able to create variables to use in your program and differentiate
@@ -108,7 +108,7 @@ export const tutorial_syntax = {
             a program or algorithm is often referred to as initialization as you set the 
             initial status of your program before anything is done.
             </p>
-            `
-        }
+            `,
+		},
 	],
 };

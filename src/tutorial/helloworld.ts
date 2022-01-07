@@ -83,12 +83,12 @@ export const tutorial_helloworld = {
 			</p>
 			`,
 			correct: `print("Hello World!");`,
-            tests: [
-                {
-                    "type": "code",
-                    "code": "",
-                }
-            ]
+			tests: [
+				{
+					type: "code",
+					code: "",
+				},
+			],
 		},
 		{
 			content: `
@@ -107,12 +107,12 @@ export const tutorial_helloworld = {
 			</div>
 			`,
 			correct: `alert("Hello World!");`,
-            tests: [
-                {
-                    "type": "code",
-                    "code": "",
-                }
-            ]
+			tests: [
+				{
+					type: "code",
+					code: "",
+				},
+			],
 		},
 		{
 			content: `

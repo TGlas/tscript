@@ -57,10 +57,10 @@ export const tutorial_ifelse = {
             }
             </tscript>
             </p>
-			`
+			`,
 		},
-        {
-            content:`
+		{
+			content: `
             <h2>Comparisons</h2>
             <p>
             You have seen how if-else-ramifications look like but we haven't
@@ -128,46 +128,46 @@ export const tutorial_ifelse = {
 			</p>
 			</div>
             `,
-            correct: `
+			correct: `
             var s = prompt("Please input a random letter");
             if (s == "a" or s == "z") then print(s);
             else print("Hello World!");
             `,
-            tests: [
-                {
-                    "type": "code",
-                    "code": "",
-                    "input": ["a"],
-                },
-                {
-                    "type": "code",
-                    "code": "",
-                    "input": ["aa"],
-                },
-                {
-                    "type": "code",
-                    "code": "",
-                    "input": ["z"],
-                },
-                {
-                    "type": "code",
-                    "code": "",
-                    "input": ["zz"],
-                },
-                {
-                    "type": "code",
-                    "code": "",
-                    "input": [""],
-                },
-                {
-                    "type": "code",
-                    "code": "",
-                    "input": ["c"],
-                }
-            ]
-        },
-        {
-            content: `
+			tests: [
+				{
+					type: "code",
+					code: "",
+					input: ["a"],
+				},
+				{
+					type: "code",
+					code: "",
+					input: ["aa"],
+				},
+				{
+					type: "code",
+					code: "",
+					input: ["z"],
+				},
+				{
+					type: "code",
+					code: "",
+					input: ["zz"],
+				},
+				{
+					type: "code",
+					code: "",
+					input: [""],
+				},
+				{
+					type: "code",
+					code: "",
+					input: ["c"],
+				},
+			],
+		},
+		{
+			content: `
             <h2>Wrap-up</h2>
             <p>
             The if-else-control structure is a way to make decisions which code shall be executed 
@@ -175,7 +175,7 @@ export const tutorial_ifelse = {
             decide if the code behind the <i>if</i>-statement is executed. It is possible to string
             together as many boolean values as you'd like using logical and (some) relational operators.
             </p>
-            `
-        }
-	]
+            `,
+		},
+	],
 };

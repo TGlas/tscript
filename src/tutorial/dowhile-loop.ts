@@ -15,10 +15,10 @@ export const tutorial_dowhile = {
             the boolean statements in <i>if</i>-statements we use 
             <i>while</i>-loops. 
             </p>
-			`
+			`,
 		},
-        {
-            content: `
+		{
+			content: `
             <h2>While-loops</h2>
             <p>
             There exist two different kinds of while-loops - the <i>do-while</i>-
@@ -78,14 +78,14 @@ export const tutorial_dowhile = {
                     i = i - 1;
                 }
 				`,
-            tests: [
-                {
-                    type: "code",
-                    code: "print(i);",
-                },
-                {
-                    type: "js",
-                    code: `
+			tests: [
+				{
+					type: "code",
+					code: "print(i);",
+				},
+				{
+					type: "js",
+					code: `
                         let program = parse(code).program;
                         if (! program) return "Failed to parse the program code.";
                         if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
@@ -93,11 +93,11 @@ export const tutorial_dowhile = {
                         if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
                         if (isRecursive(program)) return "Please don't use recursion.";
                         `,
-                },
-                ]
-        },
-        {
-            content: `
+				},
+			],
+		},
+		{
+			content: `
             <h2>Break and continue</h2>
             <p>
             The examples we have seen so far have had similar conditions to end as the prior
@@ -127,7 +127,7 @@ export const tutorial_dowhile = {
                     i = i + 1;
                 }
             `,
-            tests: [
+			tests: [
 				{
 					type: "code",
 					code: "print(i);",
@@ -141,9 +141,9 @@ export const tutorial_dowhile = {
                     if (isRecursive(program)) return "Please don't use recursion.";`,
 				},
 			],
-        },
-        {
-            content: `
+		},
+		{
+			content: `
             <h2>Equivalence of loops</h2>
             <p>
             In general it is possible to write every <i>for</i>-loop as a <i>while</i>-loop.
@@ -173,12 +173,12 @@ export const tutorial_dowhile = {
                     i = i + 1;
                 } while (i < 15);
             `,
-            tests: [
-                {
-                    type: "code",
-                    code: "print(i);",
-                },
-                {
+			tests: [
+				{
+					type: "code",
+					code: "print(i);",
+				},
+				{
 					type: "js",
 					code: `let program = parse(code).program;
                     if (! program) return "Failed to parse the program code.";
@@ -186,10 +186,10 @@ export const tutorial_dowhile = {
                     if (!hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop!";
                     if (isRecursive(program)) return "Please don't use recursion.";`,
 				},
-            ]
-        },
-        {
-            content: `
+			],
+		},
+		{
+			content: `
             <h2>Wrap-up</h2>
             <p>
             In this section you have learnt about different kind of loops which can have any kind of
@@ -202,7 +202,7 @@ export const tutorial_dowhile = {
             once (<i>do-while</i>-loop) or having a general boolean condition to determine if the 
             loop-body shall be executed or not (<i>while-do</i>-loop).
             </p>
-            `
-        }
-	]
+            `,
+		},
+	],
 };

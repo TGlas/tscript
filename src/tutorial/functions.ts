@@ -28,8 +28,8 @@ export const tutorial_functions = {
             </p>
 			`,
 		},
-        {
-            content: `
+		{
+			content: `
             <h2>Syntax</h2>
             <p>
             To create a function you use the <i>function</i>-keyword, an identifier,
@@ -97,9 +97,8 @@ export const tutorial_functions = {
                     }
                 }
 				`,
-            tests:
-            [
-                {
+			tests: [
+				{
 					type: "js",
 					code: `let program = parse(code).program;
                     if (! program) return "Failed to parse the program code.";
@@ -108,26 +107,26 @@ export const tutorial_functions = {
                     if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
                     if (isRecursive(program)) return "Please don't use recursion.";`,
 				},
-                {
-                    "type": "code",
-                    "code": "countdown(5);",
-                },
-                {
-                    "type": "code",
-                    "code": "countdown(10);",
-                },
-                {
-                    "type": "code",
-                    "code": "countdown(-5);",
-                },
-                {
-                    "type": "code",
-                    "code": "countdown(0);",
-                },
-            ]
-        },
-        {
-            content: `
+				{
+					type: "code",
+					code: "countdown(5);",
+				},
+				{
+					type: "code",
+					code: "countdown(10);",
+				},
+				{
+					type: "code",
+					code: "countdown(-5);",
+				},
+				{
+					type: "code",
+					code: "countdown(0);",
+				},
+			],
+		},
+		{
+			content: `
             <h2>Optional Parameters</h2>
             <p>
             There might be applications where some input parameters are mostly
@@ -182,28 +181,27 @@ export const tutorial_functions = {
                     return i + x;
                 }
 				`,
-            tests:
-            [
-                {
-                    "type": "code",
-                    "code": "print(add(2));"
-                },
-                {
-                    "type": "code",
-                    "code": "print(add(20));"
-                },
-                {
-                    "type": "code",
-                    "code": "print(add(2, 5));"
-                },
-                {
-                    "type": "code",
-                    "code": "print(add(-3, -5));"
-                },
-            ]
-        },
-        {
-            content: `
+			tests: [
+				{
+					type: "code",
+					code: "print(add(2));",
+				},
+				{
+					type: "code",
+					code: "print(add(20));",
+				},
+				{
+					type: "code",
+					code: "print(add(2, 5));",
+				},
+				{
+					type: "code",
+					code: "print(add(-3, -5));",
+				},
+			],
+		},
+		{
+			content: `
             <h2>Wrap-up</h2>
             <p>
             You have learnt to use functions as a way to store code and execute it by calling
@@ -217,7 +215,7 @@ export const tutorial_functions = {
             code blocks. There even exist code libraries which collect different functions
             for you to use. 
             </p>
-            `
-        }
+            `,
+		},
 	],
 };

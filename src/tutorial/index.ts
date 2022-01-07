@@ -12,7 +12,7 @@ import { tutorial_functiontype } from "./functiontype";
 import { tutorial_recursion } from "./recursion";
 import { tutorial_anonymousfunc } from "./anonymousfunc";
 import { tutorial_game } from "./game";
-// 
+//
 // * turtle graphics X
 // * canvas graphics X
 // * variables X

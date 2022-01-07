@@ -32,10 +32,10 @@ export const tutorial_game = {
                         var open = false;   # was this tile uncovered by the player?
                         var flag = false;   # did the player place a flag here?
                 }
-				`
+				`,
 		},
-        {
-            content: `
+		{
+			content: `
             <p>
             Now that we have created Tiles, let's create a field composed of
             Tiles. For simplicity reasons, we just take the whole canvas as 
@@ -76,10 +76,10 @@ export const tutorial_game = {
                 }
                 var todo = sizeX * sizeY - mines;   # number of non-mine tiles to uncover
 
-				`
-        },
-        {
-            content: `
+				`,
+		},
+		{
+			content: `
             <p>
             Let us now look at the drawing of the game for the first time. The idea
             is to draw the pitch once in the beginning and only update tiles that
@@ -137,10 +137,10 @@ export const tutorial_game = {
                         for var x in 0:sizeX do
                             drawTile(x, y);
                 }
-				`
-        },
-        {
-            content: `
+				`,
+		},
+		{
+			content: `
             <p>
             We now want to implement a function that counts the number of mines surrounding
             a specific tile. We therefore write a function <i>neighbor()</i> which takes 
@@ -209,10 +209,10 @@ export const tutorial_game = {
                     }
                     return num;
                 }
-				`
-        },
-        {
-            content: `
+				`,
+		},
+		{
+			content: `
             <p>
             We have now already implemented some functionality to set up the field and find 
             mines - but we haven't even placed any yet! Let's make up for that now. We have set 
@@ -294,10 +294,10 @@ export const tutorial_game = {
                         break;
                     }
                 }
-				`
-        },
-        {
-            content: `
+				`,
+		},
+		{
+			content: `
             <p>
             Now that we have set up the mines, we can finalize our draw() function
             by implementing the drawTile(x,y) function we left empty as a placeholder.
@@ -447,10 +447,10 @@ export const tutorial_game = {
                         for var x in 0:sizeX do
                             drawTile(x, y);
                 }
-				`
-        },
-        {
-            content: `
+				`,
+		},
+		{
+			content: `
             <p>
             Usually in games, we'd redraw the canvas every frame. With our minesweeper
             game it is sufficient to just redraw the tiles that get uncovered. Therefore,
@@ -598,10 +598,10 @@ export const tutorial_game = {
                         }
                     }
                 }
-				`
-        },
-        {
-            content: `
+				`,
+		},
+		{
+			content: `
             <p>
             We are now almost done with preparations for our game to work. In this
             short section we will set up the start of the game. Therefore, we will
@@ -751,10 +751,10 @@ export const tutorial_game = {
                     uncover(x, y);
                     break;
                 }
-				`
-        },
-        {
-            content: `
+				`,
+		},
+		{
+			content: `
             <p>
             In this final section we need to create a function that shall be called
             if the user clicks somewhere on the canvas. If the click was a left click
@@ -932,7 +932,7 @@ export const tutorial_game = {
                 setEventHandler("canvas.mousedown", click);
                 var win = enterEventMode();
                 if win then alert("Congratulations! You cleared the field."); else alert("Baaaam! Better luck next time!");
-				`
-        }
-	]
+				`,
+		},
+	],
 };

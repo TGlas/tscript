@@ -10,9 +10,9 @@ export const tutorial_graphics = {
             find the Turtle and Canvas Graphics in the tool bar of the IDE right 
             next to the stack and program buttons.
             </p>
-			`
+			`,
 		},
-        {
+		{
 			content: `
             <h2>Turtle Graphics</h2>
 			<p>
@@ -45,7 +45,7 @@ export const tutorial_graphics = {
             </div>
             </p>
 			`,
-            correct: `
+			correct: `
                 turtle.color(0.5,0.5,0.5);
 				turtle.move(200);
                 turtle.turn(90);
@@ -55,16 +55,16 @@ export const tutorial_graphics = {
                 turtle.turn(90);
                 turtle.move(200);
 				`,
-            tests: [
-                {
-                "type": "code",
-                "code": "",
-                "ignore-order": "true",
-            }
-        ],
+			tests: [
+				{
+					type: "code",
+					code: "",
+					"ignore-order": "true",
+				},
+			],
 		},
-        {
-        content: `
+		{
+			content: `
             <h2>Canvas Graphics</h2>
             <p>
             The other way to create graphics is with canvas graphics. We are able to create
@@ -90,10 +90,10 @@ export const tutorial_graphics = {
             Copy this example and see what happens for yourself. To find all possible commands 
             for the canvas, refer to <a href="https://info1.ini.rub.de/TScriptIDE.html?doc#/library/canvas">this</a>.
             </p>
-        `
-        },
-        {
-            content: `
+        `,
+		},
+		{
+			content: `
                 <h2>Wrap-Up</h2>
                 <p>
                 You have now learned basic types of graphical output. Even if the uses of Turtle and
@@ -102,7 +102,7 @@ export const tutorial_graphics = {
                 around with everything and see what happens. You might want to try out every possible
                 command you can find in the documentation. 
                 </p>
-            `
-            }
-	]
+            `,
+		},
+	],
 };

@@ -24,10 +24,10 @@ export const tutorial_oop = {
             function would not make any sense to be called without a dog, we 
             therefore model the bark-function to be a method from the dog-class.
             </p>
-			`
+			`,
 		},
-        {
-            content: `
+		{
+			content: `
             <h2>Classes</h2>
             <p>
             To create a class we use the keyword "class", followed up by an 
@@ -162,7 +162,7 @@ export const tutorial_oop = {
 			</p>
 			</div>
             `,
-            correct: `
+			correct: `
             class Animal {
                 private:
                     var m_name;
@@ -188,27 +188,27 @@ export const tutorial_oop = {
             
             var a = Animal("Ted");
             a.makeNoise();`,
-            tests: [
-                {
-                    "type": "code",
-                    "code": "print(a.getName());",
-                },
-                {
-                    "type": "code",
-                    "code": 'a.setName("Todd"); a.makeNoise();',
-                },
-                {
-                    "type": "code",
-                    "code": 'a.m_name = "this should not work";',
-                },
-                {
-                    "type": "code",
-                    "code": 'var b = Animal("B"); b.makeNoise();'
-                }
-            ]
-        },
-        {
-            content: `
+			tests: [
+				{
+					type: "code",
+					code: "print(a.getName());",
+				},
+				{
+					type: "code",
+					code: 'a.setName("Todd"); a.makeNoise();',
+				},
+				{
+					type: "code",
+					code: 'a.m_name = "this should not work";',
+				},
+				{
+					type: "code",
+					code: 'var b = Animal("B"); b.makeNoise();',
+				},
+			],
+		},
+		{
+			content: `
             <h2>Inheritance</h2>
             <p>
             Until now we have grouped together objects with same properties and functions
@@ -289,7 +289,7 @@ export const tutorial_oop = {
 			</p>
 			</div>
             `,
-            correct: `
+			correct: `
             class Animal {
                 private:
                     var m_name;
@@ -333,35 +333,35 @@ export const tutorial_oop = {
                         m_race = race;
                     }
             }`,
-            tests: [
-                {
-                    "type": "code",
-                    "code": 'var c = Cat("Karl", "Siamese"); c.makeNoise();',
-                },
-                {
-                    "type": "code",
-                    "code": 'var c = Cat("Karl", "Simaese"); print(c.getRace());',
-                },
-                {
-                    "type": "code",
-                    "code": 'var c = Cat("Karl", "Siamese"); c.setRace("Langfell"); print(c.getRace());',
-                },
-                {
-                    "type": "code",
-                    "code": 'var c = Cat("Karl", "Siamese"); print(c.m_name);',
-                },
-                {
-                    "type": "code",
-                    "code": 'var c = Cat("Karl", "Siamese"); print(c.getName());',
-                },
-                {
-                    "type": "code",
-                    "code": 'var c = Cat("Karl"); print(c.getName());'
-                }
-            ]
-        }, 
-        {
-            content: `
+			tests: [
+				{
+					type: "code",
+					code: 'var c = Cat("Karl", "Siamese"); c.makeNoise();',
+				},
+				{
+					type: "code",
+					code: 'var c = Cat("Karl", "Simaese"); print(c.getRace());',
+				},
+				{
+					type: "code",
+					code: 'var c = Cat("Karl", "Siamese"); c.setRace("Langfell"); print(c.getRace());',
+				},
+				{
+					type: "code",
+					code: 'var c = Cat("Karl", "Siamese"); print(c.m_name);',
+				},
+				{
+					type: "code",
+					code: 'var c = Cat("Karl", "Siamese"); print(c.getName());',
+				},
+				{
+					type: "code",
+					code: 'var c = Cat("Karl"); print(c.getName());',
+				},
+			],
+		},
+		{
+			content: `
             <h2>Wrap-up</h2>
             <p>
             Classes provide the possibility to create individual data types. They enable you
@@ -393,7 +393,7 @@ export const tutorial_oop = {
             }
             </tscript>
             </p>
-            `
-        }
-	]
+            `,
+		},
+	],
 };

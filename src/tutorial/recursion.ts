@@ -70,43 +70,43 @@ export const tutorial_recursion = {
             </div>
             </p>
 			`,
-            correct: `
+			correct: `
             function sumRange(n) {
                 if (n <= 0) then { return n; }
                 return n + sumRange(n - 1);
             }
             `,
-            tests: [
-                {
-                    type: "js",
+			tests: [
+				{
+					type: "js",
 					code: `let program = parse(code).program;
                     if (! program) return "Failed to parse the program code.";
                     if (!isRecursive(program)) return "Please use recursion to solve the problem.";`,
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(0));",
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(1));",
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(2));",
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(-1));"
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(10));"
-                }
-            ]
+				},
+				{
+					type: "code",
+					code: "print(sumRange(0));",
+				},
+				{
+					type: "code",
+					code: "print(sumRange(1));",
+				},
+				{
+					type: "code",
+					code: "print(sumRange(2));",
+				},
+				{
+					type: "code",
+					code: "print(sumRange(-1));",
+				},
+				{
+					type: "code",
+					code: "print(sumRange(10));",
+				},
+			],
 		},
-        {
-            content: `
+		{
+			content: `
             <h2>Recursion vs. Iteration</h2>
             <p>
             Prior we have mentioned that a recursion without an anchor is similar to an infinite loop.
@@ -135,7 +135,7 @@ export const tutorial_recursion = {
             </div>
             </p>
             `,
-            correct: `
+			correct: `
             function sumRange(n) {
                 var res = 0;
                 while (n > 0) do {
@@ -144,38 +144,38 @@ export const tutorial_recursion = {
                 }
                 return res;
             }`,
-            tests: [
-                {
-                    type: "js",
+			tests: [
+				{
+					type: "js",
 					code: `let program = parse(code).program;
                     if (! program) return "Failed to parse the program code.";
                     if (isRecursive(program)) return "Please don't use recursion to solve the problem.";
                     if (!hasStructure(program, "loop;")) return "Please use a loop to solve the problem."`,
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(0));",
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(1));",
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(2));",
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(-1));"
-                },
-                {
-                    "type": "code",
-                    "code": "print(sumRange(10));"
-                }
-            ]
-        }, 
-        {
-            content: `
+				},
+				{
+					type: "code",
+					code: "print(sumRange(0));",
+				},
+				{
+					type: "code",
+					code: "print(sumRange(1));",
+				},
+				{
+					type: "code",
+					code: "print(sumRange(2));",
+				},
+				{
+					type: "code",
+					code: "print(sumRange(-1));",
+				},
+				{
+					type: "code",
+					code: "print(sumRange(10));",
+				},
+			],
+		},
+		{
+			content: `
             <h2>Trees</h2>
             <p>
             Trees are fractal structures which start with a root node. From there on every node can have
@@ -232,7 +232,7 @@ export const tutorial_recursion = {
             </div>
             </p>
             `,
-            correct: `
+			correct: `
             function powerTree(t) {
                 if (Type(t) == Array) then {
                     for var i in 0:t.size() do {
@@ -249,49 +249,49 @@ export const tutorial_recursion = {
                 }
             }
             `,
-            tests: [
-                {
-                    type: "js",
+			tests: [
+				{
+					type: "js",
 					code: `let program = parse(code).program;
                     if (! program) return "Failed to parse the program code.";
                     if (!isRecursive(program)) return "Please use recursion to solve the problem.";`,
-                },
-                {
-                    "type": "code",
-                    "code": "powerTree(10);",
-                },
-                {
-                    "type": "code",
-                    "code": "powerTree(-5);",
-                },
-                {
-                    "type": "code",
-                    "code": "powerTree(0);",
-                },
-                {
-                    "type": "code",
-                    "code": "powerTree([1, 2, 3]);",
-                },
-                {
-                    "type": "code",
-                    "code": 'powerTree({"a": 1, "b": 2});',
-                },
-                {
-                    "type": "code",
-                    "code": 'powerTree([1, {"a": 2}]);',
-                },
-                {
-                    "type": "code",
-                    "code": 'powerTree({"a": [1, 2, 3]});',
-                },
-                {
-                    "type": "code",
-                    "code": 'powerTree({"a": []});',
-                }
-            ]
-        },
-        {
-            content: `
+				},
+				{
+					type: "code",
+					code: "powerTree(10);",
+				},
+				{
+					type: "code",
+					code: "powerTree(-5);",
+				},
+				{
+					type: "code",
+					code: "powerTree(0);",
+				},
+				{
+					type: "code",
+					code: "powerTree([1, 2, 3]);",
+				},
+				{
+					type: "code",
+					code: 'powerTree({"a": 1, "b": 2});',
+				},
+				{
+					type: "code",
+					code: 'powerTree([1, {"a": 2}]);',
+				},
+				{
+					type: "code",
+					code: 'powerTree({"a": [1, 2, 3]});',
+				},
+				{
+					type: "code",
+					code: 'powerTree({"a": []});',
+				},
+			],
+		},
+		{
+			content: `
             <h2>Wrap-up</h2>
             <p>
             The concept of recursion is nothing new and does not solve problems we otherwise
@@ -299,7 +299,7 @@ export const tutorial_recursion = {
             you'll mostly see recursion used in work with tree-like data structures. Otherwise
             it is up to you to solve a problem recursively or iteratively. 
             </p>
-            `
-        }
-	]
+            `,
+		},
+	],
 };

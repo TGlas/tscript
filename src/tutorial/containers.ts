@@ -18,8 +18,8 @@ export const tutorial_containers = {
             </p>
 			`,
 		},
-        {
-            content: `
+		{
+			content: `
             <h2>Arrays</h2>
             <p>
             You can imagine arrays as lists of data values. Every entry of
@@ -76,15 +76,15 @@ export const tutorial_containers = {
 			</p>
 			</div>
             `,
-            correct: `
+			correct: `
             function run(arr) {
                 for var i in 0:arr.size() do {
                     print(arr[arr.size() - 1 - i]);
                 }
             }
             `,
-            tests: [
-                {
+			tests: [
+				{
 					type: "js",
 					code: `let program = parse(code).program;
                     if (! program) return "Failed to parse the program code.";
@@ -93,18 +93,18 @@ export const tutorial_containers = {
                     if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
                     if (isRecursive(program)) return "Please don't use recursion.";`,
 				},
-                {
-                    "type": "code",
-                    "code": "run([4, 2, 5, 6, 7, 2, 4, 6]);",
-                },
-                {
-                    "type": "code",
-                    "code": "run([]));",
-                }
-            ],
-        },
-        {
-            content: `
+				{
+					type: "code",
+					code: "run([4, 2, 5, 6, 7, 2, 4, 6]);",
+				},
+				{
+					type: "code",
+					code: "run([]));",
+				},
+			],
+		},
+		{
+			content: `
             <p>
             Another way to loop through an array is by iterating through every element
             of it. In that case our loop variable holds the value of the current element
@@ -154,7 +154,7 @@ export const tutorial_containers = {
 			</p>
 			</div>
             `,
-            correct: `
+			correct: `
             var a = [];
 
             for var i in 0:11 do {
@@ -167,22 +167,22 @@ export const tutorial_containers = {
 	            print(a);
             }
             `,
-            tests: [
-                {
-                    type: "js",
+			tests: [
+				{
+					type: "js",
 					code: `let program = parse(code).program;
                     if (! program) return "Failed to parse the program code.";
                     if (hasStructure(program, "{ call(print); call(print); call(print);}")) return "You do not need to use more than two print commands!";
                     if (isRecursive(program)) return "Please don't use recursion.";`,
-                },
-                {
-                    "type": "code",
-                    "code": "",
-                }
-            ]
-        },
-        {
-            content: `
+				},
+				{
+					type: "code",
+					code: "",
+				},
+			],
+		},
+		{
+			content: `
             <h2>Dictionaries</h2>
             <p>
             Another form of containers are dictionaries. Instead of using indices to 
@@ -244,9 +244,9 @@ export const tutorial_containers = {
             of the dictionary.
             </p>
             `,
-        },
-        {
-            content: `
+		},
+		{
+			content: `
             <h2>Wrap-up</h2>
             <p>
             In practice containers are very commonly used with arrays being necessary (or 
@@ -257,7 +257,7 @@ export const tutorial_containers = {
             the longer algorithms need to terminate. Therefore, to estimate the duration 
             of code blocks one works with runtimes depending on the size of used containers. 
             </p>
-            `
-        }
+            `,
+		},
 	],
 };

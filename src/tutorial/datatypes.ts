@@ -41,7 +41,7 @@ export const tutorial_datatypes = {
                 var t = "\\"Hello!\\"";     # this is a string with two quoation marks 
             </tscript>
             </p>
-			`
-		}
-	]
+			`,
+		},
+	],
 };

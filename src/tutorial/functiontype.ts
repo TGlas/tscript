@@ -1,6 +1,6 @@
 export const tutorial_functiontype = {
 	id: "ftype",
-	title: "Data types \"Type\" and \"Function\"",
+	title: 'Data types "Type" and "Function"',
 	sections: [
 		{
 			content: `
@@ -30,7 +30,7 @@ export const tutorial_functiontype = {
                 else print("Please hand over a function");
             }
             </tscript>
-			`
-        }
-	]
+			`,
+		},
+	],
 };
