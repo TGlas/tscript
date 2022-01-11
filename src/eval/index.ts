@@ -82,19 +82,41 @@ export const evaluation = (function () {
 					" - obtained: " +
 					submission.type
 				);
-			for (let p in submission) {
-				if (!submission.hasOwnProperty(p)) continue;
+			if (submission.type == "print" || submission.type == "alert") {
+				// comparison of print/alert messages
+				if (submission.value != solution.value)
+					return (
+						"Wrong message in " +
+						submission.type +
+						" command - expected: " +
+						solution.value +
+						" - obtained: " +
+						submission.value
+					);
+			} else if (submission.type == "turtle line") {
+				// comparison of turtle lines, ignoring orientation
+				let a = compare_events(submission.from, solution.from);
+				let b = compare_events(submission.to, solution.to);
+				let c = compare_events(submission.to, solution.from);
+				let d = compare_events(submission.from, solution.to);
+				if ((a != "" || b != "") && (c != "" || d != ""))
+					return a != "" ? a : b;
+			} else {
+				// generic comparison
+				for (let p in submission) {
+					if (!submission.hasOwnProperty(p)) continue;
 
-				if (p == "type") continue;
-				if (
-					p == "color" &&
-					submission.hasOwnProperty("type") &&
-					submission.type == "turtle line"
-				)
-					continue;
+					if (p == "type") continue;
+					//					if (
+					//						p == "color" &&
+					//						submission.hasOwnProperty("type") &&
+					//						submission.type == "turtle line"
+					//					)
+					//						continue;
 
-				let result = compare_events(submission[p], solution[p]);
-				if (result != "") return result;
+					let result = compare_events(submission[p], solution[p]);
+					if (result != "") return result;
+				}
 			}
 			return "";
 		} else if (
@@ -463,6 +485,54 @@ export const evaluation = (function () {
 	// runtime behavior of a program
 	function createInterpreter(program, inputs, output) {
 		let interpreter = new Interpreter(program, createDefaultServices());
+		interpreter.eventnames["canvas.resize"] = true;
+		interpreter.eventnames["canvas.mousedown"] = true;
+		interpreter.eventnames["canvas.mouseup"] = true;
+		interpreter.eventnames["canvas.mousemove"] = true;
+		interpreter.eventnames["canvas.mouseout"] = true;
+		interpreter.eventnames["canvas.keydown"] = true;
+		interpreter.eventnames["canvas.keyup"] = true;
+		interpreter.eventnames["timer"] = true;
+		interpreter.reset();
+		for (let i = 0; i < inputs.length; i++) {
+			if (typeof inputs[i] == "object") {
+				let type = inputs[i].type;
+				let classname = inputs[i].classname;
+				let properties = inputs[i].event;
+
+				// name lookup of the event type (class)
+				let cls = interpreter.program;
+				let parts = classname.split(".");
+				for (let name of parts) cls = cls.names[name];
+
+				// create the event object
+				let event = { type: cls, value: { a: Array() } };
+				for (let i = 0; i < type.objectsize; i++) {
+					event.value.a.push(
+						TScript.json2typed.call(interpreter, null)
+					);
+				}
+
+				// fill in properties
+				if (properties) {
+					for (let key in properties) {
+						if (!properties.hasOwnProperty(key)) continue;
+						let index = cls.names[key].id;
+						event.value.a[index] = TScript.json2typed.call(
+							interpreter,
+							properties[key]
+						);
+					}
+				}
+
+				// enqueue event
+				interpreter.eventqueue.push({ type: type, event: event });
+
+				// remove from inputs
+				inputs.splice(i, 1);
+				i--;
+			}
+		}
 		let orig_turtle_move = interpreter.service.turtle.move;
 		interpreter.service.print = function (msg) {
 			output.push({ type: "print", value: msg });
