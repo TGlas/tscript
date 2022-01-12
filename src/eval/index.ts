@@ -1321,6 +1321,10 @@ export const evaluation = (function () {
 	//  - tests: This is an array of objects describing tests. Each
 	//    test has a type ("code", "call", or "js"), as well as further
 	//    fields depending on the type.
+	//  - evaluation: If present, a Javascript formula computing the
+	//    points. In this case, "test" is expected to be a dictionary,
+	//    such that the formula can access test results by using the
+	//    syntax $key. Tests take values of 1 (passing) or 0 (failing).
 	// Code evaluation is asynchronous. The function returns
 	// immediately. Reporting is done by calling the functions process
 	// with a results object with the following keys:
@@ -1344,7 +1348,72 @@ export const evaluation = (function () {
 		let codes = new Array();
 		let inputs = new Array();
 		let calls = new Array();
-		if (!task.hasOwnProperty("tests") || task.tests === null) {
+		function prepareTest(test) {
+			if (test.type == "call") {
+				let call = test.code;
+				let context = test.hasOwnProperty("context")
+					? task_context + test.context
+					: task_context;
+				calls.push(call);
+				let sub =
+					context +
+					"\n\n" +
+					submission +
+					'\n\n{print("' +
+					marker +
+					'"); var result = ' +
+					call +
+					'; print(Type(result) + "' +
+					marker +
+					'" + result);\n}\n';
+				let sol =
+					context +
+					"\n\n" +
+					solution +
+					'\n\n{print("' +
+					marker +
+					'"); var result = ' +
+					call +
+					'; print(Type(result) + "' +
+					marker +
+					'" + result);\n}\n';
+				let input = test.hasOwnProperty("input")
+					? test.input
+					: new Array();
+				codes.push(sub);
+				inputs.push(input);
+				codes.push(sol);
+				inputs.push(input);
+			} else if (test.type == "code") {
+				let call = test.code;
+				let context = test.hasOwnProperty("context")
+					? task_context + test.context
+					: task_context;
+				calls.push(call);
+				let sub =
+					context + "\n\n" + submission + "\n\n{" + call + "\n}\n";
+				let sol =
+					context + "\n\n" + solution + "\n\n{" + call + ";\n}\n";
+				let input = test.hasOwnProperty("input")
+					? test.input
+					: new Array();
+				codes.push(sub);
+				inputs.push(input);
+				codes.push(sol);
+				inputs.push(input);
+			} else if (test.type == "js") {
+				let call = test.code;
+				codes.push("@" + call + "\n@\n" + submission);
+				inputs.push(new Array());
+			}
+		}
+
+		if (task.hasOwnProperty("evaluation")) {
+			for (let key in task.tests) {
+				let test = task.tests[key];
+				prepareTest(test);
+			}
+		} else if (!task.hasOwnProperty("tests") || task.tests === null) {
 			codes.push(submission);
 			inputs.push(new Array());
 			codes.push(solution);
@@ -1352,68 +1421,7 @@ export const evaluation = (function () {
 		} else {
 			for (let i = 0; i < task.tests.length; i++) {
 				let test = task.tests[i];
-				if (test.type == "call") {
-					let call = test.code;
-					let context = test.hasOwnProperty("context")
-						? task_context + test.context
-						: task_context;
-					calls.push(call);
-					let sub =
-						context +
-						"\n\n" +
-						submission +
-						'\n\n{print("' +
-						marker +
-						'"); var result = ' +
-						call +
-						'; print(Type(result) + "' +
-						marker +
-						'" + result);\n}\n';
-					let sol =
-						context +
-						"\n\n" +
-						solution +
-						'\n\n{print("' +
-						marker +
-						'"); var result = ' +
-						call +
-						'; print(Type(result) + "' +
-						marker +
-						'" + result);\n}\n';
-					let input = test.hasOwnProperty("input")
-						? test.input
-						: new Array();
-					codes.push(sub);
-					inputs.push(input);
-					codes.push(sol);
-					inputs.push(input);
-				} else if (test.type == "code") {
-					let call = test.code;
-					let context = test.hasOwnProperty("context")
-						? task_context + test.context
-						: task_context;
-					calls.push(call);
-					let sub =
-						context +
-						"\n\n" +
-						submission +
-						"\n\n{" +
-						call +
-						"\n}\n";
-					let sol =
-						context + "\n\n" + solution + "\n\n{" + call + ";\n}\n";
-					let input = test.hasOwnProperty("input")
-						? test.input
-						: new Array();
-					codes.push(sub);
-					inputs.push(input);
-					codes.push(sol);
-					inputs.push(input);
-				} else if (test.type == "js") {
-					let call = test.code;
-					codes.push("@" + call + "\n@\n" + submission);
-					inputs.push(new Array());
-				}
+				prepareTest(test);
 			}
 		}
 
@@ -1430,7 +1438,88 @@ export const evaluation = (function () {
 				let io =
 					task.hasOwnProperty("ignore-order") &&
 					!!task["ignore-order"];
-				if (!task.hasOwnProperty("tests") || task.tests === null) {
+				let fraction = 0.0,
+					use_fraction = false;
+				let call_pos = 0;
+				let code_pos = 0;
+				function evaluateTest(
+					test
+				): [boolean, null | string, null | string] {
+					let success = true;
+					let error: null | string = null;
+					let details: null | string = null;
+					if (test.type == "call") {
+						let ed = compare_runs(
+							result[code_pos],
+							result[code_pos + 1],
+							marker,
+							io
+						);
+						if (ed[0] != "") {
+							success = false;
+							error =
+								"Error:\n" +
+								ed[0] +
+								"\nTest code:\n" +
+								calls[call_pos];
+							details = ed[1];
+						}
+						code_pos += 2;
+						call_pos++;
+					} else if (test.type == "code") {
+						let ed = compare_runs(
+							result[code_pos],
+							result[code_pos + 1],
+							marker,
+							io
+						);
+						if (ed[0] != "") {
+							success = false;
+							error = ed[0];
+							if (calls[call_pos] != "") {
+								error =
+									"Error:\n" +
+									ed[0] +
+									"\nTest code:\n" +
+									calls[call_pos];
+							}
+							details = ed[1];
+						}
+						code_pos += 2;
+						call_pos++;
+					} else if (test.type == "js") {
+						if (typeof result[code_pos] == "string") {
+							success = false;
+							error = result[code_pos];
+							if (test.hasOwnProperty("feedback"))
+								details = test.feedback;
+						}
+						code_pos++;
+					}
+					return [success, error, details];
+				}
+
+				if (task.hasOwnProperty("evaluation")) {
+					let tests = {};
+					for (let key in task.tests) {
+						let test = task.tests[key];
+						let success = true;
+						let e: null | string = null;
+						let d: null | string = null;
+						[success, e, d] = evaluateTest(test);
+						if (!success && error === null) {
+							error = e;
+							details = d;
+						}
+						tests[key] = success ? 1 : 0;
+					}
+					let formula = task.evaluation.replace(/\$/g, "tests.");
+					let f = new Function("tests", "return " + formula + ";");
+					points = f(tests);
+				} else if (
+					!task.hasOwnProperty("tests") ||
+					task.tests === null
+				) {
 					let ed = compare_runs(result[0], result[1], marker, io);
 					if (ed[0] != "") {
 						points = 0;
@@ -1438,62 +1527,11 @@ export const evaluation = (function () {
 						details = ed[1];
 					}
 				} else {
-					let fraction = 0.0,
-						use_fraction = false;
-					let call_pos = 0;
-					let code_pos = 0;
 					for (let i = 0; i < task.tests.length; i++) {
 						// run a single test
-						let success = true;
 						let test = task.tests[i];
-						if (test.type == "call") {
-							let ed = compare_runs(
-								result[code_pos],
-								result[code_pos + 1],
-								marker,
-								io
-							);
-							if (ed[0] != "") {
-								success = false;
-								error =
-									"Error:\n" +
-									ed[0] +
-									"\nTest code:\n" +
-									calls[call_pos];
-								details = ed[1];
-							}
-							code_pos += 2;
-							call_pos++;
-						} else if (test.type == "code") {
-							let ed = compare_runs(
-								result[code_pos],
-								result[code_pos + 1],
-								marker,
-								io
-							);
-							if (ed[0] != "") {
-								success = false;
-								error = ed[0];
-								if (calls[call_pos] != "") {
-									error =
-										"Error:\n" +
-										ed[0] +
-										"\nTest code:\n" +
-										calls[call_pos];
-								}
-								details = ed[1];
-							}
-							code_pos += 2;
-							call_pos++;
-						} else if (test.type == "js") {
-							if (typeof result[code_pos] == "string") {
-								success = false;
-								error = result[code_pos];
-								if (test.hasOwnProperty("feedback"))
-									details = test.feedback;
-							}
-							code_pos++;
-						}
+						let success = true;
+						[success, error, details] = evaluateTest(test);
 
 						// process the result
 						if (success) {
