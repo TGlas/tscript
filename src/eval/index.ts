@@ -299,10 +299,14 @@ export const evaluation = (function () {
 						wanted = w_error;
 				}
 				if (remaining_solution[0].type == "runtime error") {
-					if (remaining_solution[0].message.indexOf(wanted) >= 0) {
+					if (
+						remaining_solution[0].message.indexOf(wanted) >= 0 ||
+						remaining_solution[0].href == submission[i].href
+					) {
+						// wanted error, same as in the reference solution
 						i++;
 						remaining_solution.shift();
-						continue; // wanted error, same as in the reference solution
+						continue;
 					} else {
 						table += addrow(
 							remaining_solution[0],
@@ -561,7 +565,12 @@ export const evaluation = (function () {
 			ch: any = null,
 			href: any = ""
 		) {
-			output.push({ type: "runtime error", message: msg, line: line });
+			output.push({
+				type: "runtime error",
+				message: msg,
+				line: line,
+				href: href,
+			});
 		};
 		interpreter.service.turtle.move = function (distance) {
 			let x0 = interpreter.service.turtle.x;
