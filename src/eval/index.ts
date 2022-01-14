@@ -260,7 +260,7 @@ export const evaluation = (function () {
 			"assertion failed": true,
 			"uncaught exception": true,
 			"runtime error;": true,
-		}; // note the semicolon in "runtime error;" -- this string matches only errors raised by error(...)
+		}; // notice the semicolon in "runtime error;" -- this string matches only errors raised by error(...)
 		let i = 0;
 		let remaining_solution = solution.slice();
 		while (i < submission.length) {
@@ -299,7 +299,7 @@ export const evaluation = (function () {
 						wanted = w_error;
 				}
 				if (remaining_solution[0].type == "runtime error") {
-					if (solution[0].message.indexOf(wanted) >= 0) {
+					if (remaining_solution[0].message.indexOf(wanted) >= 0) {
 						i++;
 						remaining_solution.shift();
 						continue; // wanted error, same as in the reference solution
