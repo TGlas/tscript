@@ -59,6 +59,7 @@ and [interact](https://interactjs.io/).
 Thanks to
 [Manuel Fischer](https://github.com/manuel-fischer),
 [TheHllm](https://github.com/TheHllm),
+[Jartreg](https://github.com/Jartreg),
 and
-[Jartreg](https://github.com/Jartreg)
+[duckmopsi](https://github.com/duckmopsi)
 for contributions.
