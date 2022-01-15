@@ -92,6 +92,7 @@ export const tutorial_forloop = {
 						if (! program) return "Failed to parse the program code.";
 						if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
 						if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                        if (! hasStructure(program, "\"for-loop\";")) return "Use a for-loop to solve the problem!";
 						if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
 						if (isRecursive(program)) return "Please don't use recursion.";
 					`,
@@ -151,6 +152,7 @@ export const tutorial_forloop = {
                     if (! program) return "Failed to parse the program code.";
                     if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
                     if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+                    if (! hasStructure(program, "\"for-loop\";")) return "Use a for-loop to solve the problem!";
                     if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
                     if (isRecursive(program)) return "Please don't use recursion.";`,
 				},

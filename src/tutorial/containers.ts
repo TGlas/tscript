@@ -99,7 +99,7 @@ export const tutorial_containers = {
 				},
 				{
 					type: "code",
-					code: "run([]));",
+					code: "run([]);",
 				},
 			],
 		},

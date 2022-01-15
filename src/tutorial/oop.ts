@@ -354,10 +354,6 @@ export const tutorial_oop = {
 					type: "code",
 					code: 'var c = Cat("Karl", "Siamese"); print(c.getName());',
 				},
-				{
-					type: "code",
-					code: 'var c = Cat("Karl"); print(c.getName());',
-				},
 			],
 		},
 		{

@@ -190,12 +190,48 @@ export const tutorial_anonymousfunc = {
 			</div>
             `,
 			correct: `
-        setEventHandler("canvas.keydown", function(event) {
-            print(event.key);
-            quitEventMode();
-        });
-        enterEventMode();
-        `,
+            setEventHandler("canvas.keydown", function(event) {
+                print(event.key);
+                quitEventMode();
+            });
+            enterEventMode();
+            `,
+			tests: [
+				{
+					type: "code",
+					code: "",
+					input: [
+						{
+							type: "canvas.keydown",
+							classname: "canvas.KeyboardEvent",
+							event: {
+								key: "h",
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+					],
+				},
+				{
+					type: "code",
+					code: "",
+					input: [
+						{
+							type: "canvas.keydown",
+							classname: "canvas.KeyboardEvent",
+							event: {
+								key: "x",
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+					],
+				},
+			],
 		},
 		{
 			content: `
