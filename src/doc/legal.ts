@@ -54,8 +54,9 @@ export const doc_legal: Documentation = {
 	</ul>
 	Thanks to <a href="https://github.com/manuel-fischer">Manuel Fischer</a>,
 	<a href="https://github.com/TheHllm">The Hllm</a>,
+	<a href="https://github.com/Jartreg">Jartreg</a>,
 	and
-	<a href="https://github.com/Jartreg">Jartreg</a>
+	<a href="https://github.com/duckmopsi">duckmopsi</a>
 	for contributions.
 	</p>
 `,
