@@ -275,7 +275,10 @@ export function callstep(options: Options) {
 		for (let j = 0; j < m; j++) {
 			if (typeof params[j] === "undefined") {
 				if (f_pe.params[j].hasOwnProperty("defaultvalue"))
-					params[j] = f_pe.params[j].defaultvalue;
+					params[j] = copyconstant.call(
+						this,
+						f_pe.params[j].defaultvalue
+					);
 				else
 					ErrorHelper.error("/name/ne-4", [
 						j + 1,
