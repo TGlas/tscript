@@ -698,7 +698,7 @@ export let ide = (function () {
 			type: "span",
 			parent: th,
 			style: { width: "20px", color: color[type] },
-			html: href ? "&#128712;" : "\u2022",
+			html: href ? "\u2139" : "\u2022",
 		});
 		if (href) {
 			bullet.style.cursor = "pointer";
