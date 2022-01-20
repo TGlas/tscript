@@ -1472,12 +1472,33 @@ export const tests: Array<TscriptTest> = [
 		code: `
 			var n = null;
 			var m = n;
+			var i = 10;
+			var j = i;
+			var a = [];
+			var b = a;
+			class C { public: var x; }
+			var c1 = C(), c2 = C();
+			c1.x = []; c2.x = c1.x;
 			print(same(n, m));
 			print(same(n, null));
+			print(same(i, j));
+			print(same(i, 10));
+			print(same(a, b));
+			print(same(a, []));
+			print(same(c1, c1));
+			print(same(c1, c2));
+			print(same(c1.x, c2.x));
 		`,
 		expectation: [
 			{ type: "print", message: "true" },
 			{ type: "print", message: "false" },
+			{ type: "print", message: "true" },
+			{ type: "print", message: "false" },
+			{ type: "print", message: "true" },
+			{ type: "print", message: "false" },
+			{ type: "print", message: "true" },
+			{ type: "print", message: "false" },
+			{ type: "print", message: "true" },
 			"finished",
 		],
 	},

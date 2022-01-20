@@ -902,9 +902,17 @@ export const core = {
 			this.error("/user/ue-2", [message.value.b]);
 		},
 		same: function (first, second) {
+			let result = first === second;
+			if (
+				first.type.id == Typeid.typeid_array ||
+				first.type.id == Typeid.typeid_dictionary
+			)
+				result = first.value.b === second.value.b;
+			else if (first.type.id >= Typeid.typeid_class)
+				result = first.value.a === second.value.a;
 			return {
 				type: this.program.types[Typeid.typeid_boolean],
-				value: { b: first === second },
+				value: { b: result },
 			};
 		},
 		version: function () {
