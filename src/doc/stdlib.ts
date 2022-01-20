@@ -175,7 +175,7 @@ else print("process was terminated by user");                         # if proce
 			containers as values then they are deep copied, too. The copied
 			data structure must fulfill the following requirements:
 			<ul>
-				<li>It must not contain functions.</li>
+				<li>It must not contain lambda functions.</li>
 				<li>It must not contain objects.</li>
 				<li>It must not contain a loop, i.e., contain a value as its own sub-value.</li>
 			</ul>

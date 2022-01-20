@@ -1151,9 +1151,11 @@ export const core = {
 							type: this.program.types[Typeid.typeid_dictionary],
 							value: { b: b },
 						};
-					} else if (v.type.id === Typeid.typeid_function)
-						throw "a function in the data structure";
-					else if (v.type.id === Typeid.typeid_range) return v;
+					} else if (v.type.id === Typeid.typeid_function) {
+						if (v.value.b.func.hasOwnProperty("closureparams"))
+							throw "a lambda function in the data structure";
+						else return v;
+					} else if (v.type.id === Typeid.typeid_range) return v;
 					else if (v.type.id === Typeid.typeid_type) return v;
 					else throw "an object in the data structure";
 				};

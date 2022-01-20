@@ -1612,10 +1612,12 @@ export const tests: Array<TscriptTest> = [
 			x["b"][1]["c"] = false;
 			print(x);
 			print(y);
+			print(deepcopy([math.sin, 3:7]));
 		`,
 		expectation: [
 			{ type: "print", message: "{a:3,b:[4,{c:false}]}" },
 			{ type: "print", message: "{a:3,b:[4,{c:true}]}" },
+			{ type: "print", message: "[<Function math.sin>,3:7]" },
 			"finished",
 		],
 	},
@@ -4062,7 +4064,7 @@ export const tests: Array<TscriptTest> = [
 		name: "am-42-1",
 		description: "test of argument mismatch error am-42, case 1",
 		code: `
-			var x = math.sqrt;
+			var x = function[](){};
 			var y = deepcopy(x);
 		`,
 		expectation: [
@@ -4075,6 +4077,19 @@ export const tests: Array<TscriptTest> = [
 		description: "test of argument mismatch error am-42, case 2",
 		code: `
 			var x = canvas.MouseMoveEvent();
+			var y = deepcopy(x);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-42" },
+			"error",
+		],
+	},
+	{
+		name: "am-42-3",
+		description: "test of argument mismatch error am-42, case 3",
+		code: `
+			var x = [];
+			x.push(x);
 			var y = deepcopy(x);
 		`,
 		expectation: [
