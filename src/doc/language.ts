@@ -3884,6 +3884,20 @@ print(infiniteR.isFinite());        # prints false
 					print(String.fromUnicode([50, 8364])); # prints "2\u20ac"
 				</tscript>
 			</td></tr>
+			<tr><th>join</th><td>
+				The <code class="code">static function join(array, separator = "")</code>
+				creates a string from an array of strings, separated by the (optional)
+				separator. To this end, the entries of the array and the separator
+				are converted to strings at need. A typical example is to compose a
+				sentence from words (with a single space as a separator):
+				<tscript>
+					print(String.join(["Hello", "World"], " ")); # prints "Hello World"
+				</tscript>
+				Another example is the composition of a path from components:
+				<tscript>
+					print(String.join(["documents", "computer", "bill.pdf"], "/")); # prints "documents/computer/bill.pdf"
+				</tscript>
+			</td></tr>
 			</table>
 		`,
 					children: [],

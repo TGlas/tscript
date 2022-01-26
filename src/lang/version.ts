@@ -2,8 +2,8 @@ export const Version = {
 	type: "beta",
 	major: 0,
 	minor: 7,
-	patch: 1,
-	day: 20,
+	patch: 2,
+	day: 26,
 	month: 1,
 	year: 2022,
 	full: function () {

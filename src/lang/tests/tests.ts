@@ -1031,6 +1031,7 @@ export const tests: Array<TscriptTest> = [
 			print(s.find("l", 5));
 			print(s.split(" "));
 			print(String.fromUnicode([65, 66, 67]));
+			print(String.join([1,"a",true], "/"));
 			var a = String(7);
 			var b = String(7.5);
 			var c = String(5:10);
@@ -1042,6 +1043,7 @@ export const tests: Array<TscriptTest> = [
 			{ type: "print", message: "9" },
 			{ type: "print", message: "[Hello,World]" },
 			{ type: "print", message: "ABC" },
+			{ type: "print", message: "1/a/true" },
 			{ type: "print", message: "77.55:10" },
 			"finished",
 		],

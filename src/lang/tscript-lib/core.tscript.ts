@@ -36,6 +36,7 @@ public:
 	function find(searchterm, start = 0, backward = false) { }
 	function split(separator) { }
 	static function fromUnicode(characters) { }
+	static function join(array, separator = "") { }
 }
 
 class Array

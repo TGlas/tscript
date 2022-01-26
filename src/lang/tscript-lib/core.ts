@@ -272,6 +272,23 @@ export const core = {
 					value: { b: s },
 				};
 			},
+			join: function (array, separator) {
+				if (!TScript.isDerivedFrom(array.type, Typeid.typeid_array))
+					this.error("/argument-mismatch/am-1", [
+						"array",
+						"String.join",
+						"array",
+						TScript.displayname(array.type),
+					]);
+				let sep = TScript.toString.call(this, separator);
+				let arr = new Array();
+				for (let e of array.value.b)
+					arr.push(TScript.toString.call(this, e));
+				return {
+					type: this.program.types[Typeid.typeid_string],
+					value: { b: arr.join(sep) },
+				};
+			},
 		},
 		Array: {
 			constructor: function (object, size_or_other, value) {
