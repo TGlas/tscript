@@ -175,10 +175,10 @@ export function parse_for(state, parent, options) {
 
 			// parse "in"
 			token = Lexer.get_token(state, options);
-			ErrorHelper.assert(
-				token.type === "identifier" && token.value === "in",
-				"[parse_for] internal error"
-			);
+			if (token.type !== "identifier" || token.value !== "in") {
+				state.set(w);
+				state.error("/name/ne-28");
+			}
 
 			// parse the iterable object
 			forloop.iterable = parse_expression(state, parent, options);

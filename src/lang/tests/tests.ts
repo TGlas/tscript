@@ -4565,6 +4565,19 @@ export const tests: Array<TscriptTest> = [
 			"parsing failed",
 		],
 	},
+	{
+		name: "ne-28",
+		description: "test of name resolution error ne-28",
+		code: `
+			class A { public: var k; }
+			var a = A();
+			for a.k in 0:5 do print("Hello World");
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-28" },
+			"parsing failed",
+		],
+	},
 
 	// logic errors
 	{

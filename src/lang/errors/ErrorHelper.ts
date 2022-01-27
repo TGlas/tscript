@@ -342,6 +342,7 @@ export let errors = {
 		"ne-26": "error in super class declaration; class '$$' inherits itself",
 		"ne-27":
 			"error in object creation; class '$$' does not yet have its constructor declared",
+		"ne-28": "failed to statically resolve loop variable name",
 	},
 	logic: {
 		"le-1": "too much recursion",

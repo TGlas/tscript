@@ -2645,6 +2645,68 @@ print(arr.sort(order2));                        # works fine
 		`,
 					children: [],
 				},
+				{
+					id: "ne-28",
+					content: `
+			<p>
+			It was attempted to use the result of an expression that can only
+			be resolved at runtime as a loop variable. The only variables
+			allowed as loop counters in a for-loop are local and global
+			variables, possible inside of namespaces.
+			</p>
+			<p>
+			This error occur if something along the following lines is
+			attempted:
+			</p>
+			<div>
+				<tscript do-not-run>
+				var counters = [0, 0];
+				for counters[0] in 0:10 do
+					for counters[1] in 0:10 do 
+						print("Hello");
+				</tscript>
+				<tscript do-not-run>
+				class A
+				{
+				public:
+					var counter;
+				};
+				var a = A();
+				for a.counter in 0:10 do print("Hello");
+				</tscript>
+			</div>
+			<p>
+			In both cases, the reason for the failure is that the result
+			of the expressions (like <code>counters[0]</code>,
+			<code>counters[1]</code> and <code>a.counter</code>) is resolved
+			dynamically at runtime. Dynamic name lookup is not supported by
+			TScript for-loops.
+			</p>
+			<p>
+			As a remedy, use a variable name that can be resolved statically.
+			Ideally, loop counters should be declared inside of the for-loop
+			with the <keyword>var</keyword> keyword:
+			</p>
+			<div>
+				<tscript do-not-run>
+				for var k in 0:10 do print("Hello");
+				</tscript>
+			</div>
+			<p>
+			Alternatively, all "plain" variables accessible from the scope
+			containing the loop work fine:
+			</p>
+			<div>
+				<tscript do-not-run>
+				var k;
+				{
+					for k in 0:10 do print("Hello");
+				}
+				</tscript>
+			</div>
+		`,
+					children: [],
+				},
 			],
 		},
 		{
