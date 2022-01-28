@@ -4066,7 +4066,7 @@ export const tests: Array<TscriptTest> = [
 		name: "am-42-1",
 		description: "test of argument mismatch error am-42, case 1",
 		code: `
-			var x = function[](){};
+			var x = function[q={}](){};
 			var y = deepcopy(x);
 		`,
 		expectation: [
@@ -4078,7 +4078,13 @@ export const tests: Array<TscriptTest> = [
 		name: "am-42-2",
 		description: "test of argument mismatch error am-42, case 2",
 		code: `
-			var x = canvas.MouseMoveEvent();
+			class A
+			{
+			public:
+				function f() { }
+			}
+			var a = A();
+			var x = a.f;
 			var y = deepcopy(x);
 		`,
 		expectation: [
@@ -4089,6 +4095,18 @@ export const tests: Array<TscriptTest> = [
 	{
 		name: "am-42-3",
 		description: "test of argument mismatch error am-42, case 3",
+		code: `
+			var x = canvas.MouseMoveEvent();
+			var y = deepcopy(x);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-42" },
+			"error",
+		],
+	},
+	{
+		name: "am-42-4",
+		description: "test of argument mismatch error am-42, case 4",
 		code: `
 			var x = [];
 			x.push(x);

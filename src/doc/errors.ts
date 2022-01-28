@@ -2101,8 +2101,9 @@ print(arr.sort(order2));                        # works fine
 			deep copied, too. The copied data structure must fulfill the
 			following requirements:
 			<ul>
-				<li>It must not contain lambda functions.</li>
-				<li>It must not contain objects.</li>
+				<li>It must not contain a lambda function with an enclosed variable referring to a mutable value.</li>
+				<li>It must not contain a member function bound to an object.</li>
+				<li>It must not contain an object.</li>
 				<li>It must not contain a loop, i.e., contain a value as its own sub-value.</li>
 			</ul>
 			This error message indicates that at least one of the requirements
