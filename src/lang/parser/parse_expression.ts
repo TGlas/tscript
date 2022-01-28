@@ -18,7 +18,7 @@ import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { parse_call } from "./parse_call";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
-import { parse_name } from "./parse_name";
+import { parse_name, lookup_name } from "./parse_name";
 
 export function parse_expression(
 	state,
@@ -286,7 +286,8 @@ export function parse_expression(
 			(token.type === "keyword" && token.value === "super")
 		) {
 			state.set(where);
-			let result = parse_name(state, parent, options, "expression");
+			let name_obj = parse_name(state, parent, options, "expression");
+			let result = lookup_name(name_obj, state, parent, "expression");
 			let name = result.name;
 			let lookup = result.lookup;
 

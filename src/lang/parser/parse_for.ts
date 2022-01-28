@@ -5,7 +5,7 @@ import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
 import { parse_statement } from "./parse_statement";
-import { parse_name } from "./parse_name";
+import { parse_static_name } from "./parse_name";
 
 export function parse_for(state, parent, options) {
 	// handle "for" keyword
@@ -163,7 +163,7 @@ export function parse_for(state, parent, options) {
 		token = Lexer.get_token(state, options);
 		if (token.type === "identifier" && token.value === "in") {
 			state.set(w);
-			let result = parse_name(state, parent, options, "for-loop");
+			let result = parse_static_name(state, parent, options, "for-loop");
 			let v = result.lookup;
 			if (v.petype !== "variable" && v.petype !== "attribute")
 				state.error("/argument-mismatch/am-35", [

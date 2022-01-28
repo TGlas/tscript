@@ -6,7 +6,7 @@ import { Typeid } from "../helpers/typeIds";
 import { callsim, callstep } from "./parse_call";
 import { constructorstep, parse_constructor } from "./parse_constructor";
 import { parse_function } from "./parse_function";
-import { parse_name } from "./parse_name";
+import { parse_static_name } from "./parse_name";
 import { parse_use } from "./parse_use";
 import { parse_var } from "./parse_var";
 import { Options } from "../helpers/options";
@@ -81,7 +81,7 @@ export function parse_class(state, parent, options: Options) {
 	// parse the optional super class
 	token = Lexer.get_token(state, options);
 	if (token.type === "operator" && token.value === ":") {
-		let result = parse_name(
+		let result = parse_static_name(
 			state,
 			parent,
 			options,

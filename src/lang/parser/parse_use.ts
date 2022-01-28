@@ -1,7 +1,7 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { peek_keyword } from "./parser_helper";
-import { parse_name } from "./parse_name";
+import { parse_static_name } from "./parse_name";
 
 // Parse a "use" declaration.
 export function parse_use(state, parent, options) {
@@ -25,7 +25,7 @@ export function parse_use(state, parent, options) {
 	// handle the optional "from" part
 	let from = parent;
 	if (token.value === "from") {
-		let result = parse_name(state, parent, options, "use directive", true);
+		let result = parse_static_name(state, parent, options, "use directive", true);
 		from = result.lookup;
 		use.from = from;
 		if (from.petype !== "namespace")
@@ -43,7 +43,7 @@ export function parse_use(state, parent, options) {
 		if (kw === "namespace") Lexer.get_token(state, options);
 
 		// parse a name
-		let result = parse_name(state, from, options, "use directive", true);
+		let result = parse_static_name(state, from, options, "use directive", true);
 		let identifier = result.name.split(".").pop();
 
 		// parse optional "as" part

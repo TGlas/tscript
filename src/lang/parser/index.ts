@@ -10,6 +10,7 @@ import { lib_turtle } from "../tscript-lib/lib-turtle";
 import { lib_audio } from "../tscript-lib/lib-audio";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
+import { resolve_names } from "./parse_fn";
 import { defaultOptions, Options } from "../helpers/options";
 
 export class Parser {
@@ -189,10 +190,18 @@ export class Parser {
 		let parse1 = function (source, impl: any = undefined) {
 			state.setSource(source, impl);
 			if (typeof impl === "undefined") program.where = state.get();
+
+			// pass 1: build the AST
 			while (state.good())
 				program.commands.push(
 					parse_statement_or_declaration(state, program, options)
 				);
+
+if (typeof impl === "undefined") console.log(program);
+
+			// pass 2: static name resolution
+			resolve_names(program, state);
+
 			if (typeof impl === "undefined") program.lines = state.line;
 		};
 		try {
