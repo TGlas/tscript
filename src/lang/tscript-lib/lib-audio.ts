@@ -9,9 +9,7 @@ export const lib_audio = {
 		audio: {
 			MonoSound: {
 				constructor: function (object, buffer, sampleRate) {
-					if (
-						!TScript.isDerivedFrom(buffer.type, Typeid.typeid_array)
-					)
+					if (!TScript.isDerivedFrom(buffer.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -23,12 +21,7 @@ export const lib_audio = {
 							this.stack
 						);
 
-					if (
-						!TScript.isDerivedFrom(
-							sampleRate.type,
-							Typeid.typeid_integer
-						)
-					)
+					if (!TScript.isDerivedFrom(sampleRate.type, Typeid.typeid_integer))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -40,32 +33,19 @@ export const lib_audio = {
 							this.stack
 						);
 
-					checkAudioBufferCorrectness.call(
-						this,
-						buffer,
-						"MonoSound",
-						"buffer"
-					);
+					checkAudioBufferCorrectness.call(this, buffer, "MonoSound", "buffer");
 
 					if (!hasAudioContext.call(this)) return;
 					let buf;
 					try {
-						if (
-							sampleRate.value.b < 8000 ||
-							sampleRate.value.b > 96000
-						)
-							throw 1;
+						if (sampleRate.value.b < 8000 || sampleRate.value.b > 96000) throw 1;
 						buf = this.service.audioContext.createBuffer(
 							1,
 							buffer.value.b.length,
 							sampleRate.value.b
 						);
 					} catch (ex) {
-						ErrorHelper.error(
-							"/argument-mismatch/am-44b",
-							[],
-							this.stack
-						);
+						ErrorHelper.error("/argument-mismatch/am-44b", [], this.stack);
 					}
 
 					fillAudioBuffer(buffer, buf.getChannelData(0));
@@ -74,12 +54,9 @@ export const lib_audio = {
 
 				play: function (object) {
 					if (hasAudioContext.call(this) && object.value.b) {
-						let sourceNode =
-							this.service.audioContext.createBufferSource();
+						let sourceNode = this.service.audioContext.createBufferSource();
 						sourceNode.buffer = object.value.b.buffer;
-						sourceNode.connect(
-							this.service.audioContext.destination
-						);
+						sourceNode.connect(this.service.audioContext.destination);
 						sourceNode.start();
 					}
 					return {
@@ -88,17 +65,10 @@ export const lib_audio = {
 					};
 				},
 				startLoop: function (object) {
-					if (
-						hasAudioContext.call(this) &&
-						object.value.b &&
-						!object.value.b.soundloop
-					) {
-						let sourceNode =
-							this.service.audioContext.createBufferSource();
+					if (hasAudioContext.call(this) && object.value.b && !object.value.b.soundloop) {
+						let sourceNode = this.service.audioContext.createBufferSource();
 						sourceNode.buffer = object.value.b.buffer;
-						sourceNode.connect(
-							this.service.audioContext.destination
-						);
+						sourceNode.connect(this.service.audioContext.destination);
 						sourceNode.loop = true;
 						sourceNode.start();
 
@@ -110,11 +80,7 @@ export const lib_audio = {
 					};
 				},
 				stopLoop: function (object) {
-					if (
-						hasAudioContext.call(this) &&
-						object.value.b &&
-						object.value.b.soundloop
-					) {
+					if (hasAudioContext.call(this) && object.value.b && object.value.b.soundloop) {
 						object.value.b.soundloop.stop();
 						object.value.b.soundloop = null;
 					}
@@ -124,10 +90,7 @@ export const lib_audio = {
 					};
 				},
 				looping: function (object) {
-					let b =
-						hasAudioContext.call(this) &&
-						object.value.b &&
-						object.value.b.soundloop;
+					let b = hasAudioContext.call(this) && object.value.b && object.value.b.soundloop;
 					return {
 						type: this.program.types[Typeid.typeid_boolean],
 						value: { b: b },
@@ -135,18 +98,8 @@ export const lib_audio = {
 				},
 			},
 			StereoSound: {
-				constructor: function (
-					object,
-					leftBuffer,
-					rightBuffer,
-					sampleRate
-				) {
-					if (
-						!TScript.isDerivedFrom(
-							leftBuffer.type,
-							Typeid.typeid_array
-						)
-					)
+				constructor: function (object, leftBuffer, rightBuffer, sampleRate) {
+					if (!TScript.isDerivedFrom(leftBuffer.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -157,12 +110,7 @@ export const lib_audio = {
 							],
 							this.stack
 						);
-					if (
-						!TScript.isDerivedFrom(
-							rightBuffer.type,
-							Typeid.typeid_array
-						)
-					)
+					if (!TScript.isDerivedFrom(rightBuffer.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -174,12 +122,7 @@ export const lib_audio = {
 							this.stack
 						);
 
-					if (
-						!TScript.isDerivedFrom(
-							sampleRate.type,
-							Typeid.typeid_integer
-						)
-					)
+					if (!TScript.isDerivedFrom(sampleRate.type, Typeid.typeid_integer))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -192,24 +135,10 @@ export const lib_audio = {
 						);
 
 					if (leftBuffer.value.b.length != rightBuffer.value.b.length)
-						ErrorHelper.error(
-							"/argument-mismatch/am-44",
-							[],
-							this.stack
-						);
+						ErrorHelper.error("/argument-mismatch/am-44", [], this.stack);
 
-					checkAudioBufferCorrectness.call(
-						this,
-						leftBuffer,
-						"StereoSound",
-						"leftBuffer"
-					);
-					checkAudioBufferCorrectness.call(
-						this,
-						rightBuffer,
-						"StereoSound",
-						"rightBuffer"
-					);
+					checkAudioBufferCorrectness.call(this, leftBuffer, "StereoSound", "leftBuffer");
+					checkAudioBufferCorrectness.call(this, rightBuffer, "StereoSound", "rightBuffer");
 
 					if (!hasAudioContext.call(this)) {
 						object.value.b = null;
@@ -217,22 +146,14 @@ export const lib_audio = {
 					}
 					let buf;
 					try {
-						if (
-							sampleRate.value.b < 8000 ||
-							sampleRate.value.b > 96000
-						)
-							throw 1;
+						if (sampleRate.value.b < 8000 || sampleRate.value.b > 96000) throw 1;
 						buf = this.service.audioContext.createBuffer(
 							2,
 							leftBuffer.value.b.length,
 							sampleRate.value.b
 						);
 					} catch (ex) {
-						ErrorHelper.error(
-							"/argument-mismatch/am-44b",
-							[],
-							this.stack
-						);
+						ErrorHelper.error("/argument-mismatch/am-44b", [], this.stack);
 					}
 
 					fillAudioBuffer(leftBuffer, buf.getChannelData(0));
@@ -242,12 +163,9 @@ export const lib_audio = {
 
 				play: function (object) {
 					if (hasAudioContext.call(this) && object.value.b) {
-						let sourceNode =
-							this.service.audioContext.createBufferSource();
+						let sourceNode = this.service.audioContext.createBufferSource();
 						sourceNode.buffer = object.value.b.buffer;
-						sourceNode.connect(
-							this.service.audioContext.destination
-						);
+						sourceNode.connect(this.service.audioContext.destination);
 						sourceNode.start();
 					}
 					return {
@@ -256,17 +174,10 @@ export const lib_audio = {
 					};
 				},
 				startLoop: function (object) {
-					if (
-						hasAudioContext.call(this) &&
-						object.value.b &&
-						!object.value.b.soundloop
-					) {
-						let sourceNode =
-							this.service.audioContext.createBufferSource();
+					if (hasAudioContext.call(this) && object.value.b && !object.value.b.soundloop) {
+						let sourceNode = this.service.audioContext.createBufferSource();
 						sourceNode.buffer = object.value.b.buffer;
-						sourceNode.connect(
-							this.service.audioContext.destination
-						);
+						sourceNode.connect(this.service.audioContext.destination);
 						sourceNode.loop = true;
 						sourceNode.start();
 
@@ -278,11 +189,7 @@ export const lib_audio = {
 					};
 				},
 				stopLoop: function (object) {
-					if (
-						hasAudioContext.call(this) &&
-						object.value.b &&
-						object.value.b.soundloop
-					) {
+					if (hasAudioContext.call(this) && object.value.b && object.value.b.soundloop) {
 						object.value.b.soundloop.stop();
 						object.value.b.soundloop = null;
 					}
@@ -292,10 +199,7 @@ export const lib_audio = {
 					};
 				},
 				looping: function (object) {
-					let b =
-						hasAudioContext.call(this) &&
-						object.value.b &&
-						object.value.b.soundloop;
+					let b = hasAudioContext.call(this) && object.value.b && object.value.b.soundloop;
 					return {
 						type: this.program.types[Typeid.typeid_boolean],
 						value: { b: b },
@@ -320,21 +224,11 @@ let fillAudioBuffer = function (tscriptBuffer, array) {
 };
 
 // Throw an error if the buffer contains invalid data.
-let checkAudioBufferCorrectness = function (
-	tscriptBuffer,
-	className,
-	argumentName
-) {
+let checkAudioBufferCorrectness = function (tscriptBuffer, className, argumentName) {
 	for (let i = 0; i < tscriptBuffer.value.b.length; i++) {
 		if (
-			!TScript.isDerivedFrom(
-				tscriptBuffer.value.b[i].type,
-				Typeid.typeid_integer
-			) &&
-			!TScript.isDerivedFrom(
-				tscriptBuffer.value.b[i].type,
-				Typeid.typeid_real
-			)
+			!TScript.isDerivedFrom(tscriptBuffer.value.b[i].type, Typeid.typeid_integer) &&
+			!TScript.isDerivedFrom(tscriptBuffer.value.b[i].type, Typeid.typeid_real)
 		)
 			ErrorHelper.error(
 				"/argument-mismatch/am-1",

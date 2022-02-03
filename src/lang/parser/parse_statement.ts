@@ -1,6 +1,6 @@
 import { Lexer } from "./lexer";
 import { peek_keyword } from "./parser_helper";
-import { scopestep } from "../interpreter/interpreter_helper";
+import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_assignment_or_expression } from "./parse_assignment_or_expression";
 import { parse_break } from "./parse_break";
@@ -15,13 +15,8 @@ import { parse_trycatch } from "./parse_trycatch";
 import { parse_whiledo } from "./parse_whiledo";
 
 // Parse a single statement, or a group of statements.
-export function parse_statement(
-	state,
-	parent,
-	options,
-	var_allowed: boolean = false
-) {
-	if (typeof var_allowed === "undefined") var_allowed = false;
+export function parse_statement(state, parent, options, var_allowed: boolean = false) {
+	//	if (typeof var_allowed === "undefined") var_allowed = false;
 
 	let kw = peek_keyword(state);
 
@@ -47,10 +42,8 @@ export function parse_statement(
 					token.value === "not" ||
 					token.value === "this" ||
 					token.value === "super")) ||
-			(token.type === "grouping" &&
-				(token.value === "(" || token.value === "[")) ||
-			(token.type === "operator" &&
-				(token.value === "+" || token.value === "-")) ||
+			(token.type === "grouping" && (token.value === "(" || token.value === "[")) ||
+			(token.type === "operator" && (token.value === "+" || token.value === "-")) ||
 			token.type === "integer" ||
 			token.type === "real" ||
 			token.type === "string"
@@ -77,6 +70,7 @@ export function parse_statement(
 			state.indent.push(-1 - token.line);
 			let scope = {
 				petype: "scope",
+				children: new Array(),
 				where: where,
 				parent: parent,
 				commands: new Array(),
@@ -91,20 +85,18 @@ export function parse_statement(
 					if (options.checkstyle && !state.builtin()) {
 						let indent = state.indentation();
 						let topmost = state.indent[state.indent.length - 1];
-						if (topmost >= 0 && topmost !== indent)
-							state.error("/style/ste-2");
+						if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
 					}
 					Lexer.get_token(state, options);
 					break;
 				}
 				let cmd = parse_statement_or_declaration(state, scope, options);
 				scope.commands.push(cmd);
+				scope.children.push(cmd);
 			}
 			return scope;
-		} else if (token.type === "grouping" && token.value === "}")
-			state.error("/syntax/se-88");
-		else if (token.type === "keyword")
-			state.error("/syntax/se-89", [token.value]);
+		} else if (token.type === "grouping" && token.value === "}") state.error("/syntax/se-88");
+		else if (token.type === "keyword") state.error("/syntax/se-89", [token.value]);
 		else state.error("/syntax/se-90", [token.value]);
 	}
 }

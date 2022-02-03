@@ -25,26 +25,16 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(width.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"width",
-							"canvas.setLineWidth",
-							"numeric argument",
-							TScript.displayname(width.type),
-						],
+						["width", "canvas.setLineWidth", "numeric argument", TScript.displayname(width.type)],
 						this.stack
 					);
 				if (width.value.b <= 0)
 					ErrorHelper.error(
 						"/user/ue-2",
-						[
-							"error in canvas.setLineWidth; width must be positive",
-						],
+						["error in canvas.setLineWidth; width must be positive"],
 						this.stack
 					);
-				this.service.canvas.setLineWidth.call(
-					this.service,
-					width.value.b
-				);
+				this.service.canvas.setLineWidth.call(this.service, width.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -54,45 +44,25 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(red.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"red",
-							"canvas.setLineColor",
-							"numeric argument",
-							TScript.displayname(red.type),
-						],
+						["red", "canvas.setLineColor", "numeric argument", TScript.displayname(red.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(green.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"green",
-							"canvas.setLineColor",
-							"numeric argument",
-							TScript.displayname(green.type),
-						],
+						["green", "canvas.setLineColor", "numeric argument", TScript.displayname(green.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(blue.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"blue",
-							"canvas.setLineColor",
-							"numeric argument",
-							TScript.displayname(blue.type),
-						],
+						["blue", "canvas.setLineColor", "numeric argument", TScript.displayname(blue.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(alpha.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"alpha",
-							"canvas.setLineColor",
-							"numeric argument",
-							TScript.displayname(alpha.type),
-						],
+						["alpha", "canvas.setLineColor", "numeric argument", TScript.displayname(alpha.type)],
 						this.stack
 					);
 				this.service.canvas.setLineColor.call(
@@ -111,45 +81,25 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(red.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"red",
-							"canvas.setFillColor",
-							"numeric argument",
-							TScript.displayname(red.type),
-						],
+						["red", "canvas.setFillColor", "numeric argument", TScript.displayname(red.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(green.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"green",
-							"canvas.setFillColor",
-							"numeric argument",
-							TScript.displayname(green.type),
-						],
+						["green", "canvas.setFillColor", "numeric argument", TScript.displayname(green.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(blue.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"blue",
-							"canvas.setFillColor",
-							"numeric argument",
-							TScript.displayname(blue.type),
-						],
+						["blue", "canvas.setFillColor", "numeric argument", TScript.displayname(blue.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(alpha.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"alpha",
-							"canvas.setFillColor",
-							"numeric argument",
-							TScript.displayname(alpha.type),
-						],
+						["alpha", "canvas.setFillColor", "numeric argument", TScript.displayname(alpha.type)],
 						this.stack
 					);
 				this.service.canvas.setFillColor.call(
@@ -168,12 +118,7 @@ export const lib_canvas = {
 				if (!TScript.isDerivedFrom(fontface.type, Typeid.typeid_string))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"fontface",
-							"canvas.setFont",
-							"string",
-							TScript.displayname(fontface.type),
-						],
+						["fontface", "canvas.setFont", "string", TScript.displayname(fontface.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(fontsize.type))
@@ -193,43 +138,27 @@ export const lib_canvas = {
 						["error in canvas.setFont; fontsize must be positive"],
 						this.stack
 					);
-				this.service.canvas.setFont.call(
-					this.service,
-					fontface.value.b,
-					fontsize.value.b
-				);
+				this.service.canvas.setFont.call(this.service, fontface.value.b, fontsize.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
 				};
 			},
 			setTextAlign: function (alignment) {
-				if (
-					!TScript.isDerivedFrom(alignment.type, Typeid.typeid_string)
-				)
+				if (!TScript.isDerivedFrom(alignment.type, Typeid.typeid_string))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"alignment",
-							"canvas.setTextAlign",
-							"string",
-							TScript.displayname(alignment.type),
-						],
+						["alignment", "canvas.setTextAlign", "string", TScript.displayname(alignment.type)],
 						this.stack
 					);
 				let a = alignment.value.b;
 				if (a !== "left" && a !== "center" && a !== "right")
 					ErrorHelper.error(
 						"/user/ue-2",
-						[
-							"error in canvas.setTextAlign; invalid alignment value",
-						],
+						["error in canvas.setTextAlign; invalid alignment value"],
 						this.stack
 					);
-				this.service.canvas.setTextAlign.call(
-					this.service,
-					alignment.value.b
-				);
+				this.service.canvas.setTextAlign.call(this.service, alignment.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -246,54 +175,28 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(x1.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"x1",
-							"canvas.line",
-							"numeric argument",
-							TScript.displayname(x1.type),
-						],
+						["x1", "canvas.line", "numeric argument", TScript.displayname(x1.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(y1.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"y1",
-							"canvas.line",
-							"numeric argument",
-							TScript.displayname(y1.type),
-						],
+						["y1", "canvas.line", "numeric argument", TScript.displayname(y1.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(x2.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"x2",
-							"canvas.line",
-							"numeric argument",
-							TScript.displayname(x2.type),
-						],
+						["x2", "canvas.line", "numeric argument", TScript.displayname(x2.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(y2.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"y2",
-							"canvas.line",
-							"numeric argument",
-							TScript.displayname(y2.type),
-						],
+						["y2", "canvas.line", "numeric argument", TScript.displayname(y2.type)],
 						this.stack
 					);
-				this.service.canvas.line.call(
-					this.service,
-					x1.value.b,
-					y1.value.b,
-					x2.value.b,
-					y2.value.b
-				);
+				this.service.canvas.line.call(this.service, x1.value.b, y1.value.b, x2.value.b, y2.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -303,45 +206,25 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(left.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"left",
-							"canvas.rect",
-							"numeric argument",
-							TScript.displayname(left.type),
-						],
+						["left", "canvas.rect", "numeric argument", TScript.displayname(left.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(top.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"top",
-							"canvas.rect",
-							"numeric argument",
-							TScript.displayname(top.type),
-						],
+						["top", "canvas.rect", "numeric argument", TScript.displayname(top.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(width.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"width",
-							"canvas.rect",
-							"numeric argument",
-							TScript.displayname(width.type),
-						],
+						["width", "canvas.rect", "numeric argument", TScript.displayname(width.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(height.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"height",
-							"canvas.rect",
-							"numeric argument",
-							TScript.displayname(height.type),
-						],
+						["height", "canvas.rect", "numeric argument", TScript.displayname(height.type)],
 						this.stack
 					);
 				this.service.canvas.rect.call(
@@ -360,45 +243,25 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(left.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"left",
-							"canvas.fillRect",
-							"numeric argument",
-							TScript.displayname(left.type),
-						],
+						["left", "canvas.fillRect", "numeric argument", TScript.displayname(left.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(top.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"top",
-							"canvas.fillRect",
-							"numeric argument",
-							TScript.displayname(top.type),
-						],
+						["top", "canvas.fillRect", "numeric argument", TScript.displayname(top.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(width.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"width",
-							"canvas.fillRect",
-							"numeric argument",
-							TScript.displayname(width.type),
-						],
+						["width", "canvas.fillRect", "numeric argument", TScript.displayname(width.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(height.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"height",
-							"canvas.fillRect",
-							"numeric argument",
-							TScript.displayname(height.type),
-						],
+						["height", "canvas.fillRect", "numeric argument", TScript.displayname(height.type)],
 						this.stack
 					);
 				this.service.canvas.fillRect.call(
@@ -417,45 +280,25 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(left.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"left",
-							"canvas.frameRect",
-							"numeric argument",
-							TScript.displayname(left.type),
-						],
+						["left", "canvas.frameRect", "numeric argument", TScript.displayname(left.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(top.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"top",
-							"canvas.frameRect",
-							"numeric argument",
-							TScript.displayname(top.type),
-						],
+						["top", "canvas.frameRect", "numeric argument", TScript.displayname(top.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(width.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"width",
-							"canvas.frameRect",
-							"numeric argument",
-							TScript.displayname(width.type),
-						],
+						["width", "canvas.frameRect", "numeric argument", TScript.displayname(width.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(height.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"height",
-							"canvas.frameRect",
-							"numeric argument",
-							TScript.displayname(height.type),
-						],
+						["height", "canvas.frameRect", "numeric argument", TScript.displayname(height.type)],
 						this.stack
 					);
 				this.service.canvas.frameRect.call(
@@ -474,42 +317,22 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(x.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"canvas.circle",
-							"numeric argument",
-							TScript.displayname(x.type),
-						],
+						["x", "canvas.circle", "numeric argument", TScript.displayname(x.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(y.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"y",
-							"canvas.circle",
-							"numeric argument",
-							TScript.displayname(y.type),
-						],
+						["y", "canvas.circle", "numeric argument", TScript.displayname(y.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(radius.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"radius",
-							"canvas.circle",
-							"numeric argument",
-							TScript.displayname(radius.type),
-						],
+						["radius", "canvas.circle", "numeric argument", TScript.displayname(radius.type)],
 						this.stack
 					);
-				this.service.canvas.circle.call(
-					this.service,
-					x.value.b,
-					y.value.b,
-					radius.value.b
-				);
+				this.service.canvas.circle.call(this.service, x.value.b, y.value.b, radius.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -519,42 +342,22 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(x.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"canvas.fillCircle",
-							"numeric argument",
-							TScript.displayname(x.type),
-						],
+						["x", "canvas.fillCircle", "numeric argument", TScript.displayname(x.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(y.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"y",
-							"canvas.fillCircle",
-							"numeric argument",
-							TScript.displayname(y.type),
-						],
+						["y", "canvas.fillCircle", "numeric argument", TScript.displayname(y.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(radius.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"radius",
-							"canvas.fillCircle",
-							"numeric argument",
-							TScript.displayname(radius.type),
-						],
+						["radius", "canvas.fillCircle", "numeric argument", TScript.displayname(radius.type)],
 						this.stack
 					);
-				this.service.canvas.fillCircle.call(
-					this.service,
-					x.value.b,
-					y.value.b,
-					radius.value.b
-				);
+				this.service.canvas.fillCircle.call(this.service, x.value.b, y.value.b, radius.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -564,23 +367,13 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(x.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"canvas.frameCircle",
-							"numeric argument",
-							TScript.displayname(x.type),
-						],
+						["x", "canvas.frameCircle", "numeric argument", TScript.displayname(x.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(y.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"y",
-							"canvas.frameCircle",
-							"numeric argument",
-							TScript.displayname(y.type),
-						],
+						["y", "canvas.frameCircle", "numeric argument", TScript.displayname(y.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(radius.type))
@@ -594,12 +387,7 @@ export const lib_canvas = {
 						],
 						this.stack
 					);
-				this.service.canvas.frameCircle.call(
-					this.service,
-					x.value.b,
-					y.value.b,
-					radius.value.b
-				);
+				this.service.canvas.frameCircle.call(this.service, x.value.b, y.value.b, radius.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -609,49 +397,28 @@ export const lib_canvas = {
 				if (!TScript.isDerivedFrom(points.type, Typeid.typeid_array))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"points",
-							"canvas.curve",
-							"array",
-							TScript.displayname(points.type),
-						],
+						["points", "canvas.curve", "array", TScript.displayname(points.type)],
 						this.stack
 					);
 				if (!TScript.isDerivedFrom(closed.type, Typeid.typeid_boolean))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"closed",
-							"canvas.curve",
-							"boolean",
-							TScript.displayname(closed.type),
-						],
+						["closed", "canvas.curve", "boolean", TScript.displayname(closed.type)],
 						this.stack
 					);
 				let list = new Array();
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
-					if (
-						!TScript.isDerivedFrom(points.type, Typeid.typeid_array)
-					)
+					if (!TScript.isDerivedFrom(points.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
-							[
-								"points[" + i + "]",
-								"canvas.curve",
-								"array",
-								TScript.displayname(p.type),
-							],
+							["points[" + i + "]", "canvas.curve", "array", TScript.displayname(p.type)],
 							this.stack
 						);
 					if (p.value.b.length !== 2)
 						ErrorHelper.error(
 							"/user/ue-2",
-							[
-								"error in canvas.curve; point[" +
-									i +
-									"] must be an array of size two.",
-							],
+							["error in canvas.curve; point[" + i + "] must be an array of size two."],
 							this.stack
 						);
 					let x = p.value.b[0];
@@ -680,11 +447,7 @@ export const lib_canvas = {
 						);
 					list.push([x.value.b, y.value.b]);
 				}
-				this.service.canvas.curve.call(
-					this.service,
-					list,
-					closed.value.b
-				);
+				this.service.canvas.curve.call(this.service, list, closed.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -694,38 +457,22 @@ export const lib_canvas = {
 				if (!TScript.isDerivedFrom(points.type, Typeid.typeid_array))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"points",
-							"canvas.fillArea",
-							"array",
-							TScript.displayname(points.type),
-						],
+						["points", "canvas.fillArea", "array", TScript.displayname(points.type)],
 						this.stack
 					);
 				let list = new Array();
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
-					if (
-						!TScript.isDerivedFrom(points.type, Typeid.typeid_array)
-					)
+					if (!TScript.isDerivedFrom(points.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
-							[
-								"points[" + i + "]",
-								"canvas.fillArea",
-								"array",
-								TScript.displayname(p.type),
-							],
+							["points[" + i + "]", "canvas.fillArea", "array", TScript.displayname(p.type)],
 							this.stack
 						);
 					if (p.value.b.length !== 2)
 						ErrorHelper.error(
 							"/user/ue-2",
-							[
-								"error in canvas.fillArea; point[" +
-									i +
-									"] must be an array of size two.",
-							],
+							["error in canvas.fillArea; point[" + i + "] must be an array of size two."],
 							this.stack
 						);
 					let x = p.value.b[0];
@@ -764,38 +511,22 @@ export const lib_canvas = {
 				if (!TScript.isDerivedFrom(points.type, Typeid.typeid_array))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"points",
-							"canvas.frameArea",
-							"array",
-							TScript.displayname(points.type),
-						],
+						["points", "canvas.frameArea", "array", TScript.displayname(points.type)],
 						this.stack
 					);
 				let list = new Array();
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
-					if (
-						!TScript.isDerivedFrom(points.type, Typeid.typeid_array)
-					)
+					if (!TScript.isDerivedFrom(points.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
-							[
-								"points[" + i + "]",
-								"canvas.frameArea",
-								"array",
-								TScript.displayname(p.type),
-							],
+							["points[" + i + "]", "canvas.frameArea", "array", TScript.displayname(p.type)],
 							this.stack
 						);
 					if (p.value.b.length !== 2)
 						ErrorHelper.error(
 							"/user/ue-2",
-							[
-								"error in canvas.frameArea; point[" +
-									i +
-									"] must be an array of size two.",
-							],
+							["error in canvas.frameArea; point[" + i + "] must be an array of size two."],
 							this.stack
 						);
 					let x = p.value.b[0];
@@ -834,31 +565,16 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(x.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"canvas.text",
-							"numeric argument",
-							TScript.displayname(x.type),
-						],
+						["x", "canvas.text", "numeric argument", TScript.displayname(x.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(y.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"y",
-							"canvas.text",
-							"numeric argument",
-							TScript.displayname(y.type),
-						],
+						["y", "canvas.text", "numeric argument", TScript.displayname(y.type)],
 						this.stack
 					);
-				this.service.canvas.text.call(
-					this.service,
-					x.value.b,
-					y.value.b,
-					TScript.toString(str)
-				);
+				this.service.canvas.text.call(this.service, x.value.b, y.value.b, TScript.toString(str));
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -875,30 +591,16 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(dx.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"dx",
-							"canvas.shift",
-							"numeric argument",
-							TScript.displayname(dx.type),
-						],
+						["dx", "canvas.shift", "numeric argument", TScript.displayname(dx.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(dy.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"dy",
-							"canvas.shift",
-							"numeric argument",
-							TScript.displayname(dy.type),
-						],
+						["dy", "canvas.shift", "numeric argument", TScript.displayname(dy.type)],
 						this.stack
 					);
-				this.service.canvas.shift.call(
-					this.service,
-					dx.value.b,
-					dy.value.b
-				);
+				this.service.canvas.shift.call(this.service, dx.value.b, dy.value.b);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -908,12 +610,7 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(factor.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"factor",
-							"canvas.scale",
-							"numeric argument",
-							TScript.displayname(factor.type),
-						],
+						["factor", "canvas.scale", "numeric argument", TScript.displayname(factor.type)],
 						this.stack
 					);
 				this.service.canvas.scale.call(this.service, factor.value.b);
@@ -926,12 +623,7 @@ export const lib_canvas = {
 				if (!TScript.isNumeric(angle.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"angle",
-							"canvas.rotate",
-							"numeric argument",
-							TScript.displayname(angle.type),
-						],
+						["angle", "canvas.rotate", "numeric argument", TScript.displayname(angle.type)],
 						this.stack
 					);
 				this.service.canvas.rotate.call(this.service, angle.value.b);
@@ -944,47 +636,31 @@ export const lib_canvas = {
 				if (!TScript.isDerivedFrom(A.type, Typeid.typeid_array))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"A",
-							"canvas.transform",
-							"array",
-							TScript.displayname(A.type),
-						],
+						["A", "canvas.transform", "array", TScript.displayname(A.type)],
 						this.stack
 					);
 				if (!TScript.isDerivedFrom(b.type, Typeid.typeid_array))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
-						[
-							"b",
-							"canvas.transform",
-							"array",
-							TScript.displayname(b.type),
-						],
+						["b", "canvas.transform", "array", TScript.displayname(b.type)],
 						this.stack
 					);
 				if (A.value.b.length !== 2)
 					ErrorHelper.error(
 						"/user/ue-2",
-						[
-							"error in canvas.transform; A must be an array of size two.",
-						],
+						["error in canvas.transform; A must be an array of size two."],
 						this.stack
 					);
 				if (A.value.b[0].value.b.length !== 2)
 					ErrorHelper.error(
 						"/user/ue-2",
-						[
-							"error in canvas.transform; A[0] must be an array of size two.",
-						],
+						["error in canvas.transform; A[0] must be an array of size two."],
 						this.stack
 					);
 				if (A.value.b[1].value.b.length !== 2)
 					ErrorHelper.error(
 						"/user/ue-2",
-						[
-							"error in canvas.transform; A[1] must be an array of size two.",
-						],
+						["error in canvas.transform; A[1] must be an array of size two."],
 						this.stack
 					);
 				if (!TScript.isNumeric(A.value.b[0].value.b[0].type))
@@ -1034,9 +710,7 @@ export const lib_canvas = {
 				if (b.value.b.length !== 2)
 					ErrorHelper.error(
 						"/user/ue-2",
-						[
-							"error in canvas.transform; b must be an array of size two.",
-						],
+						["error in canvas.transform; b must be an array of size two."],
 						this.stack
 					);
 				if (!TScript.isNumeric(b.value.b[0].type))
@@ -1064,14 +738,8 @@ export const lib_canvas = {
 				this.service.canvas.transform.call(
 					this.service,
 					[
-						[
-							A.value.b[0].value.b[0].value.b,
-							A.value.b[0].value.b[1].value.b,
-						],
-						[
-							A.value.b[1].value.b[0].value.b,
-							A.value.b[1].value.b[1].value.b,
-						],
+						[A.value.b[0].value.b[0].value.b, A.value.b[0].value.b[1].value.b],
+						[A.value.b[1].value.b[0].value.b, A.value.b[1].value.b[1].value.b],
 					],
 					[b.value.b[0].value.b, b.value.b[1].value.b]
 				);

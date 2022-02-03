@@ -1,18 +1,13 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { scopestep } from "../interpreter/interpreter_helper";
 import { TScript } from "..";
+import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_expression } from "./parse_expression";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 
 // Parse a function declaration.
-export function parse_function(
-	state,
-	parent,
-	options,
-	petype: any = undefined
-) {
+export function parse_function(state, parent, options, petype: any = undefined) {
 	if (typeof petype === "undefined") petype = "function";
 
 	// handle "function" keyword
@@ -30,18 +25,14 @@ export function parse_function(
 	if (parent.names.hasOwnProperty(fname)) state.error("/name/ne-15", [fname]);
 
 	// check function name
-	if (
-		options.checkstyle &&
-		!state.builtin() &&
-		fname[0] >= "A" &&
-		fname[0] <= "Z"
-	) {
+	if (options.checkstyle && !state.builtin() && fname[0] >= "A" && fname[0] <= "Z") {
 		state.error("/style/ste-3", ["function", fname]);
 	}
 
 	// create the function
 	let func: any = {
 		petype: petype,
+		children: new Array(),
 		where: where,
 		declaration: true,
 		parent: parent,
@@ -67,8 +58,7 @@ export function parse_function(
 			break;
 		}
 		if (func.params.length !== 0) {
-			if (token.type !== "delimiter" || token.value !== ",")
-				state.error("/syntax/se-37");
+			if (token.type !== "delimiter" || token.value !== ",") state.error("/syntax/se-37");
 			Lexer.get_token(state, options);
 		}
 
@@ -86,16 +76,24 @@ export function parse_function(
 			id: id,
 			scope: "local",
 		};
+		func.children.push(variable);
 		let param: any = { name: name };
 
 		// check for a default value
 		token = Lexer.get_token(state, options, true);
 		if (token.type === "operator" && token.value === "=") {
 			Lexer.get_token(state, options);
-			let defaultvalue = parse_expression(state, func, options);
-			if (defaultvalue.petype !== "constant")
-				state.error("/syntax/se-38");
-			param.defaultvalue = defaultvalue.typedvalue;
+			param.defaultvalue = parse_expression(state, func, options);
+			func.children.push(param.defaultvalue);
+			let back = param.defaultvalue?.passResolveBack;
+			param.defaultvalue.passResolveBack = function (state) {
+				if (back) back(state);
+				if (param.defaultvalue.petype !== "constant") {
+					state.set(param.defaultvalue.where);
+					state.error("/syntax/se-38");
+				}
+				param.defaultvalue = param.defaultvalue.typedvalue;
+			};
 		}
 
 		// register the parameter
@@ -117,14 +115,14 @@ export function parse_function(
 			if (options.checkstyle && !state.builtin()) {
 				let indent = state.indentation();
 				let topmost = state.indent[state.indent.length - 1];
-				if (topmost >= 0 && topmost !== indent)
-					state.error("/style/ste-2");
+				if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
 			}
 			Lexer.get_token(state, options);
 			break;
 		}
 		let cmd = parse_statement_or_declaration(state, func, options);
 		func.commands.push(cmd);
+		func.children.push(cmd);
 	}
 
 	// replace the function body with built-in functionality

@@ -7,10 +7,7 @@ export function parse_throw(state, parent, options) {
 	// handle "throw" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(
-		token.type === "keyword" && token.value === "throw",
-		"[parse_throw] internal error"
-	);
+	ErrorHelper.assert(token.type === "keyword" && token.value === "throw", "[parse_throw] internal error");
 
 	// create the throw object
 	let ret: any = {
@@ -36,8 +33,7 @@ export function parse_throw(state, parent, options) {
 				let remove_pe = 0;
 				while (true) {
 					let f = this.stack[this.stack.length - remove_frame - 1];
-					if (f.pe[f.pe.length - 1 - remove_pe].petype === "try")
-						break;
+					if (f.pe[f.pe.length - 1 - remove_pe].petype === "try") break;
 					remove_pe++;
 					if (remove_pe >= f.pe.length) {
 						remove_pe = 0;
@@ -48,15 +44,9 @@ export function parse_throw(state, parent, options) {
 				}
 
 				// modify the stack so that we jump to the catch statement
-				this.stack.splice(
-					this.stack.length - remove_frame,
-					remove_frame
-				);
+				this.stack.splice(this.stack.length - remove_frame, remove_frame);
 				let f = this.stack[this.stack.length - 1];
-				ErrorHelper.assert(
-					remove_pe <= f.pe.length - 2,
-					"[throw] corrupted stack"
-				);
+				ErrorHelper.assert(remove_pe <= f.pe.length - 2, "[throw] corrupted stack");
 				f.pe.splice(f.pe.length - remove_pe - 1, remove_pe + 1);
 				f.ip.splice(f.ip.length - remove_pe - 2, remove_pe + 2, 1);
 
@@ -75,11 +65,11 @@ export function parse_throw(state, parent, options) {
 
 	// parse the exception argument
 	ret.argument = parse_expression(state, parent, options);
+	ret.children = [ret.argument];
 
 	// parse the closing semicolon
 	token = Lexer.get_token(state, options);
-	if (token.type !== "delimiter" || token.value !== ";")
-		state.error("/syntax/se-87");
+	if (token.type !== "delimiter" || token.value !== ";") state.error("/syntax/se-87");
 
 	return ret;
 }

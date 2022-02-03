@@ -32,12 +32,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.abs",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.abs", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -50,12 +45,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.sqrt",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.sqrt", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -68,12 +58,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.cbrt",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.cbrt", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -86,12 +71,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.floor",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.floor", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -104,12 +84,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.round",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.round", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -122,12 +97,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.ceil",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.ceil", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -140,12 +110,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.sin",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.sin", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -158,12 +123,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.cos",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.cos", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -176,12 +136,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.tan",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.tan", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -194,12 +149,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.sinh",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.sinh", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -212,12 +162,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.cosh",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.cosh", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -230,12 +175,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.tanh",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.tanh", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -248,12 +188,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.asin",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.asin", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -266,12 +201,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.acos",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.acos", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -284,12 +214,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.atan",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.atan", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -297,23 +222,13 @@ export const lib_math = {
 				if (!TScript.isNumeric(y.type))
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.atan2",
-							"numeric argument",
-							TScript.displayname(x.type),
-						],
+						["x", "math.atan2", "numeric argument", TScript.displayname(x.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(x.type))
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.atan2",
-							"numeric argument",
-							TScript.displayname(y.type),
-						],
+						["x", "math.atan2", "numeric argument", TScript.displayname(y.type)],
 						this.stack
 					);
 				return {
@@ -330,12 +245,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.asinh",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.asinh", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -348,12 +258,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.acosh",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.acosh", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -366,12 +271,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.atanh",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.atanh", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -384,12 +284,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.exp",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.exp", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -402,12 +297,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.log",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.log", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -420,12 +310,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.log2",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.log2", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -438,12 +323,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.log10",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.log10", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},
@@ -451,23 +331,13 @@ export const lib_math = {
 				if (!TScript.isNumeric(base.type))
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"base",
-							"math.pow",
-							"numeric argument",
-							TScript.displayname(base.type),
-						],
+						["base", "math.pow", "numeric argument", TScript.displayname(base.type)],
 						this.stack
 					);
 				if (!TScript.isNumeric(exponent.type))
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"exponent",
-							"math.pow",
-							"numeric argument",
-							TScript.displayname(exponent.type),
-						],
+						["exponent", "math.pow", "numeric argument", TScript.displayname(exponent.type)],
 						this.stack
 					);
 				return {
@@ -479,10 +349,7 @@ export const lib_math = {
 				if (TScript.isNumeric(arg.type))
 					return {
 						type: this.program.types[
-							TScript.isDerivedFrom(
-								arg.type,
-								Typeid.typeid_integer
-							)
+							TScript.isDerivedFrom(arg.type, Typeid.typeid_integer)
 								? Typeid.typeid_integer
 								: Typeid.typeid_real
 						],
@@ -491,12 +358,7 @@ export const lib_math = {
 				else
 					this.error(
 						"/argument-mismatch/am-1",
-						[
-							"x",
-							"math.sign",
-							"numeric argument",
-							TScript.displayname(arg.type),
-						],
+						["x", "math.sign", "numeric argument", TScript.displayname(arg.type)],
 						this.stack
 					);
 			},

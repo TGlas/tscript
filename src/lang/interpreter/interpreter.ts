@@ -57,8 +57,7 @@ export class Interpreter {
 		if (this.status === "dialog") {
 			if (this.dialogResult) {
 				let frame = this.stack[this.stack.length - 1];
-				frame.temporaries[frame.temporaries.length - 1] =
-					this.dialogResult;
+				frame.temporaries[frame.temporaries.length - 1] = this.dialogResult;
 				this.dialogResult = null;
 				this.status = "running";
 				if (this.service.statechanged) this.service.statechanged(false);
@@ -67,19 +66,14 @@ export class Interpreter {
 
 		if (this.status === "running") {
 			let start = new Date().getTime();
-			while (
-				this.background &&
-				new Date().getTime() - start < 14 &&
-				this.status === "running"
-			) {
+			while (this.background && new Date().getTime() - start < 14 && this.status === "running") {
 				this.exec_step.bind(this)();
 
 				if (this.halt) {
 					if (this.halt.call(this)) {
 						this.halt = null;
 						this.background = false;
-						if (this.service.statechanged)
-							this.service.statechanged(true);
+						if (this.service.statechanged) this.service.statechanged(true);
 					}
 				}
 			}
@@ -227,19 +221,14 @@ export class Interpreter {
 			try {
 				this.hook.call(this);
 			} catch (ex) {
-				console.log(
-					"[Interpreter] ignoring exception thrown by the hook"
-				);
+				console.log("[Interpreter] ignoring exception thrown by the hook");
 			}
 		}
 
 		try {
 			let frame = this.stack[this.stack.length - 1];
 			let pe = frame.pe[frame.pe.length - 1];
-			while (
-				this.stack.length > 0 &&
-				(this.status === "running" || this.status === "waiting")
-			) {
+			while (this.stack.length > 0 && (this.status === "running" || this.status === "waiting")) {
 				// execute the current step and check whether it's done
 				if (pe.step.call(this, this.options)) {
 					// the step is done -> count it
@@ -278,16 +267,8 @@ export class Interpreter {
 				// report an internal interpreter error
 				console.log("internal runtime error!");
 				console.log(ex);
-				let msg = ErrorHelper.composeError("/internal/ie-2", [
-					ErrorHelper.ex2string(ex),
-				]);
-				if (this.service.message)
-					this.service.message(
-						msg,
-						null,
-						null,
-						"#/errors/internal/ie-2"
-					);
+				let msg = ErrorHelper.composeError("/internal/ie-2", [ErrorHelper.ex2string(ex)]);
+				if (this.service.message) this.service.message(msg, null, null, "#/errors/internal/ie-2");
 
 				this.halt = null;
 				this.background = false;
@@ -365,18 +346,14 @@ export class Interpreter {
 
 	// define an event handler - there can only be one :)
 	public setEventHandler(type, handler) {
-		if (handler.type.id === Typeid.typeid_null)
-			delete this.eventhandler[type];
+		if (handler.type.id === Typeid.typeid_null) delete this.eventhandler[type];
 		else if (TScript.isDerivedFrom(handler.type, Typeid.typeid_function)) {
 			if (handler.value.b.func.params.length !== 1)
 				throw new RuntimeError(
 					"[Interpreter.setEventHandler] handler must be a function with exactly one parameter"
 				);
 			this.eventhandler[type] = handler.value.b;
-		} else
-			throw new RuntimeError(
-				"[Interpreter.setEventHandler] invalid argument"
-			);
+		} else throw new RuntimeError("[Interpreter.setEventHandler] invalid argument");
 	}
 
 	// Request to define a number of breakpoints. This function should

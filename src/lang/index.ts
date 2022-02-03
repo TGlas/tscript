@@ -46,35 +46,18 @@ export class TScript {
 				this,
 				arg,
 				function (value) {
-					if (TScript.isDerivedFrom(value.type, Typeid.typeid_null))
-						return "null";
-					else if (
-						TScript.isDerivedFrom(value.type, Typeid.typeid_boolean)
-					)
+					if (TScript.isDerivedFrom(value.type, Typeid.typeid_null)) return "null";
+					else if (TScript.isDerivedFrom(value.type, Typeid.typeid_boolean))
 						return value.value.b ? "true" : "false";
-					else if (
-						TScript.isDerivedFrom(value.type, Typeid.typeid_integer)
-					)
+					else if (TScript.isDerivedFrom(value.type, Typeid.typeid_integer))
 						return value.value.b.toString();
-					else if (
-						TScript.isDerivedFrom(value.type, Typeid.typeid_real)
-					)
+					else if (TScript.isDerivedFrom(value.type, Typeid.typeid_real))
 						return value.value.b.toString();
-					else if (
-						TScript.isDerivedFrom(value.type, Typeid.typeid_string)
-					)
-						return value.value.b;
-					else if (
-						TScript.isDerivedFrom(
-							value.type,
-							Typeid.typeid_function
-						)
-					) {
+					else if (TScript.isDerivedFrom(value.type, Typeid.typeid_string)) return value.value.b;
+					else if (TScript.isDerivedFrom(value.type, Typeid.typeid_function)) {
 						let s = "<Function";
-						if (value.value.b.func.displayname)
-							s += " " + value.value.b.func.displayname;
-						else if (value.value.b.func.name)
-							s += " " + value.value.b.func.name;
+						if (value.value.b.func.displayname) s += " " + value.value.b.func.displayname;
+						else if (value.value.b.func.name) s += " " + value.value.b.func.name;
 						else if (value.value.b.func.where)
 							s +=
 								" anonymous " +
@@ -83,20 +66,10 @@ export class TScript {
 								value.value.b.func.where.ch;
 						s += ">";
 						return s;
-					} else if (
-						TScript.isDerivedFrom(value.type, Typeid.typeid_range)
-					)
-						return (
-							value.value.b.begin.toString() +
-							":" +
-							value.value.b.end.toString()
-						);
-					else if (
-						TScript.isDerivedFrom(value.type, Typeid.typeid_type)
-					)
-						return (
-							"<Type " + TScript.displayname(value.value.b) + ">"
-						);
+					} else if (TScript.isDerivedFrom(value.type, Typeid.typeid_range))
+						return value.value.b.begin.toString() + ":" + value.value.b.end.toString();
+					else if (TScript.isDerivedFrom(value.type, Typeid.typeid_type))
+						return "<Type " + TScript.displayname(value.value.b) + ">";
 					else return "<" + TScript.displayname(value.type) + ">";
 				},
 				function (value) {
@@ -108,10 +81,7 @@ export class TScript {
 						}
 						s += "]";
 						return s;
-					} else if (
-						typeof value === "object" &&
-						value.constructor === Object
-					) {
+					} else if (typeof value === "object" && value.constructor === Object) {
 						let s = "{";
 						let first = true;
 						for (let key in value) {
@@ -122,16 +92,11 @@ export class TScript {
 						}
 						s += "}";
 						return s;
-					} else
-						ErrorHelper.assert(
-							false,
-							"[TScript.toString] internal error"
-						);
+					} else ErrorHelper.assert(false, "[TScript.toString] internal error");
 				}
 			);
 		} catch (ex) {
-			if (ex === "recursive data structure")
-				(this as any).error("/argument-mismatch/am-43");
+			if (ex === "recursive data structure") (this as any).error("/argument-mismatch/am-43");
 			else throw ex;
 		}
 	}
@@ -164,11 +129,7 @@ export class TScript {
 					value: { b: object },
 				};
 			case "number":
-				if (
-					object % 1 === 0 &&
-					object >= -2147483648 &&
-					object <= 2147483647
-				) {
+				if (object % 1 === 0 && object >= -2147483648 && object <= 2147483647) {
 					return {
 						type: program.types[Typeid.typeid_integer],
 						value: { b: object },
@@ -249,8 +210,7 @@ export class TScript {
 			};
 		} else if (Array.isArray(arg)) {
 			let ret = Array();
-			for (let i = 0; i < arg.length; i++)
-				ret.push(TScript.json2typed.call(program, arg[i]));
+			for (let i = 0; i < arg.length; i++) ret.push(TScript.json2typed.call(program, arg[i]));
 			return {
 				type: program.types[Typeid.typeid_array],
 				value: { b: ret },
@@ -305,8 +265,7 @@ export class TScript {
 	public static equal(lhs, rhs) {
 		let rec = function (lhs, rhs, k) {
 			if (lhs === rhs) return true;
-			else if (lhs.type === rhs.type && lhs.value === rhs.value)
-				return true;
+			else if (lhs.type === rhs.type && lhs.value === rhs.value) return true;
 			else if (
 				TScript.isDerivedFrom(lhs.type, Typeid.typeid_null) &&
 				TScript.isDerivedFrom(rhs.type, Typeid.typeid_null)
@@ -319,15 +278,9 @@ export class TScript {
 			) {
 				// compare booleans
 				return lhs.value.b === rhs.value.b;
-			} else if (
-				TScript.isNumeric(lhs.type) &&
-				TScript.isNumeric(rhs.type)
-			) {
+			} else if (TScript.isNumeric(lhs.type) && TScript.isNumeric(rhs.type)) {
 				// compare numbers
-				return (
-					(isNaN(lhs.value.b) && isNaN(rhs.value.b)) ||
-					lhs.value.b === rhs.value.b
-				);
+				return (isNaN(lhs.value.b) && isNaN(rhs.value.b)) || lhs.value.b === rhs.value.b;
 			} else if (
 				TScript.isDerivedFrom(lhs.type, Typeid.typeid_string) &&
 				TScript.isDerivedFrom(rhs.type, Typeid.typeid_string)
@@ -346,8 +299,7 @@ export class TScript {
 				known.add(lhs);
 				known.add(rhs);
 				for (let i = 0; i < lhs.value.b.length; i++) {
-					if (!rec.call(this, lhs.value.b[i], rhs.value.b[i], known))
-						return false;
+					if (!rec.call(this, lhs.value.b[i], rhs.value.b[i], known)) return false;
 				}
 				return true;
 			} else if (
@@ -367,15 +319,7 @@ export class TScript {
 				for (let key in rhs.value.b) {
 					if (!rhs.value.b.hasOwnProperty(key)) continue;
 					if (!lhs.value.b.hasOwnProperty(key)) return false;
-					if (
-						!rec.call(
-							this,
-							lhs.value.b[key],
-							rhs.value.b[key],
-							known
-						)
-					)
-						return false;
+					if (!rec.call(this, lhs.value.b[key], rhs.value.b[key], known)) return false;
 				}
 				return true;
 			} else if (
@@ -401,14 +345,7 @@ export class TScript {
 					known.add(rhs);
 					for (let key in rhs.value.b.enclosed) {
 						if (!rhs.value.b.enclosed.hasOwnProperty(key)) continue;
-						if (
-							!rec.call(
-								this,
-								lhs.value.b.enclosed[key],
-								rhs.value.b.enclosed[key],
-								known
-							)
-						)
+						if (!rec.call(this, lhs.value.b.enclosed[key], rhs.value.b.enclosed[key], known))
 							return false;
 					}
 				}
@@ -420,10 +357,7 @@ export class TScript {
 				TScript.isDerivedFrom(rhs.type, Typeid.typeid_range)
 			) {
 				// compare range by begin and end
-				return (
-					lhs.value.b.begin === rhs.value.b.begin &&
-					lhs.value.b.end === rhs.value.b.end
-				);
+				return lhs.value.b.begin === rhs.value.b.begin && lhs.value.b.end === rhs.value.b.end;
 			} else if (
 				TScript.isDerivedFrom(lhs.type, Typeid.typeid_type) &&
 				TScript.isDerivedFrom(rhs.type, Typeid.typeid_type)
@@ -439,8 +373,7 @@ export class TScript {
 		try {
 			return rec.call(this, lhs, rhs, new Set());
 		} catch (ex) {
-			if (ex === "recursive data structure")
-				(this as any).error("/argument-mismatch/am-43");
+			if (ex === "recursive data structure") (this as any).error("/argument-mismatch/am-43");
 			else throw ex;
 		}
 	}
@@ -456,26 +389,15 @@ export class TScript {
 			) {
 				// null values are always equal
 				return 0;
-			} else if (
-				TScript.isNumeric(lhs.type) &&
-				TScript.isNumeric(rhs.type)
-			) {
+			} else if (TScript.isNumeric(lhs.type) && TScript.isNumeric(rhs.type)) {
 				// compare numbers
-				return lhs.value.b <= rhs.value.b
-					? lhs.value.b < rhs.value.b
-						? -1
-						: 0
-					: 1;
+				return lhs.value.b <= rhs.value.b ? (lhs.value.b < rhs.value.b ? -1 : 0) : 1;
 			} else if (
 				TScript.isDerivedFrom(lhs.type, Typeid.typeid_string) &&
 				TScript.isDerivedFrom(rhs.type, Typeid.typeid_string)
 			) {
 				// compare strings lexicographically
-				return lhs.value.b <= rhs.value.b
-					? lhs.value.b < rhs.value.b
-						? -1
-						: 0
-					: 1;
+				return lhs.value.b <= rhs.value.b ? (lhs.value.b < rhs.value.b ? -1 : 0) : 1;
 			} else if (
 				TScript.isDerivedFrom(lhs.type, Typeid.typeid_array) &&
 				TScript.isDerivedFrom(rhs.type, Typeid.typeid_array)
@@ -488,12 +410,7 @@ export class TScript {
 				known.add(rhs);
 				let m = Math.min(lhs.value.b.length, rhs.value.b.length);
 				for (let i = 0; i < m; i++) {
-					let tmp = rec.call(
-						this,
-						lhs.value.b[i],
-						rhs.value.b[i],
-						known
-					);
+					let tmp = rec.call(this, lhs.value.b[i], rhs.value.b[i], known);
 					if (tmp !== 0) return tmp;
 				}
 				if (lhs.value.b.length > m) return 1;
@@ -503,9 +420,7 @@ export class TScript {
 
 			// report an error
 			if (lhs.type.id === rhs.type.id)
-				this.error("/argument-mismatch/am-16", [
-					TScript.displayname(lhs.type),
-				]);
+				this.error("/argument-mismatch/am-16", [TScript.displayname(lhs.type)]);
 			else
 				this.error("/argument-mismatch/am-16b", [
 					TScript.displayname(lhs.type),
@@ -516,8 +431,7 @@ export class TScript {
 		try {
 			return rec.call(this, lhs, rhs, new Set());
 		} catch (ex) {
-			if (ex === "recursive data structure")
-				(this as any).error("/argument-mismatch/am-43");
+			if (ex === "recursive data structure") (this as any).error("/argument-mismatch/am-43");
 			else throw ex;
 		}
 	}
@@ -531,21 +445,13 @@ export class TScript {
 			throw "[module.previewValue] invalid argument";
 
 		if (arg.type.id === Typeid.typeid_null) return "null";
-		else if (arg.type.id === Typeid.typeid_boolean)
-			return arg.value.b ? "true" : "false";
-		else if (arg.type.id === Typeid.typeid_integer)
-			return arg.value.b.toString();
+		else if (arg.type.id === Typeid.typeid_boolean) return arg.value.b ? "true" : "false";
+		else if (arg.type.id === Typeid.typeid_integer) return arg.value.b.toString();
 		else if (arg.type.id === Typeid.typeid_real) {
 			let ret = arg.value.b.toString();
-			if (
-				ret.indexOf(".") < 0 &&
-				ret.indexOf("e") < 0 &&
-				ret.indexOf("E") < 0
-			)
-				ret += ".0";
+			if (ret.indexOf(".") < 0 && ret.indexOf("e") < 0 && ret.indexOf("E") < 0) ret += ".0";
 			return ret;
-		} else if (arg.type.id === Typeid.typeid_string)
-			return '"' + arg.value.b + '"';
+		} else if (arg.type.id === Typeid.typeid_string) return '"' + arg.value.b + '"';
 		else if (arg.type.id === Typeid.typeid_array) {
 			if (depth === 0) return "[\u2026]";
 			let s = "[";
@@ -568,10 +474,7 @@ export class TScript {
 					break;
 				}
 				if (n > 0) s += ",";
-				s +=
-					key.substring(1) +
-					":" +
-					TScript.previewValue.call(this, arg.value.b[key], 0);
+				s += key.substring(1) + ":" + TScript.previewValue.call(this, arg.value.b[key], 0);
 				n++;
 			}
 			s += "}";
@@ -590,20 +493,13 @@ export class TScript {
 			else {
 				s += "anonymous";
 				if (arg.value.b.func.where)
-					s +=
-						" " +
-						arg.value.b.func.where.line +
-						":" +
-						arg.value.b.func.where.ch;
+					s += " " + arg.value.b.func.where.line + ":" + arg.value.b.func.where.ch;
 			}
 			s += ">";
 			return s;
 		} else if (arg.type.id === Typeid.typeid_range)
-			return (
-				arg.value.b.begin.toString() + ":" + arg.value.b.end.toString()
-			);
-		else if (arg.type.id === Typeid.typeid_type)
-			return "<Type " + TScript.displayname(arg.value.b) + ">";
+			return arg.value.b.begin.toString() + ":" + arg.value.b.end.toString();
+		else if (arg.type.id === Typeid.typeid_type) return "<Type " + TScript.displayname(arg.value.b) + ">";
 		else {
 			let s = "<" + TScript.displayname(arg.type);
 			if (depth === 0) return s + ">";

@@ -8,16 +8,11 @@ import {
 	left_unary_operator_precedence,
 	peek_keyword,
 } from "./parser_helper";
-import {
-	create_breakpoint,
-	get_context,
-	get_function,
-	get_program,
-	get_type,
-	scopestep,
-} from "../interpreter/interpreter_helper";
-import { TScript } from "..";
+import { create_breakpoint } from "../interpreter/interpreter_helper";
+import { get_context, get_function, get_program, get_type } from "../helpers/getParents";
+import { scopestep } from "../helpers/steps";
 import { simfalse, simtrue } from "../helpers/sims";
+import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 
 export function resolve_name(state, name, parent, errorname) {
@@ -42,29 +37,32 @@ export function resolve_name(state, name, parent, errorname) {
 				let context = get_context(pe);
 				if (context.petype === "global scope") {
 					// global scope is always okay
-					ErrorHelper.assert(
-						n.petype === "variable" || n.petype === "function"
-					);
+					ErrorHelper.assert(n.petype === "variable" || n.petype === "function");
 				} else if (context.petype === "type") {
 					// non-static members must live in the same class
 					if (n.petype === "attribute" || n.petype === "method") {
 						let cl = get_type(parent);
-						if (cl !== context)
-							state.error("/name/ne-6", [errorname, name]);
+						if (cl !== context) state.error("/name/ne-6", [errorname, name]);
 					}
 				} else {
 					// local variables must live in the same function
-					ErrorHelper.assert(
-						n.petype === "variable" || n.petype === "function"
-					);
+					ErrorHelper.assert(n.petype === "variable" || n.petype === "function");
 					if (n.petype === "variable") {
 						let fn = get_function(parent);
-						if (fn !== context)
-							state.error("/name/ne-7", [errorname, name]);
+						if (fn !== context) state.error("/name/ne-7", [errorname, name]);
 					}
 				}
 			}
-			return pe;
+
+			// Ensure that the definition is located before the current position, or that it is hoisted.
+			// Note: variable are not hoisted unless they are static within a class.
+			if (
+				n.petype !== "variable" ||
+				n.parent.petype === "type" ||
+				!n.hasOwnProperty("where") ||
+				n.where.pos < state.pos
+			)
+				return pe;
 		}
 
 		// check the superclass chain
@@ -107,24 +105,18 @@ export function resolve_namespace_name(name, parent) {
 }
 
 export function resolve_names(pe, state) {
-	if (pe.hasOwnProperty("resolve"))
-	{
+	if (pe.hasOwnProperty("resolve")) {
 		var temp = state.get();
 		state.set(pe.where);
 		pe.resolve(state);
 		delete pe.resolve;
 		state.set(temp);
 	}
-	if (pe.hasOwnProperty("commands"))
-	{
-		for (let p of pe.commands)
-			resolve_names(p, state);
+	if (pe.hasOwnProperty("commands")) {
+		for (let p of pe.commands) resolve_names(p, state);
 	}
-	if (pe.type == "type")
-	{
-		for (let key in pe.members)
-			resolve_names(pe.members[key], state);
-		for (let key in pe.staticmembers)
-			resolve_names(pe.staticmembers[key], state);
+	if (pe.type == "type") {
+		for (let key in pe.members) resolve_names(pe.members[key], state);
+		for (let key in pe.staticmembers) resolve_names(pe.staticmembers[key], state);
 	}
 }

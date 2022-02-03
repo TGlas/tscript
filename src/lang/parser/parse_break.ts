@@ -7,19 +7,12 @@ export function parse_break(state, parent, options: Options) {
 	// handle "break" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(
-		token.type === "keyword" && token.value === "break",
-		"[parse_break] internal error"
-	);
+	ErrorHelper.assert(token.type === "keyword" && token.value === "break", "[parse_break] internal error");
 
 	// ensure that we are inside a loop
 	let p = parent;
 	while (p) {
-		if (
-			p.petype === "function" ||
-			p.petype === "method" ||
-			p.petype === "global scope"
-		)
+		if (p.petype === "function" || p.petype === "method" || p.petype === "global scope")
 			state.error("/syntax/se-77");
 		if (p.petype.indexOf("loop") >= 0) break;
 		p = p.parent;
@@ -27,12 +20,11 @@ export function parse_break(state, parent, options: Options) {
 
 	// parse the closing semicolon
 	token = Lexer.get_token(state, options);
-	if (token.type !== "delimiter" || token.value !== ";")
-		state.error("/syntax/se-81b");
+	if (token.type !== "delimiter" || token.value !== ";") state.error("/syntax/se-81b");
 
 	// create the break object
 	return {
-		petype: "continue",
+		petype: "break",
 		where: where,
 		parent: parent,
 		step: function () {
@@ -48,10 +40,7 @@ export function parse_break(state, parent, options: Options) {
 					return true;
 				}
 			}
-			ErrorHelper.assert(
-				false,
-				"internal error in break: no enclosing loop context found"
-			);
+			ErrorHelper.assert(false, "internal error in break: no enclosing loop context found");
 		},
 		sim: simtrue,
 	};

@@ -1,7 +1,5 @@
 let atx =
-	typeof window === "undefined"
-		? undefined
-		: window.AudioContext || (window as any).webkitAudioContext;
+	typeof window === "undefined" ? undefined : window.AudioContext || (window as any).webkitAudioContext;
 
 export const fakeLocalStorage = {
 	map: new Map(),
@@ -53,10 +51,7 @@ export function createDefaultServices() {
 					ctx.lineWidth = 1;
 					ctx.strokeStyle = this.turtle.rgb;
 					ctx.beginPath();
-					ctx.moveTo(
-						300 + 3 * this.turtle.x,
-						300 - 3 * this.turtle.y
-					);
+					ctx.moveTo(300 + 3 * this.turtle.x, 300 - 3 * this.turtle.y);
 					ctx.lineTo(300 + 3 * x, 300 - 3 * y);
 					ctx.stroke();
 				}
@@ -153,12 +148,7 @@ export function createDefaultServices() {
 				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
 				let ctx = this.canvas.dom.getContext("2d");
 				ctx.setTransform(1, 0, 0, 1, 0, 0);
-				ctx.fillRect(
-					0,
-					0,
-					this.canvas.dom.width,
-					this.canvas.dom.height
-				);
+				ctx.fillRect(0, 0, this.canvas.dom.width, this.canvas.dom.height);
 			},
 			line: function (x1, y1, x2, y2) {
 				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
