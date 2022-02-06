@@ -10,13 +10,22 @@ import { Options } from "../helpers/options";
 // Parse a "var" statement. Even for multiple variables it is treated as
 // a single statement. The variables are placed into the container,
 // which defaults to the enclosing function or global scope.
-export function parse_var(state, parent, options: Options, container: any = undefined) {
-	container = typeof container !== "undefined" ? container : get_function(parent);
+export function parse_var(
+	state,
+	parent,
+	options: Options,
+	container: any = undefined
+) {
+	container =
+		typeof container !== "undefined" ? container : get_function(parent);
 
 	// handle "var" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(token.type === "keyword" && token.value === "var", "[parse_var] internal error");
+	ErrorHelper.assert(
+		token.type === "keyword" && token.value === "var",
+		"[parse_var] internal error"
+	);
 
 	// prepare "group of variable declarations" object
 	let ret = {
@@ -49,15 +58,24 @@ export function parse_var(state, parent, options: Options, container: any = unde
 		let where = state.get();
 		token = Lexer.get_token(state, options);
 		if (token.type !== "identifier") state.error("/syntax/se-50");
-		if (parent.names.hasOwnProperty(token.value)) state.error("/name/ne-14", [token.value]);
+		if (parent.names.hasOwnProperty(token.value))
+			state.error("/name/ne-14", [token.value]);
 
 		// check variable name
-		if (options.checkstyle && !state.builtin() && token.value[0] >= "A" && token.value[0] <= "Z") {
+		if (
+			options.checkstyle &&
+			!state.builtin() &&
+			token.value[0] >= "A" &&
+			token.value[0] <= "Z"
+		) {
 			state.error("/style/ste-3", ["variable", token.value]);
 		}
 
 		// create the variable
-		let id = container.petype === "type" ? container.objectsize : container.variables.length;
+		let id =
+			container.petype === "type"
+				? container.objectsize
+				: container.variables.length;
 		let pe: any = {
 			petype: "variable",
 			where: where,
@@ -103,7 +121,11 @@ export function parse_var(state, parent, options: Options, container: any = unde
 
 		// remember the scope to which the variable's id refers
 		if (container.petype === "global scope") pe.scope = "global";
-		else if (container.petype === "function" || container.petype === "method") pe.scope = "local";
+		else if (
+			container.petype === "function" ||
+			container.petype === "method"
+		)
+			pe.scope = "local";
 		else if (container.petype === "type") pe.scope = "object";
 		else ErrorHelper.assert(false, "unknown variable scope");
 

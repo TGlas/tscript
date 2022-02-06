@@ -67,12 +67,17 @@ export class Lexer {
 	// Note that one cannot rely on the token value alone to infer its type,
 	// since string tokens can take on any value. Therefore a token must
 	// always be tested for its type first, and then for a certain value.
-	public static get_token(state, options: Options, peek: boolean | undefined = undefined) {
+	public static get_token(
+		state,
+		options: Options,
+		peek: boolean | undefined = undefined
+	) {
 		peek = typeof peek !== "undefined" ? peek : false;
 		let where = peek ? state.get() : false;
 		state.skip();
 		let line = state.line;
-		if (state.eof()) return { type: "end-of-file", value: "", code: "", line: line };
+		if (state.eof())
+			return { type: "end-of-file", value: "", code: "", line: line };
 
 		let indent = state.indentation();
 		let tok: any = null;
@@ -84,7 +89,12 @@ export class Lexer {
 			state.advance();
 			while (state.good()) {
 				let c = state.current();
-				if ((c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || (c >= "0" && c <= "9") || c === "_")
+				if (
+					(c >= "A" && c <= "Z") ||
+					(c >= "a" && c <= "z") ||
+					(c >= "0" && c <= "9") ||
+					c === "_"
+				)
 					state.advance();
 				else break;
 			}
@@ -92,7 +102,9 @@ export class Lexer {
 			if (where) state.set(where);
 			else state.skip();
 			tok = {
-				type: Lexer.keywords.hasOwnProperty(value) ? "keyword" : "identifier",
+				type: Lexer.keywords.hasOwnProperty(value)
+					? "keyword"
+					: "identifier",
 				value: value,
 				code: value,
 				line: line,
@@ -102,23 +114,40 @@ export class Lexer {
 			let start = state.pos;
 			let digits = "0123456789";
 			let type = "integer";
-			while (!state.eof() && digits.indexOf(state.current()) >= 0) state.advance();
+			while (!state.eof() && digits.indexOf(state.current()) >= 0)
+				state.advance();
 			if (!state.eof()) {
 				if (state.current() === ".") {
 					// parse fractional part
 					type = "real";
 					state.advance();
-					if (state.eof() || state.current() < "0" || state.current() > "9")
+					if (
+						state.eof() ||
+						state.current() < "0" ||
+						state.current() > "9"
+					)
 						state.error("/syntax/se-1");
-					while (!state.eof() && state.current() >= "0" && state.current() <= "9") state.advance();
+					while (
+						!state.eof() &&
+						state.current() >= "0" &&
+						state.current() <= "9"
+					)
+						state.advance();
 				}
 				if (state.current() === "e" || state.current() === "E") {
 					// parse exponent
 					type = "real";
 					state.advance();
-					if (state.current() === "+" || state.current() === "-") state.advance();
-					if (state.current() < "0" || state.current() > "9") state.error("/syntax/se-1");
-					while (!state.eof() && state.current() >= "0" && state.current() <= "9") state.advance();
+					if (state.current() === "+" || state.current() === "-")
+						state.advance();
+					if (state.current() < "0" || state.current() > "9")
+						state.error("/syntax/se-1");
+					while (
+						!state.eof() &&
+						state.current() >= "0" &&
+						state.current() <= "9"
+					)
+						state.advance();
 				}
 			}
 			let value = state.source.substring(start, state.pos);
@@ -151,14 +180,16 @@ export class Lexer {
 						const digits = "0123456789abcdefABCDEF";
 						let code = "";
 						for (let i = 0; i < 4; i++) {
-							if (digits.indexOf(state.current()) < 0) state.error("/syntax/se-3");
+							if (digits.indexOf(state.current()) < 0)
+								state.error("/syntax/se-3");
 							code += state.current();
 							state.advance();
 						}
 						c = String.fromCharCode(parseInt(code, 16));
 					} else state.error("/syntax/se-4", [c]);
 					value += c;
-				} else if (c === "\r" || c === "\n") state.error("/syntax/se-2");
+				} else if (c === "\r" || c === "\n")
+					state.error("/syntax/se-2");
 				else if (c === '"') {
 					state.advance();
 					code = state.source.substring(start, state.pos);
@@ -205,16 +236,22 @@ export class Lexer {
 			// check for indentation problems
 			if (
 				tok.type === "keyword" &&
-				(tok.value === "public" || tok.value === "protected" || tok.value === "private")
+				(tok.value === "public" ||
+					tok.value === "protected" ||
+					tok.value === "private")
 			) {
 			} else if (tok.type === "operator" && tok.value === ":") {
 			} else {
 				let topmost = state.indent[state.indent.length - 1];
 				if (topmost < 0 && line !== -1 - topmost) {
-					if (indent <= state.indent[state.indent.length - 2] && state.current() !== "}")
+					if (
+						indent <= state.indent[state.indent.length - 2] &&
+						state.current() !== "}"
+					)
 						state.error("/style/ste-1");
 					state.indent[state.indent.length - 1] = indent;
-				} else if (indent < topmost && state.current() !== "}") state.error("/style/ste-1");
+				} else if (indent < topmost && state.current() !== "}")
+					state.error("/style/ste-1");
 			}
 		}
 
@@ -236,7 +273,12 @@ export class Lexer {
 			state.advance();
 			while (state.good()) {
 				let c = state.current();
-				if ((c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || (c >= "0" && c <= "9") || c === "_")
+				if (
+					(c >= "A" && c <= "Z") ||
+					(c >= "a" && c <= "z") ||
+					(c >= "0" && c <= "9") ||
+					c === "_"
+				)
 					state.advance();
 				else break;
 			}

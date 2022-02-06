@@ -67,7 +67,11 @@ export function runTests(outerContainer) {
 		let testsPlural = function testsPlural(n) {
 			return n + (n != 1 ? " tests" : " test");
 		};
-		status.innerText = testsPlural(passed) + " passed, " + testsPlural(failed) + " failed.";
+		status.innerText =
+			testsPlural(passed) +
+			" passed, " +
+			testsPlural(failed) +
+			" failed.";
 		if (failed > 0) {
 			status.style.color = "#FF0000";
 		}

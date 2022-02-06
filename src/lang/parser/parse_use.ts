@@ -9,7 +9,8 @@ export function parse_use(state, parent, options) {
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
 	ErrorHelper.assert(
-		token.type === "keyword" && (token.value === "use" || token.value === "from"),
+		token.type === "keyword" &&
+			(token.value === "use" || token.value === "from"),
 		"[parse_use] internal error"
 	);
 
@@ -27,12 +28,14 @@ export function parse_use(state, parent, options) {
 	let from = parent;
 	if (token.value === "from") {
 		from = parse_expression(state, parent, options, false, true);
-		if (!is_name(from) || from["super"]) state.error("/syntax/se-10", ["use directive"]);
+		if (!is_name(from) || from["super"])
+			state.error("/syntax/se-10", ["use directive"]);
 		use.from = from;
 		use.children.push(from);
 
 		token = Lexer.get_token(state, options);
-		if (token.type !== "keyword" || token.value !== "use") state.error("/syntax/se-65");
+		if (token.type !== "keyword" || token.value !== "use")
+			state.error("/syntax/se-65");
 	}
 
 	// parse names with optional identifiers
@@ -44,7 +47,8 @@ export function parse_use(state, parent, options) {
 
 		// parse a name
 		let ex = parse_expression(state, parent, options, false, true);
-		if (!is_name(ex) || ex["super"]) state.error("/syntax/se-10", ["use directive"]);
+		if (!is_name(ex) || ex["super"])
+			state.error("/syntax/se-10", ["use directive"]);
 		use.children.push(ex);
 
 		// parse optional "as" part
@@ -71,7 +75,10 @@ export function parse_use(state, parent, options) {
 			use.from.passResolveBack(state);
 			delete use.from.passResolve;
 			delete use.from.passResolveBack;
-			if ((use.from.petype == "name" || use.from.petype == "constant") && use.from.reference)
+			if (
+				(use.from.petype == "name" || use.from.petype == "constant") &&
+				use.from.reference
+			)
 				use.from = use.from.reference;
 			for (let [ex, name] of use.names.entries()) ex.parent = use.from;
 		}
@@ -82,15 +89,18 @@ export function parse_use(state, parent, options) {
 		let from = use.from ? use.from : use.parent;
 
 		for (let [ex, name] of use.names.entries()) {
-			if (ex.petype == "name" || ex.petype == "constant") ex = ex.reference;
+			if (ex.petype == "name" || ex.petype == "constant")
+				ex = ex.reference;
 			if (name === true) {
 				// import a whole namespace
-				if (ex.petype != "namespace") state.error("/name/ne-23", [ex.name]);
+				if (ex.petype != "namespace")
+					state.error("/name/ne-23", [ex.name]);
 				for (let key in ex.names) {
 					if (!ex.names.hasOwnProperty(key)) continue;
 					if (parent.names.hasOwnProperty(key)) {
 						// tolerate double import of the same entity, otherwise report an error
-						if (parent.names[key] !== ex.names[key]) state.error("/name/ne-24", [key]);
+						if (parent.names[key] !== ex.names[key])
+							state.error("/name/ne-24", [key]);
 					} else {
 						// import the name
 						parent.names[key] = ex.names[key];
@@ -101,7 +111,8 @@ export function parse_use(state, parent, options) {
 				if (name === false) name = ex.name;
 				if (parent.names.hasOwnProperty(name)) {
 					// tolerate duplicate import of the same entity, otherwise report an error
-					if (parent.names[name] !== ex) state.error("/name/ne-24", [name]);
+					if (parent.names[name] !== ex)
+						state.error("/name/ne-24", [name]);
 				} else {
 					// import the name
 					parent.names[name] = ex;

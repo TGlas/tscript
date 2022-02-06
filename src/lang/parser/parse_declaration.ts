@@ -15,6 +15,7 @@ export function parse_declaration(state, parent, options: Options) {
 	else if (kw === "function") return parse_function(state, parent, options);
 	else if (kw === "class") return parse_class(state, parent, options);
 	else if (kw === "namespace") return parse_namespace(state, parent, options);
-	else if (kw === "use" || kw === "from") return parse_use(state, parent, options);
+	else if (kw === "use" || kw === "from")
+		return parse_use(state, parent, options);
 	else return null;
 }

@@ -16,7 +16,8 @@ export function parse_namespace(state, parent, options) {
 	);
 
 	// check the parent
-	if (parent.petype !== "global scope" && parent.petype !== "namespace") state.error("/syntax/se-63");
+	if (parent.petype !== "global scope" && parent.petype !== "namespace")
+		state.error("/syntax/se-63");
 
 	// display name prefix
 	let prefix = "";
@@ -34,7 +35,12 @@ export function parse_namespace(state, parent, options) {
 	let nname = token.value;
 
 	// check namespace name
-	if (options.checkstyle && !state.builtin() && nname[0] >= "A" && nname[0] <= "Z") {
+	if (
+		options.checkstyle &&
+		!state.builtin() &&
+		nname[0] >= "A" &&
+		nname[0] <= "Z"
+	) {
 		state.error("/style/ste-3", ["namespace", nname]);
 	}
 
@@ -43,7 +49,8 @@ export function parse_namespace(state, parent, options) {
 	if (parent.names.hasOwnProperty(nname)) {
 		// extend the existing namespace
 		global_nspace = parent.names[nname];
-		if (global_nspace.petype !== "namespace") state.error("/name/ne-19", [nname]);
+		if (global_nspace.petype !== "namespace")
+			state.error("/name/ne-19", [nname]);
 	} else {
 		// create the namespace
 		global_nspace = {
@@ -85,7 +92,8 @@ export function parse_namespace(state, parent, options) {
 			if (options.checkstyle && !state.builtin()) {
 				let indent = state.indentation();
 				let topmost = state.indent[state.indent.length - 1];
-				if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
+				if (topmost >= 0 && topmost !== indent)
+					state.error("/style/ste-2");
 			}
 			Lexer.get_token(state, options);
 			break;
@@ -93,7 +101,8 @@ export function parse_namespace(state, parent, options) {
 
 		// parse sub-declarations
 		let sub = parse_statement_or_declaration(state, local_nspace, options);
-		if (sub.hasOwnProperty("name")) sub.displayname = prefix + nname + "." + sub.name;
+		if (sub.hasOwnProperty("name"))
+			sub.displayname = prefix + nname + "." + sub.name;
 		local_nspace.commands.push(sub);
 		local_nspace.children.push(sub);
 		global_nspace.children.push(sub);

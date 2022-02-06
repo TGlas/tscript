@@ -110,7 +110,10 @@ export function callstep(options: Options) {
 			else {
 				// prepare the object for the constructor chain
 				let cls = f.value.b;
-				ErrorHelper.assert(cls.petype === "type", "[callstep] cannot find class of constructor");
+				ErrorHelper.assert(
+					cls.petype === "type",
+					"[callstep] cannot find class of constructor"
+				);
 				f_obj = { type: cls, value: {} };
 				if (cls.objectsize > 0) {
 					f_obj.value.a = [];
@@ -118,17 +121,19 @@ export function callstep(options: Options) {
 						type: this.program.types[Typeid.typeid_null],
 						value: { b: null },
 					};
-					for (let i = 0; i < cls.objectsize; i++) f_obj.value.a.push(n);
+					for (let i = 0; i < cls.objectsize; i++)
+						f_obj.value.a.push(n);
 				}
 				// initialize attributes
 				let c = cls;
 				while (c && c.variables) {
 					for (let i = 0; i < c.variables.length; i++) {
 						if (c.variables[i].hasOwnProperty("initializer")) {
-							f_obj.value.a[c.variables[i].id] = copyconstant.call(
-								this,
-								c.variables[i].initializer.typedvalue
-							);
+							f_obj.value.a[c.variables[i].id] =
+								copyconstant.call(
+									this,
+									c.variables[i].initializer.typedvalue
+								);
 						}
 					}
 					c = c.superclass;
@@ -137,7 +142,8 @@ export function callstep(options: Options) {
 				// return value of construction is the new object
 				frame.temporaries.push(f_obj);
 			}
-		} else ErrorHelper.error("/syntax/se-16", [TScript.displayname(f.type)]);
+		} else
+			ErrorHelper.error("/syntax/se-16", [TScript.displayname(f.type)]);
 
 		// argument list for the call
 		let m = f_pe.params.length;
@@ -150,18 +156,31 @@ export function callstep(options: Options) {
 				let name = pe.arguments[i].name;
 				let found = false;
 				for (let j = 0; j < m; j++) {
-					if (f_pe.params[j].hasOwnProperty("name") && f_pe.params[j].name === name) {
+					if (
+						f_pe.params[j].hasOwnProperty("name") &&
+						f_pe.params[j].name === name
+					) {
 						if (typeof params[j] !== "undefined")
-							ErrorHelper.error("/name/ne-1", [name, TScript.displayname(f_pe)]);
+							ErrorHelper.error("/name/ne-1", [
+								name,
+								TScript.displayname(f_pe),
+							]);
 						params[j] = args[i];
 						found = true;
 						break;
 					}
 				}
-				if (!found) ErrorHelper.error("/name/ne-2", [name, TScript.displayname(f_pe)]);
+				if (!found)
+					ErrorHelper.error("/name/ne-2", [
+						name,
+						TScript.displayname(f_pe),
+					]);
 			} else {
 				if (i < params.length) params[i] = args[i];
-				else ErrorHelper.error("/name/ne-3", [TScript.displayname(f_pe)]);
+				else
+					ErrorHelper.error("/name/ne-3", [
+						TScript.displayname(f_pe),
+					]);
 			}
 		}
 
@@ -169,13 +188,21 @@ export function callstep(options: Options) {
 		for (let j = 0; j < m; j++) {
 			if (typeof params[j] === "undefined") {
 				if (f_pe.params[j].hasOwnProperty("defaultvalue"))
-					params[j] = copyconstant.call(this, f_pe.params[j].defaultvalue);
-				else ErrorHelper.error("/name/ne-4", [j + 1, TScript.displayname(f_pe)]);
+					params[j] = copyconstant.call(
+						this,
+						f_pe.params[j].defaultvalue
+					);
+				else
+					ErrorHelper.error("/name/ne-4", [
+						j + 1,
+						TScript.displayname(f_pe),
+					]);
 			}
 		}
 
 		// handle closure parameters
-		if (f.value.b.hasOwnProperty("enclosed")) params = f.value.b.enclosed.concat(params);
+		if (f.value.b.hasOwnProperty("enclosed"))
+			params = f.value.b.enclosed.concat(params);
 
 		// make the actual call
 		{
@@ -190,9 +217,11 @@ export function callstep(options: Options) {
 			};
 
 			if (f_obj) frame.object = f_obj;
-			if (f.value.b.hasOwnProperty("enclosed")) frame.enclosed = f.value.b.enclosed;
+			if (f.value.b.hasOwnProperty("enclosed"))
+				frame.enclosed = f.value.b.enclosed;
 			this.stack.push(frame);
-			if (this.stack.length >= options.maxstacksize) ErrorHelper.error("/logic/le-1");
+			if (this.stack.length >= options.maxstacksize)
+				ErrorHelper.error("/logic/le-1");
 		}
 		return true;
 	} else {

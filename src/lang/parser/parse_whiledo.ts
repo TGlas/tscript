@@ -9,7 +9,10 @@ export function parse_whiledo(state, parent, options) {
 	// handle "while" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(token.type === "keyword" && token.value === "while", "[parse_whiledo] internal error");
+	ErrorHelper.assert(
+		token.type === "keyword" && token.value === "while",
+		"[parse_whiledo] internal error"
+	);
 
 	// create the loop object
 	let whiledo: any = {
@@ -37,7 +40,9 @@ export function parse_whiledo(state, parent, options) {
 				// evaluate the condition
 				let cond = frame.temporaries.pop();
 				if (!TScript.isDerivedFrom(cond.type, Typeid.typeid_boolean))
-					state.error("/argument-mismatch/am-37", [TScript.displayname(cond.type)]);
+					state.error("/argument-mismatch/am-37", [
+						TScript.displayname(cond.type),
+					]);
 				if (cond.value.b) {
 					// push the body onto the stack
 					frame.pe.push(pe.body);
@@ -67,7 +72,8 @@ export function parse_whiledo(state, parent, options) {
 
 	// parse the "do" keyword
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "do") state.error("/syntax/se-76");
+	if (token.type !== "keyword" || token.value !== "do")
+		state.error("/syntax/se-76");
 
 	// parse the loop body
 	whiledo.body = parse_statement(state, whiledo, options);

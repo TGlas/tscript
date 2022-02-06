@@ -29,6 +29,10 @@ let failTest: TscriptTest = {
 
 describe("tests can fail", () => {
 	it("should fail", async () => {
-		await TestRunner.runTest(failTest, { suc: cb.fail, fail: cb.suc }, false);
+		await TestRunner.runTest(
+			failTest,
+			{ suc: cb.fail, fail: cb.suc },
+			false
+		);
 	});
 });

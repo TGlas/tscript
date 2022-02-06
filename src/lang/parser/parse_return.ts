@@ -8,7 +8,10 @@ export function parse_return(state, parent, options) {
 	// handle "return" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(token.type === "keyword" && token.value === "return", "[parse_return] internal error");
+	ErrorHelper.assert(
+		token.type === "keyword" && token.value === "return",
+		"[parse_return] internal error"
+	);
 
 	// create the return object
 	let ret: any = {
@@ -35,7 +38,8 @@ export function parse_return(state, parent, options) {
 				// actual function return, move the argument to the then-current temporaries stack
 				let arg = frame.temporaries.pop();
 				this.stack.pop();
-				if (this.stack.length > 0) this.stack[this.stack.length - 1].temporaries.push(arg);
+				if (this.stack.length > 0)
+					this.stack[this.stack.length - 1].temporaries.push(arg);
 				return true;
 			}
 		},
@@ -52,13 +56,15 @@ export function parse_return(state, parent, options) {
 		ret.argument = parse_expression(state, parent, options);
 		let fn = get_function(parent);
 		if (fn.name === "constructor") state.error("/syntax/se-79");
-		if (fn.petype === "global scope" || fn.petype === "namespace") state.error("/syntax/se-80");
+		if (fn.petype === "global scope" || fn.petype === "namespace")
+			state.error("/syntax/se-80");
 		ret.children = [ret.argument];
 	}
 
 	// parse the closing semicolon
 	token = Lexer.get_token(state, options);
-	if (token.type !== "delimiter" || token.value !== ";") state.error("/syntax/se-81");
+	if (token.type !== "delimiter" || token.value !== ";")
+		state.error("/syntax/se-81");
 
 	return ret;
 }

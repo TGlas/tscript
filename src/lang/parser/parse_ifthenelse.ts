@@ -11,7 +11,10 @@ export function parse_ifthenelse(state, parent, options) {
 	// handle "if" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(token.type === "keyword" && token.value === "if", "[parse_ifthenelse] internal error");
+	ErrorHelper.assert(
+		token.type === "keyword" && token.value === "if",
+		"[parse_ifthenelse] internal error"
+	);
 
 	// create the conditional object
 	let ifthenelse: any = {
@@ -32,7 +35,9 @@ export function parse_ifthenelse(state, parent, options) {
 				// evaluate the condition
 				let cond = frame.temporaries.pop();
 				if (!TScript.isDerivedFrom(cond.type, Typeid.typeid_boolean))
-					state.error("/argument-mismatch/am-33", [TScript.displayname(cond.type)]);
+					state.error("/argument-mismatch/am-33", [
+						TScript.displayname(cond.type),
+					]);
 				if (cond.value.b) {
 					// push the "then" part onto the stack
 					frame.pe.push(pe.then_part);
@@ -63,7 +68,8 @@ export function parse_ifthenelse(state, parent, options) {
 
 	// parse the then-part
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "then") state.error("/syntax/se-69");
+	if (token.type !== "keyword" || token.value !== "then")
+		state.error("/syntax/se-69");
 	ifthenelse.then_part = parse_statement(state, parent, options);
 	ifthenelse.children.push(ifthenelse.then_part);
 

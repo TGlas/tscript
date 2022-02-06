@@ -77,7 +77,10 @@ export const left_unary_operator_impl = {
 				type: this.program.types[Typeid.typeid_integer],
 				value: { b: ~arg.value.b },
 			};
-		else this.error("/argument-mismatch/am-2", [TScript.displayname(arg.type)]);
+		else
+			this.error("/argument-mismatch/am-2", [
+				TScript.displayname(arg.type),
+			]);
 	},
 	"+": function (arg) {
 		if (TScript.isDerivedFrom(arg.type, Typeid.typeid_integer))
@@ -90,7 +93,10 @@ export const left_unary_operator_impl = {
 				type: this.program.types[Typeid.typeid_real],
 				value: { b: arg.value.b },
 			};
-		else this.error("/argument-mismatch/am-3", [TScript.displayname(arg.type)]);
+		else
+			this.error("/argument-mismatch/am-3", [
+				TScript.displayname(arg.type),
+			]);
 	},
 	"-": function (arg) {
 		if (TScript.isDerivedFrom(arg.type, Typeid.typeid_integer))
@@ -103,7 +109,10 @@ export const left_unary_operator_impl = {
 				type: this.program.types[Typeid.typeid_real],
 				value: { b: -arg.value.b },
 			};
-		else this.error("/argument-mismatch/am-4", [TScript.displayname(arg.type)]);
+		else
+			this.error("/argument-mismatch/am-4", [
+				TScript.displayname(arg.type),
+			]);
 	},
 };
 
@@ -129,7 +138,9 @@ export const binary_operator_impl = {
 			return {
 				type: this.program.types[Typeid.typeid_string],
 				value: {
-					b: TScript.toString.call(this, lhs) + TScript.toString.call(this, rhs),
+					b:
+						TScript.toString.call(this, lhs) +
+						TScript.toString.call(this, rhs),
 				},
 			};
 		} else
@@ -203,7 +214,9 @@ export const binary_operator_impl = {
 					value: { b: d | 0 },
 				};
 			} else {
-				let m = lhs.value.b - rhs.value.b * Math.floor(lhs.value.b / rhs.value.b);
+				let m =
+					lhs.value.b -
+					rhs.value.b * Math.floor(lhs.value.b / rhs.value.b);
 				if (m < 0) m += Math.abs(rhs.value.b);
 				let d =
 					rhs.value.b === 0
@@ -229,7 +242,10 @@ export const binary_operator_impl = {
 				return {
 					type: this.program.types[Typeid.typeid_integer],
 					value: {
-						b: Math.round(TScript.mod.call(this, lhs.value.b, rhs.value.b)) | 0,
+						b:
+							Math.round(
+								TScript.mod.call(this, lhs.value.b, rhs.value.b)
+							) | 0,
 					},
 				};
 			else
@@ -255,7 +271,8 @@ export const binary_operator_impl = {
 				let ret = 1;
 				let factor = lhs.value.b;
 				for (let i = 0; i < 32; i++) {
-					if ((1 << i) & rhs.value.b) ret = TScript.mul32(ret, factor);
+					if ((1 << i) & rhs.value.b)
+						ret = TScript.mul32(ret, factor);
 					factor = TScript.mul32(factor, factor);
 				}
 				return {
@@ -275,10 +292,16 @@ export const binary_operator_impl = {
 	},
 	":": function (lhs, rhs) {
 		if (TScript.isDerivedFrom(lhs.type, Typeid.typeid_integer)) {
-		} else if (TScript.isDerivedFrom(lhs.type, Typeid.typeid_real) && TScript.isInt32(lhs.value.b)) {
+		} else if (
+			TScript.isDerivedFrom(lhs.type, Typeid.typeid_real) &&
+			TScript.isInt32(lhs.value.b)
+		) {
 		} else this.error("/argument-mismatch/am-11");
 		if (TScript.isDerivedFrom(rhs.type, Typeid.typeid_integer)) {
-		} else if (TScript.isDerivedFrom(rhs.type, Typeid.typeid_real) && TScript.isInt32(rhs.value.b)) {
+		} else if (
+			TScript.isDerivedFrom(rhs.type, Typeid.typeid_real) &&
+			TScript.isInt32(rhs.value.b)
+		) {
 		} else this.error("/argument-mismatch/am-11");
 		return {
 			type: this.program.types[Typeid.typeid_range],
@@ -410,7 +433,12 @@ export function peek_keyword(state) {
 		state.advance();
 		while (state.good()) {
 			let c = state.current();
-			if ((c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || (c >= "0" && c <= "9") || c === "_")
+			if (
+				(c >= "A" && c <= "Z") ||
+				(c >= "a" && c <= "z") ||
+				(c >= "0" && c <= "9") ||
+				c === "_"
+			)
 				state.advance();
 			else break;
 		}

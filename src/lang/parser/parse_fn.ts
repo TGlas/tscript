@@ -9,7 +9,12 @@ import {
 	peek_keyword,
 } from "./parser_helper";
 import { create_breakpoint } from "../interpreter/interpreter_helper";
-import { get_context, get_function, get_program, get_type } from "../helpers/getParents";
+import {
+	get_context,
+	get_function,
+	get_program,
+	get_type,
+} from "../helpers/getParents";
 import { scopestep } from "../helpers/steps";
 import { simfalse, simtrue } from "../helpers/sims";
 import { TScript } from "..";
@@ -37,19 +42,25 @@ export function resolve_name(state, name, parent, errorname) {
 				let context = get_context(pe);
 				if (context.petype === "global scope") {
 					// global scope is always okay
-					ErrorHelper.assert(n.petype === "variable" || n.petype === "function");
+					ErrorHelper.assert(
+						n.petype === "variable" || n.petype === "function"
+					);
 				} else if (context.petype === "type") {
 					// non-static members must live in the same class
 					if (n.petype === "attribute" || n.petype === "method") {
 						let cl = get_type(parent);
-						if (cl !== context) state.error("/name/ne-6", [errorname, name]);
+						if (cl !== context)
+							state.error("/name/ne-6", [errorname, name]);
 					}
 				} else {
 					// local variables must live in the same function
-					ErrorHelper.assert(n.petype === "variable" || n.petype === "function");
+					ErrorHelper.assert(
+						n.petype === "variable" || n.petype === "function"
+					);
 					if (n.petype === "variable") {
 						let fn = get_function(parent);
-						if (fn !== context) state.error("/name/ne-7", [errorname, name]);
+						if (fn !== context)
+							state.error("/name/ne-7", [errorname, name]);
 					}
 				}
 			}
@@ -92,7 +103,10 @@ export function resolve_name(state, name, parent, errorname) {
 export function resolve_namespace_name(name, parent) {
 	while (parent) {
 		// check name inside pe
-		if (parent.hasOwnProperty("names") && parent.names.hasOwnProperty(name)) {
+		if (
+			parent.hasOwnProperty("names") &&
+			parent.names.hasOwnProperty(name)
+		) {
 			let n = parent.names[name];
 			if (n.petype === "namespace") return n;
 			else return null;
@@ -117,6 +131,7 @@ export function resolve_names(pe, state) {
 	}
 	if (pe.type == "type") {
 		for (let key in pe.members) resolve_names(pe.members[key], state);
-		for (let key in pe.staticmembers) resolve_names(pe.staticmembers[key], state);
+		for (let key in pe.staticmembers)
+			resolve_names(pe.staticmembers[key], state);
 	}
 }

@@ -11,7 +11,10 @@ import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { defaultOptions, Options } from "../helpers/options";
 
 export class Parser {
-	public static parse(sourcecode, options: Options = defaultOptions): { program: any; errors: Array<any> } {
+	public static parse(
+		sourcecode,
+		options: Options = defaultOptions
+	): { program: any; errors: Array<any> } {
 		// create the initial program structure
 		let program: any = {
 			petype: "global scope", // like a main function, but with more stuff
@@ -50,7 +53,9 @@ export class Parser {
 				this.skip();
 			},
 			good: function () {
-				return this.pos < this.source.length && this.errors.length === 0;
+				return (
+					this.pos < this.source.length && this.errors.length === 0
+				);
 			},
 			bad: function () {
 				return !this.good();
@@ -84,10 +89,14 @@ export class Parser {
 				});
 			},
 			current: function () {
-				return this.pos >= this.source.length ? "" : this.source[this.pos];
+				return this.pos >= this.source.length
+					? ""
+					: this.source[this.pos];
 			},
 			lookahead: function (num) {
-				return this.pos + num >= this.source.length ? "" : this.source[this.pos + num];
+				return this.pos + num >= this.source.length
+					? ""
+					: this.source[this.pos + num];
 			},
 			next: function () {
 				return this.lookahead(1);
@@ -114,7 +123,8 @@ export class Parser {
 			advance: function (n) {
 				if (typeof n === "undefined") n = 1;
 
-				if (this.pos + n > this.source.length) n = this.source.length - this.pos;
+				if (this.pos + n > this.source.length)
+					n = this.source.length - this.pos;
 				for (let i = 0; i < n; i++) {
 					let c = this.current();
 					if (c === "\n") {
@@ -161,7 +171,8 @@ export class Parser {
 						}
 						continue;
 					}
-					if (c !== " " && c !== "\t" && c !== "\r" && c !== "\n") break;
+					if (c !== " " && c !== "\t" && c !== "\r" && c !== "\n")
+						break;
 					if (c === "\n") {
 						this.line++;
 						this.ch = 0;
@@ -201,7 +212,10 @@ export class Parser {
 				if (pe.hasOwnProperty("children")) {
 					for (let sub of pe.children) rec(sub);
 				}
-				if (pe.hasOwnProperty("petype") && pe.hasOwnProperty(backward)) {
+				if (
+					pe.hasOwnProperty("petype") &&
+					pe.hasOwnProperty(backward)
+				) {
 					let w = state.get();
 					if (pe.hasOwnProperty("where")) state.set(pe.where);
 					pe[backward](state);
@@ -246,19 +260,23 @@ export class Parser {
 		} catch (ex: any) {
 			// ignore the actual exception and rely on state.errors instead
 			if (ex.name === "Parse Error") {
-				if (state.errors.length > 0) return { program: null, errors: state.errors };
+				if (state.errors.length > 0)
+					return { program: null, errors: state.errors };
 			} else {
 				// report an internal parser error
 				let err = {
 					type: "error",
 					href: "#/errors/internal/ie-1",
-					message: ErrorHelper.composeError("/internal/ie-1", [ErrorHelper.ex2string(ex)]),
+					message: ErrorHelper.composeError("/internal/ie-1", [
+						ErrorHelper.ex2string(ex),
+					]),
 				};
 				return { program: null, errors: [err] };
 			}
 		}
 
-		if (state.errors.length > 0) return { program: null, errors: state.errors };
+		if (state.errors.length > 0)
+			return { program: null, errors: state.errors };
 		else return { program: program, errors: [] };
 	}
 }

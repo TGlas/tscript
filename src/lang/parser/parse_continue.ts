@@ -15,7 +15,11 @@ export function parse_continue(state, parent, options: Options) {
 	// ensure that we are inside a loop
 	let p = parent;
 	while (p) {
-		if (p.petype === "function" || p.petype === "method" || p.petype === "global scope")
+		if (
+			p.petype === "function" ||
+			p.petype === "method" ||
+			p.petype === "global scope"
+		)
 			state.error("/syntax/se-78");
 		if (p.petype.indexOf("loop") >= 0) break;
 		p = p.parent;
@@ -23,7 +27,8 @@ export function parse_continue(state, parent, options: Options) {
 
 	// parse the closing semicolon
 	token = Lexer.get_token(state, options);
-	if (token.type !== "delimiter" || token.value !== ";") state.error("/syntax/se-81c");
+	if (token.type !== "delimiter" || token.value !== ";")
+		state.error("/syntax/se-81c");
 
 	// create the continue object
 	return {
@@ -43,7 +48,10 @@ export function parse_continue(state, parent, options: Options) {
 					return true;
 				}
 			}
-			ErrorHelper.assert(false, "internal error in continue: no enclosing loop context found");
+			ErrorHelper.assert(
+				false,
+				"internal error in continue: no enclosing loop context found"
+			);
 		},
 		sim: simtrue,
 	};

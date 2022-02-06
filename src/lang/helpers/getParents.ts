@@ -22,7 +22,12 @@ export function get_type(pe) {
 
 export function get_context(pe) {
 	while (true) {
-		if (pe.petype === "function" || pe.petype === "method" || pe.petype === "type" || !pe.parent)
+		if (
+			pe.petype === "function" ||
+			pe.petype === "method" ||
+			pe.petype === "type" ||
+			!pe.parent
+		)
 			return pe;
 		pe = pe.parent;
 	}

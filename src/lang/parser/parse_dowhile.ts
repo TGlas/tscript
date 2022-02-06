@@ -10,7 +10,10 @@ export function parse_dowhile(state, parent, options: Options) {
 	// handle "do" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(token.type === "keyword" && token.value === "do", "[parse_dowhile] internal error");
+	ErrorHelper.assert(
+		token.type === "keyword" && token.value === "do",
+		"[parse_dowhile] internal error"
+	);
 
 	// create the loop object
 	let dowhile: any = {
@@ -44,7 +47,9 @@ export function parse_dowhile(state, parent, options: Options) {
 				// evaluate the condition
 				let cond = frame.temporaries.pop();
 				if (!TScript.isDerivedFrom(cond.type, Typeid.typeid_boolean))
-					state.error("/argument-mismatch/am-36", [TScript.displayname(cond.type)]);
+					state.error("/argument-mismatch/am-36", [
+						TScript.displayname(cond.type),
+					]);
 				if (cond.value.b) {
 					// start over
 					frame.ip.pop();
@@ -70,7 +75,8 @@ export function parse_dowhile(state, parent, options: Options) {
 
 	// parse the "while" keyword
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "while") state.error("/syntax/se-74");
+	if (token.type !== "keyword" || token.value !== "while")
+		state.error("/syntax/se-74");
 
 	// parse the condition
 	dowhile.condition = parse_expression(state, parent, options);
@@ -78,7 +84,8 @@ export function parse_dowhile(state, parent, options: Options) {
 
 	// parse the final semicolon
 	token = Lexer.get_token(state, options);
-	if (token.type !== "delimiter" || token.value !== ";") state.error("/syntax/se-75");
+	if (token.type !== "delimiter" || token.value !== ";")
+		state.error("/syntax/se-75");
 
 	return dowhile;
 }

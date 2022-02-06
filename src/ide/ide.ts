@@ -2,6 +2,7 @@ import { TScript } from "../lang";
 import { Typeid } from "../lang/helpers/typeIds";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
+import { get_function } from "../lang/helpers/getParents";
 import { Parser } from "../lang/parser";
 import { icons } from "./icons";
 import { tgui } from "./tgui";
@@ -2179,6 +2180,7 @@ export let ide = (function () {
 			parent: panel_editor.content,
 			classname: "ide ide-sourcecode",
 		});
+		module.highlight = null;
 		module.sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
 			gutters: ["CodeMirror-linenumbers", "breakpoints"],
 			lineNumbers: true,
@@ -2227,6 +2229,87 @@ export let ide = (function () {
 					"breakpoints",
 					cm.lineInfo(line).gutterMarkers ? null : makeMarker()
 				);
+			}
+		});
+		module.sourcecode.on("cursorActivity", function (cm) {
+			if (
+				module.interpreter &&
+				module.interpreter.status === "running" &&
+				!module.interpreter.background
+			) {
+				// highlight variable values in the debugger in stepping mode
+				let cursor = cm.getCursor();
+				let line = cursor.line + 1;
+				let ch = cursor.ch;
+				let highlight_var: any = null,
+					highlight_func: any = null;
+				function rec(pe) {
+					if (pe.buildin) return;
+					if (pe?.where?.line == line && pe.where.ch <= ch) {
+						if (pe.petype == "variable") {
+							if (pe.where.ch + pe.name.length >= ch) {
+								highlight_var = pe;
+								highlight_func = get_function(pe);
+							}
+						} else if (
+							pe.petype == "name" &&
+							pe.reference.petype == "variable"
+						) {
+							if (pe.where.ch + pe.name.length >= ch) {
+								highlight_var = pe.reference;
+								highlight_func = get_function(pe);
+							}
+						}
+					}
+					if (pe.children) {
+						for (let sub of pe.children) rec(sub);
+					}
+				}
+				rec(module.interpreter.program);
+				if (highlight_var) {
+					// find the value of the variable, if any
+					let scope: any = null;
+					if (highlight_var.scope === "global")
+						scope = module.interpreter.stack[0];
+					else if (highlight_var.scope === "local") {
+						for (
+							let s = module.interpreter.stack.length - 1;
+							s > 0;
+							s--
+						) {
+							let frame = module.interpreter.stack[s];
+							if (
+								frame.pe.length > 0 &&
+								frame.pe[0] === highlight_func
+							) {
+								scope = frame;
+								break;
+							}
+						}
+					}
+					if (scope) {
+						let tv = scope.variables[highlight_var.id];
+						let text = TScript.previewValue(tv);
+						if (module.highlight) module.highlight.remove();
+						module.highlight = tgui.createElement({
+							type: "div",
+							parent: document.body,
+							classname: "highlight-overlay",
+							text: highlight_var.name + " = " + text,
+						});
+						window.setTimeout(function () {
+							module.highlight.style.opacity = 0;
+						}, 100);
+						window.setTimeout(
+							(function (dom) {
+								return function () {
+									dom.remove();
+								};
+							})(module.highlight),
+							4200
+						);
+					}
+				}
 			}
 		});
 		module.editor_title = panel_editor.titlebar; // TODO: remove this, this is only used to update the title

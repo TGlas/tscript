@@ -20,7 +20,8 @@ export function parse_call(state, parent, base, options: Options) {
 	// parse comma-separated list of possibly named expressions
 	let args = new Array();
 	token = Lexer.get_token(state, options, true);
-	if (token.type === "grouping" && token.value === ")") Lexer.get_token(state, options);
+	if (token.type === "grouping" && token.value === ")")
+		Lexer.get_token(state, options);
 	else {
 		let forcenamed = false;
 		while (true) {
@@ -30,7 +31,8 @@ export function parse_call(state, parent, base, options: Options) {
 			let name = Lexer.get_token(state, options);
 			if (name.type === "identifier") {
 				let token = Lexer.get_token(state, options);
-				if (token.type === "operator" && token.value === "=") named = true;
+				if (token.type === "operator" && token.value === "=")
+					named = true;
 				else state.set(where);
 			} else state.set(where);
 			if (forcenamed && !named) state.error("/syntax/se-14");
@@ -86,9 +88,19 @@ export function parse_call(state, parent, base, options: Options) {
 			if (base.petype === "constant") {
 				// check base type
 				let f: any = null;
-				if (TScript.isDerivedFrom(base.typedvalue.type, Typeid.typeid_function))
+				if (
+					TScript.isDerivedFrom(
+						base.typedvalue.type,
+						Typeid.typeid_function
+					)
+				)
 					f = base.typedvalue.value.b.func;
-				else if (TScript.isDerivedFrom(base.typedvalue.type, Typeid.typeid_type)) {
+				else if (
+					TScript.isDerivedFrom(
+						base.typedvalue.type,
+						Typeid.typeid_type
+					)
+				) {
 					let cls = base.typedvalue.value.b;
 					ErrorHelper.assert(
 						cls.class_constructor,
@@ -99,9 +111,16 @@ export function parse_call(state, parent, base, options: Options) {
 						let sub_cl = get_type(parent);
 						let error = false;
 						if (cls.class_constructor.access === "private") {
-							if (sub_cl === null || sub_cl.id !== cls.id) error = true;
-						} else if (cls.class_constructor.access === "protected") {
-							if (sub_cl === null || !TScript.isDerivedFrom(sub_cl, cls.id)) error = true;
+							if (sub_cl === null || sub_cl.id !== cls.id)
+								error = true;
+						} else if (
+							cls.class_constructor.access === "protected"
+						) {
+							if (
+								sub_cl === null ||
+								!TScript.isDerivedFrom(sub_cl, cls.id)
+							)
+								error = true;
 						} else error = true;
 						if (error)
 							state.error("/name/ne-25", [
@@ -124,24 +143,42 @@ export function parse_call(state, parent, base, options: Options) {
 						let name = args[i].name;
 						let found = false;
 						for (let j = 0; j < m; j++) {
-							if (f.params[j].hasOwnProperty("name") && f.params[j].name === name) {
-								if (params[j]) state.error("/name/ne-1", [name, TScript.displayname(f)]);
+							if (
+								f.params[j].hasOwnProperty("name") &&
+								f.params[j].name === name
+							) {
+								if (params[j])
+									state.error("/name/ne-1", [
+										name,
+										TScript.displayname(f),
+									]);
 								params[j] = true;
 								found = true;
 								break;
 							}
 						}
-						if (!found) state.error("/name/ne-2", [name, TScript.displayname(f)]);
+						if (!found)
+							state.error("/name/ne-2", [
+								name,
+								TScript.displayname(f),
+							]);
 					} else {
 						if (i < params.length) params[i] = args[i];
-						else state.error("/name/ne-3", [TScript.displayname(f)]);
+						else
+							state.error("/name/ne-3", [TScript.displayname(f)]);
 					}
 				}
 
 				// check whether all missing parameters are covered by default values
 				for (let j = 0; j < m; j++) {
-					if (!params[j] && !f.params[j].hasOwnProperty("defaultvalue"))
-						state.error("/name/ne-4", [j + 1, TScript.displayname(f)]);
+					if (
+						!params[j] &&
+						!f.params[j].hasOwnProperty("defaultvalue")
+					)
+						state.error("/name/ne-4", [
+							j + 1,
+							TScript.displayname(f),
+						]);
 				}
 			}
 		},

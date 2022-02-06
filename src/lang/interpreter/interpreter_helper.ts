@@ -1,4 +1,7 @@
-import { binary_operator_impl, left_unary_operator_impl } from "../parser/parser_helper";
+import {
+	binary_operator_impl,
+	left_unary_operator_impl,
+} from "../parser/parser_helper";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 
@@ -6,7 +9,8 @@ export function deepcopy(value, excludekeys) {
 	if (typeof excludekeys === "undefined") excludekeys = {};
 	if (Array.isArray(value)) {
 		let ret = new Array();
-		for (let i = 0; i < value.length; i++) ret.push(deepcopy(value[i], excludekeys));
+		for (let i = 0; i < value.length; i++)
+			ret.push(deepcopy(value[i], excludekeys));
 		return ret;
 	} else if (typeof value === "object" && value !== null) {
 		let ret = {};

@@ -10,7 +10,10 @@ export function parse_for(state, parent, options) {
 	// handle "for" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
-	ErrorHelper.assert(token.type === "keyword" && token.value === "for", "[parse_for] internal error");
+	ErrorHelper.assert(
+		token.type === "keyword" && token.value === "for",
+		"[parse_for] internal error"
+	);
 
 	// create the loop object
 	let forloop: any = {
@@ -42,18 +45,29 @@ export function parse_for(state, parent, options) {
 			} else if (ip === 1) {
 				// preparation phase: push a copy of the container and the first index onto the temporaries stack
 				let iterable = frame.temporaries.pop();
-				let container: any = TScript.isDerivedFrom(iterable.type, Typeid.typeid_range)
+				let container: any = TScript.isDerivedFrom(
+					iterable.type,
+					Typeid.typeid_range
+				)
 					? {
 							rangemarker: null,
 							begin: iterable.value.b.begin,
 							end: iterable.value.b.end,
-							length: Math.max(0, iterable.value.b.end - iterable.value.b.begin),
+							length: Math.max(
+								0,
+								iterable.value.b.end - iterable.value.b.begin
+							),
 					  }
 					: new Array();
 				if (TScript.isDerivedFrom(iterable.type, Typeid.typeid_array)) {
-					for (let i = 0; i < iterable.value.b.length; i++) container.push(iterable.value.b[i]);
-				} else if (!TScript.isDerivedFrom(iterable.type, Typeid.typeid_range))
-					state.error("/argument-mismatch/am-34", [TScript.displayname(iterable.type)]);
+					for (let i = 0; i < iterable.value.b.length; i++)
+						container.push(iterable.value.b[i]);
+				} else if (
+					!TScript.isDerivedFrom(iterable.type, Typeid.typeid_range)
+				)
+					state.error("/argument-mismatch/am-34", [
+						TScript.displayname(iterable.type),
+					]);
 				frame.temporaries.push(container);
 				frame.temporaries.push(0);
 				return false;
@@ -73,10 +87,17 @@ export function parse_for(state, parent, options) {
 								value: { b: (container.begin + index) | 0 },
 						  }
 						: container[index];
-					if (pe.var_scope === "global") this.stack[0].variables[pe.var_id] = typedvalue;
-					else if (pe.var_scope === "local") frame.variables[pe.var_id] = typedvalue;
-					else if (pe.var_scope === "object") frame.object.value.a[pe.var_id] = typedvalue;
-					else ErrorHelper.assert(false, "unknown scope: " + pe.var_scope);
+					if (pe.var_scope === "global")
+						this.stack[0].variables[pe.var_id] = typedvalue;
+					else if (pe.var_scope === "local")
+						frame.variables[pe.var_id] = typedvalue;
+					else if (pe.var_scope === "object")
+						frame.object.value.a[pe.var_id] = typedvalue;
+					else
+						ErrorHelper.assert(
+							false,
+							"unknown scope: " + pe.var_scope
+						);
 				}
 				return true;
 			} else if (ip === 3) {
@@ -126,7 +147,8 @@ export function parse_for(state, parent, options) {
 
 		// parse "in"
 		token = Lexer.get_token(state, options);
-		if (token.type !== "identifier" || token.value !== "in") state.error("/syntax/se-71");
+		if (token.type !== "identifier" || token.value !== "in")
+			state.error("/syntax/se-71");
 
 		// parse the iterable object
 		forloop.iterable = parse_expression(state, parent, options);
@@ -134,7 +156,8 @@ export function parse_for(state, parent, options) {
 
 		// parse the "do" keyword
 		token = Lexer.get_token(state, options);
-		if (token.type !== "keyword" || token.value !== "do") state.error("/syntax/se-72");
+		if (token.type !== "keyword" || token.value !== "do")
+			state.error("/syntax/se-72");
 	} else {
 		state.set(where);
 		let ex = parse_expression(state, forloop, options);
@@ -149,10 +172,14 @@ export function parse_for(state, parent, options) {
 			forloop.passResolveBack = function (state) {
 				if (back) back(state);
 				forloop.children.shift();
-				if (ex.petype !== "name" && ex.petype !== "constant") state.error("/name/ne-28");
+				if (ex.petype !== "name" && ex.petype !== "constant")
+					state.error("/name/ne-28");
 				if (ex.reference) ex = ex.reference;
 				if (ex.petype !== "variable" && ex.petype !== "attribute")
-					state.error("/argument-mismatch/am-35", [ex.name, ex.petype]);
+					state.error("/argument-mismatch/am-35", [
+						ex.name,
+						ex.petype,
+					]);
 				forloop.var_id = ex.id;
 				forloop.var_scope = ex.scope;
 			};
@@ -163,7 +190,8 @@ export function parse_for(state, parent, options) {
 
 			// parse the "do" keyword
 			token = Lexer.get_token(state, options);
-			if (token.type !== "keyword" || token.value !== "do") state.error("/syntax/se-72");
+			if (token.type !== "keyword" || token.value !== "do")
+				state.error("/syntax/se-72");
 		} else if (token.type === "keyword" && token.value === "do") {
 			forloop.iterable = ex;
 			forloop.children.push(forloop.iterable);

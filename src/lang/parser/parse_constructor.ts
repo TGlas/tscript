@@ -53,7 +53,8 @@ export function parse_constructor(state, parent, options: Options) {
 			break;
 		}
 		if (func.params.length !== 0) {
-			if (token.type !== "delimiter" || token.value !== ",") state.error("/syntax/se-37");
+			if (token.type !== "delimiter" || token.value !== ",")
+				state.error("/syntax/se-37");
 			Lexer.get_token(state, options);
 		}
 
@@ -101,7 +102,8 @@ export function parse_constructor(state, parent, options: Options) {
 	token = Lexer.get_token(state, options);
 	if (token.value === ":") {
 		token = Lexer.get_token(state, options);
-		if (token.type !== "keyword" || token.value !== "super") state.error("/syntax/se-53");
+		if (token.type !== "keyword" || token.value !== "super")
+			state.error("/syntax/se-53");
 
 		// implicit expression to the left of the super call
 		let base = {
@@ -140,7 +142,8 @@ export function parse_constructor(state, parent, options: Options) {
 			if (options.checkstyle && !state.builtin()) {
 				let indent = state.indentation();
 				let topmost = state.indent[state.indent.length - 1];
-				if (topmost >= 0 && topmost !== indent) state.error("/style/ste-2");
+				if (topmost >= 0 && topmost !== indent)
+					state.error("/style/ste-2");
 			}
 			Lexer.get_token(state, options);
 			break;

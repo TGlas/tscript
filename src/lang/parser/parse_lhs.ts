@@ -15,8 +15,13 @@ export function parse_lhs(state, parent, options) {
 
 		// replace the topmost step function
 		if (ex.petype === "name") {
-			if (ex.reference.petype !== "variable" && ex.reference.petype !== "attribute")
-				state.error("/argument-mismatch/am-32", ["name of type '" + ex.reference.petype + "'"]);
+			if (
+				ex.reference.petype !== "variable" &&
+				ex.reference.petype !== "attribute"
+			)
+				state.error("/argument-mismatch/am-32", [
+					"name of type '" + ex.reference.petype + "'",
+				]);
 			ex.step = function () {
 				let frame = this.stack[this.stack.length - 1];
 				let pe: any = frame.pe[frame.pe.length - 1];
@@ -28,16 +33,22 @@ export function parse_lhs(state, parent, options) {
 				if (pe.scope === "global") base = this.stack[0].variables;
 				else if (pe.scope === "local") base = frame.variables;
 				else if (pe.scope === "object") base = frame.object.value.a;
-				else ErrorHelper.assert(false, "unknown scope type " + pe.scope);
+				else
+					ErrorHelper.assert(false, "unknown scope type " + pe.scope);
 				let index = pe.id;
 
 				let tv = base[index];
-				if (!tv || !tv?.type || !tv?.value) this.error("/name/ne-29", [TScript.displayname(pe)]);
+				if (!tv || !tv?.type || !tv?.value)
+					this.error("/name/ne-29", [TScript.displayname(pe)]);
 
 				if (op !== "=") {
 					// binary operator corresponding to compound assignment
 					let binop = op.substring(0, op.length - 1);
-					rhs = binary_operator_impl[binop].call(this, base[index], rhs);
+					rhs = binary_operator_impl[binop].call(
+						this,
+						base[index],
+						rhs
+					);
 				}
 
 				// actual assignment as a copy of the typed value
@@ -73,12 +84,31 @@ export function parse_lhs(state, parent, options) {
 
 					// check validity
 					let key;
-					if (TScript.isDerivedFrom(container.type, Typeid.typeid_string)) {
-						state.error("/argument-mismatch/am-32", ["a substring"]);
-					} else if (TScript.isDerivedFrom(container.type, Typeid.typeid_array)) {
-						if (TScript.isDerivedFrom(index.type, Typeid.typeid_integer)) {
+					if (
+						TScript.isDerivedFrom(
+							container.type,
+							Typeid.typeid_string
+						)
+					) {
+						state.error("/argument-mismatch/am-32", [
+							"a substring",
+						]);
+					} else if (
+						TScript.isDerivedFrom(
+							container.type,
+							Typeid.typeid_array
+						)
+					) {
+						if (
+							TScript.isDerivedFrom(
+								index.type,
+								Typeid.typeid_integer
+							)
+						) {
 							if (index.value.b < 0)
-								state.error("/argument-mismatch/am-23", [TScript.toString.call(this, index)]);
+								state.error("/argument-mismatch/am-23", [
+									TScript.toString.call(this, index),
+								]);
 							else if (index.value.b >= container.value.b.length)
 								state.error("/argument-mismatch/am-24", [
 									TScript.toString.call(this, index),
@@ -90,27 +120,56 @@ export function parse_lhs(state, parent, options) {
 								TScript.toString.call(this, index),
 								TScript.displayname(index.type),
 							]);
-					} else if (TScript.isDerivedFrom(container.type, Typeid.typeid_dictionary)) {
-						if (!TScript.isDerivedFrom(index.type, Typeid.typeid_string))
-							state.error("/argument-mismatch/am-28", [TScript.displayname(index.type)]);
+					} else if (
+						TScript.isDerivedFrom(
+							container.type,
+							Typeid.typeid_dictionary
+						)
+					) {
+						if (
+							!TScript.isDerivedFrom(
+								index.type,
+								Typeid.typeid_string
+							)
+						)
+							state.error("/argument-mismatch/am-28", [
+								TScript.displayname(index.type),
+							]);
 						key = "#" + index.value.b;
-					} else state.error("/argument-mismatch/am-31b", [container.type]);
+					} else
+						state.error("/argument-mismatch/am-31b", [
+							container.type,
+						]);
 
 					if (op !== "=") {
 						// binary operator corresponding to compound assignment
 						let binop = op.substring(0, op.length - 1);
 
 						// in this specific case the key must exist
-						if (TScript.isDerivedFrom(container.type, Typeid.typeid_dictionary)) {
+						if (
+							TScript.isDerivedFrom(
+								container.type,
+								Typeid.typeid_dictionary
+							)
+						) {
 							if (!container.value.b.hasOwnProperty(key))
-								state.error("/argument-mismatch/am-27", [index.value.b]);
+								state.error("/argument-mismatch/am-27", [
+									index.value.b,
+								]);
 						}
 
-						rhs = binary_operator_impl[binop].call(this, container.value.b[key], rhs);
+						rhs = binary_operator_impl[binop].call(
+							this,
+							container.value.b[key],
+							rhs
+						);
 					}
 
 					// actual assignment as a deep copy of the typed value
-					container.value.b[key] = { type: rhs.type, value: rhs.value };
+					container.value.b[key] = {
+						type: rhs.type,
+						value: rhs.value,
+					};
 
 					frame.pe.pop();
 					frame.ip.pop();
@@ -140,7 +199,9 @@ export function parse_lhs(state, parent, options) {
 
 					// find the public member in the super class chain
 					let m: any = null;
-					if (TScript.isDerivedFrom(object.type, Typeid.typeid_type)) {
+					if (
+						TScript.isDerivedFrom(object.type, Typeid.typeid_type)
+					) {
 						// static case
 						let type = object.value.b;
 						let sup = type;
@@ -154,7 +215,11 @@ export function parse_lhs(state, parent, options) {
 							}
 							sup = sup.superclass;
 						}
-						if (m === null) state.error("/name/ne-12", [TScript.displayname(type), pe.member]);
+						if (m === null)
+							state.error("/name/ne-12", [
+								TScript.displayname(type),
+								pe.member,
+							]);
 					} else {
 						// non-static case
 						let type = object.type;
@@ -175,7 +240,11 @@ export function parse_lhs(state, parent, options) {
 							}
 							sup = sup.superclass;
 						}
-						if (m === null) state.error("/name/ne-13", [TScript.displayname(type), pe.member]);
+						if (m === null)
+							state.error("/name/ne-13", [
+								TScript.displayname(type),
+								pe.member,
+							]);
 					}
 
 					// obtain container and index
@@ -190,7 +259,9 @@ export function parse_lhs(state, parent, options) {
 						index = m.id;
 					} else if (m.petype === "function") {
 						// static function
-						state.error("/argument-mismatch/am-32", ["a static method"]);
+						state.error("/argument-mismatch/am-32", [
+							"a static method",
+						]);
 					} else if (m.petype === "variable") {
 						// static variable
 						container = this.stack[0].variables;
@@ -201,16 +272,22 @@ export function parse_lhs(state, parent, options) {
 					} else
 						ErrorHelper.assert(
 							false,
-							"[member access] internal error; unknown member type " + m.petype
+							"[member access] internal error; unknown member type " +
+								m.petype
 						);
 
 					let tv = container[index];
-					if (!tv || !tv?.type || !tv?.value) this.error("/name/ne-29", [TScript.displayname(m)]);
+					if (!tv || !tv?.type || !tv?.value)
+						this.error("/name/ne-29", [TScript.displayname(m)]);
 
 					if (op !== "=") {
 						// binary operator corresponding to compound assignment
 						let binop = op.substring(0, op.length - 1);
-						rhs = binary_operator_impl[binop].call(this, container[index], rhs);
+						rhs = binary_operator_impl[binop].call(
+							this,
+							container[index],
+							rhs
+						);
 					}
 
 					// actual assignment as a deep copy of the typed value

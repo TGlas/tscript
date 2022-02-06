@@ -30,11 +30,15 @@ export const core = {
 			constructor: function (object, arg) {
 				if (TScript.isDerivedFrom(arg.type, Typeid.typeid_boolean))
 					object.value.b = arg.value.b ? 1 : 0;
-				else if (TScript.isDerivedFrom(arg.type, Typeid.typeid_integer)) object.value.b = arg.value.b;
+				else if (TScript.isDerivedFrom(arg.type, Typeid.typeid_integer))
+					object.value.b = arg.value.b;
 				else if (TScript.isDerivedFrom(arg.type, Typeid.typeid_real)) {
-					if (!Number.isFinite(arg.value.b)) this.error("/argument-mismatch/am-13");
+					if (!Number.isFinite(arg.value.b))
+						this.error("/argument-mismatch/am-13");
 					object.value.b = Math.floor(arg.value.b) | 0;
-				} else if (TScript.isDerivedFrom(arg.type, Typeid.typeid_string)) {
+				} else if (
+					TScript.isDerivedFrom(arg.type, Typeid.typeid_string)
+				) {
 					let s = arg.value.b.trim();
 					let v = 1;
 					if (s.length === 0) this.error("/argument-mismatch/am-14");
@@ -47,7 +51,8 @@ export const core = {
 					if (s.length === 0 || "0123456789.".indexOf(s[0]) < 0)
 						this.error("/argument-mismatch/am-14");
 					v *= Number(s);
-					if (!Number.isFinite(v)) this.error("/argument-mismatch/am-13");
+					if (!Number.isFinite(v))
+						this.error("/argument-mismatch/am-13");
 					object.value.b = Math.floor(v) | 0;
 				} else
 					this.error("/argument-mismatch/am-1", [
@@ -67,29 +72,40 @@ export const core = {
 					TScript.isDerivedFrom(arg.type, Typeid.typeid_real)
 				)
 					object.value.b = arg.value.b;
-				else if (TScript.isDerivedFrom(arg.type, Typeid.typeid_string)) {
+				else if (
+					TScript.isDerivedFrom(arg.type, Typeid.typeid_string)
+				) {
 					// parse a number by the same rules as Lexer::get_token, but also accept leading sign characters
 					let s: string = arg.value.b.trim();
 					let start: number = 0;
 					let error = false;
 					let factor = 1.0;
-					while (start < s.length && (s[start] == "-" || s[start] == "+" || s[start] == " ")) {
+					while (
+						start < s.length &&
+						(s[start] == "-" || s[start] == "+" || s[start] == " ")
+					) {
 						if (s[start] == "-") factor *= -1.0;
 						start++;
 					}
 					let pos: number = start;
-					if (pos >= s.length || s[pos] < "0" || s[pos] > "9") error = true;
-					while (pos < s.length && s[pos] >= "0" && s[pos] <= "9") pos++;
+					if (pos >= s.length || s[pos] < "0" || s[pos] > "9")
+						error = true;
+					while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+						pos++;
 					if (pos < s.length && s[pos] === ".") {
 						pos++;
-						if (pos >= s.length || s[pos] < "0" || s[pos] > "9") error = true;
-						while (pos < s.length && s[pos] >= "0" && s[pos] <= "9") pos++;
+						if (pos >= s.length || s[pos] < "0" || s[pos] > "9")
+							error = true;
+						while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+							pos++;
 					}
 					if (pos < s.length && (s[pos] === "e" || s[pos] === "E")) {
 						pos++;
 						if (s[pos] === "+" || s[pos] === "-") pos++;
-						if (pos >= s.length || s[pos] < "0" || s[pos] > "9") error = true;
-						while (pos < s.length && s[pos] >= "0" && s[pos] <= "9") pos++;
+						if (pos >= s.length || s[pos] < "0" || s[pos] > "9")
+							error = true;
+						while (pos < s.length && s[pos] >= "0" && s[pos] <= "9")
+							pos++;
 					}
 					if (pos < s.length) error = true;
 					if (error) object.value.b = NaN;
@@ -142,7 +158,12 @@ export const core = {
 				};
 			},
 			find: function (object, searchterm, start, backward) {
-				if (!TScript.isDerivedFrom(searchterm.type, Typeid.typeid_string))
+				if (
+					!TScript.isDerivedFrom(
+						searchterm.type,
+						Typeid.typeid_string
+					)
+				)
 					this.error("/argument-mismatch/am-1", [
 						"searchterm",
 						"String.find",
@@ -156,7 +177,9 @@ export const core = {
 						"integer",
 						TScript.displayname(start.type),
 					]);
-				if (!TScript.isDerivedFrom(backward.type, Typeid.typeid_boolean))
+				if (
+					!TScript.isDerivedFrom(backward.type, Typeid.typeid_boolean)
+				)
 					this.error("/argument-mismatch/am-1", [
 						"backward",
 						"String.find",
@@ -164,8 +187,16 @@ export const core = {
 						TScript.displayname(backward.type),
 					]);
 				let pos;
-				if (backward.value.b) pos = object.value.b.lastIndexOf(searchterm.value.b, start.value.b);
-				else pos = object.value.b.indexOf(searchterm.value.b, start.value.b);
+				if (backward.value.b)
+					pos = object.value.b.lastIndexOf(
+						searchterm.value.b,
+						start.value.b
+					);
+				else
+					pos = object.value.b.indexOf(
+						searchterm.value.b,
+						start.value.b
+					);
 				if (pos === -1)
 					return {
 						type: this.program.types[Typeid.typeid_null],
@@ -178,7 +209,9 @@ export const core = {
 					};
 			},
 			split: function (object, separator) {
-				if (!TScript.isDerivedFrom(separator.type, Typeid.typeid_string))
+				if (
+					!TScript.isDerivedFrom(separator.type, Typeid.typeid_string)
+				)
 					this.error("/argument-mismatch/am-1", [
 						"separator",
 						"String.split",
@@ -199,17 +232,31 @@ export const core = {
 			},
 			fromUnicode: function (characters) {
 				let s = "";
-				if (TScript.isDerivedFrom(characters.type, Typeid.typeid_integer)) {
+				if (
+					TScript.isDerivedFrom(
+						characters.type,
+						Typeid.typeid_integer
+					)
+				) {
 					s += String.fromCharCode(characters.value.b);
-				} else if (TScript.isDerivedFrom(characters.type, Typeid.typeid_array)) {
+				} else if (
+					TScript.isDerivedFrom(characters.type, Typeid.typeid_array)
+				) {
 					for (let i = 0; i < characters.value.b.length; i++) {
 						let sub = characters.value.b[i];
-						if (!TScript.isDerivedFrom(sub.type, Typeid.typeid_integer))
+						if (
+							!TScript.isDerivedFrom(
+								sub.type,
+								Typeid.typeid_integer
+							)
+						)
 							this.error("/argument-mismatch/am-1", [
 								"characters",
 								"String.fromUnicode",
 								"integer or an array of integers",
-								"array containing '" + TScript.displayname(sub.type) + "'",
+								"array containing '" +
+									TScript.displayname(sub.type) +
+									"'",
 							]);
 						s += String.fromCharCode(sub.value.b);
 					}
@@ -235,7 +282,8 @@ export const core = {
 					]);
 				let sep = TScript.toString.call(this, separator);
 				let arr = new Array();
-				for (let e of array.value.b) arr.push(TScript.toString.call(this, e));
+				for (let e of array.value.b)
+					arr.push(TScript.toString.call(this, e));
 				return {
 					type: this.program.types[Typeid.typeid_string],
 					value: { b: arr.join(sep) },
@@ -244,16 +292,37 @@ export const core = {
 		},
 		Array: {
 			constructor: function (object, size_or_other, value) {
-				if (TScript.isDerivedFrom(size_or_other.type, Typeid.typeid_integer)) {
-					if (size_or_other.value.b < 0) this.error("/argument-mismatch/am-17");
+				if (
+					TScript.isDerivedFrom(
+						size_or_other.type,
+						Typeid.typeid_integer
+					)
+				) {
+					if (size_or_other.value.b < 0)
+						this.error("/argument-mismatch/am-17");
 					let ret = new Array();
-					for (let i = 0; i < size_or_other.value.b; i++) ret.push(value);
+					for (let i = 0; i < size_or_other.value.b; i++)
+						ret.push(value);
 					object.value.b = ret;
-				} else if (TScript.isDerivedFrom(size_or_other.type, Typeid.typeid_array)) {
+				} else if (
+					TScript.isDerivedFrom(
+						size_or_other.type,
+						Typeid.typeid_array
+					)
+				) {
 					object.value.b = size_or_other.value.b.slice();
-				} else if (TScript.isDerivedFrom(size_or_other.type, Typeid.typeid_range)) {
+				} else if (
+					TScript.isDerivedFrom(
+						size_or_other.type,
+						Typeid.typeid_range
+					)
+				) {
 					object.value.b = [];
-					for (let i = size_or_other.value.b.begin; i < size_or_other.value.b.end; i++) {
+					for (
+						let i = size_or_other.value.b.begin;
+						i < size_or_other.value.b.end;
+						i++
+					) {
 						object.value.b.push({
 							type: this.program.types[Typeid.typeid_integer],
 							value: { b: i },
@@ -281,11 +350,14 @@ export const core = {
 				};
 			},
 			pop: function (object) {
-				if (object.value.b.length === 0) this.error("/argument-mismatch/am-18b");
+				if (object.value.b.length === 0)
+					this.error("/argument-mismatch/am-18b");
 				return object.value.b.pop();
 			},
 			insert: function (object, position, item) {
-				if (!TScript.isDerivedFrom(position.type, Typeid.typeid_integer))
+				if (
+					!TScript.isDerivedFrom(position.type, Typeid.typeid_integer)
+				)
 					this.error("/argument-mismatch/am-1", [
 						"position",
 						"Array.insert",
@@ -294,7 +366,10 @@ export const core = {
 					]);
 				let index = position.value.b;
 				if (index < 0 || index > object.value.b.length)
-					this.error("/argument-mismatch/am-18", [index, object.value.b.length]);
+					this.error("/argument-mismatch/am-18", [
+						index,
+						object.value.b.length,
+					]);
 				object.value.b.splice(position.value.b, 0, item);
 				return {
 					type: this.program.types[Typeid.typeid_null],
@@ -306,7 +381,9 @@ export const core = {
 				if (TScript.isDerivedFrom(range.type, Typeid.typeid_range)) {
 					a = range.value.b.begin;
 					b = range.value.b.end;
-				} else if (TScript.isDerivedFrom(range.type, Typeid.typeid_integer)) {
+				} else if (
+					TScript.isDerivedFrom(range.type, Typeid.typeid_integer)
+				) {
 					a = range.value.b;
 					b = range.value.b + 1;
 				} else
@@ -340,11 +417,20 @@ export const core = {
 							});
 							return false;
 						}
-						if (TScript.isDerivedFrom(frame.variables[0].type, Typeid.typeid_null)) {
+						if (
+							TScript.isDerivedFrom(
+								frame.variables[0].type,
+								Typeid.typeid_null
+							)
+						) {
 							// one-step solution
 							let interpreter = this;
 							frame.object.value.b.sort(function (lhs, rhs) {
-								return TScript.order.call(interpreter, lhs, rhs);
+								return TScript.order.call(
+									interpreter,
+									lhs,
+									rhs
+								);
 							});
 
 							// return null
@@ -355,7 +441,10 @@ export const core = {
 							});
 							return false;
 						} else if (
-							TScript.isDerivedFrom(frame.variables[0].type, Typeid.typeid_function) &&
+							TScript.isDerivedFrom(
+								frame.variables[0].type,
+								Typeid.typeid_function
+							) &&
 							frame.variables[0].value.b.func.params.length === 2
 						) {
 							// prepare the merge sort state data structure
@@ -379,10 +468,12 @@ export const core = {
 							]);
 					} else if (ip === 1) {
 						// push the next comparison onto the stack
-						let state = frame.temporaries[frame.temporaries.length - 1];
+						let state =
+							frame.temporaries[frame.temporaries.length - 1];
 						let comp = frame.variables[0].value.b;
 						let params = [state.src[state.lb], state.src[state.rb]];
-						if (comp.hasOwnProperty("enclosed")) params = comp.enclosed.concat(params);
+						if (comp.hasOwnProperty("enclosed"))
+							params = comp.enclosed.concat(params);
 						let newframe = {
 							pe: [comp.func],
 							ip: [-1],
@@ -391,18 +482,24 @@ export const core = {
 							object: null,
 							enclosed: null,
 						};
-						if (comp.hasOwnProperty("object")) newframe.object = comp.object;
-						if (comp.hasOwnProperty("enclosed")) newframe.enclosed = comp.enclosed;
+						if (comp.hasOwnProperty("object"))
+							newframe.object = comp.object;
+						if (comp.hasOwnProperty("enclosed"))
+							newframe.enclosed = comp.enclosed;
 						this.stack.push(newframe);
-						if (this.stack.length >= this.options.maxstacksize) this.error("/logic/le-1");
+						if (this.stack.length >= this.options.maxstacksize)
+							this.error("/logic/le-1");
 						return false;
 					} else if (ip === 2) {
 						// evaluate the comparison
 						let result = frame.temporaries.pop();
 						if (!TScript.isNumeric(result.type))
-							this.error("/argument-mismatch/am-19", [TScript.displayname(result.type)]);
+							this.error("/argument-mismatch/am-19", [
+								TScript.displayname(result.type),
+							]);
 
-						let state = frame.temporaries[frame.temporaries.length - 1];
+						let state =
+							frame.temporaries[frame.temporaries.length - 1];
 
 						// perform a merge step
 						if (result.value.b <= 0) {
@@ -427,7 +524,10 @@ export const core = {
 
 						if (state.lb === state.le) {
 							// merging the current chunks is complete
-							if (state.src.length - state.re <= state.chunksize) {
+							if (
+								state.src.length - state.re <=
+								state.chunksize
+							) {
 								// copy the last chunk
 								while (state.re < state.src.length) {
 									state.dst.push(state.src[state.re]);
@@ -439,18 +539,25 @@ export const core = {
 								state.lb = 0;
 								state.le = state.chunksize;
 								state.rb = state.chunksize;
-								state.re = Math.min(2 * state.chunksize, state.src.length);
+								state.re = Math.min(
+									2 * state.chunksize,
+									state.src.length
+								);
 								state.src = state.dst;
 								state.dst = [];
 
 								// check whether we are done
-								if (state.chunksize >= state.src.length) return false;
+								if (state.chunksize >= state.src.length)
+									return false;
 							} else {
 								// prepare the next chunk
 								state.lb = state.dst.length;
 								state.le = state.lb + state.chunksize;
 								state.rb = state.le;
-								state.re = Math.min(state.rb + state.chunksize, state.src.length);
+								state.re = Math.min(
+									state.rb + state.chunksize,
+									state.src.length
+								);
 							}
 						}
 
@@ -459,7 +566,8 @@ export const core = {
 						return false;
 					} else {
 						// clean up
-						let state = frame.temporaries[frame.temporaries.length - 1];
+						let state =
+							frame.temporaries[frame.temporaries.length - 1];
 						frame.object.value.b = state.src;
 						frame.temporaries.pop();
 
@@ -503,8 +611,10 @@ export const core = {
 						TScript.displayname(second.type),
 					]);
 				let arr = new Array();
-				for (let i = 0; i < first.value.b.length; i++) arr.push(first.value.b[i]);
-				for (let i = 0; i < second.value.b.length; i++) arr.push(second.value.b[i]);
+				for (let i = 0; i < first.value.b.length; i++)
+					arr.push(first.value.b[i]);
+				for (let i = 0; i < second.value.b.length; i++)
+					arr.push(second.value.b[i]);
 				return {
 					type: this.program.types[Typeid.typeid_array],
 					value: { b: arr },
@@ -515,7 +625,9 @@ export const core = {
 			constructor: function (object, other) {
 				if (TScript.isDerivedFrom(other.type, Typeid.typeid_null)) {
 					object.value.b = {};
-				} else if (TScript.isDerivedFrom(other.type, Typeid.typeid_dictionary)) {
+				} else if (
+					TScript.isDerivedFrom(other.type, Typeid.typeid_dictionary)
+				) {
 					object.value.b = Object.assign({}, other.value.b);
 				} else
 					this.error("/argument-mismatch/am-1", [
@@ -585,14 +697,21 @@ export const core = {
 				};
 			},
 			merge: function (first, second) {
-				if (!TScript.isDerivedFrom(first.type, Typeid.typeid_dictionary))
+				if (
+					!TScript.isDerivedFrom(first.type, Typeid.typeid_dictionary)
+				)
 					this.error("/argument-mismatch/am-1", [
 						"first",
 						"Dictionary.merge",
 						"dictionary",
 						TScript.displayname(first.type),
 					]);
-				if (!TScript.isDerivedFrom(second.type, Typeid.typeid_dictionary))
+				if (
+					!TScript.isDerivedFrom(
+						second.type,
+						Typeid.typeid_dictionary
+					)
+				)
 					this.error("/argument-mismatch/am-1", [
 						"second",
 						"Dictionary.merge",
@@ -655,13 +774,19 @@ export const core = {
 				object.value.b = { begin: begin.value.b, end: end.value.b };
 
 				if (!TScript.isInt32(object.value.b.end - object.value.b.begin))
-					this.error("/argument-mismatch/am-45", ["Arguments", "of Integers"]);
+					this.error("/argument-mismatch/am-45", [
+						"Arguments",
+						"of Integers",
+					]);
 			},
 			size: function (object) {
 				return {
 					type: this.program.types[Typeid.typeid_integer],
 					value: {
-						b: Math.max(0, object.value.b.end - object.value.b.begin),
+						b: Math.max(
+							0,
+							object.value.b.end - object.value.b.begin
+						),
 					},
 				};
 			},
@@ -795,9 +920,13 @@ export const core = {
 		},
 		same: function (first, second) {
 			let result = first === second;
-			if (first.type.id == Typeid.typeid_array || first.type.id == Typeid.typeid_dictionary)
+			if (
+				first.type.id == Typeid.typeid_array ||
+				first.type.id == Typeid.typeid_dictionary
+			)
 				result = first.value.b === second.value.b;
-			else if (first.type.id >= Typeid.typeid_class) result = first.value.a === second.value.a;
+			else if (first.type.id >= Typeid.typeid_class)
+				result = first.value.a === second.value.a;
 			return {
 				type: this.program.types[Typeid.typeid_boolean],
 				value: { b: result },
@@ -919,7 +1048,8 @@ export const core = {
 					"numeric argument",
 					TScript.displayname(milliseconds.type),
 				]);
-			if (!this.service.documentation_mode) this.wait(milliseconds.value.b);
+			if (!this.service.documentation_mode)
+				this.wait(milliseconds.value.b);
 			return {
 				type: this.program.types[Typeid.typeid_null],
 				value: { b: null },
@@ -946,7 +1076,10 @@ export const core = {
 					"string",
 					TScript.displayname(key.type),
 				]);
-			let ret = this.service.localStorage.getItem("tscript.data." + key.value.b) !== null;
+			let ret =
+				this.service.localStorage.getItem(
+					"tscript.data." + key.value.b
+				) !== null;
 			return {
 				type: this.program.types[Typeid.typeid_boolean],
 				value: { b: ret },
@@ -960,8 +1093,11 @@ export const core = {
 					"string",
 					TScript.displayname(key.type),
 				]);
-			let s: any = this.service.localStorage.getItem("tscript.data." + key.value.b);
-			if (s === null) this.error("/argument-mismatch/am-38", [key.value.b]);
+			let s: any = this.service.localStorage.getItem(
+				"tscript.data." + key.value.b
+			);
+			if (s === null)
+				this.error("/argument-mismatch/am-38", [key.value.b]);
 			let j = JSON.parse(s);
 			return TScript.json2typed.call(this, j);
 		},
@@ -976,7 +1112,10 @@ export const core = {
 			try {
 				let j = TScript.typed2json.call(this, value);
 				let s = JSON.stringify(j);
-				this.service.localStorage.setItem("tscript.data." + key.value.b, s);
+				this.service.localStorage.setItem(
+					"tscript.data." + key.value.b,
+					s
+				);
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
@@ -1052,7 +1191,10 @@ export const core = {
 					TScript.displayname(event.type),
 				]);
 			let name = event.value.b;
-			if (!this.service.documentation_mode && !this.eventnames.hasOwnProperty(name))
+			if (
+				!this.service.documentation_mode &&
+				!this.eventnames.hasOwnProperty(name)
+			)
 				this.error("/argument-mismatch/am-40", [name]);
 			if (
 				handler.type.id !== Typeid.typeid_null &&
@@ -1088,7 +1230,9 @@ export const core = {
 						if (!this.eventmode) {
 							// return from event mode
 							this.stack.pop();
-							this.stack[this.stack.length - 1].temporaries.push(this.eventmodeReturnValue);
+							this.stack[this.stack.length - 1].temporaries.push(
+								this.eventmodeReturnValue
+							);
 							return true;
 						}
 
@@ -1126,10 +1270,16 @@ export const core = {
 									object: null,
 									enclosed: null,
 								};
-								if (handler.hasOwnProperty("object")) frame.object = handler.object;
-								if (handler.hasOwnProperty("enclosed")) frame.enclosed = handler.enclosed;
+								if (handler.hasOwnProperty("object"))
+									frame.object = handler.object;
+								if (handler.hasOwnProperty("enclosed"))
+									frame.enclosed = handler.enclosed;
 								this.stack.push(frame);
-								if (this.stack.length >= this.options.maxstacksize) this.error("/logic/le-1");
+								if (
+									this.stack.length >=
+									this.options.maxstacksize
+								)
+									this.error("/logic/le-1");
 							}
 						}
 

@@ -33,14 +33,19 @@ function clone(obj) {
 }
 
 export class TestRunner {
-	public static async runTest(test: TscriptTest, cb: Callback, isBrowser): Promise<void> {
+	public static async runTest(
+		test: TscriptTest,
+		cb: Callback,
+		isBrowser
+	): Promise<void> {
 		let timeout: number = test.timeout ? test.timeout : 10;
 		let input = test.input ? test.input : [];
 		let events = test.events ? test.events : [];
 
 		if (
 			(isBrowser === false && test.browserOnly) ||
-			(typeof document === "undefined" && (test.expectation as any).type === "turtle") ||
+			(typeof document === "undefined" &&
+				(test.expectation as any).type === "turtle") ||
 			(test.expectation as any).type === "canvas"
 		) {
 			cb.suc(test);
@@ -84,7 +89,10 @@ export class TestRunner {
 			return new Promise((resolve, reject) => {
 				result.push({ type: "confirm", message: msg });
 				let b = input.shift();
-				ErrorHelper.assert(b === true || b === false, "simulated user input is not a boolean");
+				ErrorHelper.assert(
+					b === true || b === false,
+					"simulated user input is not a boolean"
+				);
 				resolve(b);
 			});
 		};
@@ -92,15 +100,24 @@ export class TestRunner {
 			return new Promise((resolve, reject) => {
 				result.push({ type: "prompt", message: msg });
 				let s = input.shift();
-				ErrorHelper.assert(typeof s == "string", "simulated user input is not a string");
+				ErrorHelper.assert(
+					typeof s == "string",
+					"simulated user input is not a string"
+				);
 				resolve(s);
 			});
 		};
 		service.message = function (msg, line, ch, href) {
 			result.push({ type: "error", href: href });
 		};
-		service.turtle.dom = typeof document !== "undefined" ? document.createElement("canvas") : {};
-		service.canvas.dom = typeof document !== "undefined" ? document.createElement("canvas") : {};
+		service.turtle.dom =
+			typeof document !== "undefined"
+				? document.createElement("canvas")
+				: {};
+		service.canvas.dom =
+			typeof document !== "undefined"
+				? document.createElement("canvas")
+				: {};
 
 		if (typeof document !== "undefined") {
 			let s: any = service;
@@ -125,13 +142,19 @@ export class TestRunner {
 		interpreter.run();
 
 		while (Date.now() < timeLimit) {
-			if (interpreter.status == "finished" || interpreter.status == "error") {
+			if (
+				interpreter.status == "finished" ||
+				interpreter.status == "error"
+			) {
 				// the program has finished
 				result.push(interpreter.status);
 				interpreter.stopthread();
 				TestRunner.check(test, result, cb, interpreter);
 				return;
-			} else if (interpreter.status == "running" || interpreter.status == "waiting") {
+			} else if (
+				interpreter.status == "running" ||
+				interpreter.status == "waiting"
+			) {
 				if (interpreter.eventmode && events.length > 0) {
 					// construct an event object from a json description
 					let desc: any = events.shift();
@@ -139,7 +162,10 @@ export class TestRunner {
 					let typename = desc["type"];
 					let type: any = null;
 					for (let i = 0; i < interpreter.program.types.length; i++) {
-						if (TScript.displayname(interpreter.program.types[i]) == typename) {
+						if (
+							TScript.displayname(interpreter.program.types[i]) ==
+							typename
+						) {
 							type = interpreter.program.types[i];
 							break;
 						}
@@ -160,16 +186,25 @@ export class TestRunner {
 						if (!desc.attr.hasOwnProperty(key)) continue;
 						if (!type.members.hasOwnProperty(key)) {
 							interpreter.stopthread();
-							cb.fail(test, "unknown event attribute" + typename + "." + key);
+							cb.fail(
+								test,
+								"unknown event attribute" + typename + "." + key
+							);
 							return;
 						}
 						let m = type.members[key];
 						if (m.petype != "attribute") {
 							interpreter.stopthread();
-							cb.fail(test, "unknown event attribute" + typename + "." + key);
+							cb.fail(
+								test,
+								"unknown event attribute" + typename + "." + key
+							);
 							return;
 						}
-						attr[m.id] = TScript.json2typed.call(interpreter, desc.attr[key]);
+						attr[m.id] = TScript.json2typed.call(
+							interpreter,
+							desc.attr[key]
+						);
 					}
 					let event = { type: type, value: { a: attr, b: null } };
 
@@ -186,7 +221,11 @@ export class TestRunner {
 	}
 
 	// returns true if the program had parse errors
-	private static checkParseErrorsMatch(test: TscriptTest, parsed: any, cb: Callback): boolean {
+	private static checkParseErrorsMatch(
+		test: TscriptTest,
+		parsed: any,
+		cb: Callback
+	): boolean {
 		if (parsed.errors !== null && parsed.errors.length > 0) {
 			let errors = new Array();
 			for (let i = 0; i < parsed.errors.length; i++) {
@@ -201,7 +240,12 @@ export class TestRunner {
 		}
 	}
 
-	private static check(test: TscriptTest, result, cb: Callback, interpreter: any = undefined) {
+	private static check(
+		test: TscriptTest,
+		result,
+		cb: Callback,
+		interpreter: any = undefined
+	) {
 		switch ((test.expectation as any).type) {
 			case "turtle":
 				TestRunner.checkTurtle(test, result, interpreter, cb);
@@ -214,7 +258,12 @@ export class TestRunner {
 				break;
 		}
 	}
-	static checkTurtle(test: TscriptTest, result: any, interpreter: any, cb: Callback) {
+	static checkTurtle(
+		test: TscriptTest,
+		result: any,
+		interpreter: any,
+		cb: Callback
+	) {
 		if (!interpreter) {
 			cb.fail(test, "No interpreter supplied");
 			return;
@@ -232,18 +281,30 @@ export class TestRunner {
 			run((test.expectation as any).js);
 		}
 		let pix1 = context.getImageData(0, 0, 600, 600).data;
-		let pix2 = interpreter.service.turtle.dom.getContext("2d").getImageData(0, 0, 600, 600).data;
-		if (pix1.length != pix2.length) cb.fail(test, "incompatible canvas size");
+		let pix2 = interpreter.service.turtle.dom
+			.getContext("2d")
+			.getImageData(0, 0, 600, 600).data;
+		if (pix1.length != pix2.length)
+			cb.fail(test, "incompatible canvas size");
 		for (let i = 0; i < pix1.length; i++) {
 			if (Math.abs(pix1[i] - pix2[i]) > 10) {
-				cb.fail(test, ["canvas", interpreter.service.turtle.dom, canvas]);
+				cb.fail(test, [
+					"canvas",
+					interpreter.service.turtle.dom,
+					canvas,
+				]);
 				return;
 			}
 		}
 		cb.suc(test);
 	}
 
-	static checkCanvas(test: TscriptTest, result: any, interpreter: any, cb: Callback) {
+	static checkCanvas(
+		test: TscriptTest,
+		result: any,
+		interpreter: any,
+		cb: Callback
+	) {
 		if (!interpreter) {
 			cb.fail(test, "No interpreter supplied");
 			return;
@@ -261,11 +322,18 @@ export class TestRunner {
 			run((test.expectation as any).js);
 		}
 		let pix1 = context.getImageData(0, 0, 600, 600).data;
-		let pix2 = interpreter.service.canvas.dom.getContext("2d").getImageData(0, 0, 600, 600).data;
-		if (pix1.length != pix2.length) cb.fail(test, "incompatible canvas size");
+		let pix2 = interpreter.service.canvas.dom
+			.getContext("2d")
+			.getImageData(0, 0, 600, 600).data;
+		if (pix1.length != pix2.length)
+			cb.fail(test, "incompatible canvas size");
 		for (let i = 0; i < pix1.length; i++) {
 			if (Math.abs(pix1[i] - pix2[i]) > 10) {
-				cb.fail(test, ["camvas", interpreter.service.canvas.dom, canvas]);
+				cb.fail(test, [
+					"camvas",
+					interpreter.service.canvas.dom,
+					canvas,
+				]);
 				return;
 			}
 		}

@@ -5,7 +5,11 @@ import { parse_expression } from "./parse_expression";
 import { parse_lhs } from "./parse_lhs";
 import { Options } from "../helpers/options";
 
-export function parse_assignment_or_expression(state, parent, options: Options) {
+export function parse_assignment_or_expression(
+	state,
+	parent,
+	options: Options
+) {
 	// try to parse an expression
 	let where = state.get();
 	let ex = parse_expression(state, parent, options);
@@ -18,7 +22,8 @@ export function parse_assignment_or_expression(state, parent, options: Options) 
 		let op = Lexer.get_token(state, options);
 		let rhs = parse_expression(state, parent, options);
 		token = Lexer.get_token(state, options);
-		if (token.type !== "delimiter" || token.value !== ";") state.error("/syntax/se-48");
+		if (token.type !== "delimiter" || token.value !== ";")
+			state.error("/syntax/se-48");
 
 		return {
 			petype: "assignment " + op.value,

@@ -55,7 +55,10 @@ export function asConstant(pe, state) {
 		return {
 			petype: "constant",
 			where: pe.where,
-			typedvalue: left_unary_operator_impl[symbol].call(state, sub.typedvalue),
+			typedvalue: left_unary_operator_impl[symbol].call(
+				state,
+				sub.typedvalue
+			),
 			step: constantstep,
 			sim: simfalse,
 		};
@@ -68,7 +71,11 @@ export function asConstant(pe, state) {
 		return {
 			petype: "constant",
 			where: pe.where,
-			typedvalue: binary_operator_impl[symbol].call(state, lhs.typedvalue, rhs.typedvalue),
+			typedvalue: binary_operator_impl[symbol].call(
+				state,
+				lhs.typedvalue,
+				rhs.typedvalue
+			),
 			step: constantstep,
 			sim: simfalse,
 		};
