@@ -1,6 +1,6 @@
 export const tutorial_dowhile = {
 	id: "dowhile",
-	title: "Other Types of Loops",
+	title: "Loops with Conditions",
 	sections: [
 		{
 			content: `

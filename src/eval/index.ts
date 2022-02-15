@@ -499,7 +499,7 @@ export const evaluation = (function () {
 		interpreter.eventnames["timer"] = true;
 		interpreter.reset();
 		for (let i = 0; i < inputs.length; i++) {
-			if (typeof inputs[i] == "object") {
+			if (typeof inputs[i] == "object" && inputs[i] !== null) {
 				let type = inputs[i].type;
 				let classname = inputs[i].classname;
 				let properties = inputs[i].event;
@@ -1055,6 +1055,16 @@ export const evaluation = (function () {
 						c = code[pos];
 						pos++;
 						if (c == '"') return ret;
+						else ret += c;
+					}
+					return null;
+				} else if (c == "'") {
+					let ret = "";
+					pos++;
+					while (pos < code.length) {
+						c = code[pos];
+						pos++;
+						if (c == "'") return ret;
 						else ret += c;
 					}
 					return null;

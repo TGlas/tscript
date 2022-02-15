@@ -14,8 +14,8 @@ export const tutorial_welcome = {
 			</p>
 			<p>
 			The tutorial will guide you through a sequence of teaching units.
-			Each unit is accompanied by programming tasks. This way we make sure
-			that you apply the newly gained knowledge hands-on.
+			Each unit is accompanied by programming tasks. This allows you to
+			apply the newly gained knowledge hands-on.
 			</p>
 			`,
 		},

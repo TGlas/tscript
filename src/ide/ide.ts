@@ -2524,7 +2524,7 @@ export let ide = (function () {
 			e = createTypedEvent("canvas.KeyboardEvent", e);
 			module.interpreter.enqueueEvent("canvas.keyup", e);
 		});
-		/*
+
 		let panel_tutorial = tgui.createPanel({
 			name: "tutorial",
 			title: "Tutorial",
@@ -2549,7 +2549,7 @@ export let ide = (function () {
 				module.addMessage("error", error);
 			}
 		);
-*/
+
 		tgui.arrangePanels();
 
 		module.sourcecode.focus();

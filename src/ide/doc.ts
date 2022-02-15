@@ -568,6 +568,9 @@ export const doc = (function () {
 		}
 		return ret;
 	}
+	module.get_token_ebnf = get_token_ebnf;
+	module.get_token_code = get_token_code;
+	module.processCode = processCode;
 	module.prepare = prepare;
 
 	// This function returns an altered version of the pseudo-html #content
