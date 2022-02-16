@@ -59,7 +59,7 @@ export const tutorial_variables = {
 			<li>A variable stores a value. This way the program can remember
 				information for later use.</li>
 			<li>A variable can change. It is hence more flexible than other values.
-				Think of the value <code class="code">"Hello World"</code>. We had
+				Think of the value <code>"Hello World"</code>. We had
 				hard-coded it into the print command. A variable adds flexibility.
 				Instead of always printing the same text, a variable allows the
 				print command to print whatever is currently stored in the variable.
@@ -100,8 +100,8 @@ export const tutorial_variables = {
 			<p>
 			<div class = "tutorial-exercise">
 				Declare a variable called "points". Assign the number
-				<code class="code">100</code> to it. Then declare a second variable called "animal"
-				and assign the string <code class="code">"dog"</code> to it. You can either use
+				<code>100</code> to it. Then declare a second variable called "animal"
+				and assign the string <code>"dog"</code> to it. You can either use
 				separate assignments or assign initial values.
 			</div>
 			</p>
@@ -134,10 +134,10 @@ export const tutorial_variables = {
 			The above program prints "dog" to the message area. Let's break down the
 			print command into its elementary steps. The following happened:
 			<ol>
-			<li>The name <code class="code">animal</code> is encountered. It is looked up and
+			<li>The name <code>animal</code> is encountered. It is looked up and
 				found to be a variable.</li>
 			<li>The value of the variable is found to be "dog". This value is
-				passed on to the <code class="code">print</code> command.</li>
+				passed on to the <code>print</code> command.</li>
 			<li>The print command adds the line "dog" to the message area.</li>
 			</ol>
 			</p><p>
@@ -148,9 +148,9 @@ export const tutorial_variables = {
 			</tscript>
 			Now we can understand the reason why the text "Hello World!" was
 			enclosed in double quotes. Recall that the double quotes tell the
-			computer to treat <code class="code">Hello World</code> as a string, a
+			computer to treat <code>Hello World</code> as a string, a
 			piece of text, not as a piece of program code. The same happens in the
-			first command. In the second command, <code class="code">animal</code>
+			first command. In the second command, <code>animal</code>
 			is treated as program code, in this case as the name of a variable. The
 			name is a piece of program code. Its meaning is: "look and the name of
 			the variable and read out its value". That's what happens in the second
@@ -159,7 +159,7 @@ export const tutorial_variables = {
 			<div class = "tutorial-exercise">
 				Extend the task from above, where you assigned values to the variables
 				"points" and "animal". Print out the values of these variables with
-				two <code class="code">print</code> commands. Print out the value of
+				two <code>print</code> commands. Print out the value of
 				"points" first and the value of "animal" last. Hence, your program
 				should produce two messages containing the number 100 and the word
 				"dog".

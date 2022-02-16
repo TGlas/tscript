@@ -1,3 +1,11 @@
+
+.ide-tutorial pre {
+	background: #ddd;
+}
+.ide-tutorial code {
+	background: #ddd;
+}
+
 .tutorial-nav {
 	display: flex;
 	flex-wrap: wrap;

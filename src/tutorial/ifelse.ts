@@ -43,14 +43,14 @@ export const tutorial_ifelse = {
 			integer division: <i>n</i> is a multiple of 3 if and only if it is
 			divisible by 3, and that's the case if and only if the remainder of the
 			division of <i>n</i> by 3 is 0. This condition is expressed as
-			<code class="code">n % 3 == 0</code>. The following happens:
+			<code>n % 3 == 0</code>. The following happens:
 			<ul>
 			<li><i>n</i> is divided by 3 and the remainder of the integer
 				division is obtained.</li>
 			<li>The remainder is <i>compared</i> with 0 for equality. If
 				it is equal then the comparison takes the value
-				<code class="code">true</code>, otherwise it results in
-				the value <code class="code">false</code>.
+				<code>true</code>, otherwise it results in
+				the value <code>false</code>.
 			</ul>
 			A comparison for equality always involves the operator <code
 			class="code">==</code>. This is different from the operator <code
@@ -70,7 +70,7 @@ export const tutorial_ifelse = {
 			The lion's share of truth values created in a program is
 			never stored in a variable or printed out. Instead, these
 			values enter a conditional statement, or
-			<code class="code">if</code>-<code class="code">then</code>-<code class="code">else</code>
+			<code>if</code>-<code>then</code>-<code>else</code>
 			construct. This is exactly the branching tool we need to
 			solve our problem:
 			<tscript>
@@ -126,18 +126,18 @@ export const tutorial_ifelse = {
 			<h2>Boolean Operators</h2>
 			<p>
 			At this point, we have introduced a new construction: the keyword
-			<code class="code">and</code>. It takes two conditions and turns them
+			<code>and</code>. It takes two conditions and turns them
 			into a composite condition which is true if and only if both parts are
 			true. Similarly, conditions can be combined with
-			<code class="code">or</code>, and a single condition can be negated with
-			<code class="code">not</code>. All of these keywords are known as
+			<code>or</code>, and a single condition can be negated with
+			<code>not</code>. All of these keywords are known as
 			logical or Boolean operators (named in honor of
 			<a target="_blank" href="https://en.wikipedia.org/wiki/George_Boole">George Boole</a>).
 			Above, we have argued that the and-operator creates a new condition from
 			two simpler conditions. In programming, the formalization of this
 			concept is a bit different. The conditions remain separate. Only their
-			results, namely the truth values <code class="code">true</code> and
-			<code class="code">false</code>, and combined with the logic operators.
+			results, namely the truth values <code>true</code> and
+			<code>false</code>, and combined with the logic operators.
 			That's one reason why it is important to understand these values as
 			belonging to their own data type.
 			</p>
@@ -145,7 +145,7 @@ export const tutorial_ifelse = {
 			<p>
 			Quite often, we want to perform an operation in one case, but perform no
 			operation whatsoever otherwise. In that case, the
-			<code class="code">else</code> part can simply be dropped. In fact, it
+			<code>else</code> part can simply be dropped. In fact, it
 			is entirely optional.
 			</p>
 			<h2>Control Structures and Blocks</h2>
@@ -174,15 +174,15 @@ export const tutorial_ifelse = {
 			</tscript>
 			</p>
 			<div class="tutorial-exercise">
-			The function <code class="code">prompt</code> can be used to obtain a
+			The function <code>prompt</code> can be used to obtain a
 			value from the user, as follows:
 			<tscript>
 			var s = prompt("Please enter some text!");
 			</tscript>
-			Afterwards, <code class="code">s</code> contains the string entered by
-			the user or <code class="code">null</code> if the user canceled the
+			Afterwards, <code>s</code> contains the string entered by
+			the user or <code>null</code> if the user canceled the
 			prompt dialog. Complete the program such that it outputs
-			<code class="code">s</code> only if the user did not cancel the
+			<code>s</code> only if the user did not cancel the
 			interaction.
 			</div>
 			`,

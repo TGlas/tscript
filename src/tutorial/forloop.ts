@@ -46,7 +46,7 @@ export const tutorial_forloop = {
 			That's exactly what a loop does: it executes code multiple
 			times. The simplest type of loop is the so-called "for"-loop.
 			In most programming languages it starts with the keyword
-			<code class="code">for</code>. It allows us to solve the problem
+			<code>for</code>. It allows us to solve the problem
 			of drawing a square as follows:
 			<tscript>
 				for 0:4 do
@@ -59,7 +59,7 @@ export const tutorial_forloop = {
 			<p>
 			A loop can run for multiple <i>iterations</i>. The number of
 			loop iterations is defined in terms of the <i>range</i>
-			<code class="code">0:4</code>. It tells TScript to count from 0
+			<code>0:4</code>. It tells TScript to count from 0
 			to 4 by starting from 0 and stopping at 4. Each time it did not
 			arrive at 4, the <i>loop body</i> inside of the curly braces is
 			executed. That's one iteration. There are four iterations in
@@ -69,8 +69,8 @@ export const tutorial_forloop = {
 			</p>
 			<div class="tutorial-exercise">
 			Write a program printing out the already familiar greeting
-			<code class="code">Hello&nbsp;World!</code> 10 times, but using
-			only a single <code class="code">print</code> command inside of
+			<code>Hello&nbsp;World!</code> 10 times, but using
+			only a single <code>print</code> command inside of
 			a for-loop.
 			</div>
 			`,
@@ -119,7 +119,7 @@ export const tutorial_forloop = {
 			</tscript>
 			Importantly, the last line of the loop body is not an equation! It is
 			an assignment. The effect of the assignment is that the number stored
-			in the variable <code class="code">counter</code> is incremented.
+			in the variable <code>counter</code> is incremented.
 			</p>
 			<p>
 			This situation is so frequent that the for-loop brings built-in support
@@ -230,8 +230,8 @@ export const tutorial_forloop = {
 			<h2>Ranges</h2>
 			<p>
 			To specify how many iterations a for-loop should perform, we used a new
-			data type called <code class="code">Range</code>. The syntax to create a
-			range is <code class="code">a:b</code>, where a and b are integers. The
+			data type called <code>Range</code>. The syntax to create a
+			range is <code>a:b</code>, where a and b are integers. The
 			first integer has to be smaller than the second one, otherwise the
 			constructed range is empty. Examples:
 			<tscript>
@@ -248,8 +248,25 @@ export const tutorial_forloop = {
 
 			<h2>Loops for Graphics</h2>
 			<p>
-			We have started this section with the example of drawing a square with
-			the turtle. Generally speaking, graphics often consists of many similar
+			We have started this section with the example of drawing a square and a
+			10-sided regular shape with the turtle. This works as follows:
+			<tscript>
+				for 0:10 do
+				{
+					turtle.move(20);
+					turtle.turn(36);
+				}
+			</tscript>
+			With a slight variation, we can make the lines cross, resulting in a
+			star:
+			<tscript>
+				for 0:10 do
+				{
+					turtle.move(70);
+					turtle.turn(180 - 36);
+				}
+			</tscript>
+			Generally speaking, graphics often consists of many similar
 			elements, e.g., many parallel lines forming a grid. Let's try this out!
 			</p>
 			<div class="tutorial-exercise">
@@ -257,7 +274,7 @@ export const tutorial_forloop = {
 			the cells. That's 11 horizontal lines and 11 vertical lines. The grid
 			shall cover the coordinate range from 100 to 200 in horizontal and
 			vertical direction. Use one or two loops, and exactly two
-			<code class="code">canvas.line</code> commands for drawing.
+			<code>canvas.line</code> commands for drawing.
 			</div>
 			`,
 			correct: `
@@ -286,10 +303,10 @@ export const tutorial_forloop = {
 		},
 		{
 			content: `
-			<h2>Sunlight Rays</h2>
+			<h3>Sunlight Rays</h3>
 			<p>
-			For completeness, we are now in the position to finish our earlier
-			example of drawing a yellow sun on a blue sky.
+			We are now in the position to finish our earlier example of drawing a
+			yellow sun onto a blue sky background.
 			<tscript>
 			var center = canvas.width() / 2;    # horizontal center
 			canvas.setFillColor(0.5, 0.5, 1);   # light blue
@@ -310,6 +327,35 @@ export const tutorial_forloop = {
 			</tscript>
 			Try it out and enjoy the sunshine!
 			</p>
+
+			<h3>Simple Animations</h3>
+			<p>
+			Loops put us into the position not only to do many (similar) things
+			very quickly, but also to do them in a timed fashion. To this end, we
+			will use the <code>wait</code> command, which delays program execution
+			for a given number of milliseconds. Now think of a loop body that draws
+			an image, then waits for a brief moment. The next iteration draws a new
+			slightly different image, waits again, and so on. What we get is an
+			animation, maybe a full-blown movie. Of course, we will use a loop for
+			drawing the images. In our example, the image will be quite simple,
+			consisting of two colored balls:
+			<tscript>
+			for var t in 0:500 do
+			{
+				canvas.setFillColor(1, 1, 1);
+				canvas.clear();
+				canvas.setFillColor(0, 0, 1);
+				canvas.fillCircle(200, t, 40);
+				canvas.setFillColor(1, 0, 1);
+				canvas.fillCircle(t, 0.5*t+90, 25);
+				wait(10);
+			}
+			</tscript>
+			You should see a big blue and a smaller pink ball moving across the
+			canvas. Feel free to play around with the animation! Can you apply a
+			different calculation to make the pink ball move around in circles?
+			</p>
+
 			<h2>Wrap-up</h2>
 			<p>
 			You have learned how to repeat commands multiple times in a for-loop.

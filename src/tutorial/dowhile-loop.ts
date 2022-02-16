@@ -5,78 +5,122 @@ export const tutorial_dowhile = {
 		{
 			content: `
 			<p>
-            The for-loop executes a piece of code again and again until
-            the loop counter reaches a specific value. This is basically
-            a condition that has to be met for the loop to still be executed.
-            We now look at another kind of loop where we do not necessarily 
-            have to use a loop counter. Instead the loop is executed until
-            a certain condition is not met anymore. In the section about 
-            conditions you have learnt about boolean values. Similar to 
-            the boolean statements in <i>if</i>-statements we use 
-            <i>while</i>-loops. 
-            </p>
-			`,
-		},
-		{
-			content: `
-            <h2>While-loops</h2>
-            <p>
-            There exist two different kinds of while-loops - the <i>do-while</i>-
-            and the <i>while-do</i>-loop. The only difference between both is that
-            in the <i>do-while</i>-loop the loop is executed at least once while
-            it is possible that for <i>while-do</i>-loops the loop is never executed.
-            The latter thing happens if the condition to execute the loop is never
-            fulfilled. Here are two examples of both kinds of loops:
-            <tscript>
-            var i = 0;
-            while (i < 10) do {
-                print(i);
-                i = i + 1;
-            }                           
-
-            var j = 0;
-            do {
-                print(j);
-                j = j + 1;
-            }
-            while (j < 10);            
-            </tscript>
-            In this example both loops do the same. The latter one first executes the loop
-            and then checks the condition, though. An example where this makes a difference
-            is, if the condition is initially unfulfilled:
-            <tscript>
-            var i = 0;
-            while (i > 0) do {
-                print(i);
-                i = i - 1;
-            }
-
-            do {
-                print(i);
-                i = i - 1;
-            } while (i > 0);
-            </tscript>
-            In this case the latter one prints 0 once, while the first loop is never executed. 
-            </p>
-            <div class="tutorial-exercise">
+			A for-loop executes a piece of code multiple times, for a pre-defined
+			number of iterations. However, what if we don't know beforehand how many
+			iterations we need? Consider the problem of printing out the first 100
+			prime numbers: 2, 3, 5, 7, 11, 13, 17, 19, ...
+			</p>
 			<p>
-			Try to create a <i>while-do</i>-loop for yourself. Create a loop counter i and set it 
-            to 10. Inside of the <i>while-do</i>-loop use an <i>if</i>-statement to check if the 
-            current counter is divisible by 2 (use the modulo operator % for which: x % y = 0, 
-            if y divides x without any remains). Only print the current status of the loop 
-            counter if it is divisible by 2. Don't forget to count down your loop counter by 
-            1. The loop shall terminate if the count variable is not greater than 0 anymore.
+			How do we do that? We may loop over all numbers starting at 2. For each
+			number we check whether it is prime or not. If it is prime then we print
+			it and increment a counter. For the sake of simplicity, let's assume that
+			we have a check for a number being prime or not readily at our disposal.
+			When the counter reaches 100 then we stop. However, how many loop
+			iterations do we need?
+			</p>
+			<p>
+			We can pick a "large enough" number:
+			<tscript>
+			var counter = 0;
+			for var n in 2:1000000 do
+			{
+				if isPrime(n) and counter < 100 then
+				{
+					print(n);
+					counter += 1;
+				}
+			}
+			</tscript>
+			(The code won't run, since the imagined
+			<code>isPrime</code> check does not exist.)
+			</p>
+			<p>
+			Looping until <i>n = 1000000</i> is surely enough for the task. However,
+			can we get away with 10000? Maybe 1000? 500? Even less? What if the
+			number of primes to output is flexible? Can we come up with a good value
+			that just works, without earning a diploma in number theory first?
+			</p>
+			<p>
+			Looping for too long is wasteful. On the other hand, in general for a
+			more demanding task it may be hard enough to come up with any number of
+			iterations that's surely large enough. Quite obviously, this task needs a
+			different approach: we would like to run the loop until a condition is
+			met. In this case, the loop shall stop when the counter reaches 100, no
+			matter how many iterations it takes.
+			</p>
+			<h2>While-Loops</h2>
+			<p>
+			TScript offers two types of loops of this kind: The do-while-loop and the
+			while-do-loop. We will call them while-loops when the difference does not
+			matter. Both of these loops run <i>while</i> a condition is fulfilled.
+			They make solving our problem quite straightforward:
+			<tscript>
+			var counter = 0, n = 2;
+			while counter < 100 do
+			{
+				if isPrime(n) then
+				{
+					print(n);
+					counter += 1;
+				}
+				n += 1;
+			}
+			</tscript>
+			While-loops do not use loop counters, since there is no range involved.
+			This brings the minor downside that we need to maintain and increment
+			<i>n</i> ourselves. However, aside from that, the loop is greatly
+			improved, since it runs exactly as often as it needs to. The need to
+			estimate a suitable number of iterations beforehand is gone.
+			</p>
+			<h2>Pre- and Post-Checked Loops</h2>
+			<p>
+			The above loop is a while-do-loop, simply because the keyword
+			<code>while</code> precedes the keyword
+			<code>do</code>. We can turn the loop around:
+			<tscript>
+			var counter = 0, n = 2;
+			do
+			{
+				if isPrime(n) then
+				{
+					print(n);
+					counter += 1;
+				}
+				n += 1;
+			}
+			while counter < 100;
+			</tscript>
+			This is a do-while-loop. In this case, both of them do the job just fine.
+			The only difference between the two loops is that the while-do-loop
+			checks the condition <i>before</i> it executes the loop body, while the
+			do-while-loop checks the condition <i>after</i> it executes the loop
+			body. This is intuitive, since in the first case the condition is denoted
+			before the loop body, and in the second case it appears after the loop
+			body. Therefore, the loops are known as <i>pre-checked</i> and
+			<i>post-checked</i> loops.
+			</p>
+			<p>
+			The only difference between the two loop types is that a post-checked
+			loop executes the loop body at least once, while a pre-checked loop has
+			he ability to skip the loop body entirely if the condition is false
+			already initially. What sounds like nit-picking at first is a quite
+			common requirement in practice, where pre-checked loops are much more
+			common than their post-checked counterparts.
+			</p>
+			<div class="tutorial-exercise">
+			<p>
+			Write a while-do-loop yourself. The loop shall output all square numbers
+			of at most three digits (starting at 1), i.e., all square numbers smaller
+			than 1000. Use only a single print statement inside of the loop.
 			</p>
 			</div>
-            `,
+			`,
 			correct: `
-				var i = 10;
-                while (i > 0) do {
-                    if (i % 2 == 0) then {
-                        print(i);
-                    }
-                    i = i - 1;
-                }
+				var n = 1;
+				while (n^2 < 1000) do {
+					print(n^2);
+					n += 1;
+				}
 				`,
 			tests: [
 				{
@@ -86,95 +130,172 @@ export const tutorial_dowhile = {
 				{
 					type: "js",
 					code: `
-                        let program = parse(code).program;
-                        if (! program) return "Failed to parse the program code.";
-                        if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
-                        if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
-                        if (! hasStructure(program, "\"while-do-loop\";")) return "Use a do while-loop to solve the problem!";
-                        if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
-                        if (isRecursive(program)) return "Please don't use recursion.";
-                        `,
+						let program = parse(code).program;
+						if (! program) return "Failed to parse the program code.";
+						if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
+						if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+						if (! hasStructure(program, "'while-do-loop';")) return "Use a do while-loop to solve the problem!";
+						if (! hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop body to solve the problem!";
+						if (isRecursive(program)) return "Please don't use recursion.";
+						`,
 				},
 			],
 		},
 		{
 			content: `
-            <h2>Break and continue</h2>
-            <p>
-            The examples we have seen so far have had similar conditions to end as the prior
-            known <i>for</i>-loops. Since it is possible to use any kind of boolean statement
-            as a loop condition, it is also possible to set the condition to be always true.
-            If a loop is run infinitely we call it infinite loop. Algorithms that do not 
-            terminate cannot be correct, though. However, in practice it is still sufficient 
-            to use <i>while</i>-loops with a condition that always evaluates to true. We
-            therefore need statements to end a loop "manually". If you call <code>break;</code>
-            inside of a loop, the loop is terminated instantly. If you call <code>continue;</code>
-            the loop instantly jumps to the next loop run.
-            </p>
-            <div class="tutorial-exercise">
+			<h2>Break and continue</h2>
 			<p>
-			Create a <i>while-do</i>-loop which's condition always evaluates to <i>true</i>. 
-            Count the number of loop runs with a loop counter i and break the loop, once the
-            loop has run 100 times.
+			While-loops have greatly extended our flexibility of stopping a loop at
+			need. However, in some cases we need even more flexibility: we may wish
+			to stop the loop when we are in the middle of the loop body.
+			Conceptually, such a situation may look as follows:
+			<tscript>
+			var n = 0;
+			while n < 100 do
+			{
+				# several
+				# commands
+				# here ...
+				if (n^2+1) % 17 == 5 then
+				{
+					break;   # stop the loop immediately
+				}
+				# ... several
+				# commands
+				# here
+				n += 1;
+			}
+			</tscript>
+			The <code>break</code> command stops the loop immediately.
+			It does not even wait for the current loop iteration to finish, but
+			instead directly jumps to the next instruction after the loop. This
+			allows us to write something that looks suspiciously similar to a great
+			danger, namely an infinite loop that never stops:
+			<tscript do-not-run>
+			var n = 0;
+			while true do
+			{
+				# several
+				# commands
+				# here ...
+				if (n^2+1) % 17 == 5 then
+				{
+					break;   # stop the loop immediately
+				}
+				# ... several
+				# commands
+				# here
+				n += 1;
+			}
+			</tscript>
+			The construction <code>while true do</code> taken by itself
+			is an infinite loop, since the condition is fixed to being fulfilled.
+			After all, it is not even a proper condition, but a hard-coded outcome
+			thereof. We could equally well write
+			<code>while 0 == 0 do</code>. This loop would be a clear
+			bug in the program, since it never completes. Unless... yes, unless a
+			<code>break</code> statement comes to the rescue.
 			</p>
+			<p>
+			A related control-flow statement is the keyword
+			<code>continue</code>. Like <code>break</code>
+			it leaves the loop body immediately. However, it does not leave the loop,
+			but instead it jumps straight to the condition, and in case that the
+			condition holds, to the next loop iteration. In effect, it allows us to
+			<i>skip</i> the remainder of the loop body. To see both keywords in
+			effect, we can rewrite the prime number example as follows:
+			<tscript do-not-run>
+			var counter = 0, n = 2;
+			while true do
+			{
+				if not isPrime(n) then continue;
+				print(n);
+				counter += 1;
+				if counter == 100 then break;
+			}
+			</tscript>
+			</p>
+			<div class="tutorial-exercise">
+			Write a (conceptually) infinite loop containing a break statement.
+			Inside of its loop body, it shall use <code>prompt</code> to
+			obtain a value from the user. If the user cancels the dialog (the value
+			is <code>null</code>) then it should ask again, until a
+			string is provided. This string shall be printed and the loop shall stop.
 			</div>
-            `,
+			`,
 			correct: `
-				var i = 0;
-                while (true) do {
-                    if (i == 100) then {
-                        break;
-                    }
-                    i = i + 1;
-                }
-            `,
+				while true do
+				{
+					var v = prompt("Please enter something!");
+					if v == null then continue;
+					print(v);
+					break;
+				}
+			`,
 			tests: [
 				{
 					type: "code",
-					code: "print(i);",
+					code: "",
+					input: ["Hello"],
+				},
+				{
+					type: "code",
+					code: "",
+					input: [null, "World"],
+				},
+				{
+					type: "code",
+					code: "",
+					input: [null, null, null, null, null, "Test"],
 				},
 				{
 					type: "js",
 					code: `let program = parse(code).program;
-                    if (! program) return "Failed to parse the program code.";
-                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
-                    if (! hasStructure(program, "\"while-do-loop\";")) return "Use a while-loop to solve the problem!";
-                    if (!hasStructure(program, "loop { condition; }")) return "There needs to be a condition to break the loop at the right time!";
-                    if (isRecursive(program)) return "Please don't use recursion.";`,
+					if (! program) return "Failed to parse the program code.";
+					if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+					if (!hasStructure(program, "loop { condition; }")) return "There needs to be a condition to break the loop at the right time!";
+					if (isRecursive(program)) return "Please don't use recursion.";`,
 				},
 			],
 		},
 		{
 			content: `
-            <h2>Equivalence of loops</h2>
-            <p>
-            In general it is possible to write every <i>for</i>-loop as a <i>while</i>-loop.
-            Vice versa only <i>while</i>-loops where the count of loop runs is known prior to
-            the loop can be written as a <i>for</i>-loop. Both <i>while-do</i>- and <i>do-while</i>-
-            loops can be written as the other one. Imagine the following <i>for</i>-loop:
-            <tscript>
-                for var i in 5:15 do
-                {
-                    print(2*i);
-                }
-            </tscript> 
-            </p>
-            <div class="tutorial-exercise">
 			<p>
-			Try to write the <i>for</i>-loop as a <i>do-while</i>-loop. First declare and initialize
-            a loop counter. Then write the <i>do</i>-body. Finally, think about what the 
-            <i>while</i>-condition needs to be. Don't forget that the <i>do</i>-body is at least 
-            executed once and the condition is checked <b>afterwards</b>.
+			<code>break</code> and <code>continue</code>
+			also work with for-loops. They behave the exact same way. In particular,
+			continuing a for-loop means to start the next loop iteration, and that
+			involved incrementing the loop counter. Note that executing
+			<code>continue</code> in the last iteration of a for-loop is
+			equivalent to executing <code>break</code>, since there is
+			not next iteration. The same holds for a while-loop when the condition is
+			no longer fulfilled.
 			</p>
+
+			<h2>Equivalence of loops</h2>
+			<p>
+			In general it is possible to write every <i>for</i>-loop as a
+			<i>while</i>-loop. Vice versa only <i>while</i>-loops where the number of
+			loop iterations is known a-priori can be written as a <i>for</i>-loop.
+			The easiest way to make that happen is to use a variable as a loop
+			counter, similar to <i>n</i> in the prime number examples. Give it a try!
+			</p>
+			<div class="tutorial-exercise">
+			Write a while-do-loop that is equivalent to the following for-loop:
+			<tscript>
+				for var i in 5:10 do print(i);
+			</tscript>
+			In other words, write a while-do-loop with a single print statement in
+			its loop body, which prints the numbers 5, 6, 7, 8, and 9.
 			</div>
-            `,
+			`,
 			correct: `
 				var i = 5;
-                do {
-                    print(2*i);
-                    i = i + 1;
-                } while (i < 15);
-            `,
+				while i < 10 do
+				{
+					print(i);
+					i += 1;
+				}
+			`,
 			tests: [
 				{
 					type: "code",
@@ -183,29 +304,43 @@ export const tutorial_dowhile = {
 				{
 					type: "js",
 					code: `let program = parse(code).program;
-                    if (! program) return "Failed to parse the program code.";
-                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
-                    if (! hasStructure(program, "\"while-do-loop\";")) return "Use a loop to solve the problem!";
-                    if (!hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop!";
-                    if (isRecursive(program)) return "Please don't use recursion.";`,
+					if (! program) return "Failed to parse the program code.";
+					if (hasStructure(program, "{ call(print); call(print); }")) return "Use only a single print command!";
+					if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+					if (! hasStructure(program, "'while-do-loop';")) return "Use a while-do-loop to solve the problem!";
+					if (!hasStructure(program, "loop { call(print); }")) return "Use a print statement inside of the loop!";
+					if (isRecursive(program)) return "Please don't use recursion.";`,
 				},
 			],
 		},
 		{
 			content: `
-            <h2>Wrap-up</h2>
-            <p>
-            In this section you have learnt about different kind of loops which can have any kind of
-            condition that evaluates to a boolean value. They are mostly used if the number of loop
-            runs is not known prior to the execution or if one likes to create an infinite loop which
-            is terminated with the <code>break;</code>-statement. In many cases you are free to choose
-            if you'd like to use a <i>for</i>- or a <i>while-do</i>- or a <i>do-while</i>-loop but 
-            often one kind of loop has advantages over the others, i.e. having a set count of runs 
-            (<i>for</i>-loop for the sake of shortness), having the need to at least run the loop-body
-            once (<i>do-while</i>-loop) or having a general boolean condition to determine if the 
-            loop-body shall be executed or not (<i>while-do</i>-loop).
-            </p>
-            `,
+			<p>
+			The above exercise shows that in principle we could drop for-loops
+			entirely and solve all problems with while-loops. However, practically
+			speaking that would be a bad idea. It is easy to see that for the task
+			of printing the numbers in the range 5:10, the for-loop is superior in
+			about every possible evaluation category. In general, when given a
+			choice, you should always use the tool that's most appropriate and most
+			natural for the task as hand. As a rule of thumb, in most cases, a
+			for-loop is the right tool for the job. However, some loops are much
+			easier to formulate in terms of a condition, and then a while-loop should
+			be picked.
+			</p>
+
+			<h2>Wrap-up</h2>
+			<p>
+			In this section you have learned about loops which use a condition
+			instead of a pre-defined range to decide when to stop. They are mostly
+			used if the number of loop iterations is not known prior to execution,
+			or if one likes to create an infinite loop that is terminated with the
+			<code>break;</code>-statement. In many cases you are free
+			to choose if you'd like to use a <i>for</i>-loop, a <i>while-do</i>-loop,
+			or a <i>do-while</i>-loop, but often one kind of loop has advantages over
+			the others, like having a set count of iterations. Always try to pick the
+			tool that's most appropriate for the task.
+			</p>
+			`,
 		},
 	],
 };

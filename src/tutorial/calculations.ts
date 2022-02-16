@@ -107,7 +107,7 @@ export const tutorial_calculations = {
 			mathematical functions <i>sin</i> and <i>cos</i> to calculate
 			coordinates. To this end, note that for mathematical functions, angles
 			are always specified in <i>radians</i> (in contrast to degrees used by
-			the turtle). Casting a ray in a given angle <code class="code">alpha</code>
+			the turtle). Casting a ray in a given angle <code>alpha</code>
 			hence works as follows:
 			<tscript>
 			var alpha = 10;                             # ray direction (angle in degrees)
@@ -127,10 +127,10 @@ export const tutorial_calculations = {
 			We will get to know a better solution soon.
 			</p>
 			<p>
-			In the above code, we have used <code class="code">math.pi();</code>
+			In the above code, we have used <code>math.pi();</code>
 			to obtain a (rather) precise representation of the mathematical
 			constant&nbsp;&#x3C0;. This is analogous to calling
-			<code class="code">canvas.width()</code>. Open the documentation and
+			<code>canvas.width()</code>. Open the documentation and
 			search for "math functions" in order to get an overview of the
 			available functions. Besides trigonometric functions there are various
 			roots and other powers, logarithms, absolute value, rounding, sign, and
@@ -151,7 +151,7 @@ export const tutorial_calculations = {
 			Of course, the variable needs to be initialized with an appropriate
 			distance for the turtle to travel which is the length of the Hypotenuse.
 			This amounts to applying Pythagoras. Hint: The function
-			<code class="code">math.sqrt(x);</code> computes the square root of
+			<code>math.sqrt(x);</code> computes the square root of
 			its parameter.
 			</div>
 			</p>
@@ -167,12 +167,36 @@ export const tutorial_calculations = {
 		},
 		{
 			content: `
+            <h2>Composite Assignment Operators</h2>
+            <p>
+            In many situation we do not really need complex calculations, but instead
+            we wish to apply a single algebraic operation to modify an existing
+            value. For example, given a variable <i>n</i>, we may wish to increment
+            its variable. This can be achieved with an assignment of the pretty
+            trivial calculation <i>n+1</i> on the right-hand side:
+            <tscript do-not-run>
+            n = n + 1;
+            </tscript>
+            This situation is so common that there is a special shorthand notation,
+            known as composite assignment:
+            <tscript do-not-run>
+            n += 1;
+            </tscript>
+            The same works for other operators. For example, the value can be
+            doubled:
+            <tscript do-not-run>
+            n *= 2;
+            </tscript>
+            This is really nothing but syntactic sugar for the longer form
+            <code>n = n * 2;</code>. However, once you get used to it,
+            it is not only shorter, but it actually improves readability of code.
+            </p>
+
             <h2>Wrap-Up</h2>
             <p>
-            You can now use TScript as an extended calculator.
-            Calculations can involve numbers and variables. Beyond the
-            elementary arithmetic operators, TScript offers a number of
-            built-in mathematical functions.
+			You can now use TScript as an extended calculator. Calculations can
+			involve numbers and variables. Beyond the elementary arithmetic
+			operators, TScript offers a range of built-in mathematical functions.
             </p>
             `,
 		},

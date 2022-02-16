@@ -5,7 +5,7 @@ export const tutorial_graphics = {
 		{
 			content: `
 			<p>
-			Our first two commands, <code class="code">print</code> and <code
+			Our first two commands, <code>print</code> and <code
 			class="code">alert</code>, output text. However, modern computers
 			interact with users primarily through graphical interfaces, not through
 			consoles and message areas. TScript offers the possibility to render
@@ -24,8 +24,8 @@ export const tutorial_graphics = {
 			Graphics. Imagine a little artificial turtle, which you can steer
 			programmatically, running over its panel while drawing with an
 			attached pencil. In essence, the turtle is controlled with only two
-			commands: <code class="code">turtle.move</code> and
-			<code class="code">turtle.turn</code>. The move command makes the
+			commands: <code>turtle.move</code> and
+			<code>turtle.turn</code>. The move command makes the
 			turtle move straight for a given distance, while the turn command
 			makes it rotate in place by an angle specified in degrees
 			(in contrast to radians). Let's try it out:
@@ -57,9 +57,9 @@ export const tutorial_graphics = {
 			The move and turn commands can be combined freely, and with arbitrary
 			numbers. In particular, negative numbers are fine. Since the turn
 			command makes the turtle rotate by a number of degrees to the right,
-			<code class="code">turtle.turn(-90)</code> makes it turn by 90 degrees
+			<code>turtle.turn(-90)</code> makes it turn by 90 degrees
 			<i>to the left</i>, due to the negative sign of the parameter.
-			Likewise, <code class="code">turtle.move(-20)</code> makes the
+			Likewise, <code>turtle.move(-20)</code> makes the
 			turtle move backward.
 			</p><p>
 			To make things a bit more interesting, the turtle can move its pen up
@@ -73,7 +73,7 @@ export const tutorial_graphics = {
 			turtle.pen(true);
 			</tscript>
 			lowers the pen. We will encounter the keywords
-			<code class="code">true</code> and <code class="code">false</code>
+			<code>true</code> and <code>false</code>
 			again in later units. Moving around with lifted pen changes the position
 			of the turtle robot without drawing lines. The color is changed as
 			follows:
@@ -117,11 +117,11 @@ export const tutorial_graphics = {
 				turtle.turn(90);
 				turtle.move(50);
 				`,
+			"ignore-order": true,
 			tests: [
 				{
 					type: "code",
 					code: "",
-					"ignore-order": "true",
 				},
 			],
 		},
@@ -184,15 +184,15 @@ export const tutorial_graphics = {
 			<li>The canvas maintains two colors, one for lines and one for filling
 				in areas. Somewhat counter-intuitively, the fill color is also used
 				for drawing text. The colors can be changed with
-				<code class="code">canvas.setLineColor(red, green, blue);</code>
-				and <code class="code">canvas.setFillColor(red, green, blue);</code>.</li>
+				<code>canvas.setLineColor(red, green, blue);</code>
+				and <code>canvas.setFillColor(red, green, blue);</code>.</li>
 			<li>All lines are drawn with a specified width (in pixels), which can
-				be set with <code class="code">canvas.setLineWidth(width);</code>.</li>
-			<li>The function <code class="code">canvas.setFont(font, size);</code>
+				be set with <code>canvas.setLineWidth(width);</code>.</li>
+			<li>The function <code>canvas.setFont(font, size);</code>
 				sets the font name and the font size for subsequent text output.
-				Example: <code class="code">canvas.setFont("Helvetica", 36);</code></li>
+				Example: <code>canvas.setFont("Helvetica", 36);</code></li>
 			<li>By default, text is left-aligned. This can be changed with
-				<code class="code">canvas.setTextAlign(alignment);</code>. Possible
+				<code>canvas.setTextAlign(alignment);</code>. Possible
 				alignments are "left", "center", and "right".</li>
 			</ul>
 			Of course, in all functions above, the placeholders (like "red",
@@ -219,9 +219,9 @@ export const tutorial_graphics = {
 			Since devices and screen resolutions differ, and more so window sizes,
 			also the size of the canvas is subject to change. Therefore, at any
 			time, the current width and height of the canvas can be determined
-			with the functions <code class="code">canvas.width()</code> and
-			<code class="code">canvas.height()</code>. They are similar to the
-			<code class="code">print</code> command, however, they do not take an
+			with the functions <code>canvas.width()</code> and
+			<code>canvas.height()</code>. They are similar to the
+			<code>print</code> command, however, they do not take an
 			argument but instead <i>return</i> (i.e., represent) a value. This
 			value can be used to fill, say, the top 100 pixels of the canvas over
 			the full width with a light green background:

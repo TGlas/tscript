@@ -7,9 +7,9 @@ export const tutorial_datatypes = {
 			<p>
 			We have already encountered values of different types: numbers
 			and strings. We have also had a glimpse at the values
-			<code class="code">true</code> and <code class="code">false</code>.
+			<code>true</code> and <code>false</code>.
 			Furthermore, when printing an uninitialized variable, you may
-			have stumbled across the value <code class="code">null</code>:
+			have stumbled across the value <code>null</code>:
 			<tscript>
 			var animal;
 			print(animal);   # prints "null"
@@ -41,8 +41,8 @@ export const tutorial_datatypes = {
 			</p>
 			<p>
 			Each data type comes with a range of values it can represent.
-			The data types <code class="code">Null</code> and
-			<code class="code">Boolean</code> are particularly simple; they
+			The data types <code>Null</code> and
+			<code>Boolean</code> are particularly simple; they
 			have only one and two values, respectively.
 			</p>
 			<h2>Two Types of Numbers</h2>
@@ -73,11 +73,11 @@ export const tutorial_datatypes = {
 			</tscript>
 			Here we have used a seemingly superfluous decimal point. The point does
 			not change the value of the number, but it forces the computer to
-			interpret it as a value of type <code class="code">Real</code>.
+			interpret it as a value of type <code>Real</code>.
 			</p>
 			<h2>Character Escaping</h2>
             <p>
-            To store text we use type <code class="code">String</code>. A string
+            To store text we use type <code>String</code>. A string
             is a sequence of characters of any size. A string is enclosed in double
             quotation marks, which signal this specific data type. It is possible
             to store any kind of character inside of a string. However, how to store
@@ -95,7 +95,7 @@ export const tutorial_datatypes = {
             In order
             to enable double quotes as well as several special characters (like
             newline) inside of strings, a mechanism called <i>escaping</i> is
-            employed. It defines that the backslash character <code class="code">\</code>
+            employed. It defines that the backslash character <code>\</code>
             when used inside of a string has a special meaning, which depends on the
             following character(s). The backslash plus the following characters taken
             together is called an <i>escape sequence</i>. The most important escape
@@ -103,11 +103,11 @@ export const tutorial_datatypes = {
             </p>
 			<table class="nicetable">
 			<tr><th>escape sequence</th><th>meaning</th></tr>
-			<tr><td><code class="code">\\"</code></td><td><code class="code">"</code></td></tr>
-			<tr><td><code class="code">\\\\</code></td><td><code class="code">\\</code></td></tr>
-			<tr><td><code class="code">\\n</code></td><td>newline</td></tr>
-			<tr><td><code class="code">\\r</code></td><td>carriage return</td></tr>
-			<tr><td><code class="code">\\t</code></td><td>horizontal tabulator</td></tr>
+			<tr><td><code>\\"</code></td><td><code>"</code></td></tr>
+			<tr><td><code>\\\\</code></td><td><code>\\</code></td></tr>
+			<tr><td><code>\\n</code></td><td>newline</td></tr>
+			<tr><td><code>\\r</code></td><td>carriage return</td></tr>
+			<tr><td><code>\\t</code></td><td>horizontal tabulator</td></tr>
 			</table>
 			</p>
 			<p>

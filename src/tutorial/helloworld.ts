@@ -34,7 +34,7 @@ export const tutorial_helloworld = {
 			<p>
 			The program will consist only of a single command. In TScript
 			(and many other languages), a line of text can be produced with
-			the <code class="code">print</code> command. In a programming
+			the <code>print</code> command. In a programming
 			language, all commands follow a very strict syntax. The syntax
 			rules of a programming language are similar to the grammar rules
 			of a spoken language. The syntax of the print-command is as
@@ -47,7 +47,7 @@ export const tutorial_helloworld = {
 			<ul>
 			<li>The command outputs everything inside of the parentheses.</li>
 			<li>The double quotes tell the computer to treat
-				<code class="code">Hello World!</code> as text data, in
+				<code>Hello World!</code> as text data, in
 				contrast to further commands, numbers, calculations and the
 				like. In programming, such values are called <i>strings</i>.
 				</li>
@@ -68,7 +68,7 @@ export const tutorial_helloworld = {
 			The program can be run (or executed) by pressing F7, or by
 			pressing the "Run" button with the green triangle ("play"
 			symbol) in the toolbar. Doing so should produce the greeting
-			<code class="code">Hello World!</code> as a line in the message
+			<code>Hello World!</code> as a line in the message
 			area.
 			</p>
 			<p>
@@ -137,7 +137,7 @@ export const tutorial_helloworld = {
 			<div class="tutorial-exercise">
 			<p>Let's do something visually more appealing: we output the
 			greeting in a message box. That's done with the
-			<code class="code">alert</code> command. It has the same syntax as
+			<code>alert</code> command. It has the same syntax as
 			the print command. Replace print with alert and see what happens.
 			</p>
 			</div>

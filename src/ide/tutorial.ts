@@ -356,7 +356,7 @@ export const tutorial = (function () {
 											);
 									} else module.state.section++;
 									storeState();
-									display(100);
+									display(50);
 								}
 							}
 						);
@@ -378,7 +378,7 @@ export const tutorial = (function () {
 							);
 						} else module.state.section++;
 						storeState();
-						display(100);
+						display(50);
 					},
 				});
 				addReferenceButton(d.correct, nav);
@@ -408,7 +408,7 @@ export const tutorial = (function () {
 				});
 			}
 		}
-		module.dom.scrollTop = (scroll === null) ? 0 : scrollPos + scroll;
+		module.dom.scrollTo({top: (scroll === null) ? 0 : scrollPos + scroll, behavior: 'smooth'});
 	}
 
 	// define the interface to the IDE

@@ -587,6 +587,22 @@ export const evaluation = (function () {
 				});
 		};
 		interpreter.service.canvas.dom = { width: 1920, height: 1080 };
+		interpreter.service.canvas.setLineColor = function (r, g, b) {
+			output.push({
+				type: "canvas setLineColor",
+				r: r,
+				g: g,
+				b: b,
+			});
+		};
+		interpreter.service.canvas.setFillColor = function (r, g, b) {
+			output.push({
+				type: "canvas setFillColor",
+				r: r,
+				g: g,
+				b: b,
+			});
+		};
 		interpreter.service.canvas.clear = function () {
 			output.push({ type: "canvas clear" });
 		};
@@ -762,7 +778,7 @@ export const evaluation = (function () {
 	//  - inputs is an array of arrays, containing values returned by consecutive calls to TScript's confirm or prompt.
 	//  - maxseconds is the timeout
 	//  - process is a function taking the array of event arrays as its argument for further processing.
-	module.run_multiple = function (code, inputs, maxseconds, process) {
+	module.run_multiple = function(code, inputs, maxseconds, process) {
 		let timeout = new Date().getTime() + 1000 * maxseconds;
 
 		let index = 0;
@@ -1454,6 +1470,15 @@ export const evaluation = (function () {
 				points = 0;
 			} else {
 				// check the result, report success or failure
+				if (! task.hasOwnProperty("ignore-color") || !!task["ignore-color"]) {
+console.log("filtering out colors", task);
+					for (let i=0; i<result.length; i++)
+					{
+						result[i] = result[i].filter(
+							event => event.type != "canvas setLineColor" && event.type != "canvas setFillColor"
+						);
+					}
+				}
 				let io =
 					task.hasOwnProperty("ignore-order") &&
 					!!task["ignore-order"];
