@@ -16,14 +16,14 @@ export const tutorial_variables = {
 			greatly increases efficiency.
 			</p><p>
 			A variable stores a value, like a string, a number, or more complicated
-			data (to be discovered later). For example, if you write some code to
-			compute the square root of a specific number, wouldn't you want to be
+			data (to be discovered later). For example, if we write some code to
+			compute the square root of a specific number, wouldn't we want to be
 			able to reuse the code to calculate the square root of a different
-			number? Using variables (and functions) you are able to do so. With
+			number? Using variables (and functions) we are able to do so. With
 			<tscript>
 			    var x;
 			</tscript>
-			you create a variable with the name "x". The name could equally well
+			we create a variable with the name "x". The name could equally well
 			be more descriptive, like "points" or "animal". Using appropriate and
 			descriptive names depending on the context is improves readability
 			and maintainability of code, and is therefore considered good style.
@@ -36,11 +36,11 @@ export const tutorial_variables = {
 			<tscript>
 			    var points, animal;
 			</tscript>
-			You can think of a variable as a box. The box has a name tag, and it
-			can contain exactly one value. Using a computer analogy, you can think
-			of the operating system's clipboard as a variable. When you select and
+			We can think of a variable as a box. The box has a name tag, and it
+			can contain exactly one value. Using a computer analogy, we can think
+			of the operating system's clipboard as a variable. When we select and
 			copy some text in the browser then this text is copied from the webpage
-			into the clipboard. When you paste the content into a text editor then
+			into the clipboard. When we paste the content into a text editor then
 			it is copied from the clipboard into the editor. The ability of the
 			clipboard to store text or images, but only one entity at a time, is
 			what makes it similar to a variable.
@@ -101,7 +101,7 @@ export const tutorial_variables = {
 			<div class = "tutorial-exercise">
 				Declare a variable called "points". Assign the number
 				<code>100</code> to it. Then declare a second variable called "animal"
-				and assign the string <code>"dog"</code> to it. You can either use
+				and assign the string <code>"dog"</code> to it. We can either use
 				separate assignments or assign initial values.
 			</div>
 			</p>
@@ -157,10 +157,10 @@ export const tutorial_variables = {
 			command.
 			</p><p>
 			<div class = "tutorial-exercise">
-				Extend the task from above, where you assigned values to the variables
+				Extend the task from above, where we assigned values to the variables
 				"points" and "animal". Print out the values of these variables with
 				two <code>print</code> commands. Print out the value of
-				"points" first and the value of "animal" last. Hence, your program
+				"points" first and the value of "animal" last. Hence, our program
 				should produce two messages containing the number 100 and the word
 				"dog".
             </div>
@@ -223,11 +223,10 @@ export const tutorial_variables = {
 			content: `
             <h2>Wrap-Up</h2>
             <p>
-			You are now able to create variables to use in your program and
-			differentiate between declarations and assignments. The process of both
-			at the beginning of a program or algorithm is often referred to as
-			initialization as you set the initial status of your program before
-			anything is done.
+			We are now able to create variables to use in our program. We know about
+			declarations and assignments. The process of both at the beginning of a
+			program or algorithm is often referred to as initialization as we set
+			the initial status of out program before anything is done.
             </p>
             `,
 		},

@@ -1471,12 +1471,12 @@ export const evaluation = (function () {
 			} else {
 				// check the result, report success or failure
 				if (! task.hasOwnProperty("ignore-color") || !!task["ignore-color"]) {
-console.log("filtering out colors", task);
 					for (let i=0; i<result.length; i++)
 					{
-						result[i] = result[i].filter(
-							event => event.type != "canvas setLineColor" && event.type != "canvas setFillColor"
-						);
+						if (result[i])
+							result[i] = result[i].filter(
+								event => event.type != "canvas setLineColor" && event.type != "canvas setFillColor"
+							);
 					}
 				}
 				let io =
