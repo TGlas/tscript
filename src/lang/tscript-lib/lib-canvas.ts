@@ -631,9 +631,7 @@ export const lib_canvas = {
 				let list = new Array();
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
-					if (
-						!TScript.isDerivedFrom(p.type, Typeid.typeid_array)
-					)
+					if (!TScript.isDerivedFrom(p.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -705,9 +703,7 @@ export const lib_canvas = {
 				let list = new Array();
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
-					if (
-						!TScript.isDerivedFrom(p.type, Typeid.typeid_array)
-					)
+					if (!TScript.isDerivedFrom(p.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -775,9 +771,7 @@ export const lib_canvas = {
 				let list = new Array();
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
-					if (
-						!TScript.isDerivedFrom(p.type, Typeid.typeid_array)
-					)
+					if (!TScript.isDerivedFrom(p.type, Typeid.typeid_array))
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -971,7 +965,12 @@ export const lib_canvas = {
 						],
 						this.stack
 					);
-				if (!TScript.isDerivedFrom(A.value.b[0].type, Typeid.typeid_array))
+				if (
+					!TScript.isDerivedFrom(
+						A.value.b[0].type,
+						Typeid.typeid_array
+					)
+				)
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
 						[
@@ -982,7 +981,12 @@ export const lib_canvas = {
 						],
 						this.stack
 					);
-				if (!TScript.isDerivedFrom(A.value.b[1].type, Typeid.typeid_array))
+				if (
+					!TScript.isDerivedFrom(
+						A.value.b[1].type,
+						Typeid.typeid_array
+					)
+				)
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
 						[

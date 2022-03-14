@@ -1948,7 +1948,10 @@ export const tests: Array<TscriptTest> = [
 			var a = A();
 			canvas.transform([a, a], [a, a]);
 		`,
-		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
 	},
 	{
 		name: "canvas error handling, case 2",
@@ -1958,7 +1961,10 @@ export const tests: Array<TscriptTest> = [
 			var a = A();
 			canvas.curve([a], false);
 		`,
-		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
 	},
 	{
 		name: "canvas error handling, case 3",
@@ -1968,7 +1974,10 @@ export const tests: Array<TscriptTest> = [
 			var a = A();
 			canvas.fillArea([a]);
 		`,
-		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
 	},
 	{
 		name: "canvas error handling, case 4",
@@ -1978,7 +1987,10 @@ export const tests: Array<TscriptTest> = [
 			var a = A();
 			canvas.frameArea([a]);
 		`,
-		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
 	},
 	{
 		name: "keydown",
