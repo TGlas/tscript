@@ -1,9 +1,10 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { constantstep, get_program } from "../interpreter/interpreter_helper";
-import { simfalse } from "../helpers/sims";
+import { get_program } from "../helpers/getParents";
 import { Typeid } from "../helpers/typeIds";
-import { callsim, callstep, parse_call } from "./parse_call";
+import { parse_call } from "./parse_call";
+import { constantstep, constructorstep, callstep } from "../helpers/steps";
+import { simfalse, callsim } from "../helpers/sims";
 import { parse_expression } from "./parse_expression";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { Options } from "../helpers/options";
@@ -27,6 +28,7 @@ export function parse_constructor(state, parent, options: Options) {
 	// create the function
 	let func: any = {
 		petype: "method",
+		children: new Array(),
 		where: where,
 		declaration: true,
 		parent: parent,
@@ -70,16 +72,24 @@ export function parse_constructor(state, parent, options: Options) {
 			id: id,
 			scope: "local",
 		};
+		func.children.push(variable);
 		let param: any = { name: name };
 
 		// check for a default value
 		token = Lexer.get_token(state, options, true);
 		if (token.type === "operator" && token.value === "=") {
 			Lexer.get_token(state, options);
-			let defaultvalue = parse_expression(state, func, options);
-			if (defaultvalue.petype !== "constant")
-				state.error("/syntax/se-38");
-			param.defaultvalue = defaultvalue.typedvalue;
+			param.defaultvalue = parse_expression(state, func, options);
+			func.children.push(param.defaultvalue);
+			let back = param.defaultvalue?.passResolveBack;
+			param.defaultvalue.passResolveBack = function (state) {
+				if (back) back(state);
+				if (param.defaultvalue.petype !== "constant") {
+					state.set(param.defaultvalue.where);
+					state.error("/syntax/se-38");
+				}
+				param.defaultvalue = param.defaultvalue.typedvalue;
+			};
 		}
 
 		// register the parameter
@@ -90,43 +100,36 @@ export function parse_constructor(state, parent, options: Options) {
 	}
 
 	token = Lexer.get_token(state, options);
-	if (parent.hasOwnProperty("superclass")) {
+	if (token.value === ":") {
+		token = Lexer.get_token(state, options);
+		if (token.type !== "keyword" || token.value !== "super")
+			state.error("/syntax/se-53");
+
 		// implicit expression to the left of the super call
 		let base = {
 			petype: "constant",
 			where: state.get(),
 			typedvalue: {
 				type: get_program(parent).types[Typeid.typeid_type],
-				value: { b: parent.superclass },
+				value: { b: null }, //  (*) to be overwritten...
 			},
 			step: constantstep,
 			sim: simfalse,
 		};
 
-		if (token.type === "operator" && token.value === ":") {
-			// parse explicit super class constructor call
-			token = Lexer.get_token(state, options);
-			if (token.type !== "keyword" || token.value !== "super")
-				state.error("/syntax/se-53");
-			func.supercall = parse_call(state, func, base, options);
-			func.supercall.petype = "super call";
+		func.passResolve = function (state) {
+			if (!parent.superclass) state.error("/name/ne-21");
+			base.typedvalue.value.b = parent.superclass; // ...overwriting (*) here
+		};
 
-			// prepare parsing of '{'
-			token = Lexer.get_token(state, options);
-		} else {
-			// create the implicit default super class constructor call
-			func.supercall = {
-				petype: "super call",
-				where: where,
-				parent: func,
-				base: base,
-				arguments: new Array(),
-				step: callstep,
-				sim: callsim,
-			};
-		}
-	} else if (token.type === "operator" && token.value === ":")
-		state.error("/name/ne-21");
+		// create the call to the superclass constructor
+		func.supercall = parse_call(state, func, base, options);
+		func.supercall.petype = "super call";
+		func.children.push(func.supercall);
+
+		// prepare parsing of '{'
+		token = Lexer.get_token(state, options);
+	}
 
 	// parse the constructor body
 	if (token.type !== "grouping" || token.value !== "{")
@@ -147,6 +150,7 @@ export function parse_constructor(state, parent, options: Options) {
 		}
 		let cmd = parse_statement_or_declaration(state, func, options);
 		func.commands.push(cmd);
+		func.children.push(cmd);
 	}
 
 	// replace the function body with built-in functionality
@@ -186,32 +190,4 @@ export function parse_constructor(state, parent, options: Options) {
 	}
 
 	return func;
-}
-
-// step function of constructors
-export function constructorstep() {
-	let frame = this.stack[this.stack.length - 1];
-	let pe = frame.pe[frame.pe.length - 1];
-	let ip = frame.ip[frame.ip.length - 1];
-	if (ip === 0) {
-		// call the super class constructor
-		if (pe.hasOwnProperty("supercall")) {
-			frame.pe.push(pe.supercall);
-			frame.ip.push(-1);
-		}
-		return false;
-	} else if (ip < pe.commands.length + 1) {
-		// run the constructor commands
-		if (!pe.commands[ip - 1].declaration) {
-			frame.pe.push(pe.commands[ip - 1]);
-			frame.ip.push(-1);
-		}
-		return false;
-	} else {
-		// return without a value
-		frame.pe.pop();
-		frame.ip.pop();
-		this.stack.pop();
-		return false;
-	}
 }

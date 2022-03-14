@@ -18,6 +18,7 @@ export function parse_dowhile(state, parent, options: Options) {
 	// create the loop object
 	let dowhile: any = {
 		petype: "do-while-loop",
+		children: new Array(),
 		where: where,
 		parent: parent,
 		step: function () {
@@ -70,6 +71,7 @@ export function parse_dowhile(state, parent, options: Options) {
 
 	// parse the loop body
 	dowhile.body = parse_statement(state, dowhile, options);
+	dowhile.children.push(dowhile.body);
 
 	// parse the "while" keyword
 	token = Lexer.get_token(state, options);
@@ -78,6 +80,7 @@ export function parse_dowhile(state, parent, options: Options) {
 
 	// parse the condition
 	dowhile.condition = parse_expression(state, parent, options);
+	dowhile.children.push(dowhile.condition);
 
 	// parse the final semicolon
 	token = Lexer.get_token(state, options);

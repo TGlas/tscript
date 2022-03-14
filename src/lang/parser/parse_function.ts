@@ -1,7 +1,7 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { scopestep } from "../interpreter/interpreter_helper";
 import { TScript } from "..";
+import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_expression } from "./parse_expression";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
@@ -42,6 +42,7 @@ export function parse_function(
 	// create the function
 	let func: any = {
 		petype: petype,
+		children: new Array(),
 		where: where,
 		declaration: true,
 		parent: parent,
@@ -86,16 +87,24 @@ export function parse_function(
 			id: id,
 			scope: "local",
 		};
+		func.children.push(variable);
 		let param: any = { name: name };
 
 		// check for a default value
 		token = Lexer.get_token(state, options, true);
 		if (token.type === "operator" && token.value === "=") {
 			Lexer.get_token(state, options);
-			let defaultvalue = parse_expression(state, func, options);
-			if (defaultvalue.petype !== "constant")
-				state.error("/syntax/se-38");
-			param.defaultvalue = defaultvalue.typedvalue;
+			param.defaultvalue = parse_expression(state, func, options);
+			func.children.push(param.defaultvalue);
+			let back = param.defaultvalue?.passResolveBack;
+			param.defaultvalue.passResolveBack = function (state) {
+				if (back) back(state);
+				if (param.defaultvalue.petype !== "constant") {
+					state.set(param.defaultvalue.where);
+					state.error("/syntax/se-38");
+				}
+				param.defaultvalue = param.defaultvalue.typedvalue;
+			};
 		}
 
 		// register the parameter
@@ -125,6 +134,7 @@ export function parse_function(
 		}
 		let cmd = parse_statement_or_declaration(state, func, options);
 		func.commands.push(cmd);
+		func.children.push(cmd);
 	}
 
 	// replace the function body with built-in functionality

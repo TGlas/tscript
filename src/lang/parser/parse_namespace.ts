@@ -1,7 +1,7 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { scopestep } from "../interpreter/interpreter_helper";
 import { TScript } from "..";
+import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 
@@ -55,6 +55,7 @@ export function parse_namespace(state, parent, options) {
 		// create the namespace
 		global_nspace = {
 			petype: "namespace",
+			children: new Array(),
 			parent: parent,
 			name: nname,
 			displayname: prefix + nname,
@@ -67,6 +68,7 @@ export function parse_namespace(state, parent, options) {
 	// create the local namespace PE instance containing the commands
 	let local_nspace = {
 		petype: "namespace",
+		children: new Array(),
 		where: where,
 		parent: parent,
 		names: global_nspace.names,
@@ -102,6 +104,8 @@ export function parse_namespace(state, parent, options) {
 		if (sub.hasOwnProperty("name"))
 			sub.displayname = prefix + nname + "." + sub.name;
 		local_nspace.commands.push(sub);
+		local_nspace.children.push(sub);
+		global_nspace.children.push(sub);
 	}
 
 	return local_nspace;

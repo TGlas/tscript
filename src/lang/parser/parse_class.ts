@@ -1,14 +1,15 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { constantstep, get_program } from "../interpreter/interpreter_helper";
-import { simfalse } from "../helpers/sims";
+import { get_program } from "../helpers/getParents";
+import { constantstep } from "../helpers/steps";
 import { Typeid } from "../helpers/typeIds";
-import { callsim, callstep } from "./parse_call";
-import { constructorstep, parse_constructor } from "./parse_constructor";
+import { constructorstep, callstep } from "../helpers/steps";
+import { simfalse, callsim } from "../helpers/sims";
 import { parse_function } from "./parse_function";
-import { parse_name } from "./parse_name";
 import { parse_use } from "./parse_use";
 import { parse_var } from "./parse_var";
+import { parse_expression, is_name } from "./parse_expression";
+import { parse_constructor } from "./parse_constructor";
 import { Options } from "../helpers/options";
 
 // Parse a class declaration.
@@ -39,6 +40,7 @@ export function parse_class(state, parent, options: Options) {
 	// create the class
 	let cls: any = {
 		petype: "type",
+		children: new Array(),
 		where: where,
 		parent: parent,
 		objectsize: 0,
@@ -69,6 +71,38 @@ export function parse_class(state, parent, options: Options) {
 			}
 		},
 		sim: simfalse,
+		passResolveBack: function (state) {
+			for (let name in cls.members) {
+				let pe = cls.members[name];
+				if (pe.petype != "attribute") continue;
+				if (pe.hasOwnProperty("initializer")) {
+					if (
+						pe.initializer.petype === "name" &&
+						pe.initializer.reference
+					)
+						pe.initializer = pe.initializer.reference;
+					if (pe.initializer.petype !== "constant") {
+						state.set(pe.where);
+						state.error("/syntax/se-57");
+					}
+				}
+			}
+			for (let name in cls.staticmembers) {
+				let pe = cls.staticmembers[name];
+				if (pe.petype != "variable") continue;
+				if (pe.hasOwnProperty("initializer")) {
+					if (
+						pe.initializer.petype === "name" &&
+						pe.initializer.reference
+					)
+						pe.initializer = pe.initializer.reference;
+					if (pe.initializer.petype !== "constant") {
+						state.set(pe.where);
+						state.error("/syntax/se-57");
+					}
+				}
+			}
+		},
 	};
 	parent.names[cname] = cls;
 
@@ -81,24 +115,70 @@ export function parse_class(state, parent, options: Options) {
 	// parse the optional super class
 	token = Lexer.get_token(state, options);
 	if (token.type === "operator" && token.value === ":") {
-		let result = parse_name(
-			state,
-			parent,
-			options,
-			"super class declaration"
-		);
-		cls.superclass = result.lookup;
+		// parse the superclass name
+		let ex = parse_expression(state, parent, options);
+		if (!is_name(ex) || ex["super"])
+			state.error("/syntax/se-10", ["super class definition"]);
+		let where = ex.where;
+		cls.children.unshift(ex);
 
-		if (cls.superclass.petype !== "type")
-			state.error("/name/ne-22", [result.name]);
-		if (cls === cls.superclass) state.error("/name/ne-26", [result.name]);
-		cls.objectsize = cls.superclass.objectsize;
+		// resolve the name of the super class
+		let back = ex?.passResolveBack;
+		ex.passResolveBack = function (state) {
+			if (back) back(state);
+			cls.children.shift();
 
-		if (
-			cls.superclass.class_constructor &&
-			cls.superclass.class_constructor.access === "private"
-		)
-			state.error("/syntax/se-58");
+			if (
+				(ex.petype === "name" || ex.petype === "constant") &&
+				ex.reference
+			)
+				ex = ex.reference;
+			if (ex.petype !== "type") state.error("/name/ne-22", [ex.name]);
+			cls.superclass = ex;
+			cls.children.unshift(cls.superclass);
+
+			let sup = cls.superclass;
+			while (sup) {
+				if (sup === cls) state.error("/name/ne-26", [ex.name]);
+				sup = sup?.superclass;
+			}
+
+			if (
+				cls.superclass.class_constructor &&
+				cls.superclass.class_constructor.access === "private"
+			)
+				state.error("/syntax/se-58");
+
+			// shift all attribute indices
+			let n = cls.superclass.objectsize;
+			cls.objectsize += n;
+			for (let name in cls.members) {
+				let pe = cls.members[name];
+				if (pe.petype == "attribute") pe.id += n;
+			}
+
+			// add a "super call" to the default constructor
+			if (cls.class_constructor.hasOwnProperty("defaultconstructor")) {
+				let base = {
+					petype: "constant",
+					where: where,
+					typedvalue: {
+						type: get_program(parent).types[Typeid.typeid_type],
+						value: { b: cls.superclass },
+					},
+					step: constantstep,
+					sim: simfalse,
+				};
+				cls.class_constructor.supercall = {
+					petype: "super call",
+					parent: cls.class_constructor,
+					base: base,
+					arguments: new Array(),
+					step: callstep,
+					sim: callsim,
+				};
+			}
+		};
 
 		// parse the next token to check for '{'
 		token = Lexer.get_token(state, options);
@@ -159,12 +239,7 @@ export function parse_class(state, parent, options: Options) {
 			);
 			for (let i = 0; i < group.vars.length; i++) {
 				let pe: any = group.vars[i];
-				if (
-					pe.hasOwnProperty("initializer") &&
-					pe.initializer.petype !== "constant"
-				)
-					state.error("/syntax/se-57");
-
+				cls.children.push(pe);
 				pe.access = access;
 				if (!stat) {
 					pe.petype = "attribute";
@@ -184,6 +259,7 @@ export function parse_class(state, parent, options: Options) {
 				options,
 				stat ? "function" : "method"
 			);
+			cls.children.push(pe);
 			if (stat) pe.displayname = cname + "." + pe.name;
 			pe.access = access;
 			if (stat) cls.staticmembers[pe.name] = pe;
@@ -195,6 +271,7 @@ export function parse_class(state, parent, options: Options) {
 			if (stat) state.error("/syntax/se-59");
 
 			let pe: any = parse_constructor(state, cls, options);
+			cls.children.push(pe);
 			pe.access = access;
 			cls.class_constructor = pe;
 		} else if (token.type === "keyword" && token.value === "class") {
@@ -202,6 +279,7 @@ export function parse_class(state, parent, options: Options) {
 			if (stat) state.error("/syntax/se-60");
 
 			let pe: any = parse_class(state, cls, options);
+			cls.children.push(pe);
 			pe.displayname = cname + "." + pe.name;
 			pe.access = access;
 			cls.staticmembers[pe.name] = pe;
@@ -218,6 +296,7 @@ export function parse_class(state, parent, options: Options) {
 	// create a public default constructor if necessary
 	if (!cls.hasOwnProperty("class_constructor")) {
 		cls.class_constructor = {
+			defaultconstructor: true,
 			petype: "method",
 			where: cls.where,
 			access: "public",
@@ -231,26 +310,7 @@ export function parse_class(state, parent, options: Options) {
 			step: constructorstep,
 			sim: simfalse,
 		};
-		if (cls.hasOwnProperty("superclass")) {
-			let base = {
-				petype: "constant",
-				where: state.get(),
-				typedvalue: {
-					type: get_program(parent).types[Typeid.typeid_type],
-					value: { b: cls.superclass },
-				},
-				step: constantstep,
-				sim: simfalse,
-			};
-			cls.class_constructor.supercall = {
-				petype: "super call",
-				parent: cls.class_constructor,
-				base: base,
-				arguments: new Array(),
-				step: callstep,
-				sim: callsim,
-			};
-		}
+		cls.children.push(cls.class_constructor);
 	}
 
 	return cls;

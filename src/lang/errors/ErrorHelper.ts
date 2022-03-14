@@ -116,9 +116,7 @@ export let errors = {
 		"se-7": "syntax error; 'super' cannot be used in a class without super class",
 		"se-8": "syntax error in super reference; dot '.' expected after 'super'",
 		"se-9": "syntax error in super reference; identifier expected after dot '.'",
-		"se-10": "syntax error in $$; name (identifier or super name) expected",
-		"se-11":
-			"syntax error in namespace reference; identifier expected after dot '.'",
+		"se-10": "syntax error in $$; name expected",
 		"se-13":
 			"error in $$; $$ '$$' requires a 'this' object and hence cannot be accessed from a static context",
 		"se-14":
@@ -161,7 +159,7 @@ export let errors = {
 		"se-42":
 			"syntax error in expression; unexpected token '$$', expression expected",
 		"se-43":
-			"syntax error in member access: identifier expected right of the dot '.'",
+			"syntax error in member access: identifier expected after the dot '.'",
 		"se-44": "syntax error in item access: closing bracket ']' expected",
 		"se-47": "syntax error; 'this' cannot be used in this context",
 		"se-48": "syntax error in assignment; semicolon ';' expected",
@@ -313,7 +311,8 @@ export let errors = {
 		"ne-6": "error in $$; cannot access variable '$$', which is declared in a different class",
 		"ne-7": "error in $$; cannot access variable '$$', which is declared in a different function",
 		"ne-8": "error in $$; '$$' cannot be accessed because it is a private member of type '$$'",
-		"ne-9": "error in namespace lookup; name '$$' not found in namespace '$$'",
+		// "ne-9": "error in namespace lookup; name '$$' not found in namespace '$$'",
+		"ne-10": "name '$$' does not refer to a variable, function, or type",
 		"ne-11":
 			"a name referring to a namespace is not allowed in this context",
 		"ne-12": "type '$$' does not have a public static member '$$'",
@@ -340,9 +339,8 @@ export let errors = {
 		"ne-25":
 			"error in constructor call; the constructor of type '$$' is declared $$",
 		"ne-26": "error in super class declaration; class '$$' inherits itself",
-		"ne-27":
-			"error in object creation; class '$$' does not yet have its constructor declared",
 		"ne-28": "failed to statically resolve loop variable name",
+		"ne-29": "variable '$$' was used before it was initialized",
 	},
 	logic: {
 		"le-1": "too much recursion",

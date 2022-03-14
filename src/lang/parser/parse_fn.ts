@@ -8,16 +8,16 @@ import {
 	left_unary_operator_precedence,
 	peek_keyword,
 } from "./parser_helper";
+import { create_breakpoint } from "../interpreter/interpreter_helper";
 import {
-	create_breakpoint,
 	get_context,
 	get_function,
 	get_program,
 	get_type,
-	scopestep,
-} from "../interpreter/interpreter_helper";
-import { TScript } from "..";
+} from "../helpers/getParents";
+import { scopestep } from "../helpers/steps";
 import { simfalse, simtrue } from "../helpers/sims";
+import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 
 export function resolve_name(state, name, parent, errorname) {
@@ -64,7 +64,16 @@ export function resolve_name(state, name, parent, errorname) {
 					}
 				}
 			}
-			return pe;
+
+			// Ensure that the definition is located before the current position, or that it is hoisted.
+			// Note: variable are not hoisted unless they are static within a class.
+			if (
+				n.petype !== "variable" ||
+				n.parent.petype === "type" ||
+				!n.hasOwnProperty("where") ||
+				n.where.pos < state.pos
+			)
+				return pe;
 		}
 
 		// check the superclass chain
@@ -87,4 +96,42 @@ export function resolve_name(state, name, parent, errorname) {
 		pe = pe.parent;
 	}
 	state.error(error, arg);
+}
+
+// Resolve a name, assuming it refers to a namespace.
+// Return the namespace if found, and null otherwise.
+export function resolve_namespace_name(name, parent) {
+	while (parent) {
+		// check name inside pe
+		if (
+			parent.hasOwnProperty("names") &&
+			parent.names.hasOwnProperty(name)
+		) {
+			let n = parent.names[name];
+			if (n.petype === "namespace") return n;
+			else return null;
+		}
+
+		// move upwards in the scope hierarchy
+		if (!parent.hasOwnProperty("parent")) return null;
+		parent = parent.parent;
+	}
+}
+
+export function resolve_names(pe, state) {
+	if (pe.hasOwnProperty("resolve")) {
+		var temp = state.get();
+		state.set(pe.where);
+		pe.resolve(state);
+		delete pe.resolve;
+		state.set(temp);
+	}
+	if (pe.hasOwnProperty("commands")) {
+		for (let p of pe.commands) resolve_names(p, state);
+	}
+	if (pe.type == "type") {
+		for (let key in pe.members) resolve_names(pe.members[key], state);
+		for (let key in pe.staticmembers)
+			resolve_names(pe.staticmembers[key], state);
+	}
 }

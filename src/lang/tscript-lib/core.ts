@@ -1169,20 +1169,9 @@ export const core = {
 							value: { b: b },
 						};
 					} else if (v.type.id === Typeid.typeid_function) {
-						if (v.value.b.hasOwnProperty("object"))
-							throw "a member function bound to an object";
-						if (v.value.b.hasOwnProperty("enclosed")) {
-							for (let p of v.value.b.enclosed) {
-								if (
-									p.type.id == Typeid.typeid_array ||
-									p.type.id == Typeid.typeid_dictionary ||
-									p.type.id >= Typeid.typeid_class
-								) {
-									throw "a lambda function with enclosed mutable variable in the data structure";
-								}
-							}
-						}
-						return v;
+						if (v.value.b.func.hasOwnProperty("closureparams"))
+							throw "a lambda function in the data structure";
+						else return v;
 					} else if (v.type.id === Typeid.typeid_range) return v;
 					else if (v.type.id === Typeid.typeid_type) return v;
 					else throw "an object in the data structure";
@@ -1193,7 +1182,6 @@ export const core = {
 				this.error("/argument-mismatch/am-42", [ex]);
 			}
 		},
-
 		setEventHandler: function (event, handler) {
 			if (!TScript.isDerivedFrom(event.type, Typeid.typeid_string))
 				this.error("/argument-mismatch/am-1", [

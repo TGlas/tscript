@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { get_function } from "../interpreter/interpreter_helper";
+import { get_function } from "../helpers/getParents";
 import { simfalse } from "../helpers/sims";
 import { parse_statement } from "./parse_statement";
 
@@ -67,6 +67,7 @@ export function parse_trycatch(state, parent, options) {
 
 	// parse the try part
 	trycatch.try_part.command = parse_statement(state, parent, options);
+	trycatch.try_part.children = [trycatch.try_part.command];
 
 	// parse the catch statement
 	let where_catch = state.get();
@@ -80,6 +81,7 @@ export function parse_trycatch(state, parent, options) {
 		state.error("/syntax/se-84");
 
 	// parse the variable name
+	// TODO: allow for more general names?
 	let where_var = state.get();
 	token = Lexer.get_token(state, options);
 	if (token.type !== "identifier") state.error("/syntax/se-85");
@@ -116,6 +118,7 @@ export function parse_trycatch(state, parent, options) {
 		},
 		sim: simfalse,
 	};
+	trycatch.children = [trycatch.try_part, trycatch.catch_part];
 
 	// create and register a new variable
 	// Note: the program element does *not* need a step function, it is only there to define the variable's id
@@ -139,6 +142,7 @@ export function parse_trycatch(state, parent, options) {
 		trycatch.catch_part,
 		options
 	);
+	trycatch.catch_part.children = [pe, trycatch.catch_part.command];
 
 	return trycatch;
 }

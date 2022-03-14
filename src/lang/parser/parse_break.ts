@@ -32,7 +32,7 @@ export function parse_break(state, parent, options: Options) {
 
 	// create the break object
 	return {
-		petype: "continue",
+		petype: "break",
 		where: where,
 		parent: parent,
 		step: function () {

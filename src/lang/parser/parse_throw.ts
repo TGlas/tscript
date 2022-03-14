@@ -75,6 +75,7 @@ export function parse_throw(state, parent, options) {
 
 	// parse the exception argument
 	ret.argument = parse_expression(state, parent, options);
+	ret.children = [ret.argument];
 
 	// parse the closing semicolon
 	token = Lexer.get_token(state, options);

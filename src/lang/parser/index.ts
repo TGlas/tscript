@@ -1,13 +1,11 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
-import {
-	create_breakpoint,
-	scopestep,
-} from "../interpreter/interpreter_helper";
+import { create_breakpoint } from "../interpreter/interpreter_helper";
 import { core } from "../tscript-lib/core";
 import { lib_canvas } from "../tscript-lib/lib-canvas";
 import { lib_math } from "../tscript-lib/lib-math";
 import { lib_turtle } from "../tscript-lib/lib-turtle";
 import { lib_audio } from "../tscript-lib/lib-audio";
+import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { defaultOptions, Options } from "../helpers/options";
@@ -20,6 +18,7 @@ export class Parser {
 		// create the initial program structure
 		let program: any = {
 			petype: "global scope", // like a main function, but with more stuff
+			children: new Array(), // children in the abstract syntax tree
 			parent: null, // top of the hierarchy
 			commands: [], // sequence of commands
 			types: [], // array of all types
@@ -188,14 +187,48 @@ export class Parser {
 		// parse one library or program
 		let parse1 = function (source, impl: any = undefined) {
 			state.setSource(source, impl);
-			if (typeof impl === "undefined") program.where = state.get();
-			while (state.good())
-				program.commands.push(
-					parse_statement_or_declaration(state, program, options)
-				);
-			if (typeof impl === "undefined") program.lines = state.line;
+			while (state.good()) {
+				let p = parse_statement_or_declaration(state, program, options);
+				program.commands.push(p);
+				program.children.push(p);
+			}
 		};
+
+		// recursive compiler pass through the syntax tree
+		function compilerPass(passname) {
+			let forward = "pass" + passname;
+			let backward = "pass" + passname + "Back";
+			let all = new Set();
+			function rec(pe) {
+				if (all.has(pe)) return;
+				all.add(pe);
+				if (pe.hasOwnProperty("petype") && pe.hasOwnProperty(forward)) {
+					let w = state.get();
+					if (pe.hasOwnProperty("where")) state.set(pe.where);
+					pe[forward](state);
+					delete pe[forward];
+					state.set(w);
+				}
+				if (pe.hasOwnProperty("children")) {
+					for (let sub of pe.children) rec(sub);
+				}
+				if (
+					pe.hasOwnProperty("petype") &&
+					pe.hasOwnProperty(backward)
+				) {
+					let w = state.get();
+					if (pe.hasOwnProperty("where")) state.set(pe.where);
+					pe[backward](state);
+					delete pe[backward];
+					state.set(w);
+				}
+			}
+			rec(program);
+		}
+
 		try {
+			// pass 1: build an abstract syntax tree
+
 			// parse the language core
 			parse1(core.source, core.impl);
 
@@ -206,7 +239,9 @@ export class Parser {
 			parse1(lib_audio.source, lib_audio.impl);
 
 			// parse the user's source code
+			program.where = state.get();
 			parse1(sourcecode);
+			program.lines = state.line;
 
 			// append an "end" breakpoint
 			state.skip();
@@ -216,6 +251,12 @@ export class Parser {
 				program.breakpoints[state.line] = b;
 				program.commands.push(b);
 			}
+
+			// pass 2: resolve all names
+			compilerPass("Resolve");
+
+			// further passes may follow in the future, e.g., for optimizations
+			// compilerPass("Optimize");
 		} catch (ex: any) {
 			// ignore the actual exception and rely on state.errors instead
 			if (ex.name === "Parse Error") {

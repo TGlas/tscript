@@ -1,6 +1,6 @@
 import { Lexer } from "./lexer";
 import { peek_keyword } from "./parser_helper";
-import { scopestep } from "../interpreter/interpreter_helper";
+import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_assignment_or_expression } from "./parse_assignment_or_expression";
 import { parse_break } from "./parse_break";
@@ -21,7 +21,7 @@ export function parse_statement(
 	options,
 	var_allowed: boolean = false
 ) {
-	if (typeof var_allowed === "undefined") var_allowed = false;
+	//	if (typeof var_allowed === "undefined") var_allowed = false;
 
 	let kw = peek_keyword(state);
 
@@ -77,6 +77,7 @@ export function parse_statement(
 			state.indent.push(-1 - token.line);
 			let scope = {
 				petype: "scope",
+				children: new Array(),
 				where: where,
 				parent: parent,
 				commands: new Array(),
@@ -99,6 +100,7 @@ export function parse_statement(
 				}
 				let cmd = parse_statement_or_declaration(state, scope, options);
 				scope.commands.push(cmd);
+				scope.children.push(cmd);
 			}
 			return scope;
 		} else if (token.type === "grouping" && token.value === "}")

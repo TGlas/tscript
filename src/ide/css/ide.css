@@ -241,3 +241,20 @@ button {
 	width: 100%;
 	padding: 3px 6px;
 }
+
+.highlight-overlay {
+	opacity: 1;
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
+	transition: opacity 1s ease 3s;
+	top: 35vh;
+	font-size: 5vh;
+	background: #ffd;
+	color: #000;
+	padding: 1vh 2vh;
+	border: 1px solid #aaa;
+	border-radius: 1vh;
+	user-select: none;
+	z-index: 10;
+}

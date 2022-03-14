@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { get_function } from "../interpreter/interpreter_helper";
+import { get_function } from "../helpers/getParents";
 import { TScript } from "..";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
@@ -30,6 +30,7 @@ export function parse_var(
 	// prepare "group of variable declarations" object
 	let ret = {
 		petype: "variable declaration",
+		children: new Array(),
 		where: where,
 		parent: parent,
 		vars: new Array(),
@@ -132,6 +133,7 @@ export function parse_var(
 		token = Lexer.get_token(state, options);
 		if (token.type === "operator" && token.value === "=") {
 			pe.initializer = parse_expression(state, parent, options);
+			pe.children = [pe.initializer];
 			token = Lexer.get_token(state, options);
 		}
 
@@ -139,6 +141,7 @@ export function parse_var(
 		container.variables.push(pe);
 		parent.names[pe.name] = pe;
 		ret.vars.push(pe);
+		ret.children.push(pe);
 		if (container.petype === "type") parent.objectsize++;
 
 		// parse the delimiter

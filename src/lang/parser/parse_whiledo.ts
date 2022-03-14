@@ -78,5 +78,7 @@ export function parse_whiledo(state, parent, options) {
 	// parse the loop body
 	whiledo.body = parse_statement(state, whiledo, options);
 
+	whiledo.children = [whiledo.condition, whiledo.body];
+
 	return whiledo;
 }

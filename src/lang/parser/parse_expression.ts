@@ -6,28 +6,23 @@ import {
 	left_unary_operator_impl,
 	left_unary_operator_precedence,
 } from "./parser_helper";
-import {
-	asConstant,
-	constantstep,
-	get_function,
-	get_program,
-	scopestep,
-} from "../interpreter/interpreter_helper";
+import { asConstant } from "../helpers/asConstant";
+import { constantstep, scopestep } from "../helpers/steps";
+import { get_function, get_program, get_type } from "../helpers/getParents";
 import { TScript } from "..";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { parse_call } from "./parse_call";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
-import { parse_name } from "./parse_name";
+import { resolve_name } from "./parse_fn";
 
 export function parse_expression(
 	state,
 	parent,
 	options,
-	lhs: any | boolean = false
+	lhs: boolean = false,
+	allow_namespace: boolean = false
 ) {
-	if (typeof lhs === "undefined") lhs = false;
-
 	// stack of expressions and operators
 	let stack = new Array();
 
@@ -57,6 +52,7 @@ export function parse_expression(
 		if (token.type === "grouping" && token.value === "(") {
 			ex.petype = "group";
 			ex.sub = parse_expression(state, parent, options);
+			ex.children = [ex.sub];
 			let token = Lexer.get_token(state, options);
 			if (token.type !== "grouping" || token.value !== ")")
 				state.error("/syntax/se-22");
@@ -137,6 +133,7 @@ export function parse_expression(
 		} else if (token.value === "[") {
 			// create an array
 			ex.petype = "array";
+			ex.children = new Array();
 			ex.elements = new Array();
 			ex.step = function () {
 				let frame = this.stack[this.stack.length - 1];
@@ -188,16 +185,28 @@ export function parse_expression(
 						break;
 					}
 				}
-				ex.elements.push(parse_expression(state, parent, options));
+				let sub = parse_expression(state, parent, options);
+				ex.elements.push(sub);
+				ex.children.push(sub);
 			}
 			if (state.eof()) state.error("/syntax/se-25");
 
 			// turn into a constant if possible
-			let c = asConstant(ex, state);
-			if (c !== null) ex = c;
+			ex.passResolveBack = (function (ex) {
+				return function (state) {
+					let c = asConstant(ex, state);
+					if (c !== null && c !== ex) {
+						ex.petype = "constant";
+						ex.typedvalue = c.typedvalue;
+						ex.step = constantstep;
+						ex.sim = simfalse;
+					}
+				};
+			})(ex);
 		} else if (token.value === "{") {
 			// create a dictionary
 			ex.petype = "dictionary";
+			ex.children = new Array();
 			ex.keys = new Array();
 			ex.values = new Array();
 			ex.step = function () {
@@ -274,86 +283,205 @@ export function parse_expression(
 				token = Lexer.get_token(state, options);
 				if (token.type !== "operator" || token.value !== ":")
 					state.error("/syntax/se-29");
-				ex.values.push(parse_expression(state, parent, options));
+				let sub = parse_expression(state, parent, options);
+				ex.values.push(sub);
+				ex.children.push(sub);
 			}
 			if (state.eof()) state.error("/syntax/se-30");
 
 			// turn into a constant if possible
-			let c = asConstant(ex, state);
-			if (c !== null) ex = c;
+			ex.passResolveBack = (function (ex) {
+				return function (state) {
+					let c = asConstant(ex, state);
+					if (c !== null && c !== ex) {
+						ex.petype = "constant";
+						ex.typedvalue = c.typedvalue;
+						ex.step = constantstep;
+						ex.sim = simfalse;
+					}
+				};
+			})(ex);
 		} else if (
 			token.type === "identifier" ||
 			(token.type === "keyword" && token.value === "super")
 		) {
-			state.set(where);
-			let result = parse_name(state, parent, options, "expression");
-			let name = result.name;
-			let lookup = result.lookup;
-
-			// create the "name" object
 			ex.petype = "name";
-			ex.name = name;
-			ex.reference = lookup;
-			if (lookup.petype === "variable" || lookup.petype === "attribute") {
-				ex.scope = lookup.scope;
-				ex.id = lookup.id;
-				ex.step = function () {
-					let frame = this.stack[this.stack.length - 1];
-					let pe: any = frame.pe[frame.pe.length - 1];
-					let ip = frame.ip[frame.ip.length - 1];
-					if (pe.scope === "global")
-						frame.temporaries.push(this.stack[0].variables[pe.id]);
-					else if (pe.scope === "local")
-						frame.temporaries.push(frame.variables[pe.id]);
-					else if (pe.scope === "object")
-						frame.temporaries.push(frame.object.value.a[pe.id]);
-					else
-						ErrorHelper.assert(false, "unknown scope: " + pe.scope);
-					frame.pe.pop();
-					frame.ip.pop();
-					return false;
+			ex.name = token.value;
+			if (token.type == "keyword" && token.value == "super") {
+				// parse super.identifier
+				token = Lexer.get_token(state, options);
+				if (token.type !== "delimiter" || token.value !== ".")
+					state.error("/syntax/se-8");
+				token = Lexer.get_token(state, options);
+				if (token.type !== "identifier") state.error("/syntax/se-9");
+				ex.name = token.value;
+				ex["super"] = true;
+			}
+
+			ex.passResolve = (function (ex) {
+				return function (state) {
+					// resolve the name
+					if (ex.hasOwnProperty("super")) {
+						// check for a super class
+						let cls = get_type(ex.parent);
+						if (cls === null) state.error("/syntax/se-6");
+						if (!cls.hasOwnProperty("superclass"))
+							state.error("/syntax/se-7");
+						ex.reference = resolve_name(
+							state,
+							ex.name,
+							cls.superclass,
+							"expression"
+						).names[ex.name];
+
+						// check private access modifier
+						if (
+							ex.reference.hasOwnProperty("access") &&
+							ex.reference.access === "private"
+						)
+							state.error("/name/ne-8", [
+								"name lookup",
+								ex.name,
+								TScript.displayname(ex.reference),
+							]);
+					} else
+						ex.reference = resolve_name(
+							state,
+							ex.name,
+							ex.parent,
+							"expression"
+						).names[ex.name];
+
+					// check whether "this" is available
+					if (
+						ex.reference.petype === "attribute" ||
+						ex.reference.petype === "method"
+					) {
+						// check for the enclosing type
+						let sub_cl = get_type(ex.parent);
+						let super_cl = get_type(ex.reference);
+						ErrorHelper.assert(
+							sub_cl && TScript.isDerivedFrom(sub_cl, super_cl.id)
+						); // this used to raise se-12, however, that case should now be covered in resolve_name
+
+						// check for an enclosing non-static method
+						let fn = get_function(ex.parent);
+						if (fn && fn.petype !== "method")
+							state.error("/syntax/se-13", [
+								"expression",
+								ex.reference.petype,
+								ex.name,
+							]);
+					}
+
+					// complete the "name" object
+					if (
+						ex.reference.petype === "variable" ||
+						ex.reference.petype === "attribute"
+					) {
+						ex.scope = ex.reference.scope;
+						ex.id = ex.reference.id;
+						ex.step = function () {
+							let frame = this.stack[this.stack.length - 1];
+							let pe: any = frame.pe[frame.pe.length - 1];
+							let ip = frame.ip[frame.ip.length - 1];
+
+							let tv: any = null;
+							if (pe.scope === "global")
+								tv = this.stack[0].variables[pe.id];
+							else if (pe.scope === "local")
+								tv = frame.variables[pe.id];
+							else if (pe.scope === "object")
+								tv = frame.object.value.a[pe.id];
+							else
+								ErrorHelper.assert(
+									false,
+									"unknown scope: " + pe.scope
+								);
+
+							if (tv && tv?.type && tv?.value)
+								frame.temporaries.push(tv);
+							else
+								this.error("/name/ne-29", [
+									TScript.displayname(pe),
+								]);
+
+							frame.pe.pop();
+							frame.ip.pop();
+							return false;
+						};
+						ex.sim = simfalse;
+					} else if (ex.reference.petype === "function") {
+						ex.petype = "constant";
+						ex.typedvalue = {
+							type: get_program(ex.parent).types[
+								Typeid.typeid_function
+							],
+							value: { b: { func: ex.reference } },
+						};
+						ex.step = constantstep;
+						ex.sim = simfalse;
+					} else if (ex.reference.petype === "method") {
+						ex.scope = ex.reference.scope;
+						ex.id = ex.reference.id;
+						ex.step = function () {
+							let frame = this.stack[this.stack.length - 1];
+							let pe: any = frame.pe[frame.pe.length - 1];
+							let ip = frame.ip[frame.ip.length - 1];
+							let result = {
+								type: this.program.types[
+									Typeid.typeid_function
+								],
+								value: {
+									b: {
+										func: pe.reference,
+										object: frame.object,
+									},
+								},
+							};
+							frame.temporaries.push(result);
+							frame.pe.pop();
+							frame.ip.pop();
+							return false;
+						};
+						ex.sim = simfalse;
+					} else if (ex.reference.petype === "type") {
+						ex.petype = "constant";
+						ex.typedvalue = {
+							type: get_program(ex.parent).types[
+								Typeid.typeid_type
+							],
+							value: { b: ex.reference },
+						};
+						ex.step = constantstep;
+						ex.sim = simfalse;
+					} else if (
+						ex.reference.petype === "namespace" &&
+						allow_namespace
+					) {
+					} else {
+						ex.petype = "non-value name"; // this name must be qualified further to yield a value
+					}
 				};
-				ex.sim = simfalse;
-			} else if (lookup.petype === "function") {
-				ex.petype = "constant";
-				ex.typedvalue = {
-					type: get_program(parent).types[Typeid.typeid_function],
-					value: { b: { func: lookup } },
+			})(ex);
+			ex.passResolveBack = (function (ex) {
+				return function (state) {
+					if (ex.petype == "non-value name") {
+						state.set(ex.where);
+						if (ex.reference.petype === "namespace")
+							state.error("/name/ne-11");
+						else state.error("/name/ne-10", [ex.name]);
+					}
+
+					let c = asConstant(ex, state);
+					if (c !== null && c !== ex) {
+						ex.petype = "constant";
+						ex.typedvalue = c.typedvalue;
+						ex.step = constantstep;
+						ex.sim = simfalse;
+					}
 				};
-				ex.step = constantstep;
-				ex.sim = simfalse;
-			} else if (lookup.petype === "method") {
-				ex.scope = lookup.scope;
-				ex.id = lookup.id;
-				ex.step = function () {
-					let frame = this.stack[this.stack.length - 1];
-					let pe: any = frame.pe[frame.pe.length - 1];
-					let ip = frame.ip[frame.ip.length - 1];
-					let result = {
-						type: this.program.types[Typeid.typeid_function],
-						value: {
-							b: { func: pe.reference, object: frame.object },
-						},
-					};
-					frame.temporaries.push(result);
-					frame.pe.pop();
-					frame.ip.pop();
-					return false;
-				};
-				ex.sim = simfalse;
-			} else if (lookup.petype === "type") {
-				ex.petype = "constant";
-				ex.typedvalue = {
-					type: get_program(parent).types[Typeid.typeid_type],
-					value: { b: lookup },
-				};
-				ex.step = constantstep;
-				ex.sim = simfalse;
-			} else
-				ErrorHelper.assert(
-					false,
-					"If this assertion fails then error ne-10 must be re-activated."
-				);
+			})(ex);
 		} else if (token.type === "keyword" && token.value === "this") {
 			// check for a method or an anonymous function
 			let fn = get_function(parent);
@@ -399,6 +527,7 @@ export function parse_expression(
 			// create the anonymous function
 			let func = {
 				petype: "function",
+				children: new Array(),
 				parent: parent,
 				where: where,
 				displayname: "(anonymous)",
@@ -435,12 +564,14 @@ export function parse_expression(
 					let id = func.variables.length;
 					let variable = {
 						petype: "variable",
+						children: new Array(),
 						where: where,
 						parent: ex,
 						name: name,
 						id: id,
 						scope: "local",
 					};
+					func.children.push(variable);
 
 					// parse the initializer
 					token = Lexer.get_token(state, options, true);
@@ -459,6 +590,7 @@ export function parse_expression(
 						state.set(where);
 					}
 					let initializer = parse_expression(state, parent, options);
+					func.children.push(initializer);
 
 					// register the closure parameter
 					let param = { name: name, initializer: initializer };
@@ -502,6 +634,7 @@ export function parse_expression(
 					id: id,
 					scope: "local",
 				};
+				func.children.push(variable);
 				let param: any = { name: name };
 
 				// check for a default value
@@ -512,6 +645,7 @@ export function parse_expression(
 					if (defaultvalue.petype !== "constant")
 						state.error("/syntax/se-38");
 					param.defaultvalue = defaultvalue.typedvalue;
+					func.children.push(param.defaultvalue);
 				}
 
 				// register the parameter
@@ -542,10 +676,12 @@ export function parse_expression(
 				}
 				let cmd = parse_statement_or_declaration(state, func, options);
 				func.commands.push(cmd);
+				func.children.push(cmd);
 			}
 
 			// create the actual closure expression, which evaluates the closure parameters
 			ex.petype = "closure";
+			ex.children = [func];
 			ex.func = func;
 			ex.step = function () {
 				let frame = this.stack[this.stack.length - 1];
@@ -586,8 +722,9 @@ export function parse_expression(
 				Lexer.get_token(state, options);
 				let token = Lexer.get_token(state, options);
 				if (token.type !== "identifier") state.error("/syntax/se-43");
-				let op = {
+				let op: any = {
 					petype: "access of member " + token.value,
+					children: [ex],
 					where: where,
 					parent: parent,
 					object: ex,
@@ -688,9 +825,13 @@ export function parse_expression(
 								});
 							} else if (m.petype === "variable") {
 								// static variable
-								frame.temporaries.push(
-									this.stack[0].variables[m.id]
-								);
+								let tv = this.stack[0].variables[m.id];
+								if (tv && tv?.type && tv?.value)
+									frame.temporaries.push(tv);
+								else
+									this.error("/name/ne-29", [
+										TScript.displayname(m),
+									]);
 							} else if (m.petype === "type") {
 								// nested class
 								frame.temporaries.push({
@@ -716,6 +857,144 @@ export function parse_expression(
 						let ip = frame.ip[frame.ip.length - 1];
 						return ip !== 0;
 					},
+					passResolve: function (state) {
+						// attempt to resolve the name through static lookup
+						if (op.object.hasOwnProperty("passResolve")) {
+							op.object.passResolve(state);
+							delete op.object.passResolve;
+						}
+						if (
+							op.object?.reference &&
+							(op.object.reference.petype == "type" ||
+								op.object.reference.petype == "namespace")
+						) {
+							// resolve statically
+							let reference =
+								op.object.reference.names[op.member];
+							if (reference) {
+								// convert into a name pe, remove the intermediate member access
+								op.petype = "name";
+								op.reference = reference;
+								op.name = op.member;
+
+								delete op.member;
+								delete op.object;
+								op.children = new Array();
+
+								// check hoisting rules
+								if (
+									reference.petype === "variable" &&
+									reference.where.hasOwnProperty("pos") &&
+									op.where.pos < reference.where.pos
+								) {
+									state.error("/name/ne-5", [
+										"expression",
+										op.name,
+									]);
+								}
+
+								// create the "name" object
+								if (
+									reference.petype === "variable" ||
+									reference.petype === "attribute"
+								) {
+									op.scope = reference.scope;
+									op.id = reference.id;
+									op.step = function () {
+										let frame =
+											this.stack[this.stack.length - 1];
+										let pe: any =
+											frame.pe[frame.pe.length - 1];
+										let ip = frame.ip[frame.ip.length - 1];
+										if (pe.scope === "global")
+											frame.temporaries.push(
+												this.stack[0].variables[pe.id]
+											);
+										else if (pe.scope === "local")
+											frame.temporaries.push(
+												frame.variables[pe.id]
+											);
+										else if (pe.scope === "object")
+											frame.temporaries.push(
+												frame.object.value.a[pe.id]
+											);
+										else
+											ErrorHelper.assert(
+												false,
+												"unknown scope: " + pe.scope
+											);
+										frame.pe.pop();
+										frame.ip.pop();
+										return false;
+									};
+									op.sim = simfalse;
+								} else if (reference.petype === "function") {
+									op.petype = "constant";
+									op.typedvalue = {
+										type: get_program(parent).types[
+											Typeid.typeid_function
+										],
+										value: { b: { func: reference } },
+									};
+									op.step = constantstep;
+									op.sim = simfalse;
+								} else if (reference.petype === "method") {
+									op.scope = reference.scope;
+									op.id = reference.id;
+									op.step = function () {
+										let frame =
+											this.stack[this.stack.length - 1];
+										let pe: any =
+											frame.pe[frame.pe.length - 1];
+										let ip = frame.ip[frame.ip.length - 1];
+										let result = {
+											type: this.program.types[
+												Typeid.typeid_function
+											],
+											value: {
+												b: {
+													func: pe.reference,
+													object: frame.object,
+												},
+											},
+										};
+										frame.temporaries.push(result);
+										frame.pe.pop();
+										frame.ip.pop();
+										return false;
+									};
+									op.sim = simfalse;
+								} else if (reference.petype === "type") {
+									op.petype = "constant";
+									op.typedvalue = {
+										type: get_program(parent).types[
+											Typeid.typeid_type
+										],
+										value: { b: reference },
+									};
+									op.step = constantstep;
+									op.sim = simfalse;
+								} else if (
+									reference.petype === "namespace" &&
+									allow_namespace
+								) {
+								} else {
+									ex.petype = "non-value name"; // this name must be qualified further to yield a value
+								}
+							} else {
+								state.error("/name/ne-5", [
+									"expression",
+									op.member,
+								]);
+							}
+						}
+					},
+					passResolveBack: function (state) {
+						if (ex.petype == "non-value name") {
+							state.set(ex.where);
+							state.error("/name/ne-10", [ex.name]);
+						}
+					},
 				};
 				ex.parent = op;
 				ex = op;
@@ -732,6 +1011,7 @@ export function parse_expression(
 					state.error("/syntax/se-44");
 				let op = {
 					petype: "item access",
+					children: [ex, arg],
 					where: where,
 					parent: parent,
 					base: ex,
@@ -1053,8 +1333,9 @@ export function parse_expression(
 			!stack[j + 1].hasOwnProperty("precedence"),
 			"[processUnary] corrupted stack"
 		);
-		let ex = {
+		let ex: any = {
 			petype: "left-unary operator " + stack[j].operator,
+			children: [stack[j + 1]],
 			where: stack[j].where,
 			parent: parent,
 			operator: stack[j].operator,
@@ -1084,11 +1365,17 @@ export function parse_expression(
 				let ip = frame.ip[frame.ip.length - 1];
 				return ip !== 0;
 			},
+			passResolveBack: function (state) {
+				// turn into a constant if possible
+				let c = asConstant(ex, state);
+				if (c !== null && c !== ex) {
+					ex.petype = "constant";
+					ex.typedvalue = c.typedvalue;
+					ex.step = constantstep;
+					ex.sim = simfalse;
+				}
+			},
 		};
-
-		// turn into a constant if possible
-		let c = asConstant(ex, state);
-		if (c !== null) ex = c;
 
 		// update the stack
 		stack[j + 1].parent = ex;
@@ -1124,49 +1411,56 @@ export function parse_expression(
 		);
 		let ex: any = {
 			petype: "binary operator " + stack[j].operator,
+			children: [stack[j - 1], stack[j + 1]],
 			where: stack[j].where,
 			parent: parent,
 			operator: stack[j].operator,
 			lhs: stack[j - 1],
 			rhs: stack[j + 1],
-		};
-		ex.step = function () {
-			let frame = this.stack[this.stack.length - 1];
-			let pe: any = frame.pe[frame.pe.length - 1];
-			let ip = frame.ip[frame.ip.length - 1];
-			if (ip === 0) {
-				frame.pe.push(pe.lhs);
-				frame.ip.push(-1);
-				return false;
-			} else if (ip === 1) {
-				frame.pe.push(pe.rhs);
-				frame.ip.push(-1);
-				return false;
-			} else {
-				// execute the actual operator logic
-				let rhs = frame.temporaries.pop();
-				let lhs = frame.temporaries.pop();
-				let result = binary_operator_impl[pe.operator].call(
-					this,
-					lhs,
-					rhs
-				);
-				frame.temporaries.push(result);
+			step: function () {
+				let frame = this.stack[this.stack.length - 1];
+				let pe: any = frame.pe[frame.pe.length - 1];
+				let ip = frame.ip[frame.ip.length - 1];
+				if (ip === 0) {
+					frame.pe.push(pe.lhs);
+					frame.ip.push(-1);
+					return false;
+				} else if (ip === 1) {
+					frame.pe.push(pe.rhs);
+					frame.ip.push(-1);
+					return false;
+				} else {
+					// execute the actual operator logic
+					let rhs = frame.temporaries.pop();
+					let lhs = frame.temporaries.pop();
+					let result = binary_operator_impl[pe.operator].call(
+						this,
+						lhs,
+						rhs
+					);
+					frame.temporaries.push(result);
 
-				frame.pe.pop();
-				frame.ip.pop();
-				return true;
-			}
+					frame.pe.pop();
+					frame.ip.pop();
+					return true;
+				}
+			},
+			sim: function () {
+				let frame = this.stack[this.stack.length - 1];
+				let ip = frame.ip[frame.ip.length - 1];
+				return ip > 1;
+			},
+			passResolveBack: function (state) {
+				// turn into a constant if possible
+				let c = asConstant(ex, state);
+				if (c !== null && c !== ex) {
+					ex.petype = "constant";
+					ex.typedvalue = c.typedvalue;
+					ex.step = constantstep;
+					ex.sim = simfalse;
+				}
+			},
 		};
-		ex.sim = function () {
-			let frame = this.stack[this.stack.length - 1];
-			let ip = frame.ip[frame.ip.length - 1];
-			return ip > 1;
-		};
-
-		// turn into a constant if possible
-		let c = asConstant(ex, state);
-		if (c !== null) ex = c;
 
 		// update the stack
 		stack[j - 1].parent = ex;
@@ -1256,4 +1550,10 @@ export function parse_expression(
 
 	// return the resulting expression
 	return stack[0];
+}
+
+// Return true if the expression is a name, and false otherwise.
+export function is_name(ex) {
+	while (ex.petype.substr(0, 17) == "access of member ") ex = ex.object;
+	return ex.petype == "name";
 }

@@ -27,6 +27,7 @@ export function parse_assignment_or_expression(
 
 		return {
 			petype: "assignment " + op.value,
+			children: [lhs, rhs],
 			where: where,
 			parent: parent,
 			operator: op.value,
@@ -60,6 +61,7 @@ export function parse_assignment_or_expression(
 	} else if (token.type === "delimiter" && token.value === ";") {
 		return {
 			petype: "expression",
+			children: [ex],
 			where: where,
 			parent: parent,
 			sub: ex,

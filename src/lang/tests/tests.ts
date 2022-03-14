@@ -1298,6 +1298,21 @@ export const tests: Array<TscriptTest> = [
 			"finished",
 		],
 	},
+	{
+		name: "namespaces",
+		description: "test multiple declarations of the same namespace",
+		code: `
+			namespace N { var a = 1; }
+			namespace N { var b = 2; }
+			print(N.a);
+			print(N.b);
+		`,
+		expectation: [
+			{ type: "print", message: "1" },
+			{ type: "print", message: "2" },
+			"finished",
+		],
+	},
 
 	// functions, including lambdas
 	{
@@ -1412,6 +1427,35 @@ export const tests: Array<TscriptTest> = [
 			{ type: "print", message: "43" },
 			"finished",
 		],
+	},
+
+	// constants
+	{
+		name: "constants",
+		description: "test constants",
+		code: `
+			function func(a=2, b=3+3, c=4*4, d=5//5, e=6/7, f=7%5, g=2^8) { }
+			class A
+			{
+			public:
+				constructor(x=1/7) { }
+				var a = func;
+				var b = 0:10;
+				var c = 1+2*3^4;
+				var d = null;
+				var e = false;
+				var f = true;
+				var g = 3.14159;
+				var h = -3.14159;
+				var i = "foo";
+				var j = "foo" + "bar";
+				var k = "foo" + 7;
+				var l = math.sqrt;
+				var m = Boolean;
+				var n = A;
+			}
+		`,
+		expectation: ["finished"],
 	},
 
 	// core functions
@@ -1904,7 +1948,10 @@ export const tests: Array<TscriptTest> = [
 			var a = A();
 			canvas.transform([a, a], [a, a]);
 		`,
-		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
 	},
 	{
 		name: "canvas error handling, case 2",
@@ -1914,7 +1961,10 @@ export const tests: Array<TscriptTest> = [
 			var a = A();
 			canvas.curve([a], false);
 		`,
-		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
 	},
 	{
 		name: "canvas error handling, case 3",
@@ -1924,7 +1974,10 @@ export const tests: Array<TscriptTest> = [
 			var a = A();
 			canvas.fillArea([a]);
 		`,
-		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
 	},
 	{
 		name: "canvas error handling, case 4",
@@ -1934,7 +1987,10 @@ export const tests: Array<TscriptTest> = [
 			var a = A();
 			canvas.frameArea([a]);
 		`,
-		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-1" },
+			"error",
+		],
 	},
 	{
 		name: "keydown",
@@ -2226,6 +2282,201 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 
+	// hoisting
+	{
+		name: "hoisting of variables",
+		description:
+			"checks that variables cannot be accessed before they are declared",
+		code: `
+		print(a);
+		var a = 0;
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-5" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "hoisting of functions",
+		description:
+			"checks that functions can be accessed before they are declared",
+		code: `
+		f("foo");
+		function f(s) { print(s); }
+		f("bar");
+		`,
+		expectation: [
+			{ type: "print", message: "foo" },
+			{ type: "print", message: "bar" },
+			"finished",
+		],
+	},
+	{
+		name: "hoisting of classes",
+		description:
+			"checks that classes can be accessed before they are declared",
+		code: `
+		var obj = C();
+		print(obj.v);
+		class C {
+		public:
+			var v = 13;
+		}
+		`,
+		expectation: [{ type: "print", message: "13" }, "finished"],
+	},
+	{
+		name: "hoisting of names inside of classes",
+		description:
+			"checks that names inside of classes can be accessed before they are declared",
+		code: `
+		class C {
+		public:
+			function p() { print(v); }
+		private:
+			var v = 13;
+		}
+		var obj = C();
+		obj.p();
+		`,
+		expectation: [{ type: "print", message: "13" }, "finished"],
+	},
+	{
+		name: "hoisting of namespaces",
+		description:
+			"checks that namespaces can be accessed before they are declared",
+		code: `
+		N.p();
+		from N use p as q;
+		q();
+		namespace N {
+			function p() { print(13); }
+		}
+		`,
+		expectation: [
+			{ type: "print", message: "13" },
+			{ type: "print", message: "13" },
+			"finished",
+		],
+	},
+	{
+		name: "hoisting of variables declared in namespaces (case 1)",
+		description:
+			"checks that variables cannot be accessed before they are declared, even when declared inside of a (hoisted) namespace",
+		code: `
+		print(N.v);
+		namespace N {
+			var v = 13;
+		}
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-5" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "hoisting of variables declared in namespaces (case 2)",
+		description:
+			"checks that variables cannot be accessed before they are declared, even when declared inside of a (hoisted) namespace",
+		code: `
+		use namespace N;
+		print(v);
+		namespace N {
+			var v = 13;
+		}
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-5" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "hoisting of variables declared in namespaces (case 3)",
+		description:
+			"checks that variables cannot be accessed before they are declared, even when declared inside of a (hoisted) namespace",
+		code: `
+		from N use v;
+		print(v);
+		namespace N {
+			var v = 13;
+		}
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-5" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "hoisting of variables declared in namespaces (case 4)",
+		description:
+			"checks that variables cannot be accessed before they are declared, even when declared inside of a (hoisted) namespace",
+		code: `
+		use N.v;
+		print(v);
+		namespace N {
+			var v = 13;
+		}
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-5" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "invalid variable access through function hoisting, case 1",
+		description:
+			"runtime check that values are valid, which can be violated through function hoisting",
+		code: `
+		f();
+		var v = 7;
+		function f() { print(v); }
+		`,
+		expectation: [{ type: "error", href: "#/errors/name/ne-29" }, "error"],
+	},
+	{
+		name: "invalid variable access through function hoisting, case 2",
+		description:
+			"runtime check that values are valid, which can be violated through class hoisting",
+		code: `
+		f();
+		var v = 7;
+		function f() { v = 8; }
+		`,
+		expectation: [{ type: "error", href: "#/errors/name/ne-29" }, "error"],
+	},
+	{
+		name: "invalid variable access through class hoisting, case 1",
+		description:
+			"runtime check that values are valid, which can be violated through class hoisting",
+		code: `
+		var obj = C();
+		print(obj.s);
+
+		class C
+		{
+		public:
+			static var s = 42;
+		};
+		`,
+		expectation: [{ type: "error", href: "#/errors/name/ne-29" }, "error"],
+	},
+	{
+		name: "invalid variable access through class hoisting, case 2",
+		description:
+			"runtime check that values are valid, which can be violated through class hoisting",
+		code: `
+		var obj = C();
+		obj.s = 42;
+
+		class C
+		{
+		public:
+			static var s = 42;
+		};
+		`,
+		expectation: [{ type: "error", href: "#/errors/name/ne-29" }, "error"],
+	},
+
 	// syntax errors
 	{
 		name: "se-1",
@@ -2358,19 +2609,11 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "se-10",
-		description: "test of syntax error 10",
+		name: "se-10-1",
+		description: "test of syntax error 10, case 1",
 		code: `
-			class A
-			{
-			protected:
-				var a = 33;
-			}
-			class B : A
-			{
-			public:
-				use "A";
-			}
+			var i;
+			for "i" in 0:10 do { }
 		`,
 		expectation: [
 			{ type: "error", href: "#/errors/syntax/se-10" },
@@ -2378,17 +2621,48 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "se-11",
-		description: "test of syntax error 11",
+		name: "se-10-2",
+		description: "test of syntax error 10, case 2",
 		code: `
-			namespace A
-			{
-				var a;
-			}
-			var b = A.7;
+			class A { }
+			class B : "A" { }
 		`,
 		expectation: [
-			{ type: "error", href: "#/errors/syntax/se-11" },
+			{ type: "error", href: "#/errors/syntax/se-10" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "se-10-3",
+		description: "test of syntax error 10, case 3",
+		code: `
+			use "print" as p;
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/syntax/se-10" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "se-10-4",
+		description: "test of syntax error 10, case 4",
+		code: `
+			from canvas use "width";
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/syntax/se-10" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "se-10-5",
+		description: "test of syntax error 10, case 5",
+		code: `
+			namespace A { namespace B { var x; } }
+			from A use namespace "B";
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/syntax/se-10" },
 			"parsing failed",
 		],
 	},
@@ -2638,7 +2912,7 @@ export const tests: Array<TscriptTest> = [
 		name: "se-40",
 		description: "test of syntax error 40",
 		code: `
-			function f(a = 2*3+4);
+			function f();
 		`,
 		expectation: [
 			{ type: "error", href: "#/errors/syntax/se-40" },
@@ -2668,11 +2942,26 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "se-43",
-		description: "test of syntax error 43",
+		name: "se-43a",
+		description: "test of syntax error 43 (case 1)",
 		code: `
 			var a;
 			var b = a.do;
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/syntax/se-43" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "se-43b",
+		description: "test of syntax error 43 (case 1)",
+		code: `
+			namespace A
+			{
+				var a;
+			}
+			var b = A.7;
 		`,
 		expectation: [
 			{ type: "error", href: "#/errors/syntax/se-43" },
@@ -4106,7 +4395,7 @@ export const tests: Array<TscriptTest> = [
 		name: "am-42-1",
 		description: "test of argument mismatch error am-42, case 1",
 		code: `
-			var x = function[q={}](){};
+			var x = function[](){};
 			var y = deepcopy(x);
 		`,
 		expectation: [
@@ -4118,13 +4407,7 @@ export const tests: Array<TscriptTest> = [
 		name: "am-42-2",
 		description: "test of argument mismatch error am-42, case 2",
 		code: `
-			class A
-			{
-			public:
-				function f() { }
-			}
-			var a = A();
-			var x = a.f;
+			var x = canvas.MouseMoveEvent();
 			var y = deepcopy(x);
 		`,
 		expectation: [
@@ -4135,18 +4418,6 @@ export const tests: Array<TscriptTest> = [
 	{
 		name: "am-42-3",
 		description: "test of argument mismatch error am-42, case 3",
-		code: `
-			var x = canvas.MouseMoveEvent();
-			var y = deepcopy(x);
-		`,
-		expectation: [
-			{ type: "error", href: "#/errors/argument-mismatch/am-42" },
-			"error",
-		],
-	},
-	{
-		name: "am-42-4",
-		description: "test of argument mismatch error am-42, case 4",
 		code: `
 			var x = [];
 			x.push(x);
@@ -4262,7 +4533,21 @@ export const tests: Array<TscriptTest> = [
 		name: "ne-5-2",
 		description: "test of name resolution error ne-5, case 2",
 		code: `
-			var x = math.sqrt(x);
+			var x = math.foobar;
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-5" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "ne-5-3",
+		description: "test of name resolution error ne-5, case 3",
+		code: `
+			class A
+			{
+			}
+			var x = A.a;
 		`,
 		expectation: [
 			{ type: "error", href: "#/errors/name/ne-5" },
@@ -4328,17 +4613,6 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "ne-9",
-		description: "test of name resolution error ne-9",
-		code: `
-			var x = math.foobar;
-		`,
-		expectation: [
-			{ type: "error", href: "#/errors/name/ne-9" },
-			"parsing failed",
-		],
-	},
-	{
 		name: "ne-11",
 		description: "test of name resolution error ne-11",
 		code: `
@@ -4348,17 +4622,6 @@ export const tests: Array<TscriptTest> = [
 			{ type: "error", href: "#/errors/name/ne-11" },
 			"parsing failed",
 		],
-	},
-	{
-		name: "ne-12",
-		description: "test of name resolution error ne-12",
-		code: `
-			class A
-			{
-			}
-			var x = A.a;
-		`,
-		expectation: [{ type: "error", href: "#/errors/name/ne-12" }, "error"],
 	},
 	{
 		name: "ne-13",
@@ -4613,17 +4876,6 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "ne-27",
-		description: "test of name resolution error ne-27",
-		code: `
-			class A { public: function f() { var obj = A(); } }
-		`,
-		expectation: [
-			{ type: "error", href: "#/errors/name/ne-27" },
-			"parsing failed",
-		],
-	},
-	{
 		name: "ne-28",
 		description: "test of name resolution error ne-28",
 		code: `
@@ -4635,6 +4887,14 @@ export const tests: Array<TscriptTest> = [
 			{ type: "error", href: "#/errors/name/ne-28" },
 			"parsing failed",
 		],
+	},
+	{
+		name: "ne-29",
+		description: "test of name resolution error ne-29",
+		code: `
+			var x = math.sqrt(x);
+		`,
+		expectation: [{ type: "error", href: "#/errors/name/ne-29" }, "error"],
 	},
 
 	// logic errors

@@ -1,6 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { get_function } from "../interpreter/interpreter_helper";
+import { get_function } from "../helpers/getParents";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
 
@@ -58,6 +58,7 @@ export function parse_return(state, parent, options) {
 		if (fn.name === "constructor") state.error("/syntax/se-79");
 		if (fn.petype === "global scope" || fn.petype === "namespace")
 			state.error("/syntax/se-80");
+		ret.children = [ret.argument];
 	}
 
 	// parse the closing semicolon
