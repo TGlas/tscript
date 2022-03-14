@@ -315,7 +315,7 @@ export let errors = {
 		"ne-10": "name '$$' does not refer to a variable, function, or type",
 		"ne-11":
 			"a name referring to a namespace is not allowed in this context",
-		// "ne-12": "type '$$' does not have a public static member '$$'",
+		"ne-12": "type '$$' does not have a public static member '$$'",
 		"ne-13": "type '$$' does not have a public member '$$'",
 		"ne-14":
 			"declaration of variable '$$' conflicts with previous declaration; double use of the same name",

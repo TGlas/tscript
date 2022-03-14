@@ -259,18 +259,18 @@ export const doc_errors: Documentation = {
 		`,
 					children: [],
 				},
-				{
-					id: "se-11",
-					content: `
-			<p>
-			A name is a sequence of identifiers separated by dots. This error
-			indicates that the name ends with a dot, while it should end with
-			an identifier. In other words, there is either a trailing dot or
-			an identifier is missing at the end.
-			</p>
-		`,
-					children: [],
-				},
+				//	{
+				//		id: "se-11",
+				//		content: `
+				//			<p>
+				//			A name is a sequence of identifiers separated by dots. This error
+				//			indicates that the name ends with a dot, while it should end with
+				//			an identifier. In other words, there is either a trailing dot or
+				//			an identifier is missing at the end.
+				//			</p>
+				//		`,
+				//		children: [],
+				//	},
 				//		{"id": "se-12",
 				//		"content": `
 				//			<p>
@@ -2366,19 +2366,19 @@ print(arr.sort(order2));                        # works fine
 		`,
 					children: [],
 				},
-				{
-					id: "ne-9",
-					content: `
-			<p>
-			This error indicates that a name was not found inside a namespace.
-			For a name of the form <code class="ebnf">identifier "." identifier</code>
-			with the left identifier referring to a namespace, the right identifier
-			is looked up inside that namespace. If the name is not found in there
-			then this error is reported.
-			</p>
-		`,
-					children: [],
-				},
+				//	{
+				//		id: "ne-9",
+				//		content: `
+				//			<p>
+				//			This error indicates that a name was not found inside a namespace.
+				//			For a name of the form <code class="ebnf">identifier "." identifier</code>
+				//			with the left identifier referring to a namespace, the right identifier
+				//			is looked up inside that namespace. If the name is not found in there
+				//			then this error is reported.
+				//			</p>
+				//		`,
+				//		children: [],
+				//	},
 				//		{"id": "ne-10",
 				//		"content": `
 				//			<p>
@@ -2393,45 +2393,45 @@ print(arr.sort(order2));                        # works fine
 				{
 					id: "ne-11",
 					content: `
-			<p>
-			This error indicates that a name refers to a namespace, while a
-			different entity was expected.
-			</p>
-			<div>
-				<h3>Example</h3>
-				<tscript>
-				namespace A
-				{ }
-				class B # : A      # error; super class expected, namespace found
-				{ }
-				</tscript>
-			</div>
-		`,
+						<p>
+						This error indicates that a name refers to a namespace, while a
+						different entity was expected.
+						</p>
+						<div>
+							<h3>Example</h3>
+							<tscript>
+							namespace A
+							{ }
+							class B # : A      # error; super class expected, namespace found
+							{ }
+							</tscript>
+						</div>
+					`,
 					children: [],
 				},
 				{
 					id: "ne-12",
 					content: `
-			<p>
-			The <a href="?doc=/language/expressions/member-access">member access operator .</a>
-			references a public member of a type. If the left-hand-side evaluates
-			to a type then access is restricted to public static members.
-			This error is reported if neither the type nor any of its super
-			classes has a public static member of the given name.
-			</p>
-		`,
+						<p>
+						The <a href="?doc=/language/expressions/member-access">member access operator .</a>
+						references a public member of a type. If the left-hand-side evaluates
+						to a type then access is restricted to public static members.
+						This error is reported if neither the type nor any of its super
+						classes has a public static member of the given name.
+						</p>
+					`,
 					children: [],
 				},
 				{
 					id: "ne-13",
 					content: `
-			<p>
-			The <a href="?doc=/language/expressions/member-access">member access operator .</a>
-			references a public member of a type. This error is reported if neither
-			the type nor any of its super classes has a public member of the given
-			name.
-			</p>
-		`,
+						<p>
+						The <a href="?doc=/language/expressions/member-access">member access operator .</a>
+						references a public member of a type. This error is reported if neither
+						the type nor any of its super classes has a public member of the given
+						name.
+						</p>
+					`,
 					children: [],
 				},
 				{
@@ -2611,41 +2611,41 @@ print(arr.sort(order2));                        # works fine
 		`,
 					children: [],
 				},
-				{
-					id: "ne-27",
-					content: `
-			<p>
-			It was attempted to create an object of a class without knowing its
-			constructor. This happens when creating an object of a class from
-			within a method of the same class without explicitly declaring a
-			constructor first.
-			</p>
-			<p>
-			To fix this somewhat unintuitive problem, move the constructor
-			further up in the class definition so that it is found before the
-			offending constructor call. If the class does not have a constructor
-			then add one, usually a parameter-less empty public constructor,
-			like so:
-			</p>
-			<div>
-				<tscript>
-				class Something
-				{
-				public:
-					constructor() { }
-					# object constructor works from here onwards
-
-					function f()
-					{
-						# create an object, i.e., call the constructor
-						var obj = Something();
-					}
-				}
-				</tscript>
-			</div>
-		`,
-					children: [],
-				},
+				//	{
+				//		id: "ne-27",
+				//		content: `
+				//			<p>
+				//			It was attempted to create an object of a class without knowing its
+				//			constructor. This happens when creating an object of a class from
+				//			within a method of the same class without explicitly declaring a
+				//			constructor first.
+				//			</p>
+				//			<p>
+				//			To fix this somewhat unintuitive problem, move the constructor
+				//			further up in the class definition so that it is found before the
+				//			offending constructor call. If the class does not have a constructor
+				//			then add one, usually a parameter-less empty public constructor,
+				//			like so:
+				//			</p>
+				//			<div>
+				//				<tscript>
+				//				class Something
+				//				{
+				//				public:
+				//					constructor() { }
+				//					# object constructor works from here onwards
+				//
+				//					function f()
+				//					{
+				//						# create an object, i.e., call the constructor
+				//						var obj = Something();
+				//					}
+				//				}
+				//				</tscript>
+				//			</div>
+				//		`,
+				//		children: [],
+				//	},
 				{
 					id: "ne-28",
 					content: `
