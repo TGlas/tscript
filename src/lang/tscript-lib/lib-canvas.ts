@@ -632,7 +632,7 @@ export const lib_canvas = {
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
 					if (
-						!TScript.isDerivedFrom(points.type, Typeid.typeid_array)
+						!TScript.isDerivedFrom(p.type, Typeid.typeid_array)
 					)
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
@@ -706,7 +706,7 @@ export const lib_canvas = {
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
 					if (
-						!TScript.isDerivedFrom(points.type, Typeid.typeid_array)
+						!TScript.isDerivedFrom(p.type, Typeid.typeid_array)
 					)
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
@@ -776,7 +776,7 @@ export const lib_canvas = {
 				for (let i = 0; i < points.value.b.length; i++) {
 					let p = points.value.b[i];
 					if (
-						!TScript.isDerivedFrom(points.type, Typeid.typeid_array)
+						!TScript.isDerivedFrom(p.type, Typeid.typeid_array)
 					)
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
@@ -968,6 +968,28 @@ export const lib_canvas = {
 						"/user/ue-2",
 						[
 							"error in canvas.transform; A must be an array of size two.",
+						],
+						this.stack
+					);
+				if (!TScript.isDerivedFrom(A.value.b[0].type, Typeid.typeid_array))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"A[0]",
+							"canvas.transform",
+							"array",
+							TScript.displayname(A.value.b[0].type),
+						],
+						this.stack
+					);
+				if (!TScript.isDerivedFrom(A.value.b[1].type, Typeid.typeid_array))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"A[0]",
+							"canvas.transform",
+							"array",
+							TScript.displayname(A.value.b[1].type),
 						],
 						this.stack
 					);

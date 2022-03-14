@@ -1941,6 +1941,46 @@ export const tests: Array<TscriptTest> = [
 		},
 	},
 	{
+		name: "canvas error handling, case 1",
+		description: "test of canvas argument validity checks",
+		code: `
+			class A {}
+			var a = A();
+			canvas.transform([a, a], [a, a]);
+		`,
+		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+	},
+	{
+		name: "canvas error handling, case 2",
+		description: "test of canvas argument validity checks",
+		code: `
+			class A {}
+			var a = A();
+			canvas.curve([a], false);
+		`,
+		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+	},
+	{
+		name: "canvas error handling, case 3",
+		description: "test of canvas argument validity checks",
+		code: `
+			class A {}
+			var a = A();
+			canvas.fillArea([a]);
+		`,
+		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+	},
+	{
+		name: "canvas error handling, case 4",
+		description: "test of canvas argument validity checks",
+		code: `
+			class A {}
+			var a = A();
+			canvas.frameArea([a]);
+		`,
+		expectation: [{ type: "error", href: "#/errors/argument-mismatch/am-1" }, "error"],
+	},
+	{
 		name: "keydown",
 		description: "test of canvas event keydown",
 		code: `
