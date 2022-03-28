@@ -1473,7 +1473,7 @@ export const evaluation = (function () {
 				if (! task.hasOwnProperty("ignore-color") || !!task["ignore-color"]) {
 					for (let i=0; i<result.length; i++)
 					{
-						if (result[i])
+						if (result[i] && Array.isArray(result[i]))
 							result[i] = result[i].filter(
 								event => event.type != "canvas setLineColor" && event.type != "canvas setFillColor"
 							);
