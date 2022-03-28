@@ -39,7 +39,7 @@ export const tutorial_functiontype = {
 				function f(x) { return x^2; }
 				var g = f;
 				var h = f(4);
-				print(g);       # prints &lt;Function f&gt;
+				print(g);       # prints <Function f>
 				print(h);       # prints 16
 			</tscript>
 			The variable <code>g</code> refers to the function itself. It holds a
@@ -166,7 +166,7 @@ export const tutorial_functiontype = {
 			assigned to variables:
 			<tscript>
 				var t = Integer;
-				print(t);         # prints &lt;Type Integer&gt;
+				print(t);         # prints <Type Integer>
 			</tscript>
 			This means that they must also be values. That's indeed the case, and
 			the datatype of these values is called <code>Type</code>. This has the
@@ -223,9 +223,10 @@ export const tutorial_functiontype = {
 			</tscript>
 			If you try it out, then you will encounter an error message inside of
 			the function, telling us that the operands of operator <code>:</code>
-			must be integers. We knew that already, right? So at first glance, the
-			function seems to be buggy. However, that's not the case, we have just
-			used it wrong.
+			must be integers. We knew that already, right? The colon operator
+			constructs a range, and a range requires integers. So at first glance,
+			the function <code>repeat</code> seems to be buggy. However, that's not
+			the case, we have just used it wrong.
 			</p>
 			<p>
 			The problem here is that the error message does not point us at the real
