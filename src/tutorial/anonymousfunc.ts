@@ -4,250 +4,261 @@ export const tutorial_anonymousfunc = {
 	sections: [
 		{
 			content: `
-            <p>
-            An anonymous function is a function without a name, basically being
-            a value of type Function. We have already seen that it is possible
-            to assign functions to variables, which is what we mostly do with 
-            anonymous functions. We can also use anonymous functions as a return
-            value from a function. This way we are able to dynamically create
-            new functions. You can compare it to functions set known from 
-            mathematics:
-            <tscript>
-            function f(m, b) {
-                return function[m, b] (x) {
-                    return m*x + b;
-                };
-            }
-            </tscript>
-            The square brackets are enclosed in the anonymous function. They are
-            necessary, since every dynamically created function needs to save its
-            own parameters <i>m</i> and </i>b</i>. This way we tell the programm to
-            do so. Otherwise it'd try to access <i>m</i> and <i>b</i> from the original
-            function from other scopes. This example allows us to create different 
-            linear functions and store them in different variables. We are then able 
-            to access these anonymous functions, just as we'd access normal functions:
-            <tscript>
-            var f1 = f(1, 0);
-            for var i in -5:6 do {
-                print(f1(i));           # prints -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5
-            }
-            </tscript>
-            Another possible application is to hand over an anonymous function to 
-            another function. For example, you can hand over a specific function
-            to the <i>Array.sort()</i>-function to sort an array with any definition
-            what is larger and smaller that you want:
-            <tscript>
-            var a = [5, 0, -10, 10, -5];
-            a.sort();
-            print(a);                       # prints -10, -5, 0, 5, 10
-
-            var f = function(x, y) {
-                if (x < y) then return 1;
-                else if (x > y) then return -1;
-                else return 0;
-            };
-            a.sort(f);
-            print(a);                       # prints 10, 5, 0, -5, -10
-            </tscript>
-            </p>
-            <p>
-            In the first example, you have already seen closure variables. We not only
-            need them if we create a function via another function, but everytime we 
-            want to set any parameters inside of an anonymous function. The closure
-            variables are independent on the variables they have gotten their value
-            from:
-            <tscript>
-            var a = 1;
-            var f = function[x = a] () {
-                print(x);
-            };
-            f();                            # prints 1;
-            a = 5;
-            f();                            # prints 1;
-            </tscript>
-            If we hand over a container, the content of it can change, though. We can 
-            assign any kind of value to our closure variables. In the first
-            example of this chapter, we already used an abbreviation:
-            <tscript>
-            var a = 1;
-            var f = function[a] () {
-                print(a);
-            };
-
-            var g = function[a = a] () {
-                print(a);
-            }
-            </tscript>
-            Function f uses the abbreviation for the assignment, we explicitely do
-            in function g.
-            </p>
-            <div class="tutorial-exercise">
 			<p>
-            Create an empty array <i>functions</i>. Run through a <i>for-loop</i> ten
-            times and add an anonymous function to the array every run. The anonymous 
-            function shall take <i>a</i> as a closure variable and assign the current
-            loop counter to the power of two to it. It shall also take <i>x</i> as a
-            parameter and return <i>a*x^2</i>.
+			An anonymous function, also called a lambda function, is a function
+			without a name. It is a value of type Function. We have already seen
+			that it is possible to assign functions to variables. That's what we
+			mostly do with anonymous functions. We can also use anonymous functions
+			as a return value from a function, or pass them as a parameter into
+			another function. An anonymous function is created as follows:
+			<tscript>
+				var square = function(x)
+				{
+					return x^2;
+				};
+			</tscript>
+			The variable <code>square</code> now contains a function with a single
+			parameter, which returns the square of its parameter value. Note that we
+			could have achieved a very similar effect by declaring a named function:
+			<tscript>
+				function square(x)
+				{
+					return x^2;
+				}
+			</tscript>
+			However, we will see that anonymous function can have advantages over
+			named functions, and that they are capable of doing things regular
+			functions cannot do.
+			</p>
+
+			<h2>Event Handling</h2>
+			<p>
+			Anonymous function are well suited for being passed into other
+			functions, mostly because of improved code locality. This means that
+			the function appears in the code exactly where it is used. Event
+			handling is one prominent example. Consider the following click handler:
+			<tscript>
+				function drawDot(event)
+				{
+					canvas.setFillColor(0, 0, 0);
+					canvas.fillCircle(event.x, event.y, 5);
+				}
+
+				# ...lots of other code...
+
+				setEventHandler("canvas.mousedown", drawDot);
+				enterEventMode();
+			</tscript>
+			If the comment is replaced with hundreds of lines of code then it
+			becomes hard to judge the effect of the call to
+			<code>setEventHandler</code>, simply because we first need to locate the
+			function <code>drawDot</code>. Of course, we could (manually) try to
+			make sure that the function is close, but code may evolve in
+			unpredictable ways, so that's not always realistic, in particular with
+			many programmers in a team. When passing an anonymous function directly
+			as a parameter, the problem disappears automatically:
+			<tscript>
+				setEventHandler("canvas.mousedown", function(event)
+				{
+					canvas.setFillColor(0, 0, 0);
+					canvas.fillCircle(event.x, event.y, 5);
+				});
+				enterEventMode();
+			</tscript>
+			There are of course applications other than event handling where it can
+			make sense to pass a function as a parameter into another function. All
+			of these cases profit the same way from the ability to pass the function
+			directly as a value, instead of referencing it by name.
+			</p>
+
+			<h2>Enclosing Variables</h2>
+			<p>
+			A very important property of anonymous functions is that they can be
+			parameterized. We are able to dynamically create new functions, which
+			are parameterized by variables. This is analogous to parametric families
+			of functions in mathematics. Think of the family of (affine) linear
+			functions of the form f(x) = m·x + b. They have a variable, <i>x</i>,
+			and two parameters <i>m</i> and <i>b</i>. An attempt to resemble the
+			same concept in code could look like this:
+			<tscript>
+				var m, b;
+				var linear_func = function(x)
+				{
+					return m * x + b;
+				};
+			</tscript>
+			That works to some extent, but it has two drawbacks:
+			<ul>
+				<li>If we return <code>linear_func</code> from a function then the
+					variables <code>m</code> and <code>b</code> are out of scope.
+					Therefore, the construction only works if <code>m</code> and
+					<code>b</code> are global variables.</li>
+				<li>We cannot really create multiple instances of the function,
+					since there is only one instance of the variables holding the
+					parameters.</li>
+			</ul>
+			Both problems can be solved by turning the function into a class, with
+			objects holding the parameters, like this:
+			<tscript>
+				class LinearFunction
+				{
+				public:
+					constructor(slope, offset)
+					{
+						m = slope;
+						b = offset;
+					}
+					function eval(x)
+					{
+						return m * x + b;
+					}
+				private:
+					var m, b;
+				}
+			</tscript>
+			It is used as follows:
+			<tscript>
+			var linear_func = LinearFunction(7, 2);   # function f(x) = 7·x+2
+			print(linear_func.eval(5));     # computes 7*5+2, hence prints 37
+			</tscript>
+			Importantly, we can now create multiple instances of linear functions
+			with different (and actually independent) parameters, simply by creating
+			multiple objects.
+			</p>
+			<p>
+			The solution is fine as long as calling the <code>eval</code> method
+			works in the corresponding context. However, think of sorting an array
+			according to a custom criterion, passed as an argument to
+			<code>Array.sort(compare)</code>. Then <code>compare</code> needs to be
+			a proper function, not an object with an <code>eval</code> method. If
+			such a comparison function shall depend on parameters, how to resolve
+			the situation?
+			</p>
+			<p>
+			An anonymous function can do exactly that. Besides not having a name, an
+			anonymous function can hold parameter values, just like an object holds
+			attributes. These attributes are declared in square brackets:
+			<tscript>
+				var m=7, b=2;
+				var linear_func = function[m, b](x)
+				{
+					return m*x + b;
+				};
+			</tscript>
+			We say that the variables <code>m</code> and <code>b</code> are
+			<i>enclosed</i> in the function. What really happens is that the
+			variables are <i>copied</i> into the function. The best way to think
+			about it is that there are attributes of the same names inside of the
+			function, so the names <code>m</code> and <code>b</code> inside of the
+			function refer to the attributes, not to the variables outside of the
+			function (as it may seem). This also means that if the values of the
+			variables change to <code>m=3</code> and <code>b=1</code> later on then
+			<code>linear_func</code> still represents the function f(x) = 7·x + 2,
+			not f(x) = 3·x + 1.
+			One more difference to the class approach is that the values of the
+			attributes enclosed in an anonymous function cannot be modified after
+			initialization.
+			</p>
+			<p>
+			The notation of enclosing variables is really only syntactic sugar for
+			an actual attribute declaration with initialization. In fact, the
+			following works:
+			<tscript>
+				var a=4;
+				var linear_func = function[m=a+1, b=a^2](x)
+				{
+					return m*x + b;
+				};
+			</tscript>
+			Here it is apparent that it is not the variable <code>a</code> which is
+			enclosed, but that two attributes <code>m</code> and <code>b</code> are
+			created and initialized to arbitrary values. In that sense,
+			<code>function[m, b](x)</code> is short syntax for
+			<code>function[m=m, b=b](x)</code>, which means that <code>m</code> and
+			<code>b</code> are attributes, which happen to get initialized to the
+			values of the variables of the same names from the outside scope.
+			</p>
+			<p>
+			As indicated before, <code>linear_func</code> can be called like a
+			normal function:
+			<tscript>
+				var linear_func = function[m=7, b=2](x)
+				{
+					return m*x + b;
+				};
+				print(linear_func(5));   # prints 37   (= 7*5+2)
+			</tscript>
+			</p>
+
+			<div class="tutorial-exercise">
+			<p>
+			Create an empty array <code>var functions = [];</code>. Run through a
+			for-loop over the range <code>0:10</code> and inside of the loop body,
+			add an anonymous function to the array representing the mathematical
+			function f(x) = m·x + 10, where <i>m</i> is the loop counter. In other
+			words, the array shall contain 10 functions, representing the
+			mathematical function 0·x + 10, 1·x + 10, 2·x + 10, ..., 9·x + 10.
 			</p>
 			</div>
-            `,
+			`,
 			correct: `
-            var functions = [];
-            for var i in 0:10 do {
-                functions.push(function[a = i*i](x) {
-                    return a*x*x;
-                });
-            }`,
+			var functions = [];
+			for var m in 0:10 do
+			{
+				functions.push(function[m](x)
+				{
+					return m*x + 10;
+				});
+			}`,
 			tests: [
 				{
 					type: "js",
 					code: `let program = parse(code).program;
-                    if (! program) return "Failed to parse the program code.";
-                    if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
-                    if (isRecursive(program)) return "Please don't use recursion.";`,
+					if (! program) return "Failed to parse the program code.";
+					if (! hasStructure(program, "loop;")) return "Use a loop to solve the problem!";
+					if (isRecursive(program)) return "Please don't use recursion.";`,
+				},
+				{
+					type: "call",
+					code: "functions[0](2);",
+				},
+				{
+					type: "call",
+					code: "functions[1](5);",
 				},
 				{
 					type: "code",
-					code: "print(functions[0](2));",
+					code: "for var f in functions do for var x in 3:5 do print(f(x));",
 				},
-				{
-					type: "code",
-					code: "print(functions[1](5));",
-				},
-				{
-					type: "code",
-					code: "print(functions[9](10));",
-				},
-				{
-					type: "code",
-					code: "print(functions[5](0));",
-				},
-				{
-					type: "code",
-					code: "print(functions[5](1));",
-				},
-				{
-					type: "code",
-					code: "print(functions[5](-5));",
-				},
-				{
-					type: "code",
-					code: "print(functions[5](5));",
-				},
-				/*{
-                    "type": "code",
-                    "code": "print(functions[10](0);",
-                }*/
 			],
 		},
 		{
 			content: `
-            <h2>Event management</h2>
-            <p>
-            A final application for anonymous functions is handling events. Imagine 
-            using a phone application where something happens when you touch a certain
-            screen area. This touch can be seen as an event happening. In the background
-            of the application an event listener runs and tells the application if a
-            specific event has taken place. Then a specific function is called to react
-            to the occured event. In Tscript we encounter event handling working with
-            the canvas. There exist different types of events which you can find 
-            <a href="https://info1.ini.rub.de/TScriptIDE.html?doc=/library/canvas">here</a>.
-            We set an event handler that listens to a specified event and hand over
-            an anonymous function that will be executed everytime the event occurs:
-            <tscript>
-            setEventHandler("canvas.mousedown", function(event) {
-                print("mouse down!");
-            });
-            enterEventMode();
-            </tscript>
-            Everytime the user presses his left mouse button, the program will print
-            a message. The <i>enterEventMode()</i> is necessary to tell the program
-            to start listening for events. A function that shall be executed by an
-            EventHandler always has to take one parameter. This parameter contains 
-            possible information each event carries. <i>canvas.mousedown</i>, i.e.,
-            hands over the position (x, y) of the mouse click, which can be accessed
-            via <i>event.x</i> or <i>event.y</i>. Note that the program is halted once 
-            the event mode is entered. You'll have to explicitely finish listening for 
-            events. This can look like this:
-            <tscript>
-            setEventHandler("canvas.mousedown", function(event) {
-                print("mouse down!");
-            });
-            enterEventMode();
-            wait(60000);
-            quitEventMode();
-            </tscript>
-            In this example the program listens for 1 minute and afterwards quits the
-            event mode.
-            </p>
-            <div class="tutorial-exercise">
 			<p>
-            Set an EventHandler for the "canvas.keydown" event. Hand over an anonymous 
-            function which prints the key, the user has pressed down. The keydown-event
-            carries the <i>key</i>-attribute. Quit the event mode after the event has been
-            called.
+			What we have effectively done in the exercise is to create 10 different
+			functions, although the keyword <code>function</code> appears only once
+			in the code. In that sense, the ability to create parameterized
+			functions greatly extends the scope of the data type <code>Type</code>,
+			since with anonymous functions, there is a potentially indefinite number
+			of function values in a program. More and more values of type function
+			can come into existence, for example in a loop, or when reacting to an
+			event at the discretion of the user.
 			</p>
-			</div>
-            `,
-			correct: `
-            setEventHandler("canvas.keydown", function(event) {
-                print(event.key);
-                quitEventMode();
-            });
-            enterEventMode();
-            `,
-			tests: [
-				{
-					type: "code",
-					code: "",
-					input: [
-						{
-							type: "canvas.keydown",
-							classname: "canvas.KeyboardEvent",
-							event: {
-								key: "h",
-								shift: false,
-								control: false,
-								alt: false,
-								meta: false,
-							},
-						},
-					],
-				},
-				{
-					type: "code",
-					code: "",
-					input: [
-						{
-							type: "canvas.keydown",
-							classname: "canvas.KeyboardEvent",
-							event: {
-								key: "x",
-								shift: false,
-								control: false,
-								alt: false,
-								meta: false,
-							},
-						},
-					],
-				},
-			],
-		},
-		{
-			content: `
-            <h2>Wrap-up</h2>
-            <p>
-            You have learned about anonymous functions and their applications. They can be
-            used to create similar functions with different set parameters using closure
-            variables. Furthermore you have learned to deal with events, handling them
-            via event listeners and calling anonymous functions. Note that you do not have
-            to use anonymous functions. You can also simply create a function and hand it
-            over instead of an anonymous one. Anonymous functions give you the possibility
-            to create cleaner code, though. If you do not need to use the code multiple
-            times, you do not need to create a new function for every event you want to 
-            handle. It might be cleaner to simply hand over anonymous functions.
-            </p>
-            `,
+
+			<h2>Wrap-up</h2>
+			<p>
+			We have seen anonymous functions and their applications. One application
+			is avoiding indirection or removing the need to refer to a function by
+			name, since it can be passed into or returned from a function directly
+			as a value. This generally improves code locality.
+			</p>
+			<p>
+			The other capability of anonymous functions is that they can be
+			parameterized. This means that an anonymous function can have
+			attributes that work pretty much like private attributes of an object.
+			This way, an arbitrary number of function instances can be created.
+			</p>
+			`,
 		},
 	],
 };

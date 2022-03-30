@@ -1,6 +1,6 @@
 export const tutorial_game = {
 	id: "game",
-	title: "Final Game",
+	title: "Create a Game",
 	sections: [
 		{
 			content: `
