@@ -259,9 +259,9 @@ export const doc = (function () {
 				let start = state.pos;
 				let token = lex(state);
 				let value = code.substr(start, state.pos - start);
-//if (value.indexOf("<") >= 0) console.log("'" + value + "'");
-//				if (value == "<") value = "&lt;";
-//				else if (value == "&") value = "&amp;";
+				//if (value.indexOf("<") >= 0) console.log("'" + value + "'");
+				//				if (value == "<") value = "&lt;";
+				//				else if (value == "&") value = "&amp;";
 				value = value.replaceAll("&", "&amp").replaceAll("<", "&lt;");
 				ret +=
 					'<span class="' +

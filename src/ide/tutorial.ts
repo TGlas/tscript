@@ -96,15 +96,15 @@ export const tutorial = (function () {
 		}
 
 		// strip leading and trailing newlines
-		while (ret[0] == "\n") ret = ret.slice(1, ret.length-1);
-		while (ret.endsWith("\n\n")) ret = ret.slice(0, ret.length-1);
+		while (ret[0] == "\n") ret = ret.slice(1, ret.length - 1);
+		while (ret.endsWith("\n\n")) ret = ret.slice(0, ret.length - 1);
 		return ret;
 	}
 
 	// Display the current tutorial unit. This is where most of the
 	// logic is, including testing and error reporting for programming
 	// tasks.
-	function display(scroll:number|null = null) {
+	function display(scroll: number | null = null) {
 		let scrollPos = module.dom.scrollTop;
 		if (module.state.unit < 0) {
 			// overview page
@@ -408,7 +408,10 @@ export const tutorial = (function () {
 				});
 			}
 		}
-		module.dom.scrollTo({top: (scroll === null) ? 0 : scrollPos + scroll, behavior: 'smooth'});
+		module.dom.scrollTo({
+			top: scroll === null ? 0 : scrollPos + scroll,
+			behavior: "smooth",
+		});
 	}
 
 	// define the interface to the IDE

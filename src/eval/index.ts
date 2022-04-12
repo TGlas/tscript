@@ -778,7 +778,7 @@ export const evaluation = (function () {
 	//  - inputs is an array of arrays, containing values returned by consecutive calls to TScript's confirm or prompt.
 	//  - maxseconds is the timeout
 	//  - process is a function taking the array of event arrays as its argument for further processing.
-	module.run_multiple = function(code, inputs, maxseconds, process) {
+	module.run_multiple = function (code, inputs, maxseconds, process) {
 		let timeout = new Date().getTime() + 1000 * maxseconds;
 
 		let index = 0;
@@ -1470,12 +1470,16 @@ export const evaluation = (function () {
 				points = 0;
 			} else {
 				// check the result, report success or failure
-				if (! task.hasOwnProperty("ignore-color") || !!task["ignore-color"]) {
-					for (let i=0; i<result.length; i++)
-					{
+				if (
+					!task.hasOwnProperty("ignore-color") ||
+					!!task["ignore-color"]
+				) {
+					for (let i = 0; i < result.length; i++) {
 						if (result[i] && Array.isArray(result[i]))
 							result[i] = result[i].filter(
-								event => event.type != "canvas setLineColor" && event.type != "canvas setFillColor"
+								(event) =>
+									event.type != "canvas setLineColor" &&
+									event.type != "canvas setFillColor"
 							);
 					}
 				}

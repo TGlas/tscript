@@ -1,6 +1,6 @@
 export const tutorial_functiontype = {
 	id: "functiontype",
-	title: 'Function and Type',
+	title: "Function and Type",
 	sections: [
 		{
 			content: `
