@@ -2636,6 +2636,8 @@ export let ide = (function () {
 		tgui.arrangePanels();
 
 		module.sourcecode.focus();
+
+		window["TScriptIDE"] = {tgui: tgui, ide: module};
 	};
 
 	return module;
