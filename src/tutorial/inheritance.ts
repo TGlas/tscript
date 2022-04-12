@@ -327,7 +327,7 @@ export const tutorial_inheritance = {
 			</tscript>
 			In class Dog, override the <code>greet</code> method of the superclass
 			so that a golden retriever called Luca greets with the following message:
-			<pre>Woof! I am a golden retriever any my name is Luca!</pre>
+			<pre>Woof! I am a golden retriever and my name is Luca!</pre>
 			</p>
 			</div>
 			`,

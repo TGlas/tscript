@@ -54,7 +54,7 @@ export const tutorial_anonymousfunc = {
 			<code>setEventHandler</code>, simply because we first need to locate the
 			function <code>drawDot</code>. Of course, we could (manually) try to
 			make sure that the function is close, but code may evolve in
-			unpredictable ways, so that's not always realistic, in particular with
+			unpredictable ways. So, that's not always realistic, in particular with
 			many programmers in a team. When passing an anonymous function directly
 			as a parameter, the problem disappears automatically:
 			<tscript>

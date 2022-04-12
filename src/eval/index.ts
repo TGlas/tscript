@@ -1508,7 +1508,7 @@ export const evaluation = (function () {
 							error =
 								"Error:\n" +
 								ed[0] +
-								"\nTest code:\n" +
+								";\nTest code:\n" +
 								calls[call_pos];
 							details = ed[1];
 						}
@@ -1528,7 +1528,7 @@ export const evaluation = (function () {
 								error =
 									"Error:\n" +
 									ed[0] +
-									"\nTest code:\n" +
+									";\nTest code:\n" +
 									calls[call_pos];
 							}
 							details = ed[1];

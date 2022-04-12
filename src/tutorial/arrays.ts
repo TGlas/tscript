@@ -470,6 +470,37 @@ export const tutorial_arrays = {
 			</tscript>
 			</p>
 
+			<h2>Multi-dimensional Grids</h2>
+			<p>
+			Arrays represent a sequence of items in a defined order. However, quite
+			often, items are ordered by more than one axis. For example, the fields
+			of a chessboard form a two-dimensional structure, and we need two
+			coordinates, or indices, to refer to a specific field. So, in order to
+			represent pieces on a chessboard, do we need a different container?
+			</p>
+			<p>
+			No, arrays are perfectly fine for this case. What we need is a
+			two-dimensional array. The simplest way to create one is to form an
+			array of rows, with each row being an array of pieces
+			(or <code>null</code> if the field is empty). A miniature 3x3 chessboard
+			state may look as follows:
+			<tscript>
+			var board = [
+				[null        , "white king", "white pawn"],
+				[null        , "black pawn", null        ],
+				["black king", null        , null        ]
+			];
+			</tscript>
+			The beauty of this approach is that we can access the items easily using
+			two coordinates. To print the item in row zero and column two (the white
+			pawn), we simple do
+			<tscript>
+			print(board[0][2]);
+			</tscript>
+			The same approach generalizes to three-dimensional grids and higher up,
+			but two-dimensional arrays are the most common case.
+			</p>
+
 			<h2>Wrap-up</h2>
 			<p>
 			Arrays are containers: they are values which can reference any number of

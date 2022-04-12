@@ -8,7 +8,7 @@ export const tutorial_events = {
 			Until now, our programs consist of a number of commands executed in
 			sequence. We know how alter the program flow using control structures
 			like loops and conditional statements, and how to redirect it into
-			function, acting as sub-programs. However, this paradigm assumes that
+			functions, acting as sub-programs. However, this paradigm assumes that
 			the whole program runs immediately when started all the way to the end.
 			</p>
 			<p>
@@ -17,7 +17,11 @@ export const tutorial_events = {
 			like to be able to react to user input, like a key press of a mouse
 			click. Our programs (sub-programs) shall run <i>in response to such
 			events</i>. The ability to do that would put us into the position to
-			implement a proper Graphical User Interface (GUI).
+			implement a proper Graphical User Interface (GUI). In a more general
+			setting, when not restricted by the sandboxed TScript (browser)
+			environment, we may also wish to react to other events, like incoming
+			network traffic or the completion of an asynchronous disk or memory
+			transfer process.
 			</p>
 			<p>
 			Every TScript program is always in one out of two modes: either in its
@@ -50,15 +54,16 @@ export const tutorial_events = {
 					must be called in response to an event. For example, one may
 					decide to quit event mode when the user presses the escape key
 					on the keyboard. Calling this function makes the main program
-					return from the call to <code>enterEventMode</code>. The
-					optional parameter of <code>quitEventMode</code> becomes the
-					return value of <code>enterEventMode</code>.</li>
+					return from the call to <code>enterEventMode</code>, and
+					continue from there. The optional parameter of
+					<code>quitEventMode</code> becomes the return value of
+					<code>enterEventMode</code>.</li>
 			</ul>
-			To illustrate this better, let us look at an example:
+			To illustrate the process better, let us look at an example:
 			<tscript>
 				function onClick(event)
 				{
-					print("Mouse click at canvas position " + event.x + "/" + event.y);
+					print("Mouse click at canvas position " + event.x + "," + event.y);
 				}
 				function onKey(event)
 				{
@@ -98,14 +103,18 @@ export const tutorial_events = {
 					(after the handler returns) and hence makes the call to
 					<code>enterEventMode()</code> above return.</li>
 			</ul>
+			Note that the function names <code>onClick</code> and <code>onKey</code>
+			are not relevant. In principle, we could rename them as we wish.
+			However, naming them according to the event they process is usually a
+			helpful convention.
 			</p>
 
 			<h2>Event Names</h2>
 			<p>
 			We did not discuss where the event names like
-			<code>"canvas.mousedown"</code> come from. They are rather arbitrary,
-			and in order to use events, we need to know these names. There is a
-			timer event, which is evoked up to 60 times per second. Its name is
+			<code>"canvas.mousedown"</code> come from. They are defined by TScript.
+			In order to use events, we need to know these names. There is a timer
+			event, which is evoked up to 60 times per second. Its name is
 			simply <code>"timer"</code>. All other available events belong to the
 			canvas. A list of these events can be found in the
 			<a target="_blank" href="?doc=/library/canvas">canvas documentation</a>.
@@ -124,25 +133,32 @@ export const tutorial_events = {
 			</p>
 			<p>
 			You may also wish to try a few of the example programs from the
-			documentation. Trial and error is a good way of getting to know events
-			better. Also, the keyboard handers are well suited for teaching you the
-			names of the keys of your keyboard.
+			documentation. That's a good way of getting to know events better. Also,
+			the keyboard handers are well suited for teaching you the names of the
+			keys of your keyboard.
 			</p>
 
 			<div class="tutorial-exercise">
 			<p>
-			Set an EventHandler for the "canvas.keydown" event. Hand over an anonymous 
-			function which prints the key, the user has pressed down. The keydown-event
-			carries the <i>key</i>-attribute. Quit the event mode after the event has been
-			called.
+			Set an event handler for the <code>"canvas.keydown"</code> event. In the
+			event handler, print <code>Hello World!</code> if the user presses the
+			space bar, and stop the event loop if the user presses the escape key.
+			To this end, evaluate <code>event.key</code> to obtain the name of the
+			pressed key.
 			</p>
+			<p>
+			<b>Note:</b> When testing your program, first click the canvas with the
+			mouse. This way you ensure that it holds the keyboard focus and is hence
+			receiving keyboard events.
 			</div>
 			`,
 			correct: `
-			setEventHandler("canvas.keydown", function(event) {
-				print(event.key);
-				quitEventMode();
-			});
+			function onKey(event)
+			{
+				if event.key == " " then print("Hello World!");
+				if event.key == "Escape" then quitEventMode();
+			}
+			setEventHandler("canvas.keydown", onKey);
 			enterEventMode();
 			`,
 			tests: [
@@ -161,17 +177,414 @@ export const tutorial_events = {
 								meta: false,
 							},
 						},
+						{
+							type: "canvas.keydown",
+							classname: "canvas.KeyboardEvent",
+							event: {
+								key: " ",
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.keydown",
+							classname: "canvas.KeyboardEvent",
+							event: {
+								key: " ",
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.keydown",
+							classname: "canvas.KeyboardEvent",
+							event: {
+								key: "z",
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.keydown",
+							classname: "canvas.KeyboardEvent",
+							event: {
+								key: " ",
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.keydown",
+							classname: "canvas.KeyboardEvent",
+							event: {
+								key: "Escape",
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.keydown",
+							classname: "canvas.KeyboardEvent",
+							event: {
+								key: " ",
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
 					],
 				},
+			],
+		},
+		{
+			content: `
+			<h2>Timer Events</h2>
+			<p>
+			The timer event was mentioned before. For example, it can be used to
+			run animations. The following program uses a timer event to move a red
+			call across the canvas:
+			<tscript>
+			var position = -20;
+			function onTick(event)
+			{
+				canvas.setFillColor(1, 1, 1);
+				canvas.clear();
+				canvas.setFillColor(1, 0, 0);
+				canvas.fillCircle(position, position, 20);
+				position += 1;   # speed: 1 unit per 1/60 second
+				if position > canvas.width()+20 or position > canvas.height()+20
+				then quitEventMode();
+			}
+			setEventHandler("timer", onTick);
+			enterEventMode();
+			</tscript>
+			The ball should slowly move down diagonally. We can make it move faster
+			by changing the speed in the program.
+			</p>
+			<p>
+			The handler <code>onTick</code> does not make any use of its parameter
+			<code>event</code>. Indeed, for timer events, the parameter is simply
+			the value <code>null</code>, and hence pretty much useless.
+			</p>
+
+			<h2>Keyboard Events</h2>
+			<p>
+			We have already seen that key presses cause the event
+			<code>"canvas.keydown"</code>. Using these events to do something
+			non-trivial like entering a text into a text editor is a lot of work.
+			Also, not all keyboards (in all countries) have the same keys, and it
+			is questionable whether one should rely on the existence of specific
+			keys. Finally, TScript does not provide a translation from keys to
+			characters, which can be a complicated process (think of so-called
+			<a target="_blank" href="https://en.wikipedia.org/wiki/Dead_key">"dead" keys</a>).
+			</p>
+			<p>
+			In this sense, TScript keyboard events are quite limited. They are not
+			intended for complex text operations, but rather for simple uses, as
+			commonly encountered in games.
+			</p>
+
+			<h3>Advanced Use</h3>
+			<p>
+			Next to <code>"canvas.keydown"</code>, there is a corresponding event
+			<code>"canvas.keyup"</code>. With both events in place, we can track
+			the state of the keyboard. For example, in game, we may wish to control
+			a character or object with the keys w, a, s, and d. To this end, we need
+			to keep track of which of these keys are currently pressed, and which
+			ones are not.
+			</p>
+			<p>
+			We should <i>not</i> be tempted to perform the movement in the key
+			handler! That would only move the character on each key press, which
+			forces the user to press the key repeatedly. Instead, the correct
+			technique is to maintain the state of each key in a variable, and to
+			perform the corresponding movement with fixed speed. We have seen a
+			fixed-speed movement before, namely using a handler for the
+			<code>"timer"</code> event. The following example demonstrates how to
+			elegantly combine timer and keyboard handlers for controlling a simple
+			agent (the already familiar red ball).
+			<tscript>
+			var x = 100, y = 100;
+			var key = {w: false, a: false, s: false, d: false};
+			function onTick(event)
+			{
+				canvas.setFillColor(1, 1, 1);
+				canvas.clear();
+				canvas.setFillColor(1, 0, 0);
+				canvas.fillCircle(position, position, 20);
+				if key["w"] then y -= 1;
+				if key["a"] then x -= 1;
+				if key["s"] then y += 1;
+				if key["d"] then x += 1;
+			}
+			function onKeyDown(event)
+			{
+				if event.key == "Escape" then quitEventMode();
+				if key.has(event.key) then key[event.key] = true;
+			}
+			function onKeyUp(event)
+			{
+				if key.has(event.key) then key[event.key] = false;
+			}
+			setEventHandler("canvas.keydown", onKeyDown);
+			setEventHandler("canvas.keyup",   onKeyUp);
+			setEventHandler("timer", onTick);
+			enterEventMode();
+			</tscript>
+			You should see a red ball, standing still. If you press w, a, s or d
+			then the ball starts moving. Try pressing multiple keys at once.
+			</p>
+			<p>
+			This pattern generally works well for games. Most of the work is done in
+			the timer event, namely moving all thing that move (character, monsters,
+			balls, whatever), taking the keyboard state into account.
+			</p>
+
+			<h2>Mouse Events</h2>
+			<p>
+			The world of mouse events is more rich that that of keyboard events, for
+			the simple reason that the mouse has a position. Similar to a keydown
+			event, the mousedown event knows which button caused the event. However,
+			that button is not a keyboard key, but a mouse button. In addition to
+			that information, it also knows at which coordinates the button was
+			pressed. Like with the keyboard, there is a corresponding event called
+			<code>"canvas.mouseup"</code> which signals that the mouse button was
+			released.
+			</p>
+			<p>
+			A second reason why mouse input differs from keyboard input is that mouse
+			movement can be of interest of its own, independent of mouse button
+			presses. Therefore, <code>"canvas.mousemove"</code> events occur in fast
+			succession while the mouse is moved across the canvas. Finally, the
+			<code>"canvas.mousemove"</code> event is fired when the mouse leaves the
+			canvas. As soon as the mouse enters the canvas again, further
+			<code>"canvas.mousemove"</code> events are triggered.
+			The event object of mouseout is simply <code>null</code>, like for the
+			timer. All other mouse events carry the current mouse position, which is
+			available as <code>event.x</code> and <code>event.y</code>.
+			</p>
+
+			<h3>Advanced Use</h3>
+			<p>
+			We can use mouse events to display and handle proper controls, like
+			buttons. A good button should indicate that the mouse is hovering over
+			the control, and it should also indicate visually that the button is
+			currently pressed. This is typically achieved with a combination of
+			background and border colors. The following program demonstrates the
+			working principle. Note the color changes when hovering the mouse over
+			the button and when actually pressing the button.
+			<tscript>
+			function onButton()
+			{
+				print("The button was pressed!");
+			}
+
+			var pressed = false;
+			function drawButton(hover)
+			{
+				canvas.setLineWidth(2);
+				if pressed then
+				{
+					canvas.setLineColor(0, 0, 0);
+					canvas.setFillColor(1, 0.5, 0);
+				}
+				else if hover then
+				{
+					canvas.setLineColor(0.6, 0.6, 0.6);
+					canvas.setFillColor(0, 0, 0.5);
+				}
+				else
+				{
+					canvas.setLineColor(0.8, 0.8, 0.8);
+					canvas.setFillColor(0.2, 0.2, 1);
+				}
+				canvas.frameRect(100, 100, 100, 30);
+				canvas.setFont("Helvetica", 14);
+				canvas.setTextAlign("center");
+				canvas.setFillColor(1, 1, 1);
+				canvas.text(150, 110, "Do it!");
+			}
+			function inside(event)
+			{
+				return event.x > 100 and event.x < 200
+				   and event.y > 100 and event.y < 130;
+			}
+			function onMouseDown(event)
+			{
+				pressed = true;
+				if inside(event) then
+				{
+					drawButton(true);
+					onButton();
+				}
+			}
+			function onMouseUp(event)
+			{
+				pressed = false;
+				drawButton(inside(event));
+			}
+			function onMouseMove(event)
+			{
+				drawButton(inside(event));
+			}
+			function onMouseOut(event)
+			{
+				pressed = false;
+			}
+			setEventHandler("canvas.mousedown", onMouseDown);
+			setEventHandler("canvas.mouseup",   onMouseUp);
+			setEventHandler("canvas.mousemove", onMouseMove);
+			setEventHandler("canvas.mouseout",  onMouseOut);
+			drawButton(false);
+			enterEventMode();
+			</tscript>
+			Putting everything together, in principle, it is possible to implement a
+			whole graphical user interface (GUI) framework with different types of
+			controls, like checkboxes, sliders, scroll bars, and more. On the other
+			hand, we could rightfully ask whether that job has not been done yet by
+			others. Since we are working in the browser, and browsers apparently
+			provide such controls, the need to re-invent the wheel feels wrong.
+			Again, here we see that the TScript canvas is not designed for complex
+			GUIs, but rather for learning the basics of programming. It is well
+			suited for simple games and drawing applications, which get along with
+			"raw" events like mouse movements and clicks.
+			</p>
+
+			<div class="tutorial-exercise">
+			<p>
+			Write a program that draws a trace of the mouse on the canvas.
+			Whenever the mouse enters the canvas, a trace begins. The program
+			shall simply connect consecutive mouse positions by drawing a line.
+			For the first mouse move event or if the mouse just entered the
+			canvas, no line in drawn. Pressing a mouse button shall stop the
+			program.
+			</p>
+			</div>
+			`,
+			correct: `
+			var x = null, y = null;
+			function onMove(event)
+			{
+				if x != null then canvas.line(x, y, event.x, event.y);
+				x = event.x;
+				y = event.y;
+			}
+			function onOut(event)
+			{
+				x = null;
+				y = null;
+			}
+			setEventHandler("canvas.mousemove", onMove);
+			setEventHandler("canvas.mouseout", onOut);
+			setEventHandler("canvas.mousedown", quitEventMode);
+			enterEventMode();
+			`,
+			tests: [
 				{
 					type: "code",
 					code: "",
 					input: [
 						{
-							type: "canvas.keydown",
-							classname: "canvas.KeyboardEvent",
+							type: "canvas.mousemove",
+							classname: "canvas.MouseMoveEvent",
 							event: {
-								key: "x",
+								x: 100,
+								y: 100,
+								buttons: 0,
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.mousemove",
+							classname: "canvas.MouseMoveEvent",
+							event: {
+								x: 120,
+								y: 100,
+								buttons: 0,
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.mousemove",
+							classname: "canvas.MouseMoveEvent",
+							event: {
+								x: 130,
+								y: 110,
+								buttons: 0,
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.mouseout",
+							classname: "Null",
+						},
+						{
+							type: "canvas.mousemove",
+							classname: "canvas.MouseMoveEvent",
+							event: {
+								x: 100,
+								y: 200,
+								buttons: 0,
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.mousemove",
+							classname: "canvas.MouseMoveEvent",
+							event: {
+								x: 120,
+								y: 200,
+								buttons: 0,
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.mousemove",
+							classname: "canvas.MouseMoveEvent",
+							event: {
+								x: 130,
+								y: 210,
+								buttons: 0,
+								shift: false,
+								control: false,
+								alt: false,
+								meta: false,
+							},
+						},
+						{
+							type: "canvas.mousedown",
+							classname: "canvas.MouseButtonEvent",
+							event: {
+								x: 10,
+								y: 10,
+								button: 1,
+								buttons: 1,
 								shift: false,
 								control: false,
 								alt: false,
@@ -186,15 +599,11 @@ export const tutorial_events = {
 			content: `
 			<h2>Wrap-up</h2>
 			<p>
-			You have learned about anonymous functions and their applications. They can be
-			used to create similar functions with different set parameters using closure
-			variables. Furthermore you have learned to deal with events, handling them
-			via event listeners and calling anonymous functions. Note that you do not have
-			to use anonymous functions. You can also simply create a function and hand it
-			over instead of an anonymous one. Anonymous functions give you the possibility
-			to create cleaner code, though. If you do not need to use the code multiple
-			times, you do not need to create a new function for every event you want to 
-			handle. It might be cleaner to simply hand over anonymous functions.
+			We have learned the basics of event-based programming. We know how to
+			put TScript into event-handling mode, and how to return to normal code
+			execution. We have worked with mouse, keyboard, and timer events.
+			Combined with canvas drawing, this gives us all essential tools for
+			building simple games with TScript.
 			</p>
 			`,
 		},
