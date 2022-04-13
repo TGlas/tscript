@@ -41,6 +41,14 @@ explorative learning style.
 </p>
 <h2>Overview</h2>
 <p>
+The ideal entry point for a programming beginner is the tutorial. In the
+development environment, locate the blackboard icon
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABHNCSVQICAgIfAhkiAAAAXtJREFUOI3FlM1qwkAUhc9oghaniKgELAlqKYVGXEiXblz0OXyMPkMfI8/RhRvJzk0JhRLalFl0EWqrQWhUNF2I4mQ0TU2lZ5c5537c+bkBiRCl9BQHikSahJDBYLC0LItbbzQaaLVakbXSNiRsUkqpbdu4LlnIyCvbny1h2Zn4Hfd6vYAxJgReX55QLUz4tU+Kav1SyGqahk6nQ7iOGWNoVx6FcLsCACf8GhYAxGx/qy8pbJ7f3AkFcfR8f8t9pw6ixNBecBAExwETQhLB/+codjzt5OAk0EhwUh0NLAxI+KEnBmuathnJ4XCI7MxBLkvgvMuoXTS5Isd+QK00x+RriWmmjmKxuGGstfOGDMMI1v+N/tsVut0u+Y0P7Dnj6cgBALijBRRFEXxFUeCOFlw2FjiLDwAAc+dQVVXwVVUFc+dc9kewaZpBOZ8GAIx9GbquC9vUdZ2MfRkAUM6nYZqmMPsC2PM8FOjqTlO5s53dbHsFKsHzvL25P9c3ZS94XuDLwyoAAAAASUVORK5CYII="/>
+in the toolbar. It opens the tutorial panel. The tutorial is not part of
+this documentation; instead, it is tightly integrated into the
+programming environment.
+</p>
+<p>
 Being a reference documentation, this collection of documents is not
 designed for being read front to end, but rather as a resource for
 looking up information. For programmers experienced with other

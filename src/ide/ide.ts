@@ -2611,7 +2611,8 @@ export let ide = (function () {
 		let panel_tutorial = tgui.createPanel({
 			name: "tutorial",
 			title: "Tutorial",
-			state: "right",
+			state: "icon",
+			fallbackState: "right",
 			dockedheight: 400,
 			icon: icons.tutorial,
 		});

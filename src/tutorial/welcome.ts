@@ -17,7 +17,7 @@ export const tutorial_welcome = {
 			newly gained knowledge hands-on.
 			</p>
 			<p>
-			The tutorial consists of 20 units (this greeting included). As a
+			The tutorial consists of 20 units (this introduction included). As a
 			beginner, you should not try to complete the whole tutorial at once.
 			Instead, do a few units and then try the learned knowledge out using a
 			pet project of your own. Once you start to feel comfortable with the
@@ -28,8 +28,8 @@ export const tutorial_welcome = {
 			certain way of thinking, and every new way of thinking takes some time
 			to sink in. That's not specific to programming, it is true for most
 			complicated things out there. Don't rush. Give it some time, and most
-			importantly, practice a lot. On that way, this tutorial will hopefully
-			be a good start.
+			importantly, practice a lot. On that way, this tutorial aims to be a
+			good start.
 			</p>
 			`,
 		},
