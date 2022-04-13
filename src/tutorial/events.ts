@@ -501,7 +501,7 @@ export const tutorial_events = {
 							event: {
 								x: 100,
 								y: 100,
-								buttons: 0,
+								buttons: [],
 								shift: false,
 								control: false,
 								alt: false,
@@ -514,7 +514,7 @@ export const tutorial_events = {
 							event: {
 								x: 120,
 								y: 100,
-								buttons: 0,
+								buttons: [],
 								shift: false,
 								control: false,
 								alt: false,
@@ -527,7 +527,7 @@ export const tutorial_events = {
 							event: {
 								x: 130,
 								y: 110,
-								buttons: 0,
+								buttons: [],
 								shift: false,
 								control: false,
 								alt: false,
@@ -544,7 +544,7 @@ export const tutorial_events = {
 							event: {
 								x: 100,
 								y: 200,
-								buttons: 0,
+								buttons: [],
 								shift: false,
 								control: false,
 								alt: false,
@@ -557,7 +557,7 @@ export const tutorial_events = {
 							event: {
 								x: 120,
 								y: 200,
-								buttons: 0,
+								buttons: [],
 								shift: false,
 								control: false,
 								alt: false,
@@ -570,7 +570,7 @@ export const tutorial_events = {
 							event: {
 								x: 130,
 								y: 210,
-								buttons: 0,
+								buttons: [],
 								shift: false,
 								control: false,
 								alt: false,
@@ -583,8 +583,8 @@ export const tutorial_events = {
 							event: {
 								x: 10,
 								y: 10,
-								button: 1,
-								buttons: 1,
+								button: "left",
+								buttons: ["left"],
 								shift: false,
 								control: false,
 								alt: false,
@@ -597,6 +597,15 @@ export const tutorial_events = {
 		},
 		{
 			content: `
+			<h2>Resizing</h2>
+			<p>
+			There is one further event provided by the canvas, namely the resize
+			event. It is invoked whenever the canvas changes size, i.e., when the
+			canvas panel is put into full size mode, when the browser size changes,
+			and so on. The usual way to handle this event is to redraw the whole
+			application.
+			</p>
+
 			<h2>Wrap-up</h2>
 			<p>
 			We have learned the basics of event-based programming. We know how to
