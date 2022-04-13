@@ -499,7 +499,7 @@ export const evaluation = (function () {
 		interpreter.eventnames["timer"] = true;
 		interpreter.reset();
 		for (let i = 0; i < inputs.length; i++) {
-			if (typeof inputs[i] == "object") {
+			if (typeof inputs[i] == "object" && inputs[i] !== null) {
 				let type = inputs[i].type;
 				let classname = inputs[i].classname;
 				let properties = inputs[i].event;
@@ -587,6 +587,22 @@ export const evaluation = (function () {
 				});
 		};
 		interpreter.service.canvas.dom = { width: 1920, height: 1080 };
+		interpreter.service.canvas.setLineColor = function (r, g, b) {
+			output.push({
+				type: "canvas setLineColor",
+				r: r,
+				g: g,
+				b: b,
+			});
+		};
+		interpreter.service.canvas.setFillColor = function (r, g, b) {
+			output.push({
+				type: "canvas setFillColor",
+				r: r,
+				g: g,
+				b: b,
+			});
+		};
 		interpreter.service.canvas.clear = function () {
 			output.push({ type: "canvas clear" });
 		};
@@ -1058,6 +1074,16 @@ export const evaluation = (function () {
 						else ret += c;
 					}
 					return null;
+				} else if (c == "'") {
+					let ret = "";
+					pos++;
+					while (pos < code.length) {
+						c = code[pos];
+						pos++;
+						if (c == "'") return ret;
+						else ret += c;
+					}
+					return null;
 				} else if (
 					(c >= "A" && c <= "Z") ||
 					(c >= "a" && c <= "z") ||
@@ -1444,6 +1470,19 @@ export const evaluation = (function () {
 				points = 0;
 			} else {
 				// check the result, report success or failure
+				if (
+					!task.hasOwnProperty("ignore-color") ||
+					!!task["ignore-color"]
+				) {
+					for (let i = 0; i < result.length; i++) {
+						if (result[i] && Array.isArray(result[i]))
+							result[i] = result[i].filter(
+								(event) =>
+									event.type != "canvas setLineColor" &&
+									event.type != "canvas setFillColor"
+							);
+					}
+				}
 				let io =
 					task.hasOwnProperty("ignore-order") &&
 					!!task["ignore-order"];
@@ -1469,7 +1508,7 @@ export const evaluation = (function () {
 							error =
 								"Error:\n" +
 								ed[0] +
-								"\nTest code:\n" +
+								";\nTest code:\n" +
 								calls[call_pos];
 							details = ed[1];
 						}
@@ -1489,7 +1528,7 @@ export const evaluation = (function () {
 								error =
 									"Error:\n" +
 									ed[0] +
-									"\nTest code:\n" +
+									";\nTest code:\n" +
 									calls[call_pos];
 							}
 							details = ed[1];

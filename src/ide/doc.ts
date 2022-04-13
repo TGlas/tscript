@@ -259,6 +259,10 @@ export const doc = (function () {
 				let start = state.pos;
 				let token = lex(state);
 				let value = code.substr(start, state.pos - start);
+				//if (value.indexOf("<") >= 0) console.log("'" + value + "'");
+				//				if (value == "<") value = "&lt;";
+				//				else if (value == "&") value = "&amp;";
+				value = value.replaceAll("&", "&amp").replaceAll("<", "&lt;");
 				ret +=
 					'<span class="' +
 					css_prefix +
@@ -568,6 +572,9 @@ export const doc = (function () {
 		}
 		return ret;
 	}
+	module.get_token_ebnf = get_token_ebnf;
+	module.get_token_code = get_token_code;
+	module.processCode = processCode;
 	module.prepare = prepare;
 
 	// This function returns an altered version of the pseudo-html #content

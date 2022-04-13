@@ -58,25 +58,54 @@ export const tutorial = (function () {
 		return ret;
 	}
 
-	//	// Check whether the code fulfills the task specification.
-	//	// Return null on success, and an error description otherwise.
-	//	function check(task, code) : any
-	//	{
-	//		// TODO: more complete check with unit tests, marker, etc
-	//		let events1 = evaluation.run_tscript(code);
-	//		let events2 = evaluation.run_tscript(task.correct);
-	//		let result = evaluation.compare_runs(events1, events2);
-	//		if (result[0] == "" && result[1] == "") return null;
-	//		else return {
-	//				message: result[0],
-	//				html: result[1],
-	//			};
-	//	}
+	function stripSharedIndentation(code) {
+		// find shared indentation
+		const white = " \t\r";
+		let lines = code.split("\n");
+		let indent = "";
+		let maxlength = 1000000;
+		for (let i = 0; i < lines.length; i++) {
+			let line = lines[i];
+			if (maxlength >= 1000000) {
+				for (let j = 0; j < line.length; j++) {
+					if (white.indexOf(line[j]) < 0) {
+						indent = line.substr(0, j);
+						maxlength = j;
+						break;
+					}
+				}
+			} else {
+				for (let j = 0; j < line.length; j++) {
+					if (j >= maxlength) break;
+					if (indent[j] != line[j]) {
+						maxlength = j;
+						indent = indent.substr(0, maxlength);
+						break;
+					}
+				}
+			}
+		}
+
+		// compose return string
+		let ret = "";
+		for (let i = 0; i < lines.length; i++) {
+			let line = lines[i];
+			if (i == 0 && line.length <= indent.length) continue;
+			if (line.length > indent.length) ret += line.substr(indent.length);
+			ret += "\n";
+		}
+
+		// strip leading and trailing newlines
+		while (ret[0] == "\n") ret = ret.slice(1, ret.length - 1);
+		while (ret.endsWith("\n\n")) ret = ret.slice(0, ret.length - 1);
+		return ret;
+	}
 
 	// Display the current tutorial unit. This is where most of the
 	// logic is, including testing and error reporting for programming
 	// tasks.
-	function display() {
+	function display(scroll: number | null = null) {
+		let scrollPos = module.dom.scrollTop;
 		if (module.state.unit < 0) {
 			// overview page
 			module.dom.innerHTML = "";
@@ -171,6 +200,8 @@ export const tutorial = (function () {
 			// add the "reference solution" button
 			function addReferenceButton(correct, parent) {
 				if (!correct) return;
+				correct = stripSharedIndentation(correct);
+
 				tgui.createElement({
 					type: "button",
 					classname: "tgui-modal-default-button tutorial-nav-button",
@@ -325,7 +356,7 @@ export const tutorial = (function () {
 											);
 									} else module.state.section++;
 									storeState();
-									display();
+									display(50);
 								}
 							}
 						);
@@ -347,7 +378,7 @@ export const tutorial = (function () {
 							);
 						} else module.state.section++;
 						storeState();
-						display();
+						display(50);
 					},
 				});
 				addReferenceButton(d.correct, nav);
@@ -377,6 +408,10 @@ export const tutorial = (function () {
 				});
 			}
 		}
+		module.dom.scrollTo({
+			top: scroll === null ? 0 : scrollPos + scroll,
+			behavior: "smooth",
+		});
 	}
 
 	// define the interface to the IDE
