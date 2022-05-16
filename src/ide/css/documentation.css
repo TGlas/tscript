@@ -327,7 +327,10 @@ hr {
 }
 
 .code {
-	background: #ddd;
+	background: #f4f4f4;
+	padding: 1px 4px;
+	border: 1px solid #e8e8e8;
+	border-radius: 2px;
 }
 .code-keyword {
 	color: #00c;
