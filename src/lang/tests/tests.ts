@@ -316,6 +316,32 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
+		name: "function calls and default parameters",
+		description: "test function call features",
+		code: `
+			function f(x)
+			{ return x*x; }
+			function g(x = 7)
+			{ return 2*x; }
+			var z = 7;
+			print(f(3));
+			print(f(z));
+			print(f(x=z));
+			print(g(3));
+			print(g(z));
+			print(g(x=z));
+		`,
+		expectation: [
+			{ type: "print", message: "9" },
+			{ type: "print", message: "49" },
+			{ type: "print", message: "49" },
+			{ type: "print", message: "6" },
+			{ type: "print", message: "14" },
+			{ type: "print", message: "14" },
+			"finished",
+		],
+	},
+	{
 		name: "return",
 		description: "test the return statement",
 		code: `

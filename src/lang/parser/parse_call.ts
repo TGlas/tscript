@@ -43,6 +43,7 @@ export function parse_call(state, parent, base, options: Options) {
 			if (named) {
 				let pe: any = {
 					petype: "named argument",
+					children: [ex],
 					where: where,
 					parent: parent,
 					name: name.value,
