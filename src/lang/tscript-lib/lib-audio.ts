@@ -307,7 +307,7 @@ export const lib_audio = {
 };
 
 // Move data from a TScript array of integers or reals into a Float32 array.
-// Return true of success, and false if the array contains invalid data.
+// Return true in case of success, and false if the array contains invalid data.
 let fillAudioBuffer = function (tscriptBuffer, array) {
 	function clamp(v, min, max) {
 		return v > max ? max : v < min ? min : v;
