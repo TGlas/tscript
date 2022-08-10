@@ -9,7 +9,7 @@ export const doc_stdlib: Documentation = {
 	This is the reference documentation of the TScript standard library.
 	Its core consists of a hand full of general utility functions and a set
 	of standard mathematical functions. Further parts of the library cover
-	turtle and canvas graphics.
+	turtle and canvas graphics, as well as sound output.
 	</p>
 `,
 	children: [
@@ -650,11 +650,11 @@ turtle.move(50);			# blue line to the left
 		<tscript>
 var points = [[10, 10],[100, 10],[100, 100],[55, 150],[10, 100]];   # array with corners of the polygon
 
-canvas.setLineColor(1,0,0);										 # sets the line color to red
-canvas.curve(points, true);										 # draws a connection between the points of the array points
+canvas.setLineColor(1,0,0);                                         # set the line color to red
+canvas.curve(points, true);                                         # connect the points in the array
 
-canvas.setFillColor(0,0,1);										 # sets the fill color to blue
-canvas.fillArea(points);											# fills the area surrounded by the points of the array points
+canvas.setFillColor(0,0,1);                                         # set the fill color to blue
+canvas.fillArea(points);                                            # fills the area surrounded by the points
 		</tscript>
 		<center>
 		<img src="data:image/png;base64,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">

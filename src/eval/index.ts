@@ -1347,6 +1347,7 @@ export const evaluation = (function () {
 			console.log("error in pseudo code:\n\n" + pseudo);
 			return false;
 		}
+		console.log(pc, program);
 		return isSubtree(pc, program);
 	};
 

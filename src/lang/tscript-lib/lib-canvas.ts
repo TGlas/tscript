@@ -1106,6 +1106,55 @@ export const lib_canvas = {
 					value: { b: null },
 				};
 			},
+			setDrawingTarget: function (bitmap) {
+				// TODO
+			},
+			setOpacity: function (alpha) {
+				if (!TScript.isNumeric(alpha.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"alpha",
+							"canvas.setOpacity",
+							"numeric argument",
+							TScript.displayname(alpha.type),
+						],
+						this.stack
+					);
+				if (alpha.value.b < 0 || alpha.value.b > 1)
+					ErrorHelper.error(
+						"/user/ue-2",
+						[
+							"error in canvas.setOpacity; alpha must be from the interval [0, 1]",
+						],
+						this.stack
+					);
+				this.service.canvas.setOpacity.call(
+					this.service,
+					alpha.value.b
+				);
+				return {
+					type: this.program.types[Typeid.typeid_null],
+					value: { b: null },
+				};
+			},
+			paintImage: function(x, y, source) {
+				// TODO
+			},
+			paintImageSection: function(dx, dy, source, sx, sy, width, height) {
+				// TODO
+			},
+			getPixel: function(x, y) {
+				// TODO
+			},
+			setPixel: function(x, y, data) {
+				// TODO
+			},
+			Bitmap: {
+				// TODO
+				// constructor: function(resourceOrWidth, height = null) {
+				// };
+			},
 		},
 	},
 };

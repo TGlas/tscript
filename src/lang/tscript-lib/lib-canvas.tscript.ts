@@ -24,6 +24,17 @@ namespace canvas {
 	function scale(factor) { }
 	function rotate(angle) { }
 	function transform(A, b) { }
+	function setDrawingTarget(bitmap = null) { }
+	function setOpacity(alpha) { }
+	function paintImage(x, y, source) { }
+	function paintImageSection(dx, dy, source, sx, sy, width, height) { }
+	function getPixel(x, y) { }
+	function setPixel(x, y, data) { }
+	class Bitmap
+	{
+	public:
+		constructor(resourceOrWidth, height = null) { }
+	}
 	class ResizeEvent
 	{
 	public:
