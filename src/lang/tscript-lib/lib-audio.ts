@@ -11,10 +11,7 @@ export const lib_audio = {
 			Sound: {
 				constructor: function (object, buffers, sampleRate) {
 					if (
-						TScript.isDerivedFrom(
-							buffers.type,
-							Typeid.typeid_array
-						)
+						TScript.isDerivedFrom(buffers.type, Typeid.typeid_array)
 					) {
 						// explicit arrays
 						if (
@@ -64,8 +61,7 @@ export const lib_audio = {
 							);
 						}
 						object.value.b = { buffer: buf, soundloop: null };
-					}
-					else if (
+					} else if (
 						TScript.isDerivedFrom(
 							buffers.type,
 							Typeid.typeid_string
@@ -74,22 +70,31 @@ export const lib_audio = {
 						// sound resource as a data URI
 						if (!hasAudioContext.call(this)) return;
 
-						try
-						{
-							let [buffer, mime] = data2arraybuffer(buffers.value.b);
+						try {
+							let [buffer, mime] = data2arraybuffer(
+								buffers.value.b
+							);
 							object.value.b = { buffer: null, soundloop: null };
 							if (mime.substring(0, 6) != "audio/")
-								ErrorHelper.error("/argument-mismatch/am-46", [], this.stack);
-							this.service.audioContext.decodeAudioData(buffer, (decoded) => {
-								object.value.b.buffer = decoded;
-							});
+								ErrorHelper.error(
+									"/argument-mismatch/am-46",
+									[],
+									this.stack
+								);
+							this.service.audioContext.decodeAudioData(
+								buffer,
+								(decoded) => {
+									object.value.b.buffer = decoded;
+								}
+							);
+						} catch (ex) {
+							ErrorHelper.error(
+								"/argument-mismatch/am-46",
+								[],
+								this.stack
+							);
 						}
-						catch (ex)
-						{
-							ErrorHelper.error("/argument-mismatch/am-46", [], this.stack);
-						}
-					}
-					else
+					} else
 						ErrorHelper.error(
 							"/argument-mismatch/am-1",
 							[
@@ -106,16 +111,13 @@ export const lib_audio = {
 					if (hasAudioContext.call(this) && object.value.b) {
 						// handle asynchronous buffer creation
 						let context = this.service.audioContext;
-						let doit = function()
-						{
-							if (object.value.b.buffer)
-							{
+						let doit = function () {
+							if (object.value.b.buffer) {
 								let sourceNode = context.createBufferSource();
 								sourceNode.buffer = object.value.b.buffer;
 								sourceNode.connect(context.destination);
 								sourceNode.start();
-							}
-							else window.setTimeout(doit, 5);
+							} else window.setTimeout(doit, 5);
 						};
 						doit();
 					}

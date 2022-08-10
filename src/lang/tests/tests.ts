@@ -2305,9 +2305,7 @@ export const tests: Array<TscriptTest> = [
 			var sound = audio.Sound(mp3);
 			sound.play();
 		`,
-		expectation: [
-			"finished",
-		],
+		expectation: ["finished"],
 	},
 	//	{
 	//		name: "audio 5",

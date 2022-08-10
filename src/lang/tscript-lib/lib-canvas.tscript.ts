@@ -27,7 +27,7 @@ namespace canvas {
 	function setDrawingTarget(bitmap = null) { }
 	function setOpacity(alpha) { }
 	function paintImage(x, y, source) { }
-	function paintImageSection(dx, dy, source, sx, sy, width, height) { }
+	function paintImageSection(dx, dy, dw, dh, source, sx, sy, sw, sh) { }
 	function getPixel(x, y) { }
 	function setPixel(x, y, data) { }
 	class Bitmap

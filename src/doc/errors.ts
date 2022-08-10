@@ -2195,9 +2195,20 @@ print(arr.sort(order2));                        # works fine
 			unsystematically looking data.
 			</p>
 			<p>
-			Despite broken data URIs, this error can occur when providing
+			Besides a broken data URI, this error can occur when providing
 			an unsuitable data type. For example, creating a sound object
-			from image data will fail.
+			from image data raises this error.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-47",
+					content: `
+			<p>
+			The error indicates that an array of the wrong size was passed
+			to a function. For example, the <code>canvas.setPixel</code>
+			function expects an array of size four as its last parameter.
 			</p>
 		`,
 					children: [],

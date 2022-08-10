@@ -528,9 +528,18 @@ turtle.move(50);			# blue line to the left
 		e.g., many lines of the same width and color in sequence.
 		</p>
 		<p>
+		All drawing functions can also be used for offline drawing onto a
+		<code>Bitmap</code> object. The target object of all drawing
+		operations can be set with <code>setDrawingTarget</code>. The
+		drawing state is separate per target. This means that changing a
+		property (like the line color) for one target does not affect the
+		same property for any other target.
+		</p>
+		<p>
 		The canvas namespace provides a large number of functions. They are
-		split into five categories: reading properties, setting properties,
-		transformations, drawing, and managing events.
+		split into the following categories: reading properties, setting
+		properties, raw pixel access, transformations, drawing, and managing
+		events.
 		</p>
 
 		<h3>Reading Properties</h3>
@@ -562,6 +571,13 @@ turtle.move(50);			# blue line to the left
 			sets the fill color. All arguments are in the range 0 to 1. The
 			alpha (opacity) argument is optional, it defaults to 1.
 		</td></tr>
+		<tr><th>setOpacity</th><td>
+			The <code class="code">function setOpacity(alpha)</code>
+			sets a global opacity (alpha) value for all drawing operations.
+			A value of 0 means that operations are fully transparent and hence
+			have no effect, while a value of 1 means that drawing is fully
+			opaque.
+		</td></tr>
 		<tr><th>setFont</th><td>
 			The <code class="code">function setFont(fontface, fontsize)</code>
 			sets the current font. The fontface is a string, it must correspond
@@ -577,6 +593,26 @@ turtle.move(50);			# blue line to the left
 			<code class="code">&quot;right&quot;</code>.
 			The position given in text drawing commands is relative to the
 			alignment.
+		</td></tr>
+		</table>
+
+		<h3>Raw Pixel Access</h3>
+		<p>
+		Please note that the pixel coordinates for raw pixel access are not
+		affected by the current transformation.
+		</p>
+		<table class="methods">
+		<tr><th>getPixel</th><td>
+			The <code class="code">function getPixel(x, y)</code> returns the
+			"raw" pixel value as an array of four numbers, encoding the RGBA
+			color value. Each component (red, green, blue, and alpha) is an
+			integer in the range 0 to 255. This is the format in which the
+			color information is stored in the graphics hardware.
+		</td></tr>
+		<tr><th>setPixel</th><td>
+			The <code class="code">function setPixel(x, y, data)</code> sets
+			a raw pixel value. The data argument is an array of four integers
+			with the same meaning as the return value of <code>getPixel</code>.
 		</td></tr>
 		</table>
 
@@ -643,6 +679,20 @@ turtle.move(50);			# blue line to the left
 			The <code class="code">function text(x, y, str)</code> draws the string
 			<code class="code">str</code> at position (x, y), relative to the
 			current text alignment, using the current font and fill color.
+		</td></tr>
+		<tr><th>paintImage</th><td>
+			The <code class="code">function paintImage(x, y, source)</code> draws an
+			image <code class="code">source</code> at position (x, y). The source can
+			be a canvas.Bitmap object or <code>null</code>. In the latter case, the
+			current canvas is drawn.
+		</td></tr>
+		<tr><th>paintImageSection</th><td>
+			The <code class="code">function paintImage(dx, dy, dw, dh, source, sx, sy, sw, sh)</code>
+			draws a section of the image <code class="code">source</code>
+			specified by the rectangle (sx, sy, sw, sh) into the rectangle
+			specified by (dx, dy, dw, dh) on the target canvas. The source can
+			be a canvas.Bitmap object or <code>null</code>. In the latter case,
+			a section from the current canvas is drawn.
 		</td></tr>
 		</table>
 		<div class="example">
@@ -837,6 +887,47 @@ canvas.fillArea(points);                                            # fills the 
 			}
 			setEventHandler("canvas.resize", onResize);
 			enterEventMode();
+		</tscript>
+
+		<h3>The Image Class</h3>
+		<p>
+		The class <code>Image</code> fulfills two purposes: it allows for
+		offline drawing, and it offers a convenient way to use image resources
+		in programs.
+		</p>
+		<table class="methods">
+		<tr><th>Image</th><td>
+			<code class="code">Image(resourceOrWidth, height = null)</code>
+			constructs an image object. The parameter
+			<code class="code">resourceOrWidth</code> is either a resource string
+			containing a <a href="?doc=/dataURI">data URI</a>, or an integer
+			specifying the width. The height parameter is relevant only in the
+			latter case. The constructor creates a bitmap image with the given
+			content, or of the given dimensions. A bitmap created from dimensions
+			is initially transparent black.
+		</td></tr>
+		</table>
+		<h3>Examples</h3>
+		<tscript>
+			var jpg_data = "data:image/jpeg;base64,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";
+			var image = canvas.Bitmap(jpg_data);
+			canvas.paintImage(100, 100, image);
+		</tscript>
+		<tscript>
+		canvas.setFillColor(1, 1, 1);
+		canvas.clear();
+		var h = canvas.height();
+		canvas.setOpacity(1);
+		while true do
+		{
+			var a = math.random() * 0.9 * h;
+			var b = math.random() * 0.1 * h;
+			canvas.setFillColor(1, 1, 1);
+			canvas.fillRect(0, 0, 1, h);
+			canvas.setFillColor(1, 0, 0);
+			canvas.fillRect(0, a, 1, b);
+			canvas.paintImage(1, 0, null);
+		}
 		</tscript>
 	</div>
 	`,

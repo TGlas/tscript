@@ -332,6 +332,10 @@ hr {
 	border: 1px solid #e8e8e8;
 	border-radius: 2px;
 }
+.code .code {
+	background: transparent !important;
+	border: none !important;
+}
 .code-keyword {
 	color: #00c;
 }

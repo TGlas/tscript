@@ -1,12 +1,46 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
+import { checkURI } from "../helpers/dataURI";
 import { tscipt_canvas } from "./lib-canvas.tscript";
 
 export const lib_canvas = {
 	source: tscipt_canvas,
 	impl: {
 		canvas: {
+			setDrawingTarget: function (bitmap) {
+				if (bitmap.type.id === Typeid.typeid_null) {
+					this.service.canvas.setDrawingTarget.call(
+						this.service,
+						null
+					);
+				} else if (
+					TScript.isDerivedFrom(
+						bitmap.type,
+						this.program.names.canvas.names.Bitmap.id
+					)
+				) {
+					this.service.canvas.setDrawingTarget.call(
+						this.service,
+						bitmap.value.b
+					);
+				} else
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"bitmap",
+							"canvas.setDrawingTarget",
+							"Bitmap or null",
+							TScript.displayname(bitmap.type),
+						],
+						this.stack
+					);
+
+				return {
+					type: this.program.types[Typeid.typeid_null],
+					value: { b: null },
+				};
+			},
 			width: function () {
 				let ret = this.service.canvas.width.call(this.service);
 				return {
@@ -157,6 +191,35 @@ export const lib_canvas = {
 					red.value.b,
 					green.value.b,
 					blue.value.b,
+					alpha.value.b
+				);
+				return {
+					type: this.program.types[Typeid.typeid_null],
+					value: { b: null },
+				};
+			},
+			setOpacity: function (alpha) {
+				if (!TScript.isNumeric(alpha.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"alpha",
+							"canvas.setOpacity",
+							"numeric argument",
+							TScript.displayname(alpha.type),
+						],
+						this.stack
+					);
+				if (alpha.value.b < 0 || alpha.value.b > 1)
+					ErrorHelper.error(
+						"/user/ue-2",
+						[
+							"error in canvas.setOpacity; alpha must be from the interval [0, 1]",
+						],
+						this.stack
+					);
+				this.service.canvas.setOpacity.call(
+					this.service,
 					alpha.value.b
 				);
 				return {
@@ -1106,54 +1169,370 @@ export const lib_canvas = {
 					value: { b: null },
 				};
 			},
-			setDrawingTarget: function (bitmap) {
-				// TODO
-			},
-			setOpacity: function (alpha) {
-				if (!TScript.isNumeric(alpha.type))
+			paintImage: function (x, y, source) {
+				if (!TScript.isNumeric(x.type))
 					ErrorHelper.error(
 						"/argument-mismatch/am-1",
 						[
-							"alpha",
-							"canvas.setOpacity",
+							"x",
+							"canvas.paintImage",
 							"numeric argument",
-							TScript.displayname(alpha.type),
+							TScript.displayname(x.type),
 						],
 						this.stack
 					);
-				if (alpha.value.b < 0 || alpha.value.b > 1)
+				if (!TScript.isNumeric(y.type))
 					ErrorHelper.error(
-						"/user/ue-2",
+						"/argument-mismatch/am-1",
 						[
-							"error in canvas.setOpacity; alpha must be from the interval [0, 1]",
+							"y",
+							"canvas.paintImage",
+							"numeric argument",
+							TScript.displayname(y.type),
 						],
 						this.stack
 					);
-				this.service.canvas.setOpacity.call(
+				if (
+					source.type.id !== Typeid.typeid_null &&
+					!TScript.isDerivedFrom(
+						source.type,
+						this.program.names.canvas.names.Bitmap.id
+					)
+				)
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"source",
+							"canvas.paintImage",
+							"canvas.Bitmap or null",
+							TScript.displayname(y.type),
+						],
+						this.stack
+					);
+
+				this.service.canvas.paintImage.call(
 					this.service,
-					alpha.value.b
+					x.value.b,
+					y.value.b,
+					source.value.b
 				);
+
 				return {
 					type: this.program.types[Typeid.typeid_null],
 					value: { b: null },
 				};
 			},
-			paintImage: function(x, y, source) {
-				// TODO
+			paintImageSection: function (
+				dx,
+				dy,
+				dw,
+				dh,
+				source,
+				sx,
+				sy,
+				sw,
+				sh
+			) {
+				if (!TScript.isNumeric(dx.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"dx",
+							"canvas.paintImageSection",
+							"numeric argument",
+							TScript.displayname(dx.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(dy.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"dy",
+							"canvas.paintImageSection",
+							"numeric argument",
+							TScript.displayname(dy.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(dw.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"dw",
+							"canvas.paintImageSection",
+							"numeric argument",
+							TScript.displayname(dw.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(dh.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"dh",
+							"canvas.paintImageSection",
+							"numeric argument",
+							TScript.displayname(dh.type),
+						],
+						this.stack
+					);
+				if (
+					source.type.id !== Typeid.typeid_null &&
+					!TScript.isDerivedFrom(
+						source.type,
+						this.program.names.canvas.names.Bitmap.id
+					)
+				)
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"source",
+							"canvas.paintImageSection",
+							"canvas.Bitmap or null",
+							TScript.displayname(source.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(sx.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"sx",
+							"canvas.paintImageSection",
+							"numeric argument",
+							TScript.displayname(sx.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(sy.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"sy",
+							"canvas.paintImageSection",
+							"numeric argument",
+							TScript.displayname(sy.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(sw.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"sw",
+							"canvas.paintImageSection",
+							"numeric argument",
+							TScript.displayname(sw.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(sh.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"sh",
+							"canvas.paintImageSection",
+							"numeric argument",
+							TScript.displayname(sh.type),
+						],
+						this.stack
+					);
+
+				this.service.canvas.paintImageSection.call(
+					this.service,
+					dx.value.b,
+					dy.value.b,
+					dw.value.b,
+					dh.value.b,
+					source.value.b,
+					sx.value.b,
+					sy.value.b,
+					sw.value.b,
+					sh.value.b
+				);
+
+				return {
+					type: this.program.types[Typeid.typeid_null],
+					value: { b: null },
+				};
 			},
-			paintImageSection: function(dx, dy, source, sx, sy, width, height) {
-				// TODO
+			getPixel: function (x, y) {
+				if (!TScript.isNumeric(x.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"x",
+							"canvas.getPixel",
+							"numeric argument",
+							TScript.displayname(x.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(y.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"y",
+							"canvas.getPixel",
+							"numeric argument",
+							TScript.displayname(y.type),
+						],
+						this.stack
+					);
+				let data = this.service.canvas.getPixel.call(
+					this.service,
+					x.value.b,
+					y.value.b
+				);
+				let arr = new Array();
+				for (let i = 0; i < 4; i++)
+					arr.push({
+						type: this.program.types[Typeid.typeid_integer],
+						value: { b: data[i] },
+					});
+				return {
+					type: this.program.types[Typeid.typeid_array],
+					value: { b: arr },
+				};
 			},
-			getPixel: function(x, y) {
-				// TODO
-			},
-			setPixel: function(x, y, data) {
-				// TODO
+			setPixel: function (x, y, data) {
+				if (!TScript.isNumeric(x.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"x",
+							"canvas.setPixel",
+							"numeric argument",
+							TScript.displayname(x.type),
+						],
+						this.stack
+					);
+				if (!TScript.isNumeric(y.type))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"y",
+							"canvas.setPixel",
+							"numeric argument",
+							TScript.displayname(y.type),
+						],
+						this.stack
+					);
+				if (!TScript.isDerivedFrom(data.type, Typeid.typeid_array))
+					ErrorHelper.error(
+						"/argument-mismatch/am-1",
+						[
+							"data",
+							"canvas.setPixel",
+							"array",
+							TScript.displayname(data.type),
+						],
+						this.stack
+					);
+
+				let d = new Array();
+				if (data.value.b.length != 4)
+					ErrorHelper.error(
+						"/argument-mismatch/am-47",
+						[],
+						this.stack
+					);
+				for (let i = 0; i < 4; i++) {
+					if (
+						!TScript.isDerivedFrom(
+							data.value.b[i].type,
+							Typeid.typeid_integer
+						)
+					)
+						ErrorHelper.error(
+							"/argument-mismatch/am-1",
+							[
+								"data[" + i + "]",
+								"canvas.setPixel",
+								"integer",
+								TScript.displayname(data.value.b[i].type),
+							],
+							this.stack
+						);
+					d.push(data.value.b[i].value.b);
+				}
+				this.service.canvas.setPixel.call(
+					this.service,
+					x.value.b,
+					y.value.b,
+					d
+				);
+
+				return {
+					type: this.program.types[Typeid.typeid_null],
+					value: { b: null },
+				};
 			},
 			Bitmap: {
-				// TODO
-				// constructor: function(resourceOrWidth, height = null) {
-				// };
+				constructor: function (object, resourceOrWidth, height) {
+					if (TScript.isNumeric(resourceOrWidth.type)) {
+						// create canvas of given dimensions
+						if (!TScript.isNumeric(height.type))
+							ErrorHelper.error(
+								"/argument-mismatch/am-1",
+								[
+									"height",
+									"canvas.Bitmap.constructor",
+									"numeric argument",
+									TScript.displayname(height.type),
+								],
+								this.stack
+							);
+						if (resourceOrWidth.value.b < 0 || height.value.b < 0)
+							ErrorHelper.error(
+								"/user/ue-2",
+								[
+									"error in canvas.Bitmap.constructor; width and height must not be negative",
+								],
+								this.stack
+							);
+						let canvas = document.createElement("canvas");
+						canvas.width = resourceOrWidth.value.b | 0;
+						canvas.height = height.value.b | 0;
+						object.value.b = canvas;
+					} else if (
+						TScript.isDerivedFrom(
+							resourceOrWidth.type,
+							Typeid.typeid_string
+						)
+					) {
+						// create canvas from resource
+						let mime = checkURI(resourceOrWidth.value.b);
+						if (mime === null || mime.substring(0, 6) != "image/")
+							ErrorHelper.error("/user/am-46", [], this.stack);
+
+						let canvas = document.createElement("canvas");
+						let context = canvas.getContext("2d");
+						let img = new Image();
+						img.onload = function () {
+							canvas.width = img.width;
+							canvas.height = img.height;
+							context?.drawImage(img, 0, 0);
+						};
+						img.src = resourceOrWidth.value.b;
+						object.value.b = canvas;
+
+						// give the interpreter time to load the image
+						this.status = "waiting";
+						this.waittime = new Date().getTime();
+					} else
+						ErrorHelper.error(
+							"/argument-mismatch/am-1",
+							[
+								"resourceOrWidth",
+								"canvas.Bitmap.constructor",
+								"numeric argument or string",
+								TScript.displayname(resourceOrWidth.type),
+							],
+							this.stack
+						);
+				},
 			},
 		},
 	},
