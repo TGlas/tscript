@@ -298,9 +298,11 @@ export let errors = {
 			"argument handler passed to setEventHandler must be a function with exactly one parameter",
 		"am-42": "deepcopy failed due to $$",
 		"am-43": "infinite recursion due to recursive data structure",
-		"am-44": "left and right buffer arrays have different sizes",
+		"am-44": "channel arrays have different sizes",
 		"am-44b": "sample frequency out of range",
+		"am-44c": "number of sound channels out of range",
 		"am-45": "$$ exceeded allowed range $$",
+		"am-46": "invalid resource string",
 	},
 	name: {
 		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",
