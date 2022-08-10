@@ -775,7 +775,7 @@ class Circle
 		function radius()
 		{ return m_radius; }
 		function area()
-    	{ return pi() * m_radius * m_radius; }
+    	{ return math.pi() * m_radius * m_radius; }
 }
 
 var c = Circle(3);
