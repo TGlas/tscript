@@ -2708,6 +2708,43 @@ print(arr.sort(order2));                        # works fine
 		`,
 					children: [],
 				},
+				{
+					id: "ne-29",
+					content: `
+			<p>
+			While functions and classes are subject to hoisting (i.e., their names
+			can be used before they are declared), variables are not. To fix this
+			error, move the declaration of the variable before its first use.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "ne-30",
+					content: `
+			<p>
+			It was tried to access a non-static member without an object. Example:
+			</p>
+			<tscript do-not-run>
+				class A
+				{
+				public:
+					function f()
+					{ print("Hello"); }
+				}
+
+				var a = A();
+				a.f();   # works
+				A.f();   # error
+			</tscript>
+			<p>
+			To fix the problem, make sure to access the member through an object
+			(the variable <code>a</code> in the above example), not through its
+			class (the class <code>A</code> in the above example).
+			</p>
+		`,
+					children: [],
+				},
 			],
 		},
 		{

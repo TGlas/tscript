@@ -895,8 +895,8 @@ export function parse_expression(
 
 								// create the "name" object
 								if (
-									reference.petype === "variable" ||
-									reference.petype === "attribute"
+									reference.petype === "variable"
+									//									|| reference.petype === "attribute"
 								) {
 									op.scope = reference.scope;
 									op.id = reference.id;
@@ -938,32 +938,32 @@ export function parse_expression(
 									};
 									op.step = constantstep;
 									op.sim = simfalse;
-								} else if (reference.petype === "method") {
-									op.scope = reference.scope;
-									op.id = reference.id;
-									op.step = function () {
-										let frame =
-											this.stack[this.stack.length - 1];
-										let pe: any =
-											frame.pe[frame.pe.length - 1];
-										let ip = frame.ip[frame.ip.length - 1];
-										let result = {
-											type: this.program.types[
-												Typeid.typeid_function
-											],
-											value: {
-												b: {
-													func: pe.reference,
-													object: frame.object,
-												},
-											},
-										};
-										frame.temporaries.push(result);
-										frame.pe.pop();
-										frame.ip.pop();
-										return false;
-									};
-									op.sim = simfalse;
+									//								} else if (reference.petype === "method") {
+									//									op.scope = reference.scope;
+									//									op.id = reference.id;
+									//									op.step = function () {
+									//										let frame =
+									//											this.stack[this.stack.length - 1];
+									//										let pe: any =
+									//											frame.pe[frame.pe.length - 1];
+									//										let ip = frame.ip[frame.ip.length - 1];
+									//										let result = {
+									//											type: this.program.types[
+									//												Typeid.typeid_function
+									//											],
+									//											value: {
+									//												b: {
+									//													func: pe.reference,
+									//													object: frame.object,
+									//												},
+									//											},
+									//										};
+									//										frame.temporaries.push(result);
+									//										frame.pe.pop();
+									//										frame.ip.pop();
+									//										return false;
+									//									};
+									//									op.sim = simfalse;
 								} else if (reference.petype === "type") {
 									op.petype = "constant";
 									op.typedvalue = {
@@ -978,6 +978,11 @@ export function parse_expression(
 									reference.petype === "namespace" &&
 									allow_namespace
 								) {
+								} else if (
+									reference.petype === "attribute" ||
+									reference.petype === "method"
+								) {
+									state.error("/name/ne-30", [op.name]);
 								} else {
 									ex.petype = "non-value name"; // this name must be qualified further to yield a value
 								}

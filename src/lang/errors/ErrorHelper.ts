@@ -341,6 +341,7 @@ export let errors = {
 		"ne-26": "error in super class declaration; class '$$' inherits itself",
 		"ne-28": "failed to statically resolve loop variable name",
 		"ne-29": "variable '$$' was used before it was initialized",
+		"ne-30": "cannot access non-static member '$$' without an object",
 	},
 	logic: {
 		"le-1": "too much recursion",

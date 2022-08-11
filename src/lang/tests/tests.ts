@@ -4922,6 +4922,23 @@ export const tests: Array<TscriptTest> = [
 		`,
 		expectation: [{ type: "error", href: "#/errors/name/ne-29" }, "error"],
 	},
+	{
+		name: "ne-30",
+		description: "test of name resolution error ne-30",
+		code: `
+			class A
+			{
+			public:
+				function f()
+				{ print("Hello"); }
+			}
+			A.f();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-30" },
+			"parsing failed",
+		],
+	},
 
 	// logic errors
 	{
