@@ -913,7 +913,7 @@ canvas.fillArea(points);                                            # fills the 
 			var image = canvas.Bitmap(jpg_data);
 			canvas.paintImage(100, 100, image);
 		</tscript>
-		<tscript>
+		<tscript do-not-run>
 		canvas.setFillColor(1, 1, 1);
 		canvas.clear();
 		var h = canvas.height();
