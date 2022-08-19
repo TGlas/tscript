@@ -20,7 +20,7 @@ for var i in 0:(sampleRate * durationInSeconds) do
 	r_samples.push(sin( i * (r_freq / sampleRate) * 2 * pi()));
 }
 
-var sound = StereoSound(l_samples, r_samples, sampleRate);
+var sound = Sound([l_samples, r_samples], sampleRate);
 
 # only play 0.5 of the 2 seconds
 sound.play();
