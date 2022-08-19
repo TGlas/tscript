@@ -889,16 +889,16 @@ canvas.fillArea(points);                                            # fills the 
 			enterEventMode();
 		</tscript>
 
-		<h3>The Image Class</h3>
+		<h3>The Bitmap Class</h3>
 		<p>
-		The class <code>Image</code> fulfills two purposes: it allows for
+		The class <code>Bitmap</code> fulfills two purposes: it allows for
 		offline drawing, and it offers a convenient way to use image resources
 		in programs.
 		</p>
 		<table class="methods">
-		<tr><th>Image</th><td>
-			<code class="code">Image(resourceOrWidth, height = null)</code>
-			constructs an image object. The parameter
+		<tr><th>Bitmap</th><td>
+			<code class="code">Bitmap(resourceOrWidth, height = null)</code>
+			constructs a bitmap (image) object. The parameter
 			<code class="code">resourceOrWidth</code> is either a resource string
 			containing a <a href="?doc=/dataURI">data URI</a>, or an integer
 			specifying the width. The height parameter is relevant only in the
@@ -907,6 +907,25 @@ canvas.fillArea(points);                                            # fills the 
 			is initially transparent black.
 		</td></tr>
 		</table>
+
+		<h3>Methods</h3>
+		<table class="methods">
+		<tr><th>Bitmap.width()</th><td>
+			The method returns the width of the bitmap in pixels. An alternative
+			way of querying the width of a bitmap is to set it as the current
+			drawing target, then call <code>canvas.width()</code>, and finally
+			reset the old drawing target. This method avoids the complication of
+			that procedure.
+		</td></tr>
+		<tr><th>Bitmap.height()</th><td>
+			The method returns the width of the bitmap in pixels. An alternative
+			way of querying the width of a bitmap is to set it as the current
+			drawing target, then call <code>canvas.height()</code>, and finally
+			reset the old drawing target. This method avoids the complication of
+			that procedure.
+		</td></tr>
+		</table>
+
 		<h3>Examples</h3>
 		<tscript>
 			var jpg_data = "data:image/jpeg;base64,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";
@@ -965,7 +984,7 @@ canvas.fillArea(points);                                            # fills the 
 			</td></tr>
 			</table>
 
-			<h3>Functions</h3>
+			<h3>Methods</h3>
 			<table class="methods">
 			<tr><th>play</th><td>
 				The <code class="code">function play</code> starts playing the sound.

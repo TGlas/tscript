@@ -34,6 +34,8 @@ namespace canvas {
 	{
 	public:
 		constructor(resourceOrWidth, height = null) { }
+		function width() { }
+		function height() { }
 	}
 	class ResizeEvent
 	{

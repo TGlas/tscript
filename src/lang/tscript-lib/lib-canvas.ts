@@ -1533,6 +1533,20 @@ export const lib_canvas = {
 							this.stack
 						);
 				},
+				width: function (object) {
+					let ret = object.value.b.width;
+					return {
+						type: this.program.types[Typeid.typeid_integer],
+						value: { b: ret },
+					};
+				},
+				height: function (object) {
+					let ret = object.value.b.height;
+					return {
+						type: this.program.types[Typeid.typeid_integer],
+						value: { b: ret },
+					};
+				},
 			},
 		},
 	},
