@@ -598,7 +598,7 @@ turtle.move(50);			# blue line to the left
 
 		<h3>Raw Pixel Access</h3>
 		<p>
-		Please note that the pixel coordinates for raw pixel access are not
+		Note that the pixel coordinates for raw pixel access are not
 		affected by the current transformation.
 		</p>
 		<table class="methods">

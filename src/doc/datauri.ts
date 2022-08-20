@@ -23,8 +23,8 @@ export const doc_data_uri: Documentation = {
 	<h2>Output String</h2>
 	<textarea id="output" style="font-family: monospace; margin: 10px 0; width: calc(100% - 40px); height: 10vh; background: #eee; border: 1px solid #aaa; padding: 5px; overflow: auto; resize: vertical;"></textarea>
 	<div>
-	<button id="copy" style="padding: 5px 10px;" onclick="let textarea = document.getElementById('output'); if (navigator.clipboard) { navigator.clipboard.writeText(textarea.value); } else { textarea.focus(); textarea.select(); document.execCommand("copy"); }">copy to clipboard</button>
-	<button id="clear" style="padding: 5px 10px;" onclick="document.getElementById("output").value = '';">clear</button>
+	<button id="copy" style="padding: 5px 10px;" onclick="let textarea = document.getElementById('output'); if (navigator.clipboard) { navigator.clipboard.writeText(textarea.value); } else { textarea.focus(); textarea.select(); document.execCommand('copy'); }">copy to clipboard</button>
+	<button id="clear" style="padding: 5px 10px;" onclick="document.getElementById('output').value = '';">clear</button>
 	</div>
 `,
 	children: [],
