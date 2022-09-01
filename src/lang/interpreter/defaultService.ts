@@ -457,7 +457,7 @@ export function createDefaultServices() {
 			//				true
 			//			);
 
-			if (this.canvas.dom)
+			if (this.canvas.dom && this.canvas.dom.getContext)
 				this.canvas.dom.getContext("2d").globalAlpha = 1;
 
 			if (typeof atx !== "undefined") this.audioContext = new atx();

@@ -117,7 +117,7 @@ export class TestRunner {
 		service.canvas.dom =
 			typeof document !== "undefined"
 				? document.createElement("canvas")
-				: {};
+				: { width: 0, height: 0 };
 
 		if (typeof document !== "undefined") {
 			let s: any = service;
