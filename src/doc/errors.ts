@@ -2133,8 +2133,8 @@ print(arr.sort(order2));                        # works fine
 					content: `
 			<p>
 			When constructing a <a href="?doc=/library/audio">stereo sound</a>,
-			the buffer arrays of the left and right channels must have the same size.
-			This error indicates that the sizes differ.
+			the buffer arrays of all channels (i.e., left and right channel)
+			must have the same size. This error indicates that the sizes differ.
 			</p>
 		`,
 					children: [],
@@ -2147,6 +2147,19 @@ print(arr.sort(order2));                        # works fine
 			the sample frequency must be within a range supported by the underlying
 			system. Browsers are required to support values at least within the
 			range 8000 to 96000.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-44c",
+					content: `
+			<p>
+			When constructing a <a href="?doc=/library/audio">sound object</a>,
+			the number of channels must be at least one. Providing an empty array
+			raises this error. There is currently no upper limit on the number of
+			channels, although only values of 1 (mono) and 2 (stereo) can generally
+			be expected to work in all environments.
 			</p>
 		`,
 					children: [],
@@ -2166,6 +2179,36 @@ print(arr.sort(order2));                        # works fine
 			the range would span 4000000000 (4 billion) numbers. That
 			number exceeds the Integer range and hence triggers this
 			error message.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-46",
+					content: `
+			<p>
+			The error indicates that a given resource string is invalid,
+			or that the resource is of the wrong type. First of all, make
+			sure that the string is a valid data URI. For example, a data
+			URI encoding a JPEG image should start with
+			<code>"data:image/jpeg;base64,"</code> followed by
+			unsystematically looking data.
+			</p>
+			<p>
+			Besides a broken data URI, this error can occur when providing
+			an unsuitable data type. For example, creating a sound object
+			from image data raises this error.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "am-47",
+					content: `
+			<p>
+			The error indicates that an array of the wrong size was passed
+			to a function. For example, the <code>canvas.setPixel</code>
+			function expects an array of size four as its last parameter.
 			</p>
 		`,
 					children: [],

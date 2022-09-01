@@ -1,10 +1,10 @@
 export const Version = {
 	type: "beta",
 	major: 0,
-	minor: 9,
+	minor: 10,
 	patch: 1,
-	day: 29,
-	month: 5,
+	day: 19,
+	month: 8,
 	year: 2022,
 	full: function () {
 		let s =
@@ -22,8 +22,7 @@ export const Version = {
 			this.month +
 			"." +
 			this.year +
-			" - (C) Tobias Glasmachers 2018" +
-			"-" +
+			" - (C) Tobias Glasmachers 2018-" +
 			this.year;
 		return s;
 	},

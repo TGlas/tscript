@@ -555,7 +555,7 @@ export const doc = (function () {
 				start = end + 10;
 				ret += processCode(
 					code,
-					tutorial ? "code" : "code copy",
+					tutorial ? "code" : "copy code",
 					get_token_code
 				);
 			} else if (search.substr(start, 9) == "<keyword>") {

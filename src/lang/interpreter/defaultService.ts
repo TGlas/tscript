@@ -88,23 +88,43 @@ export function createDefaultServices() {
 		},
 
 		canvas: {
+			target: null,
 			font_size: 16,
+			setDrawingTarget: function (bitmap) {
+				this.canvas.target = bitmap;
+			},
 			width: function () {
-				if (!this.canvas.dom) return 0;
-				return this.canvas.dom.width;
+				if (
+					!(this.canvas.target ? this.canvas.target : this.canvas.dom)
+				)
+					return 0;
+				return (
+					this.canvas.target ? this.canvas.target : this.canvas.dom
+				).width;
 			},
 			height: function () {
-				if (!this.canvas.dom) return 0;
-				return this.canvas.dom.height;
+				if (
+					!(this.canvas.target ? this.canvas.target : this.canvas.dom)
+				)
+					return 0;
+				return (
+					this.canvas.target ? this.canvas.target : this.canvas.dom
+				).height;
 			},
 			setLineWidth: function (width) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.lineWidth = width;
 			},
 			setLineColor: function (red, green, blue, alpha) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				let r = Math.min(1, Math.max(0, red));
 				let g = Math.min(1, Math.max(0, green));
 				let b = Math.min(1, Math.max(0, blue));
@@ -121,8 +141,11 @@ export function createDefaultServices() {
 					")";
 			},
 			setFillColor: function (red, green, blue, alpha) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				let r = Math.min(1, Math.max(0, red));
 				let g = Math.min(1, Math.max(0, green));
 				let b = Math.min(1, Math.max(0, blue));
@@ -138,81 +161,124 @@ export function createDefaultServices() {
 					a +
 					")";
 			},
+			setOpacity: function (alpha) {
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
+				ctx.globalAlpha = alpha;
+			},
 			setFont: function (fontface, fontsize) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.font = fontsize + "px " + fontface;
 				this.canvas.font_size = fontsize;
 			},
 			setTextAlign: function (alignment) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.textAlign = alignment;
 			},
 			clear: function () {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.setTransform(1, 0, 0, 1, 0, 0);
 				ctx.fillRect(
 					0,
 					0,
-					this.canvas.dom.width,
-					this.canvas.dom.height
+					(this.canvas.target ? this.canvas.target : this.canvas.dom)
+						.width,
+					(this.canvas.target ? this.canvas.target : this.canvas.dom)
+						.height
 				);
 			},
 			line: function (x1, y1, x2, y2) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				ctx.moveTo(x1, y1);
 				ctx.lineTo(x2, y2);
 				ctx.stroke();
 			},
 			rect: function (left, top, width, height) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				ctx.rect(left, top, width, height);
 				ctx.stroke();
 			},
 			fillRect: function (left, top, width, height) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.fillRect(left, top, width, height);
 			},
 			frameRect: function (left, top, width, height) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				ctx.rect(left, top, width, height);
 				ctx.fill();
 				ctx.stroke();
 			},
 			circle: function (x, y, radius) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
 				ctx.stroke();
 			},
 			fillCircle: function (x, y, radius) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
 				ctx.fill();
 			},
 			frameCircle: function (x, y, radius) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
 				ctx.fill();
 				ctx.stroke();
 			},
 			curve: function (points, closed) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				let n = points.length;
 				if (n > 0) {
@@ -227,8 +293,11 @@ export function createDefaultServices() {
 				ctx.stroke();
 			},
 			fillArea: function (points) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				let n = points.length;
 				if (n > 0) {
@@ -243,8 +312,11 @@ export function createDefaultServices() {
 				ctx.fill();
 			},
 			frameArea: function (points) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.beginPath();
 				let n = points.length;
 				if (n > 0) {
@@ -260,8 +332,11 @@ export function createDefaultServices() {
 				ctx.stroke();
 			},
 			text: function (x, y, str) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.textBaseline = "top";
 				let lines = str.split("\n");
 				for (let i = 0; i < lines.length; i++) {
@@ -269,29 +344,97 @@ export function createDefaultServices() {
 					y += this.canvas.font_size;
 				}
 			},
+			getPixel: function (x, y) {
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return [0, 0, 0, 0];
+				let ctx = bmp.getContext("2d");
+				let array = ctx.getImageData(x | 0, y | 0, 1, 1).data;
+				return array;
+			},
+			setPixel: function (x, y, data) {
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
+				let img = ctx.getImageData(x | 0, y | 0, 1, 1);
+				let array = img.data;
+				array[0] = data[0];
+				array[1] = data[1];
+				array[2] = data[2];
+				array[3] = data[3];
+				ctx.putImageData(img, x | 0, y | 0);
+			},
+			paintImage: function (x, y, source) {
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
+				if (!source) source = this.canvas.dom;
+				if (!source) return;
+				ctx.drawImage(source, x, y);
+			},
+			paintImageSection: function (
+				dx,
+				dy,
+				dw,
+				dh,
+				source,
+				sx,
+				sy,
+				sw,
+				sh
+			) {
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
+				if (!source) source = this.canvas.dom;
+				if (!source) return;
+				ctx.drawImage(source, sx, sy, sw, sh, dx, dy, dw, dh);
+			},
 			reset: function () {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.setTransform(1, 0, 0, 1, 0, 0);
 			},
 			shift: function (dx, dy) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.translate(dx, dy);
 			},
 			scale: function (factor) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.scale(factor, factor);
 			},
 			rotate: function (angle) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.rotate(angle);
 			},
 			transform: function (A, b) {
-				if (!this.canvas.dom || !this.canvas.dom.getContext) return;
-				let ctx = this.canvas.dom.getContext("2d");
+				let bmp = this.canvas.target
+					? this.canvas.target
+					: this.canvas.dom;
+				if (!bmp || !bmp.getContext) return;
+				let ctx = bmp.getContext("2d");
 				ctx.transform(A[0][0], A[1][0], A[0][1], A[1][1], b[0], b[1]);
 			},
 		},
@@ -313,6 +456,9 @@ export function createDefaultServices() {
 			//				0,
 			//				true
 			//			);
+
+			if (this.canvas.dom)
+				this.canvas.dom.getContext("2d").globalAlpha = 1;
 
 			if (typeof atx !== "undefined") this.audioContext = new atx();
 		},

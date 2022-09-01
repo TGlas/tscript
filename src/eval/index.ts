@@ -1272,7 +1272,7 @@ export const evaluation = (function () {
 							let k = next.petype ? next.petype : "";
 							match = d.indexOf(k) >= 0;
 						}
-						if (match && next.hasOwnProperty("name")) {
+						if (next.hasOwnProperty("name")) {
 							let d = node.name ? node.name : "";
 							let k = next.name ? next.name : "";
 							match = d == k;
@@ -1350,6 +1350,7 @@ export const evaluation = (function () {
 			console.log("error in pseudo code:\n\n" + pseudo);
 			return false;
 		}
+		// console.log(pc, program);
 		return isSubtree(pc, program);
 	};
 
