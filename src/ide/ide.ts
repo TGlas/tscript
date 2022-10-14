@@ -1418,7 +1418,7 @@ export let ide = (function () {
 			}
 			if (config.hasOwnProperty("theme")) {
 				theme = config.theme;
-			}	
+			}
 		}
 		document.addEventListener("DOMContentLoaded", function () {
 			tgui.setTheme(theme);
