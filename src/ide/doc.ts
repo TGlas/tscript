@@ -22,15 +22,15 @@ export const doc = (function () {
 	let docpath = "";
 	let doctree: any = null;
 
-	// check if dark theme is activated
+	// load theme from localStorage or use the theme of the operating system
 	function loadTheme() {
 		let str = localStorage.getItem("tscript.ide.config");
+		let theme = "default";
 		if (str) {
 			let config = JSON.parse(str);
-			let theme = "default";
 			if (config.hasOwnProperty("theme")) theme = config.theme;
-			tgui.setTheme(theme);
 		}
+		tgui.setTheme(theme);
 		return null;
 	}
 
