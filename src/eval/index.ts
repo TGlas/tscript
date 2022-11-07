@@ -27,21 +27,21 @@ export const evaluation = (function () {
 		s = String(s);
 		let pos = 0,
 			size = s.length;
-		if (size == 0) return null;
-		if (s[pos] == "-") pos++;
+		if (size === 0) return null;
+		if (s[pos] === "-") pos++;
 		if (s[pos] < "0" || s[pos] > "9") return null;
 		while (pos < size && s[pos] >= "0" && s[pos] <= "9") pos++;
 		if (pos < size) {
-			if (s[pos] == ".") {
+			if (s[pos] === ".") {
 				// parse fractional part
 				pos++;
-				if (pos == size || s[pos] < "0" || s[pos] > "9") return null;
+				if (pos === size || s[pos] < "0" || s[pos] > "9") return null;
 				while (pos < size && s[pos] >= "0" && s[pos] <= "9") pos++;
 			}
-			if (s[pos] == "e" || s[pos] == "E") {
+			if (s[pos] === "e" || s[pos] === "E") {
 				// parse exponent
 				pos++;
-				if (s[pos] == "+" || s[pos] == "-") pos++;
+				if (s[pos] === "+" || s[pos] === "-") pos++;
 				if (s[pos] < "0" || s[pos] > "9") return null;
 				while (pos < size && s[pos] >= "0" && s[pos] <= "9") pos++;
 			}
@@ -82,7 +82,7 @@ export const evaluation = (function () {
 					" - obtained: " +
 					submission.type
 				);
-			if (submission.type == "print" || submission.type == "alert") {
+			if (submission.type === "print" || submission.type === "alert") {
 				// comparison of print/alert messages
 				if (submission.value != solution.value)
 					return (
@@ -93,7 +93,7 @@ export const evaluation = (function () {
 						" - obtained: " +
 						submission.value
 					);
-			} else if (submission.type == "turtle line") {
+			} else if (submission.type === "turtle line") {
 				// comparison of turtle lines, ignoring orientation
 				let a = compare_events(submission.from, solution.from);
 				let b = compare_events(submission.to, solution.to);
@@ -106,11 +106,11 @@ export const evaluation = (function () {
 				for (let p in submission) {
 					if (!submission.hasOwnProperty(p)) continue;
 
-					if (p == "type") continue;
+					if (p === "type") continue;
 					//					if (
-					//						p == "color" &&
+					//						p === "color" &&
 					//						submission.hasOwnProperty("type") &&
-					//						submission.type == "turtle line"
+					//						submission.type === "turtle line"
 					//					)
 					//						continue;
 
@@ -120,8 +120,8 @@ export const evaluation = (function () {
 			}
 			return "";
 		} else if (
-			typeof submission == "string" ||
-			typeof submission == "number"
+			typeof submission === "string" ||
+			typeof submission === "number"
 		) {
 			let sub = strAsNumber(submission);
 			let sol = strAsNumber(solution);
@@ -179,7 +179,7 @@ export const evaluation = (function () {
 					"event type: " + escapeHtmlChars(submission.type) + "<br/>";
 				for (let p in submission) {
 					if (!submission.hasOwnProperty(p)) continue;
-					if (p == "type") continue;
+					if (p === "type") continue;
 					s +=
 						" " +
 						escapeHtmlChars(p) +
@@ -194,7 +194,7 @@ export const evaluation = (function () {
 				s += "event type: " + escapeHtmlChars(solution.type) + "<br/>";
 				for (let p in solution) {
 					if (!solution.hasOwnProperty(p)) continue;
-					if (p == "type") continue;
+					if (p === "type") continue;
 					s +=
 						" " +
 						escapeHtmlChars(p) +
@@ -207,24 +207,26 @@ export const evaluation = (function () {
 		};
 
 		let marker_sol = solution.findIndex((e) => {
-			return e.type == "print" && e.value == marker;
+			return e.type === "print" && e.value === marker;
 		});
 		let marker_sub = submission.findIndex((e) => {
-			return e.type == "print" && e.value == marker;
+			return e.type === "print" && e.value === marker;
 		});
 		if (marker_sol >= 0 && marker_sub >= 0) {
 			solution.splice(0, marker_sol + 1);
 			submission.splice(0, marker_sub + 1);
 		}
 
-		// check which event types are present in the sample solution
-		let expected_events: any = {};
+		// print commands are optionally ignored if they are not found in the reference solution, and so is the marker
+		let expecting_marker = false;
+		let expecting_print = false;
 		for (let i = 0; i < solution.length; i++) {
 			let s = solution[i];
 			if (!s.type) continue;
-			if (s.type == "print" && s.value.indexOf(marker) >= 0)
-				expected_events.marker = true;
-			else expected_events[s.type] = true;
+			if (s.type === "print") {
+				if (s.value.indexOf(marker) >= 0) expecting_marker = true;
+				else expecting_print = true;
+			}
 		}
 
 		// extract function return type and value, if present
@@ -234,7 +236,7 @@ export const evaluation = (function () {
 			return_sol_value = "";
 		if (
 			submission.length > 0 &&
-			submission[submission.length - 1].type == "print" &&
+			submission[submission.length - 1].type === "print" &&
 			submission[submission.length - 1].value.indexOf(marker) >= 0
 		) {
 			let s = submission[submission.length - 1].value;
@@ -245,7 +247,7 @@ export const evaluation = (function () {
 		}
 		if (
 			solution.length > 0 &&
-			solution[solution.length - 1].type == "print" &&
+			solution[solution.length - 1].type === "print" &&
 			solution[solution.length - 1].value.indexOf(marker) >= 0
 		) {
 			let s = solution[solution.length - 1].value;
@@ -264,22 +266,22 @@ export const evaluation = (function () {
 		let i = 0;
 		let remaining_solution = solution.slice();
 		while (i < submission.length) {
-			if (submission[i].type == "compile error")
+			if (submission[i].type === "compile error")
 				return [
 					"Error while parsing the code - " + submission[i].message,
 					"",
 				];
 			let type = submission[i].type;
-			if (type == "print" && submission[i].value.indexOf(marker) >= 0)
+			if (type === "print" && submission[i].value.indexOf(marker) >= 0)
 				type = "marker";
-			if (remaining_solution.length == 0) {
-				if (type == "runtime error")
+			if (remaining_solution.length === 0) {
+				if (type === "runtime error")
 					return [
 						"Runtime error while executing the code - " +
 							submission[i].message,
 						table,
 					];
-				else if (expected_events.hasOwnProperty(type)) {
+				else if (type === "print" && expecting_print) {
 					table += addrow(null, submission[i], "error");
 					table += "</table>\r\n";
 					let error = "Unexpected surplus output";
@@ -291,17 +293,17 @@ export const evaluation = (function () {
 					return [error, table];
 				}
 			}
-			if (type == "runtime error") {
+			if (type === "runtime error") {
 				let wanted: string | null = null;
 				for (let w_error in wanted_errors) {
 					if (!wanted_errors.hasOwnProperty(w_error)) continue;
 					if (submission[i].message.indexOf(w_error) >= 0)
 						wanted = w_error;
 				}
-				if (remaining_solution[0].type == "runtime error") {
+				if (remaining_solution[0].type === "runtime error") {
 					if (
 						remaining_solution[0].message.indexOf(wanted) >= 0 ||
-						remaining_solution[0].href == submission[i].href
+						remaining_solution[0].href === submission[i].href
 					) {
 						// wanted error, same as in the reference solution
 						i++;
@@ -329,9 +331,8 @@ export const evaluation = (function () {
 					"",
 				];
 			}
-			if (!expected_events.hasOwnProperty(type)) {
-				if (type != "marker")
-					table += addrow(null, submission[i], "ignored");
+			if (type === "print" && !expecting_print) {
+				table += addrow(null, submission[i], "ignored");
 				i++;
 				continue;
 			}
@@ -342,7 +343,7 @@ export const evaluation = (function () {
 						submission[i],
 						remaining_solution[j]
 					);
-					if (error == "") {
+					if (error === "") {
 						match_index = j;
 						break;
 					}
@@ -354,7 +355,7 @@ export const evaluation = (function () {
 						"<br/>";
 					for (let p in submission[i]) {
 						if (!submission[i].hasOwnProperty(p)) continue;
-						if (p == "type") continue;
+						if (p === "type") continue;
 						s +=
 							" " +
 							escapeHtmlChars(p) +
@@ -371,7 +372,7 @@ export const evaluation = (function () {
 						for (let p in remaining_solution[j]) {
 							if (!remaining_solution[j].hasOwnProperty(p))
 								continue;
-							if (p == "type") continue;
+							if (p === "type") continue;
 							s +=
 								" " +
 								escapeHtmlChars(p) +
@@ -422,7 +423,7 @@ export const evaluation = (function () {
 			table += addrow(remaining_solution[0], null, "error");
 			table += "</table>\r\n";
 			let error = "";
-			if (remaining_solution[0].type == "runtime error")
+			if (remaining_solution[0].type === "runtime error")
 				error = "Runtime error expected";
 			else {
 				error = "Missing output";
@@ -440,8 +441,8 @@ export const evaluation = (function () {
 		table += "</table>\r\n";
 
 		// check the return value
-		if (return_sub_type == "" && return_sol_type == "") return ["", ""];
-		if (return_sub_type == "")
+		if (return_sub_type === "" && return_sol_type === "") return ["", ""];
+		if (return_sub_type === "")
 			return [
 				"Missing return value - expected " +
 					return_sol_value +
@@ -450,7 +451,7 @@ export const evaluation = (function () {
 					"; the function terminates without returning a value",
 				"",
 			];
-		if (return_sol_type == "")
+		if (return_sol_type === "")
 			throw new Error(
 				"internal error: missing return type in compare_runs"
 			);
@@ -470,7 +471,7 @@ export const evaluation = (function () {
 		}
 
 		let cmp = compare_events(return_sub_value, return_sol_value);
-		if (cmp == "") return ["", ""];
+		if (cmp === "") return ["", ""];
 		else
 			return [
 				"Wrong return value - expected: " +
@@ -499,7 +500,7 @@ export const evaluation = (function () {
 		interpreter.eventnames["timer"] = true;
 		interpreter.reset();
 		for (let i = 0; i < inputs.length; i++) {
-			if (typeof inputs[i] == "object" && inputs[i] !== null) {
+			if (typeof inputs[i] === "object" && inputs[i] !== null) {
 				let type = inputs[i].type;
 				let classname = inputs[i].classname;
 				let properties = inputs[i].event;
@@ -549,13 +550,13 @@ export const evaluation = (function () {
 		};
 		interpreter.service.confirm = function (msg) {
 			return new Promise((resolve, reject) => {
-				if (!inputs || inputs.length == 0) resolve(false);
+				if (!inputs || inputs.length === 0) resolve(false);
 				else resolve(!!inputs.shift());
 			});
 		};
 		interpreter.service.prompt = function (msg) {
 			return new Promise((resolve, reject) => {
-				if (!inputs || inputs.length == 0) resolve("");
+				if (!inputs || inputs.length === 0) resolve("");
 				else resolve(inputs.shift());
 			});
 		};
@@ -747,12 +748,13 @@ export const evaluation = (function () {
 				return output;
 			}
 
-			if (interpreter.status == "waiting") interpreter.status = "running";
+			if (interpreter.status === "waiting")
+				interpreter.status = "running";
 			if (interpreter.status != "running") break;
 
 			while (
 				new Date().getTime() - start < 14 &&
-				interpreter.status == "running"
+				interpreter.status === "running"
 			) {
 				interpreter.exec_step();
 				if (interpreter.halt) break;
@@ -788,7 +790,7 @@ export const evaluation = (function () {
 
 		function compute() {
 			let c = code[index];
-			if (c[0] == "@") {
+			if (c[0] === "@") {
 				let split = c.indexOf("\n@\n");
 				let jsc = c.substr(1, split - 1);
 				let tsc = c.substr(split + 3);
@@ -808,7 +810,7 @@ export const evaluation = (function () {
 				);
 				output = new Array();
 				index++;
-				if (index == code.length) process(all);
+				if (index === code.length) process(all);
 				else compute();
 			} else {
 				let result = Parser.parse(c);
@@ -827,7 +829,7 @@ export const evaluation = (function () {
 					all.push(output);
 					output = new Array();
 					index++;
-					if (index == code.length) process(all);
+					if (index === code.length) process(all);
 					else compute();
 				} else {
 					let program = result.program;
@@ -850,8 +852,8 @@ export const evaluation = (function () {
 							all = "timeout - program execution took too long";
 							process(all);
 						} else if (
-							interpreter.status == "finished" ||
-							interpreter.status == "error"
+							interpreter.status === "finished" ||
+							interpreter.status === "error"
 						) {
 							interpreter.stopthread();
 
@@ -859,7 +861,7 @@ export const evaluation = (function () {
 							all.push(output);
 							output = new Array();
 							index++;
-							if (index == code.length) process(all);
+							if (index === code.length) process(all);
 							else compute();
 						} else setTimeout(monitor, 1);
 					}
@@ -905,8 +907,8 @@ export const evaluation = (function () {
 		function isObject(value) {
 			return (
 				value !== null &&
-				typeof value == "object" &&
-				value.constructor == Object
+				typeof value === "object" &&
+				value.constructor === Object
 			);
 		}
 
@@ -916,17 +918,17 @@ export const evaluation = (function () {
 
 		function rec(node, fnames) {
 			if (node.builtin) return false;
-			if (node.petype == "breakpoint") return false;
+			if (node.petype === "breakpoint") return false;
 
-			if (node.petype == "function" && node.name) {
+			if (node.petype === "function" && node.name) {
 				let names = fnames.slice();
 				names.push(node.name);
 				fnames = names;
 			}
-			if (node.petype == "function call") {
+			if (node.petype === "function call") {
 				if (node.base.name && fnames.indexOf(node.base.name) >= 0)
 					return true;
-				if (node.base.petype == "this") return true;
+				if (node.base.petype === "this") return true;
 			}
 			for (let key in node) {
 				if (!node.hasOwnProperty(key)) continue;
@@ -997,12 +999,13 @@ export const evaluation = (function () {
 			let start = new Date().getTime();
 			if (start >= timeout) break; // not ideal, but better than an infinite loop
 
-			if (interpreter.status == "waiting") interpreter.status = "running";
+			if (interpreter.status === "waiting")
+				interpreter.status = "running";
 			if (interpreter.status != "running") break;
 
 			while (
 				new Date().getTime() - start < 14 &&
-				interpreter.status == "running"
+				interpreter.status === "running"
 			) {
 				interpreter.exec_step();
 
@@ -1053,10 +1056,10 @@ export const evaluation = (function () {
 			function skipwhite() {
 				while (
 					pos < code.length &&
-					(code[pos] == " " ||
-						code[pos] == "\t" ||
-						code[pos] == "\n" ||
-						code[pos] == "\r")
+					(code[pos] === " " ||
+						code[pos] === "\t" ||
+						code[pos] === "\n" ||
+						code[pos] === "\r")
 				)
 					pos++;
 			}
@@ -1065,30 +1068,30 @@ export const evaluation = (function () {
 				skipwhite();
 				if (pos >= code.length) return null;
 				let c = code[pos];
-				if (c == '"') {
+				if (c === '"') {
 					let ret = "";
 					pos++;
 					while (pos < code.length) {
 						c = code[pos];
 						pos++;
-						if (c == '"') return ret;
+						if (c === '"') return ret;
 						else ret += c;
 					}
 					return null;
-				} else if (c == "'") {
+				} else if (c === "'") {
 					let ret = "";
 					pos++;
 					while (pos < code.length) {
 						c = code[pos];
 						pos++;
-						if (c == "'") return ret;
+						if (c === "'") return ret;
 						else ret += c;
 					}
 					return null;
 				} else if (
 					(c >= "A" && c <= "Z") ||
 					(c >= "a" && c <= "z") ||
-					c == "_"
+					c === "_"
 				) {
 					let ret = c;
 					pos++;
@@ -1098,7 +1101,7 @@ export const evaluation = (function () {
 							(c >= "A" && c <= "Z") ||
 							(c >= "a" && c <= "z") ||
 							(c >= "0" && c <= "9") ||
-							c == "_"
+							c === "_"
 						) {
 							ret += c;
 							pos++;
@@ -1117,7 +1120,7 @@ export const evaluation = (function () {
 				skipwhite();
 				if (pos >= code.length) return null;
 				let c = code[pos];
-				if (c == "(") {
+				if (c === "(") {
 					pos++;
 					let name = identifier();
 					if (name === null) return null;
@@ -1126,7 +1129,7 @@ export const evaluation = (function () {
 					if (c != ")") return null;
 					pos++;
 					ret.base = { name: name };
-				} else if (c == "[") {
+				} else if (c === "[") {
 					pos++;
 					let name = identifier();
 					if (name === null) return null;
@@ -1140,17 +1143,17 @@ export const evaluation = (function () {
 				skipwhite();
 				if (pos >= code.length) return null;
 				c = code[pos];
-				if (c == "{") {
+				if (c === "{") {
 					pos++;
 					let sub = new Array();
 					while (true) {
 						skipwhite();
 						if (pos >= code.length) return null;
-						if (code[pos] == ";") {
+						if (code[pos] === ";") {
 							pos++;
 							continue;
 						}
-						if (code[pos] == "}") {
+						if (code[pos] === "}") {
 							pos++;
 							ret.sub = sub.length === 1 ? sub[0] : sub;
 							return ret;
@@ -1159,7 +1162,7 @@ export const evaluation = (function () {
 						if (cmd === null) return null;
 						sub.push(cmd);
 					}
-				} else if (c == ";") {
+				} else if (c === ";") {
 					pos++;
 					return ret;
 				} else return null;
@@ -1168,17 +1171,17 @@ export const evaluation = (function () {
 			skipwhite();
 			if (pos >= code.length) return null;
 			let c = code[pos];
-			if (c == "{") {
+			if (c === "{") {
 				pos++;
 				let ret = new Array();
 				while (true) {
 					skipwhite();
 					if (pos >= code.length) return null;
-					if (code[pos] == ";") {
+					if (code[pos] === ";") {
 						pos++;
 						continue;
 					}
-					if (code[pos] == "}") {
+					if (code[pos] === "}") {
 						pos++;
 						skipwhite();
 						if (pos >= code.length)
@@ -1210,8 +1213,8 @@ export const evaluation = (function () {
 			function isObject(value) {
 				return (
 					value !== null &&
-					typeof value == "object" &&
-					value.constructor == Object
+					typeof value === "object" &&
+					value.constructor === Object
 				);
 			}
 
@@ -1251,13 +1254,13 @@ export const evaluation = (function () {
 			function rec(node) {
 				if (!node) return false;
 				if (node.builtin) return false;
-				if (node.petype == "breakpoint") return false;
+				if (node.petype === "breakpoint") return false;
 
 				// forward pass: match nodes
 				let ii = cs.length;
 				for (let i = 0; i < ii; i++) {
 					let c = cs[i];
-					if (c.next.length == 0) continue; // this cursor is waiting for an ancestor of the current data node
+					if (c.next.length === 0) continue; // this cursor is waiting for an ancestor of the current data node
 					let next = c.next[0];
 					if (!isNode(next))
 						throw new Error(
@@ -1265,7 +1268,7 @@ export const evaluation = (function () {
 						);
 
 					// do the nodes match?
-					let match = Array.isArray(node) == Array.isArray(next);
+					let match = Array.isArray(node) === Array.isArray(next);
 					if (match && isObject(next)) {
 						if (next.hasOwnProperty("petype")) {
 							let d = node.petype ? node.petype : "";
@@ -1275,7 +1278,7 @@ export const evaluation = (function () {
 						if (next.hasOwnProperty("name")) {
 							let d = node.name ? node.name : "";
 							let k = next.name ? next.name : "";
-							match = d == k;
+							match = d === k;
 						}
 					}
 
@@ -1314,13 +1317,13 @@ export const evaluation = (function () {
 					cs2 = new Array();
 				for (let i = 0; i < cs.length; i++) {
 					let c = cs[i];
-					if (c.dstack[c.dstack.length - 1] == node) {
+					if (c.dstack[c.dstack.length - 1] === node) {
 						if (c.next.length > 0) continue; // sub-tree match not completed: drop the cursor
 
 						// move the cursor to the next sub-tree
 						c.dstack.pop();
 						c.next = c.nstack.pop();
-						if (c.nstack.length == 0) return true; // success!
+						if (c.nstack.length === 0) return true; // success!
 						cs2.push(c);
 					} else cs1.push(c);
 				}
@@ -1388,7 +1391,7 @@ export const evaluation = (function () {
 		let inputs = new Array();
 		let calls = new Array();
 		function prepareTest(test) {
-			if (test.type == "call") {
+			if (test.type === "call") {
 				let call = test.code;
 				let context = test.hasOwnProperty("context")
 					? task_context + test.context
@@ -1423,7 +1426,7 @@ export const evaluation = (function () {
 				inputs.push(input);
 				codes.push(sol);
 				inputs.push(input);
-			} else if (test.type == "code") {
+			} else if (test.type === "code") {
 				let call = test.code;
 				let context = test.hasOwnProperty("context")
 					? task_context + test.context
@@ -1440,7 +1443,7 @@ export const evaluation = (function () {
 				inputs.push(input);
 				codes.push(sol);
 				inputs.push(input);
-			} else if (test.type == "js") {
+			} else if (test.type === "js") {
 				let call = test.code;
 				codes.push("@" + call + "\n@\n" + submission);
 				inputs.push(new Array());
@@ -1469,7 +1472,7 @@ export const evaluation = (function () {
 			if (result === null) {
 				error = "internal error: failed to evaluate the code";
 				points = 0;
-			} else if (typeof result == "string") {
+			} else if (typeof result === "string") {
 				error = result;
 				points = 0;
 			} else {
@@ -1500,7 +1503,7 @@ export const evaluation = (function () {
 					let success = true;
 					let error: null | string = null;
 					let details: null | string = null;
-					if (test.type == "call") {
+					if (test.type === "call") {
 						let ed = compare_runs(
 							result[code_pos],
 							result[code_pos + 1],
@@ -1518,7 +1521,7 @@ export const evaluation = (function () {
 						}
 						code_pos += 2;
 						call_pos++;
-					} else if (test.type == "code") {
+					} else if (test.type === "code") {
 						let ed = compare_runs(
 							result[code_pos],
 							result[code_pos + 1],
@@ -1539,8 +1542,8 @@ export const evaluation = (function () {
 						}
 						code_pos += 2;
 						call_pos++;
-					} else if (test.type == "js") {
-						if (typeof result[code_pos] == "string") {
+					} else if (test.type === "js") {
+						if (typeof result[code_pos] === "string") {
 							success = false;
 							error = result[code_pos];
 							if (test.hasOwnProperty("feedback"))
