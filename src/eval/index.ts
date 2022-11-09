@@ -443,23 +443,22 @@ export const evaluation = (function () {
 		// check the return value
 		if (return_sub_type === "" && return_sol_type === "") return ["", ""];
 
-		function formatString(str: any) {
-			return (
-				'"' +
-				str
-					.replace(/\\/g, "\\\\")
-					.replace(/\n/g, "\\n")
-					.replace(/\r/g, "\\r")
-					.replace(/\t/g, "\\t") +
-				'"'
-			);
+		function formatReturnValue(value: string, type: string) {
+			return type.indexOf("Type String") >= 0
+				? '"' +
+						value
+							.replace(/\\/g, "\\\\")
+							.replace(/\"/g, '\\"')
+							.replace(/\n/g, "\\n")
+							.replace(/\r/g, "\\r")
+							.replace(/\t/g, "\\t") +
+						'"'
+				: value + "";
 		}
 		if (return_sub_type === "")
 			return [
 				"Missing return value - expected " +
-					(return_sol_type === "<Type String>"
-						? formatString(return_sol_value)
-						: return_sol_value) +
+					formatReturnValue(return_sol_value, return_sol_type) +
 					" of type " +
 					return_sol_type +
 					"; the function terminates without returning a value",
@@ -489,15 +488,11 @@ export const evaluation = (function () {
 		else {
 			return [
 				"Wrong return value - expected: " +
-					(return_sol_type === "<Type String>"
-						? formatString(return_sol_value)
-						: return_sol_value) +
+					formatReturnValue(return_sol_value, return_sol_type) +
 					" of type " +
 					return_sol_type +
 					" - obtained: " +
-					(return_sub_type === "<Type String>"
-						? formatString(return_sub_value)
-						: return_sub_value) +
+					formatReturnValue(return_sub_value, return_sub_type) +
 					" of type " +
 					return_sub_type,
 				"",
