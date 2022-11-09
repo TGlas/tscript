@@ -442,10 +442,24 @@ export const evaluation = (function () {
 
 		// check the return value
 		if (return_sub_type === "" && return_sol_type === "") return ["", ""];
+
+		function formatString(str: any) {
+			return (
+				'"' +
+				str
+					.replace(/\\/g, "\\\\")
+					.replace(/\n/g, "\\n")
+					.replace(/\r/g, "\\r")
+					.replace(/\t/g, "\\t") +
+				'"'
+			);
+		}
 		if (return_sub_type === "")
 			return [
 				"Missing return value - expected " +
-					return_sol_value +
+					(return_sol_type === "<Type String>"
+						? formatString(return_sol_value)
+						: return_sol_value) +
 					" of type " +
 					return_sol_type +
 					"; the function terminates without returning a value",
@@ -472,18 +486,23 @@ export const evaluation = (function () {
 
 		let cmp = compare_events(return_sub_value, return_sol_value);
 		if (cmp === "") return ["", ""];
-		else
+		else {
 			return [
 				"Wrong return value - expected: " +
-					return_sol_value +
+					(return_sol_type === "<Type String>"
+						? formatString(return_sol_value)
+						: return_sol_value) +
 					" of type " +
 					return_sol_type +
 					" - obtained: " +
-					return_sub_value +
+					(return_sub_type === "<Type String>"
+						? formatString(return_sub_value)
+						: return_sub_value) +
 					" of type " +
 					return_sub_type,
 				"",
 			];
+		}
 	}
 
 	// create an interpreter with specialized services for observing the
