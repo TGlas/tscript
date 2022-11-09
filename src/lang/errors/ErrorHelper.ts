@@ -312,7 +312,7 @@ export let errors = {
 		"ne-4": "error in function call; parameter number $$ is missing when calling function '$$'",
 		"ne-5": "error in $$; '$$' is not defined",
 		"ne-6": "error in $$; cannot access variable '$$', which is declared in a different class",
-		"ne-7": "error in $$; cannot access variable '$$', which is declared in a different function",
+		"ne-7": "error in $$; cannot access variable '$$', which is declared in a scope with different lifetime",
 		"ne-8": "error in $$; '$$' cannot be accessed because it is a private member of type '$$'",
 		// "ne-9": "error in namespace lookup; name '$$' not found in namespace '$$'",
 		"ne-10": "name '$$' does not refer to a variable, function, or type",

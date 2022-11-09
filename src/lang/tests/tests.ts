@@ -4625,7 +4625,7 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "ne-7",
+		name: "ne-7-1",
 		description: "test of name resolution error ne-7",
 		code: `
 			function f()
@@ -4638,6 +4638,60 @@ export const tests: Array<TscriptTest> = [
 		expectation: [
 			{ type: "error", href: "#/errors/name/ne-7" },
 			"parsing failed",
+		],
+	},
+	{
+		name: "ne-7-2",
+		description: "test of name resolution error ne-7",
+		code: `
+			for var a in ["a","a"] do
+			{
+				function foo()
+				{
+					print(a);
+				}
+				foo();
+			}
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-7" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "ne-7-3",
+		description: "test of name resolution error ne-7",
+		code: `
+			var f;
+			{
+			    var a = 42;
+			    f = function() { print(a); };
+			}
+			f();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-7" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "ne-7-4",
+		description: "test of name resolution error ne-7",
+		code: `
+			namespace N {
+				var a = "a";
+				for var i in 0:2 do {
+					function foo(){
+						print(a);
+					}
+					foo();
+				}
+			}
+		`,
+		expectation: [
+			{ type: "print", message: "a" },
+			{ type: "print", message: "a" },
+			"finished",
 		],
 	},
 	{

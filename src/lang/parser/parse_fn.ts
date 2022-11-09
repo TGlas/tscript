@@ -40,11 +40,18 @@ export function resolve_name(state, name, parent, errorname) {
 			) {
 				// find the context
 				let context = get_context(pe);
-				if (context.petype === "global scope") {
+				if (
+					n.petype !== "variable" &&
+					context.petype === "global scope"
+				) {
 					// global scope is always okay
-					ErrorHelper.assert(
-						n.petype === "variable" || n.petype === "function"
-					);
+					ErrorHelper.assert(n.petype === "function");
+				} else if (
+					n.petype === "variable" &&
+					(pe.petype === "global scope" || pe.petype === "namespace")
+				) {
+					// variables must be in a scope with indefinite lifetime,
+					// sub-scopes are not allowed
 				} else if (context.petype === "type") {
 					// non-static members must live in the same class
 					if (n.petype === "attribute" || n.petype === "method") {

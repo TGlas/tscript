@@ -2357,7 +2357,7 @@ print(arr.sort(order2));                        # works fine
 			<p>
 			In certain situations a name is resolved into a variable that cannot
 			be accessed from the current context. This error refers to the case
-			that the name refers to a local variable in an outer function.
+			that the name refers to a local variable in an outer non-global scope.
 			</p>
 			<div>
 				<h3>Example</h3>
