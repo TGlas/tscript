@@ -659,10 +659,14 @@ turtle.move(50);			# blue line to the left
 		<tr><th>curve</th><td>
 			The <code class="code">function curve(points, closed)</code> draws
 			a polygon given by the array <code class="code">points</code>, each
-			entry of which is an array containing (x, y) coordinates. If the
-			optional argument <code class="code">closed</code> is set to true then
-			the first and the last point are connected, resulting in a closed
-			polygon. The curve is drawn with the current line width and line color.
+			entry of which is an array containing (x, y) coordinates. For example,
+			the array <code class="code">[[100, 100], [200, 100], [100, 200]]</code>
+			specifies a curve consisting of two lines (three lines forming a triangle
+			if the curve is closed), connecting the points (100, 100), (200, 100),
+			and (100, 200). If the optional argument <code class="code">closed</code>
+			is set to <code class="code">true</code> then the first and the last point
+			are connected, resulting in a closed polygon. The curve is drawn with the
+			current line width and line color.
 		</td></tr>
 		<tr><th>fillArea</th><td>
 			The <code class="code">function fillArea(points)</code> fills the
