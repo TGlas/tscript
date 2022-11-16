@@ -266,22 +266,26 @@ export const evaluation = (function () {
 		let i = 0;
 		let remaining_solution = solution.slice();
 		while (i < submission.length) {
-			if (submission[i].type === "compile error")
+			let type = submission[i].type;
+			if (type === "compile error")
 				return [
 					"Error while parsing the code - " + submission[i].message,
 					"",
 				];
-			let type = submission[i].type;
 			if (type === "print" && submission[i].value.indexOf(marker) >= 0)
 				type = "marker";
 			if (remaining_solution.length === 0) {
-				if (type === "runtime error")
+				if (type === "runtime error") {
 					return [
 						"Runtime error while executing the code - " +
 							submission[i].message,
 						table,
 					];
-				else if (type === "print" && expecting_print) {
+				} else if (type === "print" && !expecting_print) {
+					table += addrow(null, submission[i], "ignored");
+					i++;
+					continue;
+				} else {
 					table += addrow(null, submission[i], "error");
 					table += "</table>\r\n";
 					let error = "Unexpected surplus output";
@@ -330,11 +334,6 @@ export const evaluation = (function () {
 						submission[i].message,
 					"",
 				];
-			}
-			if (type === "print" && !expecting_print) {
-				table += addrow(null, submission[i], "ignored");
-				i++;
-				continue;
 			}
 			if (ignore_order) {
 				let match_index = -1;
