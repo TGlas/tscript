@@ -60,6 +60,15 @@ export function parse_throw(state, parent, options) {
 				f.pe.splice(f.pe.length - remove_pe - 1, remove_pe + 1);
 				f.ip.splice(f.ip.length - remove_pe - 2, remove_pe + 2, 1);
 
+				// clean up temporaries
+				while (
+					f.temporaries.length > 0 &&
+					!f.temporaries[f.temporaries.length - 1].hasOwnProperty(
+						"try marker"
+					)
+				)
+					f.temporaries.pop();
+
 				// pass the exception into the catch block
 				f.temporaries.push(ex);
 

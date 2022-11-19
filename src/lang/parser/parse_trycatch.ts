@@ -24,6 +24,7 @@ export function parse_trycatch(state, parent, options) {
 			let ip = frame.ip[frame.ip.length - 1];
 			if (ip === 0) {
 				// run the try part
+				frame.temporaries.push({ "try marker": true });
 				frame.pe.push(pe.try_part);
 				frame.ip.push(-1);
 				return false;
@@ -36,6 +37,7 @@ export function parse_trycatch(state, parent, options) {
 				// done, either with try or with catch
 				frame.pe.pop();
 				frame.ip.pop();
+				frame.temporaries.pop();
 				return false;
 			}
 		},
