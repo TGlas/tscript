@@ -8,6 +8,7 @@ import { icons } from "./icons";
 import { tgui } from "./tgui";
 import { toClipboard } from "./clipboard";
 import { tutorial } from "./tutorial";
+import { Options, defaultOptions } from "../lang/helpers/options";
 
 import CodeMirror from "codemirror";
 
@@ -29,7 +30,7 @@ import "./codemirror-tscriptmode";
 
 export let ide = (function () {
 	let module: any = {};
-	let options: any = {};
+	let options: any = new Options();
 	let theme: string = "default";
 
 	function guid() {
@@ -1078,7 +1079,7 @@ export let ide = (function () {
 		// check that the code at least compiles
 		let source = ide.sourcecode.getValue();
 		clear();
-		let result = Parser.parse(source);
+		let result = Parser.parse(source, options);
 		let program = result.program;
 		let errors = result.errors;
 		if (errors && errors.length > 0) {
@@ -1414,7 +1415,11 @@ export let ide = (function () {
 				}
 			}
 			if (config.hasOwnProperty("options")) {
-				options = config.options;
+				options = Object.assign(
+					options,
+					defaultOptions,
+					config.options
+				);
 			}
 			if (config.hasOwnProperty("theme")) {
 				theme = config.theme;

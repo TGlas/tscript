@@ -143,7 +143,11 @@ export function callstep(options: Options) {
 				frame.temporaries.push(f_obj);
 			}
 		} else
-			ErrorHelper.error("/syntax/se-16", [TScript.displayname(f.type)]);
+			ErrorHelper.error(
+				"/syntax/se-16",
+				[TScript.displayname(f.type)],
+				this.stack
+			);
 
 		// argument list for the call
 		let m = f_pe.params.length;
@@ -161,26 +165,30 @@ export function callstep(options: Options) {
 						f_pe.params[j].name === name
 					) {
 						if (typeof params[j] !== "undefined")
-							ErrorHelper.error("/name/ne-1", [
-								name,
-								TScript.displayname(f_pe),
-							]);
+							ErrorHelper.error(
+								"/name/ne-1",
+								[name, TScript.displayname(f_pe)],
+								this.stack
+							);
 						params[j] = args[i];
 						found = true;
 						break;
 					}
 				}
 				if (!found)
-					ErrorHelper.error("/name/ne-2", [
-						name,
-						TScript.displayname(f_pe),
-					]);
+					ErrorHelper.error(
+						"/name/ne-2",
+						[name, TScript.displayname(f_pe)],
+						this.stack
+					);
 			} else {
 				if (i < params.length) params[i] = args[i];
 				else
-					ErrorHelper.error("/name/ne-3", [
-						TScript.displayname(f_pe),
-					]);
+					ErrorHelper.error(
+						"/name/ne-3",
+						[TScript.displayname(f_pe)],
+						this.stack
+					);
 			}
 		}
 
@@ -193,10 +201,11 @@ export function callstep(options: Options) {
 						f_pe.params[j].defaultvalue
 					);
 				else
-					ErrorHelper.error("/name/ne-4", [
-						j + 1,
-						TScript.displayname(f_pe),
-					]);
+					ErrorHelper.error(
+						"/name/ne-4",
+						[j + 1, TScript.displayname(f_pe)],
+						this.stack
+					);
 			}
 		}
 
@@ -221,7 +230,7 @@ export function callstep(options: Options) {
 				frame.enclosed = f.value.b.enclosed;
 			this.stack.push(frame);
 			if (this.stack.length >= options.maxstacksize)
-				ErrorHelper.error("/logic/le-1");
+				ErrorHelper.error("/logic/le-1", [], this.stack);
 		}
 		return true;
 	} else {

@@ -7,13 +7,13 @@ export class ErrorHelper {
 		let tokens = path.split("/");
 		ErrorHelper.assert(
 			tokens[0] === "",
-			"[getError] invalid path: " + path
+			"[errorTemplate] invalid path: " + path
 		);
 		let ret = errors;
 		for (let i = 1; i < tokens.length; i++) {
 			ErrorHelper.assert(
 				ret.hasOwnProperty(tokens[i]),
-				"[getError] invalid path: " + path
+				"[errorTemplate] invalid path: " + path
 			);
 			ret = ret[tokens[i]];
 		}
@@ -38,7 +38,7 @@ export class ErrorHelper {
 		_ch: number | undefined = undefined
 	) {
 		if (typeof stack === "undefined") {
-			stack = { length: 0 };
+			stack = new Array();
 		}
 
 		if (args === undefined) args = [];
