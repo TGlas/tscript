@@ -463,7 +463,10 @@ export function createDefaultServices() {
 			if (typeof atx !== "undefined") this.audioContext = new atx();
 		},
 		shutdown: function () {
-			if (this.audioContext) this.audioContext.close();
+			if (this.audioContext) {
+				this.audioContext.close();
+				this.audioContext = null;
+			}
 		},
 	};
 }
