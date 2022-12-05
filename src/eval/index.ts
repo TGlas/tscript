@@ -29,7 +29,7 @@ export const evaluation = (function () {
 			size = s.length;
 		if (size === 0) return null;
 		if (s[pos] === "-") pos++;
-		if (s[pos] < "0" || s[pos] > "9") return null;
+		if (pos >= size || s[pos] < "0" || s[pos] > "9") return null;
 		while (pos < size && s[pos] >= "0" && s[pos] <= "9") pos++;
 		if (pos < size) {
 			if (s[pos] === ".") {
@@ -228,6 +228,16 @@ export const evaluation = (function () {
 				else expecting_print = true;
 			}
 		}
+		if (!expecting_print) {
+			for (let i = 0; i < submission.length; i++) {
+				let s = submission[i];
+				if (!s.type) continue;
+				if (s.type === "print" && s.value.indexOf(marker) < 0) {
+					submission.splice(i, 1);
+					i--;
+				}
+			}
+		}
 
 		// extract function return type and value, if present
 		let return_sub_type = "",
@@ -267,13 +277,13 @@ export const evaluation = (function () {
 		let remaining_solution = solution.slice();
 		while (i < submission.length) {
 			let type = submission[i].type;
+			if (type === "print" && submission[i].value.indexOf(marker) >= 0)
+				type = "marker";
 			if (type === "compile error")
 				return [
 					"Error while parsing the code - " + submission[i].message,
 					"",
 				];
-			if (type === "print" && submission[i].value.indexOf(marker) >= 0)
-				type = "marker";
 			if (remaining_solution.length === 0) {
 				if (type === "runtime error") {
 					return [
@@ -281,10 +291,10 @@ export const evaluation = (function () {
 							submission[i].message,
 						table,
 					];
-				} else if (type === "print" && !expecting_print) {
-					table += addrow(null, submission[i], "ignored");
-					i++;
-					continue;
+					//				} else if (type === "print" && !expecting_print) {
+					//					table += addrow(null, submission[i], "ignored");
+					//					i++;
+					//					continue;
 				} else {
 					table += addrow(null, submission[i], "error");
 					table += "</table>\r\n";
