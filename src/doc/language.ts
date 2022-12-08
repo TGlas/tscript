@@ -2383,6 +2383,7 @@ print(e.ex);                        # works fine
 			Scopes can apparently be nested, as in the following example,
 			which contains five scopes: the global scope, a class, a
 			function, and two blocks.
+			</p><p>
 			<tscript>
 				var a;
 				{
@@ -2392,7 +2393,7 @@ print(e.ex);                        # works fine
 					public:
 						function m()
 						{
-							x = 99;
+							a = 99;
 							# y = 99;  # error: y is not yet defined
 						}
 					}
@@ -2408,6 +2409,7 @@ print(e.ex);                        # works fine
 					# z = 42;      # error: cannot access z from here
 				}
 			</tscript>
+			</p><p>
 			Names of variables, functions, classes and namespaces declared
 			within a scope are only visible from within that scope, and from
 			within sub-scopes. They are neither visible before they are declared,
@@ -2415,10 +2417,11 @@ print(e.ex);                        # works fine
 			multiple declarations of the same name, as along as they are found in
 			different scopes. The name always refers to the declaration in the
 			innermost scope:
+			</p><p>
 			<tscript>
 				var a = 1;
 				{
-					print(a);   # prints 1
+					print(a);           # prints 1
 					var a = 2;
 					{
 						print(a);       # prints 2
@@ -2427,20 +2430,57 @@ print(e.ex);                        # works fine
 						# var a = 4;    # error; the name 'a' is already
 						                # defined in this scope
 					}
-					print(a);   # prints 2
+					print(a);           # prints 2
 				}
-				print(a);   # prints 1
+				print(a);               # prints 1
 			</tscript>
+			</p><p>
 			This means that declarations of the same name mask each other, but
 			they do not result in errors.
+			</p>
+
+			<h2>Visibility within a Scope</h2>
+			<p>
+			All names defined within a scope are visible within that scope, with the
+			exception of variables: they are visible only from the point of their
+			definition onwards, but not before. This is implicit in the previous
+			example, where the first <code class="code">print</code>-statement
+			outputs 1, not 2. This is because the variable declared in the next line
+			is not yet visible. That makes sense, because at the time the statement
+			is executed, the variable does not exist yet. In contrast, the second
+			to last <code class="code">print</code>-statement in the same scope
+			outputs 2, which means that it refers to the variable within that scope.
+			</p>
+			<p>
+			For other names (functions, classes, namespaces), the behavior is
+			different. All names within a scope are visible within the whole scope,
+			irrespective of the order of declarations:
+			</p><p>
+			<tscript>
+				function f()
+				{ print(1); }
+				{
+					f();            # prints 2
+					function f()
+					{ print(2); }
+					f();            # prints 2
+				}
+			</tscript>
+			</p><p>
+			Both calls of <code class="code">f</code> output the value 2,
+			indicating that the "inner" function is visible within the whole scope,
+			even before it is defined. Hence, its definition masks the name
+			<code class="code">f</code> within the whole scope.
 			</p>
 
 			<h2>Namespaces</h2>
 			<p>
 			Declarations defined inside a namespace are accessed with the dot
 			operator:
+			</p><p>
 			<tscript>
-			namespace N {
+			namespace N
+			{
 				var a;
 				function say() { print("a = " + a); }
 			}
@@ -2449,6 +2489,7 @@ print(e.ex);                        # works fine
 			N.a = 7;     # works as desired
 			N.say();     # works as desired
 			</tscript>
+			</p><p>
 			This works because the <code class="code">namespace N</code> is visible
 			from the perspective of the statement. Its members
 			<code class="code">a</code> and <code class="code">say</code> are not directly visible,
@@ -2458,8 +2499,10 @@ print(e.ex);                        # works fine
 			When accessing members of a namespace many times it can be
 			convenient to make names from a namespace directly available in the
 			current scope:
+			</p><p>
 			<tscript>
-			namespace N {
+			namespace N
+			{
 				var a;
 				function say() { print("a = " + a); }
 			}
@@ -2469,6 +2512,7 @@ print(e.ex);                        # works fine
 			N.a = 7;     # this also still works
 			N.say();     # this also still works
 			</tscript>
+			</p><p>
 			Names can even be imported into classes. Then variables and functions
 			defined in the namespace can be accessed like static members of the
 			class.
@@ -2476,30 +2520,26 @@ print(e.ex);                        # works fine
 
 			<h2>Names in Classes and Super Classes</h2>
 			<p>
-			The above rules also apply within classes. In particular, names must
-			be declared before they are used. This implies that in TScript
-			attributes are usually declared first to make them accessible for
-			methods:
+			Members of a class can be declared in any order. In This includes
+			variables, or in other words, attributes:
+			</p><p>
 			<tscript>
 			class A
 			{
-			private:
-				var x;
 			public:
 				function f()
 				{
-					print(x);
-					# print(y);   # error; y was not declared yet
+					print(x);   # works, although x is declared below
 				}
 			private:
-				var y;
+				var x;
 			}
 			</tscript>
-			</p>
-			<p>
+			</p><p>
 			Inside a class it is possible to access the public and protected
 			members of all super classes, although they are declared in unrelated
 			scopes:
+			</p><p>
 			<tscript>
 			class A
 			{
@@ -2530,6 +2570,9 @@ print(e.ex);                        # works fine
 			<ul>
 				<li>If the name is defined inside of the scope and before
 					its use, then the lookup is successful.</li>
+				<li>If the name is defined inside of the scope and before
+					after its use, and if it does not refer to a variable,
+					then the lookup is successful.</li>
 				<li>If the name is imported from a namespace into the scope
 					before its use, then the lookup is successful.</li>
 				<li>If the scope is a class, then loop through the chain of
@@ -2541,6 +2584,7 @@ print(e.ex);                        # works fine
 			<p>
 			These rules imply that some names refer to objects that are not
 			accessible, like in the following example:
+			</p><p>
 			<tscript>
 			function f()
 			{
@@ -2555,9 +2599,11 @@ print(e.ex);                        # works fine
 			print(h);     # prints &lt;Function g&gt;
 			print(h());
 			</tscript>
+			</p><p>
 			The problem is that when g is called under the name h in the last
 			line, then x has already gone out of scope. This can be avoided
 			by turning g into a closure:
+			</p><p>
 			<tscript>
 			function f()
 			{
