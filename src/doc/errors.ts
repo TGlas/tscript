@@ -3012,6 +3012,10 @@ catch var ex do {                               # an error occurs if this catch 
 			written by the user, but rather a bug on the side of
 			TScript.
 			</p>
+			<p>
+			This should never happen. If it does happens to you, then
+			please report the bug.
+			</p>
 		`,
 					children: [],
 				},
@@ -3023,6 +3027,10 @@ catch var ex do {                               # an error occurs if this catch 
 			operate as expected. This is not the fault of the program
 			written by the user, but rather a bug on the side of
 			TScript or its standard library.
+			</p>
+			<p>
+			This should never happen. If it does happens to you, then
+			please report the bug.
 			</p>
 		`,
 					children: [],
