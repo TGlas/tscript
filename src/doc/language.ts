@@ -3371,6 +3371,30 @@ print("example");               # will not be executed
 				}
 				</tscript>
 			</div>
+			<div class="example">
+				<h3>Example</h3>
+				<tscript>
+				function doStuff(n)
+				{
+					if n == 0 then return 1;
+					else if n < 0 then throw "oh no!";
+					else return 3 * doStuff(n - 2);
+				}
+
+				try
+				{
+					print(doStuff(4));
+					print(doStuff(8));
+					print(doStuff(11));   # exception thrown in here
+					print(doStuff(14));
+				}
+				catch var ex do
+				{
+					# and here we "handle" the error
+					print("exception: " + ex);
+				}
+				</tscript>
+			</div>
 		`,
 					children: [],
 				},
