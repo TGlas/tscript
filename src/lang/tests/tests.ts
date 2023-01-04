@@ -197,6 +197,10 @@ export const tests: Array<TscriptTest> = [
 			print(2^2 - 2^d["u"] * -2^4);
 			print((2^2 - 2^3) * -2^d["v"]);
 			print(false and not false or true and true);
+			print("abcde"[2]);
+			print("abcde"[2:7]);
+			print("abcde"[-7:7]);
+			print("abcde"[2:-7]);
 		`,
 		expectation: [
 			{ type: "print", message: "-1" },
@@ -206,6 +210,10 @@ export const tests: Array<TscriptTest> = [
 			{ type: "print", message: "132" },
 			{ type: "print", message: "64" },
 			{ type: "print", message: "true" },
+			{ type: "print", message: "99" },
+			{ type: "print", message: "cde" },
+			{ type: "print", message: "abcde" },
+			{ type: "print", message: "" },
 			"finished",
 		],
 	},
