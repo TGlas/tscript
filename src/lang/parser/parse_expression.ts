@@ -1091,7 +1091,10 @@ export function parse_expression(
 									if (a < 0) a = 0;
 									if (b > container.value.b.length)
 										b = container.value.b.length;
-									let str = container.value.b.substring(a, b);
+									let str =
+										a < b
+											? container.value.b.substring(a, b)
+											: "";
 									let ret = {
 										type: this.program.types[
 											Typeid.typeid_string

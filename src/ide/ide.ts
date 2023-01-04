@@ -248,7 +248,8 @@ export let ide = (function () {
 					ret.ids.push(node_id + "/this");
 				}
 				for (let i = 0; i < value.frame.variables.length; i++) {
-					if (!value.frame.variables[i]) continue;
+					if (!value.frame.variables[i] || !func.variables[i])
+						continue;
 					ret.children.push({
 						nodetype: "typedvalue",
 						index: TScript.displayname(func.variables[i]),
@@ -2293,7 +2294,9 @@ export let ide = (function () {
 						}
 					}
 					if (scope) {
+						console.log(scope, highlight_var);
 						let tv = scope.variables[highlight_var.id];
+						if (!tv) return;
 						let text = TScript.previewValue(tv);
 						if (module.highlight) module.highlight.remove();
 						module.highlight = tgui.createElement({

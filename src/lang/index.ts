@@ -527,8 +527,13 @@ export class TScript {
 	// however, it makes an effort to make its type recognizable.
 	public static previewValue(arg, depth: number = 1) {
 		if (typeof depth === "undefined") depth = 1;
-		if (!arg.hasOwnProperty("type") || !arg.hasOwnProperty("value"))
-			throw "[module.previewValue] invalid argument";
+		if (
+			!arg ||
+			!arg.hasOwnProperty("type") ||
+			!arg.hasOwnProperty("value") ||
+			arg.value.b === undefined
+		)
+			return "[no value]";
 
 		if (arg.type.id === Typeid.typeid_null) return "null";
 		else if (arg.type.id === Typeid.typeid_boolean)
