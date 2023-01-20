@@ -57,7 +57,7 @@ export const tutorial_arrays = {
 			<h2>Storing Multiple Values</h2>
 			<p>
 			You can imagine an array as a list of data values. The list can have any
-			length: it can be empty (story no value), a single value, ten or a
+			length: it can be empty (store no value), a single value, ten or a
 			million values. To create an array we use square brackets and separate
 			values with commas:
 			<tscript>

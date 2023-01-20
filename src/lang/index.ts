@@ -531,9 +531,11 @@ export class TScript {
 			!arg ||
 			!arg.hasOwnProperty("type") ||
 			!arg.hasOwnProperty("value") ||
-			arg.value.b === undefined
-		)
+			(arg.value.a === undefined && arg.value.b === undefined)
+		) {
+			console.log("[no value]", arg);
 			return "[no value]";
+		}
 
 		if (arg.type.id === Typeid.typeid_null) return "null";
 		else if (arg.type.id === Typeid.typeid_boolean)
