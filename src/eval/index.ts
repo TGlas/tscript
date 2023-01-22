@@ -170,7 +170,9 @@ export const evaluation = (function () {
 		if (!marker) marker = "$j71dKyoSL2KmbHXIa5dC$"; // some random string, delimited by dollar signs
 		let table =
 			'<table class="code-evaluation">\r\n<tr><th>your solution</th><th>reference solution</th></tr>\r\n';
+		let nTable = 0;
 		let addrow = function (solution, submission, cls = "") {
+			nTable++;
 			let s = "<tr><td";
 			if (cls != "") s += ' class="' + cls + '"';
 			s += ">";
@@ -286,10 +288,11 @@ export const evaluation = (function () {
 				];
 			if (remaining_solution.length === 0) {
 				if (type === "runtime error") {
+					table += "</table>\r\n";
 					return [
 						"Runtime error while executing the code - " +
 							submission[i].message,
-						table,
+						nTable > 0 ? table : "",
 					];
 					//				} else if (type === "print" && !expecting_print) {
 					//					table += addrow(null, submission[i], "ignored");
@@ -304,7 +307,7 @@ export const evaluation = (function () {
 						submission[i].hasOwnProperty("type")
 					)
 						error += " of type " + type;
-					return [error, table];
+					return [error, nTable > 0 ? table : ""];
 				}
 			}
 			if (type === "runtime error") {
@@ -335,7 +338,7 @@ export const evaluation = (function () {
 								remaining_solution[0].message +
 								" - obtained error: " +
 								submission[i].message,
-							table,
+							nTable > 0 ? table : "",
 						];
 					}
 				}
@@ -396,7 +399,7 @@ export const evaluation = (function () {
 					table += s + "</table>\r\n";
 					return [
 						"unmatched events, see detailed table for more information",
-						table,
+						nTable > 0 ? table : "",
 					];
 				}
 				if (type != "marker")
@@ -418,7 +421,7 @@ export const evaluation = (function () {
 						"error"
 					);
 					table += "</table>\r\n";
-					return [error, table];
+					return [error, nTable > 0 ? table : ""];
 				}
 				if (type != "marker")
 					table += addrow(remaining_solution[0], submission[i]);
@@ -444,10 +447,12 @@ export const evaluation = (function () {
 						" of type " +
 						JSON.stringify(remaining_solution[0].type);
 			}
-			return [error, table];
+			table += "</table>\r\n";
+			return [error, nTable > 0 ? table : ""];
 		}
 
 		table += "</table>\r\n";
+		if (nTable === 0) table = "";
 
 		// check the return value
 		if (return_sub_type === "" && return_sol_type === "") return ["", ""];
