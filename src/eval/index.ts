@@ -1497,6 +1497,9 @@ export const evaluation = (function () {
 
 		// run the code
 		module.run_multiple(codes, inputs, timeout, function (result) {
+			let error: null | string = null;
+			let details: null | string = null;
+			let points = 0;
 			if (result === null) {
 				error = "internal error: failed to evaluate the code";
 				points = 0;
@@ -1578,7 +1581,12 @@ export const evaluation = (function () {
 								details = test.feedback;
 						}
 						code_pos++;
-					}
+					} else
+						throw new Error(
+							"unknown test type '" +
+								test.type +
+								"' in run_multiple"
+						);
 					return [success, error, details];
 				}
 
@@ -1614,7 +1622,9 @@ export const evaluation = (function () {
 						// run a single test
 						let test = task.tests[i];
 						let success = true;
-						[success, error, details] = evaluateTest(test);
+						let e: null | string = null;
+						let d: null | string = null;
+						[success, e, d] = evaluateTest(test);
 
 						// process the result
 						if (success) {
@@ -1623,6 +1633,10 @@ export const evaluation = (function () {
 						} else {
 							points = 0;
 							use_fraction = true;
+							if (error === null) {
+								error = e;
+								details = d;
+							}
 							if (!test.hasOwnProperty("fatal") || test.fatal)
 								break;
 						}
