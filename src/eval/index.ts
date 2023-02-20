@@ -1405,6 +1405,9 @@ export const evaluation = (function () {
 	module.evaluate = function (task, submission, process) {
 		let marker = "$j71dKyoSL2KmbHXIa5dC$"; // some random string, delimited by dollar signs
 
+		// don't let an unclosed block comment propagate
+		submission += "\n#**#\n";
+
 		// extract properties
 		let solution = task.correct;
 		let points = task.points ? task.points : 0;
@@ -1499,7 +1502,7 @@ export const evaluation = (function () {
 		module.run_multiple(codes, inputs, timeout, function (result) {
 			let error: null | string = null;
 			let details: null | string = null;
-			let points = 0;
+			let points = total;
 			if (result === null) {
 				error = "internal error: failed to evaluate the code";
 				points = 0;
