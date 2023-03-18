@@ -1462,6 +1462,131 @@ export const tests: Array<TscriptTest> = [
 			"finished",
 		],
 	},
+	{
+		name: "access modifiers 1",
+		description: "test access to private members",
+		code: `
+			class A
+			{
+			private:
+				var a = 1;
+				static var b = 2;
+			protected:
+				var c = 3;
+				static var d = 4;
+			public:
+				var e = 5;
+				static var f = 6;
+			}
+
+			print(A.a);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-12" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "access modifiers 2",
+		description: "test access to static private members",
+		code: `
+			class A
+			{
+			private:
+				var a = 1;
+				static var b = 2;
+			protected:
+				var c = 3;
+				static var d = 4;
+			public:
+				var e = 5;
+				static var f = 6;
+			}
+
+			print(A.b);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-12" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "access modifiers 3",
+		description: "test access to protected members",
+		code: `
+			class A
+			{
+			private:
+				var a = 1;
+				static var b = 2;
+			protected:
+				var c = 3;
+				static var d = 4;
+			public:
+				var e = 5;
+				static var f = 6;
+			}
+
+			print(A.c);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-12" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "access modifiers 4",
+		description: "test access to static protected members",
+		code: `
+			class A
+			{
+			private:
+				var a = 1;
+				static var b = 2;
+			protected:
+				var c = 3;
+				static var d = 4;
+			public:
+				var e = 5;
+				static var f = 6;
+			}
+
+			print(A.d);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/name/ne-12" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "access modifiers 5",
+		description: "test access to public members",
+		code: `
+			class A
+			{
+			private:
+				var a = 1;
+				static var b = 2;
+			protected:
+				var c = 3;
+				static var d = 4;
+			public:
+				var e = 5;
+				static var f = 6;
+			}
+
+			var a = A();
+			print(a.e);
+			print(a.f);
+			print(A.f);
+		`,
+		expectation: [
+			{ type: "print", message: "5" },
+			{ type: "print", message: "6" },
+			{ type: "print", message: "6" },
+			"finished",
+		],
+	},
 
 	// constants
 	{
