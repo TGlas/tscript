@@ -75,7 +75,10 @@ export function run_multiple(code, inputs, maxseconds, process) {
 				function monitor() {
 					if (new Date().getTime() > timeout) {
 						interpreter.stopthread();
-						all = "timeout - program execution took too long";
+						all = {
+							msg: "timeout - program execution took too long",
+							index: index,
+						};
 						process(all);
 					} else if (
 						interpreter.status === "finished" ||

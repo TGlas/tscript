@@ -642,6 +642,31 @@ export const evaluation = (function () {
 			} else if (typeof result === "string") {
 				error = result;
 				points = 0;
+			} else if (
+				typeof result === "object" &&
+				result !== null &&
+				!Array.isArray(result)
+			) {
+				error = "Error:\n" + result.msg;
+				if (task.tests) {
+					// TODO: report the test case
+					let index = 0;
+					for (let i = 0; i < task.tests.length; i++) {
+						let test = task.tests[i];
+						if (test.type === "call") index += 2;
+						else if (test.type === "code") index += 2;
+						else if (test.type === "js") index += 1;
+						if (index > result.index) {
+							if (test.code)
+								details =
+									"<p>Test case:</p><pre>" +
+									escapeHtmlChars(test.code) +
+									"</pre>";
+							break;
+						}
+					}
+				}
+				points = 0;
 			} else {
 				// check the result, report success or failure
 				if (
