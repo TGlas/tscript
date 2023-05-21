@@ -306,7 +306,7 @@ export let errors = {
 		"am-45": "$$ exceeded allowed range $$",
 		"am-46": "invalid resource string",
 		"am-47": "wrong array size",
-		"am-48": "file $$ not found",
+		"am-48": "file '$$' not found",
 	},
 	name: {
 		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",
