@@ -2213,6 +2213,16 @@ print(arr.sort(order2));                        # works fine
 		`,
 					children: [],
 				},
+				{
+					id: "am-48",
+					content: `
+			<p>
+			This error is raised when a file is not found in an
+			<keyword>include</keyword> statement.
+			</p>
+		`,
+					children: [],
+				},
 			],
 		},
 		{

@@ -3795,6 +3795,30 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 
+	{
+		name: "se-91",
+		description: "test of syntax error 91",
+		code: `
+			include 42;
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/syntax/se-91" },
+			"parsing failed",
+		],
+	},
+	{
+		name: "se-92",
+		description: "test of syntax error 92",
+		code: `
+			include "bla"
+			var a = 42;
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/syntax/se-92" },
+			"parsing failed",
+		],
+	},
+
 	// argument mismatch errors
 	{
 		name: "am-1-1",
@@ -4653,7 +4677,7 @@ export const tests: Array<TscriptTest> = [
 		],
 	},
 	{
-		name: "ne-1-",
+		name: "ne-1-2",
 		description: "test of name resolution error ne-1, case 2",
 		code: `
 			function f(x, y) {}

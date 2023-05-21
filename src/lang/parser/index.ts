@@ -8,6 +8,7 @@ import { lib_audio } from "../tscript-lib/lib-audio";
 import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
+import { parse_include } from "./parse_include";
 import { defaultOptions, Options } from "../helpers/options";
 
 export class Parser {
@@ -37,16 +38,19 @@ export class Parser {
 			source: "", // complete source code
 			pos: 0, // zero-based position in the source code string
 			line: 1, // one-based line number
+			filename: null, // filename or null
 			ch: 0, // zero-based character number within the line
 			indent: [0], // stack of nested indentation widths
 			errors: [], // list of errors, currently at most one
 			impl: {}, // implementations of built-in functions
+			includes: new Set(), // set of filenames
 			builtin: function () {
 				return Object.keys(this.impl).length > 0;
 			},
-			setSource: function (source, impl) {
-				this.impl = typeof impl === "undefined" ? {} : impl;
+			setSource: function (source, impl:any = null, filename:(string|null) = null) {
 				this.source = source;
+				this.impl = (impl === null) ? {} : impl;
+				this.filename = filename;
 				this.pos = 0;
 				this.line = 1;
 				this.ch = 0;
@@ -68,6 +72,7 @@ export class Parser {
 				let msg = ErrorHelper.composeError(path, args);
 				let err = {
 					type: "error",
+					filename: this.filename,
 					line: this.line,
 					ch: this.ch,
 					message: msg,
@@ -84,6 +89,7 @@ export class Parser {
 			warning: function (msg) {
 				this.errors.push({
 					type: "warning",
+					filename: this.filename,
 					line: this.line,
 					message: msg,
 				});
@@ -185,12 +191,34 @@ export class Parser {
 		};
 
 		// parse one library or program
-		let parse1 = function (source, impl: any = undefined) {
-			state.setSource(source, impl);
+		let parse1 = function (source, impl: any = null, filename: (string|null) = null) {
+			state.setSource(source, impl, filename);
 			while (state.good()) {
-				let p = parse_statement_or_declaration(state, program, options);
-				program.commands.push(p);
-				program.children.push(p);
+				let inc = parse_include(state, program, options);
+				if (inc !== null) {
+					// safe the state
+					let backup = { source: state.source,
+					              pos: state.pos,
+					              line: state.line,
+					              filename: state.filename,
+					              ch: state.ch,
+					              indent: state.indent.slice() };
+
+					// import the file
+					parse1(inc.source, null, inc.filename);
+
+					// restore the state
+					state.source = backup.source;
+					state.pos = backup.pos;
+					state.line = backup.line;
+					state.filename = backup.filename;
+					state.ch = backup.ch;
+					state.indent = backup.indent;
+				} else {
+					let p = parse_statement_or_declaration(state, program, options);
+					program.commands.push(p);
+					program.children.push(p);
+				}
 			}
 		};
 

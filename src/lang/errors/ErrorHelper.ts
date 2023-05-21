@@ -234,6 +234,8 @@ export let errors = {
 		"se-88": "syntax error; unexpected closing brace '}'",
 		"se-89": "syntax error; unexpected keyword '$$', statement expected",
 		"se-90": "syntax error; unexpected token '$$', statement expected",
+		"se-91": "syntax error in include; string literal expected",
+		"se-92": "syntax error in include; semicolon ';' expected",
 	},
 	"argument-mismatch": {
 		"am-1": "argument type mismatch; parameter '$$' of '$$' must be a $$; found '$$'",
@@ -304,6 +306,7 @@ export let errors = {
 		"am-45": "$$ exceeded allowed range $$",
 		"am-46": "invalid resource string",
 		"am-47": "wrong array size",
+		"am-48": "file $$ not found",
 	},
 	name: {
 		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",
