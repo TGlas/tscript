@@ -34,6 +34,7 @@ export class ErrorHelper {
 		path,
 		args: Array<any> | undefined = undefined,
 		stack: any = undefined,
+		_filename: string | undefined = undefined,
 		_line: number | undefined = undefined,
 		_ch: number | undefined = undefined
 	) {
@@ -45,9 +46,13 @@ export class ErrorHelper {
 
 		let message = ErrorHelper.composeError(path, args);
 		let href = "#/errors" + path;
-		let line: any = null,
+		let filename: any = null,
+			line: any = null,
 			ch: any = null;
 
+		if (typeof _filename === "string") {
+			filename = _filename;
+		}
 		if (typeof _line === "number") {
 			line = _line;
 		}
@@ -60,6 +65,7 @@ export class ErrorHelper {
 			for (let i = frame.pe.length - 1; i >= 0; i--) {
 				let pe = frame.pe[i];
 				if (pe && pe.where) {
+					filename = pe.where.filename;
 					line = pe.where.line;
 					ch = pe.where.ch;
 					break;
@@ -67,7 +73,7 @@ export class ErrorHelper {
 			}
 			if (line !== null) break;
 		}
-		return new RuntimeError(message, line, ch, href);
+		return new RuntimeError(message, filename, line, ch, href);
 	}
 	// raise a fatal runtime error, preserve the interpreter state for debugging
 	public static error(

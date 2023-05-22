@@ -47,9 +47,13 @@ export class Parser {
 			builtin: function () {
 				return Object.keys(this.impl).length > 0;
 			},
-			setSource: function (source, impl:any = null, filename:(string|null) = null) {
+			setSource: function (
+				source,
+				impl: any = null,
+				filename: string | null = null
+			) {
 				this.source = source;
-				this.impl = (impl === null) ? {} : impl;
+				this.impl = impl === null ? {} : impl;
 				this.filename = filename;
 				this.pos = 0;
 				this.line = 1;
@@ -191,18 +195,24 @@ export class Parser {
 		};
 
 		// parse one library or program
-		let parse1 = function (source, impl: any = null, filename: (string|null) = null) {
+		let parse1 = function (
+			source,
+			impl: any = null,
+			filename: string | null = null
+		) {
 			state.setSource(source, impl, filename);
 			while (state.good()) {
 				let inc = parse_include(state, program, options);
 				if (inc !== null) {
 					// safe the state
-					let backup = { source: state.source,
-					              pos: state.pos,
-					              line: state.line,
-					              filename: state.filename,
-					              ch: state.ch,
-					              indent: state.indent.slice() };
+					let backup = {
+						source: state.source,
+						pos: state.pos,
+						line: state.line,
+						filename: state.filename,
+						ch: state.ch,
+						indent: state.indent.slice(),
+					};
 
 					// import the file
 					parse1(inc.source, null, inc.filename);
@@ -215,7 +225,11 @@ export class Parser {
 					state.ch = backup.ch;
 					state.indent = backup.indent;
 				} else {
-					let p = parse_statement_or_declaration(state, program, options);
+					let p = parse_statement_or_declaration(
+						state,
+						program,
+						options
+					);
 					program.commands.push(p);
 					program.children.push(p);
 				}

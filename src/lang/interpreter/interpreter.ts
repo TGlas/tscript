@@ -265,7 +265,15 @@ export class Interpreter {
 				this.background = false;
 				if (this.service.message) {
 					this.service.message(
-						"runtime error in line " + ex.line + ": " + ex.message,
+						"runtime error " +
+							(ex.filename
+								? "in file '" + ex.filename + "'"
+								: "") +
+							"in line " +
+							ex.line +
+							": " +
+							ex.message,
+						ex.filename,
 						ex.line,
 						ex.ch,
 						ex.href

@@ -681,9 +681,18 @@ function example(index) {
 			call, in the condition of a do-while or while-do loop, etc.
 			</p>
 			<p>
-			For example, integer, real and string tokens represents valid expressions.
+			For example, integer, real and string literals are valid expressions.
 			On the contrary, an expression cannot start with the token
 			<code class="code">,</code> (a comma).
+			<div class="example">
+				<h3>Example</h3>
+				<tscript do-not-run>
+				var a = 42;              # valid
+				var b = 3.14159;         # valid
+				var c = "Hello World";   # valid
+				var d = ,                # invalid
+				</tscript>
+			</div>
 			</p>
 		`,
 					children: [],

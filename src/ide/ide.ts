@@ -683,7 +683,7 @@ export let ide = (function () {
 	}
 
 	// add a message to the message panel
-	module.addMessage = function (type, text, line, ch, href) {
+	module.addMessage = function (type, text, filename, line, ch, href) {
 		let color = { print: "#00f", warning: "#f80", error: "#f00" };
 		let tr = tgui.createElement({
 			type: "tr",
@@ -723,13 +723,34 @@ export let ide = (function () {
 				parent: td,
 				classname:
 					"ide ide-message" +
-					(type != "print" ? " ide-errormessage" : ""),
+					(type !== "print" ? " ide-errormessage" : ""),
 				text: s,
 			});
 			if (typeof line !== "undefined") {
+				msg.ide_filename = filename;
 				msg.ide_line = line;
 				msg.ide_ch = ch;
 				msg.addEventListener("click", function (event) {
+					if (
+						event.target.ide_filename &&
+						event.target.ide_filename !== module.document.filename
+					) {
+						// Handling a library error properly requires a multi-document editor.
+						let dlg = tgui.createModal({
+							title: "Error in Library File",
+							scalesize: [0.3, 0.15],
+							minsize: [300, 150],
+							buttons: [{ text: "Close" }],
+						});
+						tgui.createElement({
+							parent: dlg.content,
+							type: "div",
+							style: { margin: "10px" },
+							text: "The line cannot be shown because the error occurred in a different file.",
+						});
+						tgui.startModal(dlg);
+						return false;
+					}
 					setCursorPosition(
 						event.target.ide_line,
 						event.target.ide_ch
@@ -809,7 +830,15 @@ export let ide = (function () {
 				let err = errors[i];
 				module.addMessage(
 					err.type,
-					err.type + " in line " + err.line + ": " + err.message,
+					err.type +
+						(err.filename
+							? " in file '" + err.filename + "'"
+							: "") +
+						" in line " +
+						err.line +
+						": " +
+						err.message,
+					err.filename,
 					err.line,
 					err.ch,
 					err.href
@@ -939,14 +968,16 @@ export let ide = (function () {
 			};
 			module.interpreter.service.message = function (
 				msg,
+				filename,
 				line,
 				ch,
 				href
 			) {
+				if (typeof filename === "undefined") filename = null;
 				if (typeof line === "undefined") line = null;
 				if (typeof ch === "undefined") ch = null;
 				if (typeof href === "undefined") href = "";
-				module.addMessage("error", msg, line, ch, href);
+				module.addMessage("error", msg, filename, line, ch, href);
 			};
 			module.interpreter.service.statechanged = function (stop) {
 				if (stop) updateControls();
@@ -1088,7 +1119,15 @@ export let ide = (function () {
 				let err = errors[i];
 				module.addMessage(
 					err.type,
-					err.type + " in line " + err.line + ": " + err.message,
+					err.type +
+						(err.filename
+							? " in file '" + err.filename + "'"
+							: "") +
+						" in line " +
+						err.line +
+						": " +
+						err.message,
+					err.filename,
 					err.line,
 					err.ch,
 					err.href
