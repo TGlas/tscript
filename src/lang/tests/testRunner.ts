@@ -107,7 +107,7 @@ export class TestRunner {
 				resolve(s);
 			});
 		};
-		service.message = function (msg, line, ch, href) {
+		service.message = function (msg, filename, line, ch, href) {
 			result.push({ type: "error", href: href });
 		};
 		service.turtle.dom =
