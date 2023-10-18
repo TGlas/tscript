@@ -8,6 +8,8 @@ import { Parser } from "./lang/parser";
 import { TScript } from "./lang";
 import { Version } from "./lang/version";
 import { evaluation as _evaluation } from "./eval";
+import { run_tscript as _run_tscript } from "./eval/run_tscript";
+import { run_multiple as _run_multiple } from "./eval/run_multiple";
 
 class InteropInterpreter extends _Interpreter {
 	constructor(program) {
@@ -57,3 +59,5 @@ export const groupings = Lexer.groupings;
 export const operators = Lexer.operators;
 
 export const evaluation = _evaluation;
+export const run_multiple = _run_multiple;
+export const run_tscript = _run_tscript;
