@@ -587,9 +587,9 @@ export const evaluation = (function () {
 					? test.input
 					: new Array();
 				codes.push(sub);
-				inputs.push(input);
+				inputs.push(input.slice());
 				codes.push(sol);
-				inputs.push(input);
+				inputs.push(input.slice());
 			} else if (test.type === "code") {
 				let call = test.code;
 				let context = test.hasOwnProperty("context")
@@ -604,9 +604,9 @@ export const evaluation = (function () {
 					? test.input
 					: new Array();
 				codes.push(sub);
-				inputs.push(input);
+				inputs.push(input.slice());
 				codes.push(sol);
-				inputs.push(input);
+				inputs.push(input.slice());
 			} else if (test.type === "js") {
 				let call = test.code;
 				codes.push("@" + call + "\n@\n" + submission);
@@ -621,9 +621,13 @@ export const evaluation = (function () {
 			}
 		} else if (!task.hasOwnProperty("tests") || task.tests === null) {
 			codes.push(submission);
-			inputs.push(new Array());
+			inputs.push(
+				task.hasOwnProperty("input") ? task.input.slice() : new Array()
+			);
 			codes.push(solution);
-			inputs.push(new Array());
+			inputs.push(
+				task.hasOwnProperty("input") ? task.input.slice() : new Array()
+			);
 		} else {
 			for (let i = 0; i < task.tests.length; i++) {
 				let test = task.tests[i];
