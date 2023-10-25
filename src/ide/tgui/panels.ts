@@ -407,7 +407,7 @@ export function createPanel(description) {
 
 			// disable
 			interact(panel).unset(); // remove all event listeners set by interact
-			panel.style.zIndex = 0;
+			panel.style.zIndex = "0";
 			if (icon.parentNode) icon.parentNode.removeChild(icon);
 			if (panel.parentNode) panel.parentNode.removeChild(panel);
 			if (this.state == "left")
@@ -425,11 +425,11 @@ export function createPanel(description) {
 		if (state == "left") {
 			panelcontainer.appendChild(panel);
 			panel.style.position = "absolute";
-			panel.style.left = 0;
-			panel.style.top = 0;
+			panel.style.left = "0";
+			panel.style.top = "0";
 			panel.style.width = "60%";
 			panel.style.height = "100%";
-			panel.style.zIndex = 0;
+			panel.style.zIndex = "0";
 			this.fallbackState = state;
 			panels_left.push(this);
 			panels_left.sort(function (lhs, rhs) {
@@ -455,10 +455,10 @@ export function createPanel(description) {
 			panelcontainer.appendChild(panel);
 			panel.style.position = "absolute";
 			panel.style.left = "60%";
-			panel.style.top = 0;
+			panel.style.top = "0";
 			panel.style.width = "40%";
 			panel.style.height = "100%";
-			panel.style.zIndex = 0;
+			panel.style.zIndex = "0";
 			this.fallbackState = state;
 			panels_right.push(this);
 			panels_right.sort(function (lhs, rhs) {
@@ -485,11 +485,11 @@ export function createPanel(description) {
 			if (panel_max) panel_max.dock(panel_max.fallbackState);
 			panelcontainer.appendChild(panel);
 			panel.style.position = "absolute";
-			panel.style.left = 0;
-			panel.style.top = 0;
+			panel.style.left = "0";
+			panel.style.top = "0";
 			panel.style.width = "100%";
 			panel.style.height = "100%";
-			panel.style.zIndex = 2;
+			panel.style.zIndex = "2";
 			panel_max = this;
 		} else if (state == "float") {
 			panelcontainer.appendChild(panel);
@@ -498,7 +498,7 @@ export function createPanel(description) {
 			panel.style.top = this.pos[1] + "px";
 			panel.style.width = this.size[0] + "px";
 			panel.style.height = this.size[1] + "px";
-			panel.style.zIndex = 1;
+			panel.style.zIndex = "1";
 			this.fallbackState = state;
 			panels_float.push(this);
 

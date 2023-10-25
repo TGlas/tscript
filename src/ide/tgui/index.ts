@@ -115,32 +115,43 @@ export function createText(text, parent = null) {
 	return element;
 }
 
-// Convenience function for creating an HTML element.
-// Fields of the description object:
-// * type 				- HTML element type name, e.g., "div"
-//
-// The following properties can be set directly
-// * id 				- optional ID of the element
-// * style 				- dictionary of CSS styles
-// * classname 			- optional CSS class
-// * tooltip[-right] 	- optional tooltip
-// * tabindex 			- optional tabindex property
-// Other attributes might be set through 'properties':
-// * properties 		- dictionary of properties of the HTML document
-//						  (should not be used for id, className, and innerHTML)
-//
-// The following event handlers can be set directly
-// * click 				- optional click handler
-// * dblclick 			- optional double click handler
-// Other events might be set through 'events'
-// * events 			- dictional of event handlers
-//
-// In addition the following fields have special meaning
-// * text 				- optional text to be added to the element as a text node
-// * html 				- optional innerHTML to be added after the text
-// * parent 			- optionl DOM object containing the element
-//
-export function createElement(description) {
+interface ElementDescription<T> {
+	/** HTML element type name */
+	type: T;
+	/** optional ID of the element */
+	id?: string;
+	/** dictionary of CSS styles */
+	style?: Record<string, string>;
+	/** CSS class */
+	classname?: string;
+	/** tooltip */
+	tooltip?: string;
+	/** tooltip right */
+	"tooltip-right"?: string;
+	/** tabindex*/
+	tabindex?: any;
+	/** dictionary of properties of the HTML document (should not be used for id, className, and innerHTML) */
+	properties?: Record<string, string>;
+	/** click handler */
+	click?: (event: MouseEvent) => any;
+	/** double click handler */
+	dblclick?: (event: MouseEvent) => any;
+	/** dictionary of event handlers */
+	events?: Record<string, (event: Event) => any>;
+	/** text to be added to the element as a text node */
+	text?: string;
+	/** innerHTML to be added after the text */
+	html?: string;
+	/** DOM object containing the element */
+	parent?: HTMLElement;
+}
+
+/**
+ * convenience function for creating an HTML element.
+ */
+export function createElement<T extends keyof HTMLElementTagNameMap>(
+	description: ElementDescription<T>
+): HTMLElementTagNameMap[T] {
 	return createControl(description.type, description, description.classname);
 }
 
@@ -424,7 +435,7 @@ export function createTreeControl(description) {
 				parent: tr,
 				classname: "tgui tgui-tree-cell-content",
 			});
-			td1.appendChild(state.toggle);
+			td1.appendChild(state.toggle!);
 			td2.appendChild(state.element);
 
 			state.element.id = "tgui.id." + (Math.random() + 1); // TODO: bad code
@@ -437,13 +448,13 @@ export function createTreeControl(description) {
 						? "\u25be"
 						: "\u25b8"
 					: "\u25ab";
-			state.toggle.innerHTML = s;
+			state.toggle!.innerHTML = s;
 
 			// make the toggle button clickable
 			if (result.children.length > 0) {
 				td1.style.cursor = "pointer";
 				td1.addEventListener("click", function (event) {
-					let element = this.parentNode.childNodes[1].childNodes[0];
+					let element = this.parentNode!.children[1].children[0];
 					let state = control.element2state[element.id];
 					if (state.open) {
 						// close the node, i.e., add the tgui-hidden class to all child rows
@@ -472,7 +483,7 @@ export function createTreeControl(description) {
 			if (this.nodeclick) {
 				td2.style.cursor = "pointer";
 				td2.addEventListener("click", function (event) {
-					let element = this.childNodes[0];
+					let element = this.children[0];
 					let state = control.element2state[element.id];
 					control.nodeclick(event, state.value, state.id);
 				});

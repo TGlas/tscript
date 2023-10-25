@@ -725,7 +725,7 @@ export let ide = (function () {
 					"ide ide-message" +
 					(type !== "print" ? " ide-errormessage" : ""),
 				text: s,
-			});
+			}) as any;
 			if (typeof line !== "undefined") {
 				msg.ide_filename = filename;
 				msg.ide_line = line;
@@ -928,7 +928,7 @@ export let ide = (function () {
 						classname: "ide-prompt-input",
 						properties: { type: "text" },
 					});
-					let value = null;
+					let value: string | null = null;
 					let dlg = tgui.createModal({
 						title: "Input",
 						scalesize: [0.2, 0.15],
@@ -1856,7 +1856,7 @@ export let ide = (function () {
 				parent: toolbar,
 				type: "label",
 				style: {
-					flex: 1,
+					flex: "1",
 					height: "100%",
 					"white-space": "nowrap",
 				},
@@ -1872,7 +1872,10 @@ export let ide = (function () {
 		let list = tgui.createElement({
 			parent: dlg.content,
 			type: "select",
-			properties: { size: Math.max(2, files.length), multiple: false },
+			properties: {
+				size: Math.max(2, files.length).toString(),
+				multiple: "false",
+			},
 			classname: "tgui-list-box",
 			style: {
 				flex: "auto",
@@ -1904,7 +1907,7 @@ export let ide = (function () {
 		}
 
 		// event handlers
-		list.addEventListener("change", function (event) {
+		list.addEventListener("change", function (event: any) {
 			if (event.target && event.target.value)
 				name.value = event.target.value;
 		});
@@ -1924,7 +1927,7 @@ export let ide = (function () {
 		});
 
 		tgui.startModal(dlg);
-		(allowNewFilename ? name : list).focus();
+		(allowNewFilename ? (name as any) : list).focus();
 		return dlg;
 
 		function deleteFile(filename) {
@@ -2421,7 +2424,7 @@ export let ide = (function () {
 		module.turtle = tgui.createElement({
 			type: "canvas",
 			parent: panel_turtle.content,
-			properties: { width: 600, height: 600 },
+			properties: { width: "600", height: "600" },
 			classname: "ide ide-turtle",
 		});
 		module.turtle.addEventListener("contextmenu", function (event) {
