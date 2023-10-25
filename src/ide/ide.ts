@@ -5,7 +5,7 @@ import { Interpreter } from "../lang/interpreter/interpreter";
 import { get_function } from "../lang/helpers/getParents";
 import { Parser } from "../lang/parser";
 import { icons } from "./icons";
-import { tgui } from "./tgui";
+import * as tgui from "./tgui";
 import { toClipboard } from "./clipboard";
 import { tutorial } from "./tutorial";
 import { Options, defaultOptions } from "../lang/helpers/options";

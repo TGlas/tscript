@@ -1,5 +1,5 @@
 import { ide } from "./ide";
-import { tgui } from "./tgui";
+import * as tgui from "./tgui";
 
 export type StandaloneData = {
 	code: string;
