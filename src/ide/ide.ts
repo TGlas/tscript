@@ -2501,8 +2501,8 @@ export let ide = (function () {
 			type: "canvas",
 			parent: panel_canvas.content,
 			properties: {
-				width: panel_canvas.content.clientWidth,
-				height: panel_canvas.content.clientHeight,
+				width: panel_canvas.content.clientWidth.toString(),
+				height: panel_canvas.content.clientHeight.toString(),
 			},
 			classname: "ide ide-canvas",
 		});
