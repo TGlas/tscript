@@ -1,6 +1,7 @@
 import { SVGIcon } from "../icons";
 import { setHotkey } from "./hotkeys";
 import { modal } from "./modals";
+import { savePanelData } from "./panels";
 
 // Re-exports
 export * from "./modals";
@@ -11,111 +12,10 @@ export * from "./hotkeys";
 // simplistic GUI framework
 //
 
-// light theme, indicated by no theme css class in the body dom element
-// which is the initial state
+/** light theme, indicated by no theme css class in the body dom element which is the initial state */
 export let theme = "light";
 
-export function setTooltip(element, tooltip = "", direction = "left") {
-	let tt = element.getElementsByClassName("tgui-tooltip");
-	for (let i = 0; i < tt.length; i++) element.removeChild(tt[i]);
-	createControl(
-		"div",
-		{ parent: element, text: tooltip },
-		"tgui tgui-tooltip tgui-tooltip-" + direction
-	);
-}
-
-// Create a new DOM element, acting as the control's main DOM element.
-// Several standard properties of the description are honored.
-// see createElement
-function createControl(type, description, classname) {
-	let element = document.createElement(type);
-	return setupControl(element, description, classname);
-}
-
-function setupControl(element, description, classname) {
-	// set classes
-	if (classname) element.setAttribute("class", classname);
-
-	// set ID
-	if (description.hasOwnProperty("id")) element.id = description.id;
-
-	// add properties to the element
-	if (description.hasOwnProperty("properties")) {
-		for (let key in description.properties) {
-			if (!description.properties.hasOwnProperty(key)) continue;
-			element[key] = description.properties[key];
-		}
-	}
-
-	// apply styles
-	if (description.hasOwnProperty("style")) {
-		for (let key in description.style) {
-			if (!description.style.hasOwnProperty(key)) continue;
-			element.style[key] = description.style[key];
-		}
-	}
-
-	// add inner text
-	if (description.hasOwnProperty("text"))
-		element.appendChild(document.createTextNode(description.text));
-
-	// add inner html
-	if (description.hasOwnProperty("html"))
-		element.innerHTML += description.html;
-
-	// add a tooltip
-	if (description.hasOwnProperty("tooltip"))
-		setTooltip(element, description.tooltip);
-	else if (description.hasOwnProperty("tooltip-right"))
-		setTooltip(element, description["tooltip-right"], "right");
-
-	// add a click handler
-	if (description.hasOwnProperty("click")) {
-		element.addEventListener("click", description.click);
-		element.style.cursor = "pointer";
-	}
-
-	// add a dblclick (double click) handler
-	if (description.hasOwnProperty("dblclick")) {
-		element.addEventListener("dblclick", description.dblclick);
-	}
-
-	// add arbitrary event handlers
-	if (description.hasOwnProperty("events")) {
-		for (let key in description.events) {
-			if (!description.events.hasOwnProperty(key)) continue;
-			element.addEventListener(key, description.events[key]);
-		}
-	}
-
-	// tabindex property to disable tab focus (tabindex: -1)
-	if (description.hasOwnProperty("tabindex")) {
-		element.tabIndex = description.tabindex;
-	}
-
-	// add to a parent
-	if (description.parent) description.parent.appendChild(element);
-
-	return element;
-}
-
-// Remove all children from an element.
-export function clearElement(element) {
-	element.innerHTML = "";
-}
-
-// Simplistic convenience function for creating an HTML text node.
-// Fields of the description object:
-// * parent - optionl DOM object containing the element
-// * text - optional text to be added to the element as a text node
-export function createText(text, parent = null) {
-	let element = document.createTextNode(text);
-	if (parent) (parent as any).appendChild(element);
-	return element;
-}
-
-interface ElementDescription<T> {
+interface ElementDescription<T = keyof HTMLElementTagNameMap> {
 	/** HTML element type name */
 	type: T;
 	/** optional ID of the element */
@@ -147,29 +47,120 @@ interface ElementDescription<T> {
 }
 
 /**
- * convenience function for creating an HTML element.
+ * Create a new DOM element, acting as the control's main DOM element.
+ * Several standard properties of the description are honored.
+ * see createElement
  */
 export function createElement<T extends keyof HTMLElementTagNameMap>(
 	description: ElementDescription<T>
 ): HTMLElementTagNameMap[T] {
-	return createControl(description.type, description, description.classname);
+	let element = document.createElement(description.type) as any;
+	return setupElement(element, description);
 }
 
-// Create a new label. A label is a control with easily configurable
-// read-only content.
-// Fields of the #description object:
-// * text - for text buttons, default: ""
-// * style - dictionary of CSS styles
-// * parent - optional DOM object containing the control
-// * id - optional ID of the control
-// * tooltip - optional tooltip
-export function createLabel(description) {
+function setupElement<T extends HTMLElement>(
+	element: T,
+	description: Omit<ElementDescription, "type">
+): T {
+	// set classes
+	if (description.classname)
+		element.setAttribute("class", description.classname);
+
+	// set ID
+	if (description.hasOwnProperty("id")) element.id = description.id!;
+
+	// add properties to the element
+	if (description.hasOwnProperty("properties")) {
+		for (let key in description.properties) {
+			if (!description.properties.hasOwnProperty(key)) continue;
+			element[key] = description.properties[key];
+		}
+	}
+
+	// apply styles
+	if (description.hasOwnProperty("style")) {
+		for (let key in description.style) {
+			if (!description.style.hasOwnProperty(key)) continue;
+			element.style[key] = description.style[key];
+		}
+	}
+
+	// add inner text
+	if (description.hasOwnProperty("text"))
+		element.appendChild(document.createTextNode(description.text!));
+
+	// add inner html
+	if (description.hasOwnProperty("html"))
+		element.innerHTML += description.html;
+
+	// add a tooltip
+	if (description.hasOwnProperty("tooltip"))
+		setTooltip(element, description.tooltip);
+	else if (description.hasOwnProperty("tooltip-right"))
+		setTooltip(element, description["tooltip-right"], "right");
+
+	// add a click handler
+	if (description.hasOwnProperty("click")) {
+		element.addEventListener("click", description.click!);
+		element.style.cursor = "pointer";
+	}
+
+	// add a dblclick (double click) handler
+	if (description.hasOwnProperty("dblclick")) {
+		element.addEventListener("dblclick", description.dblclick!);
+	}
+
+	// add arbitrary event handlers
+	if (description.hasOwnProperty("events")) {
+		for (let key in description.events) {
+			if (!description.events.hasOwnProperty(key)) continue;
+			element.addEventListener(key, description.events[key]);
+		}
+	}
+
+	// tabindex property to disable tab focus (tabindex: -1)
+	if (description.hasOwnProperty("tabindex")) {
+		element.tabIndex = description.tabindex;
+	}
+
+	// add to a parent
+	if (description.parent) description.parent.appendChild(element);
+
+	return element;
+}
+
+/**
+ * simplistic convenience function for creating an HTML text node.
+ */
+export function createText(text: string, parent: HTMLElement | null = null) {
+	let element = document.createTextNode(text);
+	if (parent) parent.appendChild(element);
+	return element;
+}
+
+interface LabelDescription {
+	/**
+	 * for text buttons
+	 * @default ""
+	 */
+	text?: string;
+	/** dictionary of CSS styles */
+	style: Record<string, string>;
+	/** DOM object containing the control */
+	parent?: HTMLElement;
+	/** ID of the control */
+	id?: string;
+	/** tooltip */
+	tooltip?: string;
+}
+
+export function createLabel(description: LabelDescription) {
 	// main DOM element with styling
-	let element = createControl(
-		"span",
-		description,
-		"tgui tgui-control tgui-label"
-	);
+	let element = createElement({
+		...description,
+		type: "span",
+		classname: "tgui tgui-control tgui-label",
+	});
 
 	// return the control
 	return {
@@ -186,14 +177,25 @@ export function createLabel(description) {
 	};
 }
 
-// Create an icon element with automaticly zoomed contents
-// Fields of the #description object:
-// * icon - SVGIcon
-// * width - icon width
-// * height - icon height
-// * parent - DOM object containing the control
-// * style - optional dictionary of CSS styles
-export function createIcon(description) {
+interface IconDescription {
+	/** SVGIcon */
+	icon: SVGIcon;
+	/** icon width */
+	width: number;
+	/** icon height */
+	height: number;
+	/** CSS class */
+	classname?: string;
+	/** DOM object containing the control */
+	parent: HTMLElement;
+	/** dictionary of CSS styles */
+	style?: Record<string, string>;
+}
+
+/**
+ * create an icon element with automatically zoomed contents
+ */
+export function createIcon(description: IconDescription) {
 	let style = {
 		display: "block",
 		width: description.width + "px",
@@ -216,42 +218,60 @@ export function createIcon(description) {
 
 	let svg: SVGSVGElement = createSvg(description.icon);
 
-	setupControl(
-		svg,
-		{
-			parent: description.parent,
-			style: style,
-		},
-		description.hasOwnProperty("classname")
+	setupElement(svg as any, {
+		parent: description.parent,
+		style: style,
+		classname: description.hasOwnProperty("classname")
 			? description["classname"]
-			: "tgui"
-	);
+			: "tgui",
+	});
 
 	return svg;
 }
 
-// Create a new button.
-// Fields of the #description object:
-// * click - event handler, taking an "event" argument
-// * text - for text buttons, default: ""
-// * icon - for icon buttons, SVGIcon
-// * width - for icon buttons, icon width
-// * height - for icon buttons, icon height
-// * classname - optional CSS class
-// * style - optional dictionary of CSS styles
-// * parent - optionl DOM object containing the control
-// * id - optional ID of the control
-// * tooltip - optional tooltip
-// * hotkey - optional hotkey, see setHotkey
-export function createButton(description) {
+interface ButtonDescription {
+	/** event handler, taking an "event" argument */
+	click: (event: MouseEvent) => any;
+	/**
+	 * for text buttons
+	 * @default ""
+	 */
+	text?: string;
+	/** SVGIcon */
+	icon?: SVGIcon;
+	/** icon width */
+	width?: number;
+	/** icon height */
+	height?: number;
+	/** CSS class */
+	classname?: string;
+	/** dictionary of CSS styles */
+	style?: Record<string, string>;
+	/** DOM object containing the control */
+	parent?: HTMLElement;
+	/** ID of the control */
+	id?: string;
+	/** tooltip */
+	tooltip?: string;
+	/** tooltip-right */
+	"tooltip-right"?: string;
+	/** hotkey, see setHotkey */
+	hotkey?: string;
+}
+
+/**
+ * create a new button
+ */
+export function createButton(description: ButtonDescription) {
 	// main DOM element with styling
-	let element = createControl(
-		"button",
-		description,
-		"tgui tgui-control tgui-button" +
+	let element = createElement({
+		...description,
+		type: "button",
+		classname:
+			"tgui tgui-control tgui-button" +
 			(description.text ? "-text" : "-icon") +
-			(description.classname ? " " + description.classname : "")
-	);
+			(description.classname ? " " + description.classname : ""),
+	});
 
 	// create the actual content
 	if (description.icon) {
@@ -259,8 +279,8 @@ export function createButton(description) {
 		let icon = createIcon({
 			parent: element,
 			icon: description.icon,
-			width: description.width,
-			height: description.height,
+			width: description.width!,
+			height: description.height!,
 		});
 	} else if (!description.text)
 		throw "[tgui.createButton] either .text or .icon are required";
@@ -272,36 +292,47 @@ export function createButton(description) {
 	return { dom: element };
 }
 
-// Create a new tree control.
-// The tree content is determined by the function description.info.
-// On calling
-//   control.update(info)
-// the tree is rebuilt from scratch. The function
-//   control.value(element)
-// returns the value identifying a given tree element.
-//
-// fields of the #description object:
-// * style - dictionary of CSS styles
-// * parent - optionl DOM object containing the control
-// * id - optional ID of the control
-// * tooltip - optional tooltip
-// * info - function describing the tree content, see below
-// * nodeclick - click handler for tree nodes, signature function(event, value, id)
-//
-// The parameter info is a function taking a value and the ID of the
-// node. It is expected to return an object with three properties:
-// * element: DOM element representing the value
-// * opened: boolean indicating whether the tree node should be opened or closed by default
-// * children: array of child values
-// * ids: array of unique string IDs of the child nodes
-// * visible: optional boolean, if true then scroll to make this element visible
-export function createTreeControl(description) {
+interface TreeDescription {
+	/** dictionary of CSS styles */
+	style?: Record<string, string>;
+	/** DOM object containing the control */
+	parent?: HTMLElement;
+	/** ID of the control */
+	id?: string;
+	/** tooltip */
+	tooltip?: string;
+	/** function describing the tree content */
+	info?: (value: any, node_id: string) => any;
+	/** event handler, taking an "event" argument */
+	nodeclick?: (event: MouseEvent, value: any, id: any) => any;
+}
+
+interface TreeControl extends TreeDescription {
+	/** DOM element representing the value */
+	element: HTMLElement;
+	/** boolean indicating whether the tree node should be opened or closed by default */
+	opened: boolean;
+	/** array of child values */
+	children: HTMLElement[];
+	/** array of unique string IDs of the child nodes */
+	ids: string[];
+	/** if true then scroll to make this element visible */
+	visible?: boolean;
+}
+
+/**
+ * Create a new tree control.
+ * The tree content is determined by the function description.info.
+ * On calling `control.update(info)` the tree is rebuilt from scratch.
+ * The function `control.value(element)` returns the value identifying a given tree element.
+ */
+export function createTreeControl(description: TreeDescription): TreeControl {
 	// control with styling
-	let element = createControl(
-		"div",
-		description,
-		"tgui tgui-control tgui-tree"
-	);
+	let element = createElement({
+		...description,
+		type: "div",
+		classname: "tgui tgui-control tgui-tree",
+	});
 
 	// create the root state, serving as a dummy holding the tree's top-level nodes
 	// state object layout:
@@ -556,6 +587,35 @@ export function createTreeControl(description) {
 	return control;
 }
 
+/**
+ * remove all children from an element.
+ */
+export function clearElement(element: HTMLElement) {
+	element.innerHTML = "";
+}
+
+/**
+ * set the tooltip for a given HTMLElement
+ */
+export function setTooltip(
+	element: HTMLElement,
+	tooltip = "",
+	direction = "left"
+) {
+	let tt = element.getElementsByClassName("tgui-tooltip");
+	for (let i = 0; i < tt.length; i++) element.removeChild(tt[i]);
+
+	createElement({
+		type: "div",
+		parent: element,
+		text: tooltip,
+		classname: "tgui tgui-tooltip tgui-tooltip-" + direction,
+	});
+}
+
+/**
+ * set the theme
+ */
 export function setTheme(newTheme: string) {
 	if (newTheme === "default") {
 		// Auto detect theme of the operating system

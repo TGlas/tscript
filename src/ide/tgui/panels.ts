@@ -262,7 +262,7 @@ export function createPanel(description: PanelDescription): Panel {
 		tooltip: control.title,
 		style: {
 			margin: "0 0 0 1px", // 1 px as a separator between multiple icons
-			padding: 0,
+			padding: "0",
 			width: "22px",
 			height: "22px",
 		},
