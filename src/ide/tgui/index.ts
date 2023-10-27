@@ -286,7 +286,7 @@ export function createButton(description: ButtonDescription) {
 		throw "[tgui.createButton] either .text or .icon are required";
 
 	// add a hotkey
-	setHotkey(description.hotkey, description.click);
+	setHotkey(description.hotkey!, description.click!);
 
 	// return the control
 	return { dom: element };

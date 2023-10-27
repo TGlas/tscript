@@ -4,10 +4,10 @@ import { modal } from "./modals";
 let hotkeys = {};
 let hotkeyElement = null;
 
-// register a new hotkey, check for conflicts
-// * hotkey: key name, possibly preceded by a dash-separated list of the modifiers "shift", "control", and "alt", in this order; example: "shift-alt-a"
-// * handler: event handler function with an "event" parameter
-export function setHotkey(hotkey, handler) {
+/**
+ * register a new hotkey, check for conflicts
+ */
+export function setHotkey(hotkey: string, handler: (event: MouseEvent) => any) {
 	if (!hotkey) return;
 	hotkey = normalizeHotkey(hotkey);
 	if (hotkeys.hasOwnProperty(hotkey))
@@ -19,28 +19,28 @@ export function setHotkey(hotkey, handler) {
 	hotkeys[hotkey] = handler;
 }
 
-// remove a hotkey
+/** remove a hotkey */
 export function releaseHotkey(hotkey) {
 	if (!hotkey) return;
 	delete hotkeys[normalizeHotkey(hotkey)];
 }
 
-// remove all hotkeys
+/** remove all hotkeys */
 export function releaseAllHotkeys() {
 	hotkeys = {};
 }
 
-// return true if the hotkey is in use
+/** return true if the hotkey is in use */
 export function hotkey(hotkey) {
 	return hotkeys.hasOwnProperty(normalizeHotkey(hotkey));
 }
 
-// enable hotkeys only if the given element is visible
+/** enable hotkeys only if the given element is visible */
 export function setHotkeyElement(element) {
 	hotkeyElement = element;
 }
 
-// normalize the hotkey to lowercase
+/** normalize the hotkey to lowercase */
 export function normalizeHotkey(hotkey) {
 	let pos = hotkey.lastIndexOf("-") + 1;
 	let key = hotkey.substr(pos);
@@ -48,7 +48,7 @@ export function normalizeHotkey(hotkey) {
 	else return hotkey;
 }
 
-// register a global key listener for hotkey events
+/** register a global key listener for hotkey events */
 document.addEventListener("keydown", function (event) {
 	if (modal.length > 0) {
 		// redirect key events to the topmost dialog
@@ -93,8 +93,10 @@ document.addEventListener("keydown", function (event) {
 	return true;
 });
 
-// check whether an element is currently visible to the user
-// https://stackoverflow.com/a/7557433
+/** 
+ * check whether an element is currently visible to the user
+ * https://stackoverflow.com/a/7557433
+ */
 function isElementInViewport(element) {
 	var rect = element.getBoundingClientRect();
 	if (rect.width == 0 || rect.height == 0) return false;
