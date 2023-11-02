@@ -1,4 +1,4 @@
-import { ide } from "./ide";
+import * as ide from "./ide";
 import * as tgui from "./tgui";
 
 export type StandaloneData = {
@@ -10,7 +10,7 @@ export function showStandalonePage(
 	container: HTMLElement,
 	data: StandaloneData
 ): void {
-	ide.standalone = true;
+	ide.setStandalone(true);
 	ide.create(container);
 	ide.sourcecode.setValue(data.code);
 	ide.prepare_run();
@@ -23,7 +23,7 @@ export function showStandalonePage(
 			handleTurtle();
 			break;
 	}
-	ide.interpreter.run();
+	ide.interpreter!.run();
 }
 
 function handleTurtle(): void {
@@ -53,6 +53,6 @@ function handleCanvas(): void {
 		ide.canvas.height = h;
 		let e: any = { width: w, height: h };
 		e = ide.createTypedEvent("canvas.ResizeEvent", e);
-		ide.interpreter.enqueueEvent("canvas.resize", e);
+		ide.interpreter!.enqueueEvent("canvas.resize", e);
 	});
 }
