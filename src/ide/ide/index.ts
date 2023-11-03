@@ -61,8 +61,10 @@ export function setStandalone(_standalone: boolean) {
 
 /** document properties */
 export let ide_document = {
-	filename: "", // name in local storage, or empty string
-	dirty: false, // does the state differ from the last saved state?
+	/** name in local storage, or empty string */
+	filename: "",
+	/** does the state differ from the last saved state? */
+	dirty: false,
 };
 
 /**
@@ -161,9 +163,6 @@ export function addMessage(
 	if (href) sourcecode.focus();
 	return { symbol: th, content: td };
 }
-
-// Stop the interpreter and clear all output,
-// put the IDE into "not yet checked" mode.
 
 /**
  * Stop the interpreter and clear all output,
