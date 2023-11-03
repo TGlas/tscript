@@ -4,10 +4,10 @@ import { Typeid } from "../../lang/helpers/typeIds";
 import { createDefaultServices } from "../../lang/interpreter/defaultService";
 import { Interpreter } from "../../lang/interpreter/interpreter";
 import { Parser } from "../../lang/parser";
-import { toClipboard } from "./../clipboard";
-import { icons } from "./../icons";
-import * as tgui from "./../tgui";
-import { tutorial } from "./../tutorial";
+import { toClipboard } from "../clipboard";
+import { icons } from "../icons";
+import * as tgui from "../tgui";
+import { tutorial } from "../tutorial";
 import { buttons, cmd_export } from "./commands";
 import { configDlg, loadConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
@@ -25,7 +25,7 @@ import "codemirror/addon/search/jump-to-line";
 import "codemirror/addon/search/search";
 import "codemirror/addon/search/searchcursor";
 import "codemirror/addon/selection/active-line";
-import ".././codemirror-tscriptmode";
+import "../codemirror-tscriptmode";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
