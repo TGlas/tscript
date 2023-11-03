@@ -8,6 +8,8 @@ import { toClipboard } from "./../clipboard";
 import { icons } from "./../icons";
 import * as tgui from "./../tgui";
 import { tutorial } from "./../tutorial";
+import { buttons, cmd_export } from "./commands";
+import { configDlg, loadConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 
@@ -24,8 +26,6 @@ import "codemirror/addon/search/search";
 import "codemirror/addon/search/searchcursor";
 import "codemirror/addon/selection/active-line";
 import ".././codemirror-tscriptmode";
-import { buttons, cmd_export } from "./commands";
-import { configDlg, loadConfig, options } from "./dialogs";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -34,20 +34,21 @@ import { configDlg, loadConfig, options } from "./dialogs";
 export let sourcecode!: CodeMirror.EditorFromTextArea;
 export let turtle: any = null;
 export let canvas: any = null;
-export let createTypedEvent: any = null;
 export let editor_title: any = null;
+export let createTypedEvent: any = null;
+
+export let messages: any = null;
+let messagecontainer: any = null;
 
 export let stacktree: any = null;
 export let programtree: any = null;
+export let programstate: any = null;
 
 /** current interpreter, non-null after successful parsing */
 export let interpreter: Interpreter | null = null;
 
-export let programstate: any = null;
-let messagecontainer: any = null;
-export let messages: any = null;
-let toolbar: any = null;
 let main: any = null;
+let toolbar: any = null;
 let iconlist: any = null;
 let highlight: any = null;
 
