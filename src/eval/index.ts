@@ -398,6 +398,7 @@ export const evaluation = (function () {
 								);
 						}
 						s += "</td></tr>";
+						nTable++;
 					}
 					s += "</table></td></tr>\r\n";
 					table += s + "</table>\r\n";
