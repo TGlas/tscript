@@ -6,19 +6,20 @@ import { doc } from "./doc";
 import { evaluation } from "../eval";
 import { tutorialData } from "../tutorial";
 
-import CodeMirror from "codemirror";
+// import CodeMirror from "codemirror";
 
 // CodeMirror Addons
-import "codemirror/addon/selection/active-line";
-import "codemirror/addon/comment/comment";
-import "codemirror/addon/dialog/dialog";
-import "codemirror/addon/dialog/dialog.css";
-import "codemirror/addon/search/jump-to-line";
-import "codemirror/addon/search/search";
-import "codemirror/addon/search/searchcursor";
-import "codemirror/addon/edit/matchbrackets";
-import "codemirror/addon/edit/closebrackets";
+// import "codemirror/addon/selection/active-line";
+// import "codemirror/addon/comment/comment";
+// import "codemirror/addon/dialog/dialog";
+// import "codemirror/addon/dialog/dialog.css";
+// import "codemirror/addon/search/jump-to-line";
+// import "codemirror/addon/search/search";
+// import "codemirror/addon/search/searchcursor";
+// import "codemirror/addon/edit/matchbrackets";
+// import "codemirror/addon/edit/closebrackets";
 import "./codemirror-tscriptmode";
+import { Dummy } from "./ide/dummy";
 
 ///////////////////////////////////////////////////////////
 // TScript tutorial
@@ -226,23 +227,24 @@ export const tutorial = (function () {
 									value: correct,
 								},
 							});
-							let cm = CodeMirror.fromTextArea(textarea, {
-								gutters: [
-									"CodeMirror-linenumbers",
-									"breakpoints",
-								],
-								lineNumbers: true,
-								matchBrackets: true,
-								styleActiveLine: true,
-								mode: "text/tscript",
-								indentUnit: 4,
-								tabSize: 4,
-								indentWithTabs: true,
-								extraKeys: {
-									"Ctrl-Up": "scrollUp",
-									"Ctrl-Down": "scrollDown",
-								},
-							});
+							let cm = new Dummy(textarea);
+							// let cm = CodeMirror.fromTextArea(textarea, {
+							// 	gutters: [
+							// 		"CodeMirror-linenumbers",
+							// 		"breakpoints",
+							// 	],
+							// 	lineNumbers: true,
+							// 	matchBrackets: true,
+							// 	styleActiveLine: true,
+							// 	mode: "text/tscript",
+							// 	indentUnit: 4,
+							// 	tabSize: 4,
+							// 	indentWithTabs: true,
+							// 	extraKeys: {
+							// 		"Ctrl-Up": "scrollUp",
+							// 		"Ctrl-Down": "scrollDown",
+							// 	},
+							// });
 							cm.setOption("readOnly", true);
 
 							window.setTimeout(function () {

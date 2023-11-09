@@ -13,25 +13,26 @@ import { configDlg, loadConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 
-import CodeMirror from "codemirror";
+// import CodeMirror from "codemirror";
+import { Dummy } from "./dummy";
 
 // CodeMirror Addons
-import "codemirror/addon/comment/comment";
-import "codemirror/addon/dialog/dialog";
-import "codemirror/addon/dialog/dialog.css";
-import "codemirror/addon/edit/closebrackets";
-import "codemirror/addon/edit/matchbrackets";
-import "codemirror/addon/search/jump-to-line";
-import "codemirror/addon/search/search";
-import "codemirror/addon/search/searchcursor";
-import "codemirror/addon/selection/active-line";
-import "../codemirror-tscriptmode";
+// import "codemirror/addon/comment/comment";
+// import "codemirror/addon/dialog/dialog";
+// import "codemirror/addon/dialog/dialog.css";
+// import "codemirror/addon/edit/closebrackets";
+// import "codemirror/addon/edit/matchbrackets";
+// import "codemirror/addon/search/jump-to-line";
+// import "codemirror/addon/search/search";
+// import "codemirror/addon/search/searchcursor";
+// import "codemirror/addon/selection/active-line";
+// import "../codemirror-tscriptmode";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
 //
 
-export let sourcecode!: CodeMirror.EditorFromTextArea;
+export let sourcecode!: Dummy;
 export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
@@ -205,7 +206,7 @@ export function prepare_run() {
 		source += "\n";
 		sourcecode
 			.getDoc()
-			.replaceRange("\n", CodeMirror.Pos(sourcecode.lastLine()));
+			// .replaceRange("\n", CodeMirror.Pos(sourcecode.lastLine()));
 	}
 
 	let result = Parser.parse(source, options);
@@ -619,27 +620,28 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_editor.content,
 		classname: "ide ide-sourcecode",
 	});
-	sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
-		gutters: ["CodeMirror-linenumbers", "breakpoints"],
-		lineNumbers: true,
-		matchBrackets: true,
-		styleActiveLine: true,
-		mode: "text/tscript",
-		indentUnit: 4,
-		tabSize: 4,
-		indentWithTabs: true,
-		// TODO: Setting in configuration: lineWrapping: true/false,
-		extraKeys: {
-			"Ctrl-D": "toggleComment",
-			"Cmd-D": "toggleComment",
-			"Ctrl-R": "replace",
-			F3: "findNext",
-			"Shift-F3": "findPrev",
-			"Ctrl-Up": "goDocEnd",
-			"Ctrl-Down": "goDocStart",
-			"Shift-Tab": "indentLess",
-		},
-	});
+	sourcecode = new Dummy(panel_editor.textarea);
+	// sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
+	// 	gutters: ["CodeMirror-linenumbers", "breakpoints"],
+	// 	lineNumbers: true,
+	// 	matchBrackets: true,
+	// 	styleActiveLine: true,
+	// 	mode: "text/tscript",
+	// 	indentUnit: 4,
+	// 	tabSize: 4,
+	// 	indentWithTabs: true,
+	// 	// TODO: Setting in configuration: lineWrapping: true/false,
+	// 	extraKeys: {
+	// 		"Ctrl-D": "toggleComment",
+	// 		"Cmd-D": "toggleComment",
+	// 		"Ctrl-R": "replace",
+	// 		F3: "findNext",
+	// 		"Shift-F3": "findPrev",
+	// 		"Ctrl-Up": "goDocEnd",
+	// 		"Ctrl-Down": "goDocStart",
+	// 		"Shift-Tab": "indentLess",
+	// 	},
+	// });
 	sourcecode.on("change", function (cm, changeObj) {
 		ide_document.dirty = true;
 		if (interpreter) {
