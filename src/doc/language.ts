@@ -3946,6 +3946,12 @@ print(infiniteR.isFinite());        # prints false
 					# a = ["hello", "A", "", "B", ""]
 				</tscript>
 			</td></tr>
+			<tr><th>toLowerCase</th><td>
+				The <code class="code">function toLowerCase()</code> returns the string in only lower case characters.
+			</td></tr>
+			<tr><th>toUpperCase</th><td>
+				The <code class="code">function toUpperCase()</code> returns the string in only upper case characters.
+			</td></tr>
 			<tr><th>fromUnicode</th><td>
 				The <code class="code">static function fromUnicode(characters)</code>
 				converts a single integer or an array of integers into a string

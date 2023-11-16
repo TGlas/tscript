@@ -289,6 +289,18 @@ export const core = {
 					value: { b: arr.join(sep) },
 				};
 			},
+			toLowerCase: function (object) {
+				return {
+					type: this.program.types[Typeid.typeid_string],
+					value: { b: object.value.b.toLowerCase() },
+				};
+			},
+			toUpperCase: function (object) {
+				return {
+					type: this.program.types[Typeid.typeid_string],
+					value: { b: object.value.b.toUpperCase() },
+				};
+			},
 		},
 		Array: {
 			constructor: function (object, size_or_other, value) {
