@@ -37,6 +37,7 @@ public:
 	function split(separator) { }
 	function toLowerCase() { }
 	function toUpperCase() { }
+	function replace(pattern, replacement) { }
 	static function fromUnicode(characters) { }
 	static function join(array, separator = "") { }
 }
