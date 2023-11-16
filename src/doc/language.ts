@@ -4030,6 +4030,9 @@ print(infiniteR.isFinite());        # prints false
 				The <code class="code">function size()</code> returns the size of
 				the array, which is the number of items.
 			</td></tr>
+			<tr><th>slice</th><td>
+				The <code class="code">function slice(start, end)</code> returns the content of the given range in the array.
+			</td></tr>
 			<tr><th>push</th><td>
 				The <code class="code">function push(item)</code> appends the
 				given item to the array.
