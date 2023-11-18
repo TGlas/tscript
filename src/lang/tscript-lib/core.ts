@@ -323,11 +323,10 @@ export const core = {
 						"string",
 						TScript.displayname(replacement.type),
 					]);
-				let re = new RegExp(pattern.value.b, "g");
 				return {
 					type: this.program.types[Typeid.typeid_string],
 					value: {
-						b: object.value.b.replace(re, replacement.value.b),
+						b: object.value.b.replace(pattern.value.b, replacement.value.b),
 					},
 				};
 			},
