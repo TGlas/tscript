@@ -376,6 +376,19 @@ export const core = {
 					value: { b: null },
 				};
 			},
+			indexOf: function (object, item) {
+				let index = object.value.b.map((element) => element.value.b).indexOf(item.value.b);
+				if (index < 0)
+					return {
+						type: this.program.types[Typeid.typeid_null],
+						value: { b: null },
+					};
+				else
+					return {
+						type: this.program.types[Typeid.typeid_integer],
+						value: { b: index },
+					};
+			},
 			remove: function (object, range) {
 				let a, b;
 				if (TScript.isDerivedFrom(range.type, Typeid.typeid_range)) {

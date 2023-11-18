@@ -4044,6 +4044,11 @@ print(infiniteR.isFinite());        # prints false
 				inserts a new item at a given position. The index must be
 				non-negative and it must not exceed the array size.
 			</td></tr>
+			<tr><th>indexOf</th><td>
+				The <code class="code">function indexOf(item)</code>
+				returns the index of the first occurrence of the item in the array.
+				If the item is not found then <keyword>null</keyword> is returned.
+			</td></tr>
 			<tr><th>remove</th><td>
 				The <code class="code">function remove(range)</code> removes
 				the indicated range of items from the array. If range is an
