@@ -3953,7 +3953,7 @@ print(infiniteR.isFinite());        # prints false
 				The <code class="code">function toUpperCase()</code> returns the string in only upper case characters.
 			</td></tr>
 			<tr><th>replace</th><td>
-				The <code class="code">function replace(pattern, replacement)</code> returns the string, but replaced all occurences of the string or RegEX pattern <i>pattern</i> with the string <i>replacement</i>.
+				The <code class="code">function replace(pattern, replacement)</code> returns the string, but replaced all occurences of the string <i>pattern</i> with the string <i>replacement</i>.
 			</td></tr>
 			<tr><th>fromUnicode</th><td>
 				The <code class="code">static function fromUnicode(characters)</code>
