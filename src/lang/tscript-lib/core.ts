@@ -289,6 +289,48 @@ export const core = {
 					value: { b: arr.join(sep) },
 				};
 			},
+			toLowerCase: function (object) {
+				return {
+					type: this.program.types[Typeid.typeid_string],
+					value: { b: object.value.b.toLowerCase() },
+				};
+			},
+			toUpperCase: function (object) {
+				return {
+					type: this.program.types[Typeid.typeid_string],
+					value: { b: object.value.b.toUpperCase() },
+				};
+			},
+			replace: function (object, pattern, replacement) {
+				if (!TScript.isDerivedFrom(pattern.type, Typeid.typeid_string))
+					this.error("/argument-mismatch/am-1", [
+						"pattern",
+						"String.replace",
+						"string",
+						TScript.displayname(pattern.type),
+					]);
+				if (
+					!TScript.isDerivedFrom(
+						replacement.type,
+						Typeid.typeid_string
+					)
+				)
+					this.error("/argument-mismatch/am-1", [
+						"replacement",
+						"String.replace",
+						"string",
+						TScript.displayname(replacement.type),
+					]);
+				return {
+					type: this.program.types[Typeid.typeid_string],
+					value: {
+						b: object.value.b.replace(
+							pattern.value.b,
+							replacement.value.b
+						),
+					},
+				};
+			},
 		},
 		Array: {
 			constructor: function (object, size_or_other, value) {
