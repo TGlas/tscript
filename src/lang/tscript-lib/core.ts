@@ -343,10 +343,7 @@ export const core = {
 				};
 			},
 			slice: function (object, start, end) {
-				if (!TScript.isDerivedFrom(
-					start.type,
-					Typeid.typeid_integer
-				)) {
+				if (!TScript.isDerivedFrom(start.type, Typeid.typeid_integer)) {
 					this.error("/argument-mismatch/am-1", [
 						"start",
 						"Array.slice",
@@ -355,10 +352,7 @@ export const core = {
 					]);
 				}
 
-				if (!TScript.isDerivedFrom(
-					end.type,
-					Typeid.typeid_integer
-				)) {
+				if (!TScript.isDerivedFrom(end.type, Typeid.typeid_integer)) {
 					this.error("/argument-mismatch/am-1", [
 						"end",
 						"Array.slice",
@@ -369,12 +363,9 @@ export const core = {
 				return {
 					type: this.program.types[Typeid.typeid_array],
 					value: {
-						b: object.value.b.slice(
-							start.value.b,
-							end.value.b
-						),
+						b: object.value.b.slice(start.value.b, end.value.b),
 					},
-				}
+				};
 			},
 			push: function (object, item) {
 				object.value.b.push(item);
