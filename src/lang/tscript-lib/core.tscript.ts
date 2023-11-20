@@ -48,6 +48,7 @@ public:
 	function pop() { }
 	function insert(position, item) { }
 	function remove(range) { }
+	function slice(start, end) { }
 	function sort(comparator = null) { }
 	function keys() { }
 	function values() { }
