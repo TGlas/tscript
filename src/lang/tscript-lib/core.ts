@@ -302,9 +302,7 @@ export const core = {
 				};
 			},
 			replace: function (object, pattern, replacement) {
-				if (
-					!TScript.isDerivedFrom(pattern.type, Typeid.typeid_string)
-				)
+				if (!TScript.isDerivedFrom(pattern.type, Typeid.typeid_string))
 					this.error("/argument-mismatch/am-1", [
 						"pattern",
 						"String.replace",
@@ -326,7 +324,10 @@ export const core = {
 				return {
 					type: this.program.types[Typeid.typeid_string],
 					value: {
-						b: object.value.b.replace(pattern.value.b, replacement.value.b),
+						b: object.value.b.replace(
+							pattern.value.b,
+							replacement.value.b
+						),
 					},
 				};
 			},
