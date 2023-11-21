@@ -1,7 +1,7 @@
 "use strict";
 
 //import { ErrorHelper } from "../lang/errors/ErrorHelper";
-import { tgui } from "./tgui";
+import * as tgui from "./tgui";
 import { doc } from "./doc";
 import { evaluation } from "../eval";
 import { tutorialData } from "../tutorial";

@@ -1,5 +1,5 @@
 import { doc } from "./doc";
-import { ide } from "./ide";
+import * as ide from "./ide";
 import {
 	initializeNavigation,
 	IPageController,
