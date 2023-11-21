@@ -3946,6 +3946,15 @@ print(infiniteR.isFinite());        # prints false
 					# a = ["hello", "A", "", "B", ""]
 				</tscript>
 			</td></tr>
+			<tr><th>toLowerCase</th><td>
+				The <code class="code">function toLowerCase()</code> returns the string in only lower case characters.
+			</td></tr>
+			<tr><th>toUpperCase</th><td>
+				The <code class="code">function toUpperCase()</code> returns the string in only upper case characters.
+			</td></tr>
+			<tr><th>replace</th><td>
+				The <code class="code">function replace(pattern, replacement)</code> returns the string, but replaced all occurences of the string <i>pattern</i> with the string <i>replacement</i>.
+			</td></tr>
 			<tr><th>fromUnicode</th><td>
 				The <code class="code">static function fromUnicode(characters)</code>
 				converts a single integer or an array of integers into a string
@@ -4029,6 +4038,9 @@ print(infiniteR.isFinite());        # prints false
 			<tr><th>size</th><td>
 				The <code class="code">function size()</code> returns the size of
 				the array, which is the number of items.
+			</td></tr>
+			<tr><th>slice</th><td>
+				The <code class="code">function slice(start, end)</code> returns the content of the given range in the array.
 			</td></tr>
 			<tr><th>push</th><td>
 				The <code class="code">function push(item)</code> appends the

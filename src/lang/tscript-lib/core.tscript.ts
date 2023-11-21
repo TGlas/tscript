@@ -35,6 +35,9 @@ public:
 	function size() { }
 	function find(searchterm, start = 0, backward = false) { }
 	function split(separator) { }
+	function toLowerCase() { }
+	function toUpperCase() { }
+	function replace(pattern, replacement) { }
 	static function fromUnicode(characters) { }
 	static function join(array, separator = "") { }
 }
@@ -48,6 +51,7 @@ public:
 	function pop() { }
 	function insert(position, item) { }
 	function remove(range) { }
+	function slice(start, end) { }
 	function sort(comparator = null) { }
 	function keys() { }
 	function values() { }
