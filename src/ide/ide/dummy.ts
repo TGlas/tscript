@@ -1,6 +1,9 @@
-import { EditorView } from "@codemirror/view"
+import { EditorView, lineNumbers } from "@codemirror/view"
 import { Text } from "@codemirror/state"
 
+const DEFAULT_EXTENSIONS = [
+    lineNumbers()
+]
 
 export class Dummy {
     private ev: EditorView
@@ -50,7 +53,7 @@ export class Dummy {
     public scrollIntoView(a: any, b: any) { }
     public lastLine() { }
 
-    private editorFromTextArea(textarea, extensions = []) {
+    private editorFromTextArea(textarea, extensions = DEFAULT_EXTENSIONS) {
         let view = new EditorView({doc: textarea.value, extensions})
         textarea.parentNode.insertBefore(view.dom, textarea)
         textarea.style.display = "none"
