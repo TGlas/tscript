@@ -1,9 +1,6 @@
-import { EditorView, lineNumbers } from "@codemirror/view"
+import { EditorView } from "@codemirror/view"
+import { basicSetup } from "codemirror"
 import { Text } from "@codemirror/state"
-
-const DEFAULT_EXTENSIONS = [
-    lineNumbers()
-]
 
 export class Dummy {
     private ev: EditorView
@@ -36,24 +33,35 @@ export class Dummy {
     public setOption(opt: string, val: any) { }
 
     public setCursor(i: number, ch: number) { }
+
     public getScrollInfo(): any { }
+
     public charCoords(a: any, b: any): any { }
+
     public getScrollerElement(): any { }
+
     public scrollTo(a: any, b: any) { }
 
     public lineCount(): number {
         return this.ev.state.doc.lines;
     }
     public lineInfo(a: number): any { }
+
     public setGutterMarker(a: any, b: any, c: any) { }
+
     public getSelection(): any { }
+
     public getCursor(): any { }
+
     public findWordAt(a: any): any { }
+
     public getRange(a: any, b: any) { }
+
     public scrollIntoView(a: any, b: any) { }
+
     public lastLine() { }
 
-    private editorFromTextArea(textarea, extensions = DEFAULT_EXTENSIONS) {
+    private editorFromTextArea(textarea, extensions = [basicSetup]) {
         let view = new EditorView({doc: textarea.value, extensions})
         textarea.parentNode.insertBefore(view.dom, textarea)
         textarea.style.display = "none"
