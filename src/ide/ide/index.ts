@@ -14,6 +14,7 @@ import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 
 // import CodeMirror from "codemirror";
+import { toggleBreakpoint } from "./breakpoint";
 import { Dummy } from "./dummy";
 
 // CodeMirror Addons
@@ -376,25 +377,13 @@ export function prepare_run() {
 		interpreter.reset();
 
 		// set and correct breakpoints
-		let br = new Array();
-		for (let i = 1; i <= sourcecode.lineCount(); i++) {
-			if (sourcecode.lineInfo(i - 1).gutterMarkers) br.push(i);
-		}
-		let result = interpreter.defineBreakpoints(br);
+		let br = sourcecode.getBreakpointLines();
+		let result = interpreter.defineBreakpoints(br.map((i) => i + 1));
+
 		if (result !== null) {
-			for (let i = 1; i <= sourcecode.lineCount(); i++) {
-				if (sourcecode.lineInfo(i - 1).gutterMarkers) {
-					if (!result.hasOwnProperty(i))
-						sourcecode.setGutterMarker(i - 1, "breakpoints", null);
-				} else {
-					if (result.hasOwnProperty(i))
-						sourcecode.setGutterMarker(
-							i - 1,
-							"breakpoints",
-							utils.makeMarker()
-						);
-				}
-			}
+			for (let i = 1; i <= sourcecode.lineCount(); i++)
+				if (br.includes(i - 1) !== result.hasOwnProperty(i))
+					toggleBreakpoint(sourcecode.getEditorView(), i - 1);
 			alert("Note: breakpoints were moved to valid locations");
 		}
 	}

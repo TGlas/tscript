@@ -1,6 +1,7 @@
 import { EditorState, Extension, StateEffect } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { basicSetup } from "codemirror";
+import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 
 interface EditorPosition {
 	line: number;
@@ -11,7 +12,10 @@ export class Dummy {
 	private ev: EditorView;
 	private extensions!: Extension[];
 
-	public constructor(textarea: any, extensions = [basicSetup]) {
+	public constructor(
+		textarea: any,
+		extensions = [breakpointGutter, basicSetup]
+	) {
 		this.extensions = extensions;
 		this.ev = this.editorFromTextArea(textarea);
 	}
@@ -68,6 +72,13 @@ export class Dummy {
 	}
 
 	/**
+	 * Returns the editor view
+	 */
+	public getEditorView() {
+		return this.ev;
+	}
+
+	/**
 	 * Clears the undo / redo history without effecting the content
 	 */
 	public clearHistory() {
@@ -87,7 +98,7 @@ export class Dummy {
 	 * @param pos (CM5 position syntax)
 	 */
 	public setCursor(pos: EditorPosition) {
-		const offset = this.posToOffset(pos);
+		const offset = Dummy.posToOffset(this.ev, pos);
 		this.ev.dispatch({ selection: { anchor: offset } });
 	}
 
@@ -106,13 +117,27 @@ export class Dummy {
 		return this.ev.state.doc.lines;
 	}
 
-	public lineInfo(a: number): any {}
+	/**
+	 * Returns the indexes of all breakpoints
+	 */
+	public getBreakpointLines() {
+		const lines: number[] = [];
+		for (let i = 0; i < this.lineCount() - 1; i++) {
+			if (hasBreakpoint(this.ev, i)) lines.push(i);
+		}
+		return lines;
+	}
 
 	public setGutterMarker(a: any, b: any, c: any) {}
 
 	public getSelection(): any {}
 
-	public getCursor(): any {}
+	/**
+	 * Returns the current cursor position
+	 */
+	public getCursor() {
+		return Dummy.offsetToPos(this.ev, this.ev.state.selection.main.head);
+	}
 
 	public findWordAt(a: any): any {}
 
@@ -130,8 +155,16 @@ export class Dummy {
 	/**
 	 * Converts CM5 position syntax to CM6 syntax
 	 */
-	private posToOffset(pos: EditorPosition) {
-		return this.ev.state.doc.line(pos.line + 1).from + pos.ch;
+	public static posToOffset(ev: EditorView, pos: EditorPosition) {
+		return ev.state.doc.line(pos.line + 1).from + pos.ch;
+	}
+
+	/**
+	 * Converts CM6 position syntax to CM5 syntax
+	 */
+	public static offsetToPos(ev: EditorView, offset: number): EditorPosition {
+		let line = ev.state.doc.lineAt(offset);
+		return { line: line.number - 1, ch: offset - line.from };
 	}
 
 	/**
