@@ -1,5 +1,5 @@
 import { EditorState, Extension, StateEffect } from "@codemirror/state";
-import { EditorView } from "@codemirror/view";
+import { EditorView, Rect } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 
@@ -102,13 +102,33 @@ export class Dummy {
 		this.ev.dispatch({ selection: { anchor: offset } });
 	}
 
-	public getScrollInfo(): any {}
+	public getScrollInfo() {
+		const scroller = this.getScrollerElement();
+		return {
+			left: scroller.scrollLeft,
+			top: scroller.scrollTop,
+			width: scroller.scrollWidth,
+			height: scroller.scrollHeight,
+			clientWidth: scroller.clientWidth,
+			clientHeight: scroller.clientHeight
+		}
+	}
 
-	public charCoords(a: any, b: any): any {}
+	public charCoords(pos: EditorPosition, mode=""): Rect {
+		const rect = this.ev.coordsForChar(Dummy.posToOffset(this.ev, pos));
+		if (rect == null) throw new Error("Pos does not point in front of a character");
+		return rect;
+	}
 
-	public getScrollerElement(): any {}
+	public getScrollerElement(): HTMLElement {
+		return this.ev.scrollDOM;
+	}
 
-	public scrollTo(a: any, b: any) {}
+	public scrollTo(x: number|null, y: number|null) {
+		if (x == null) x = 0;
+		if (y == null) y = 0;
+		this.ev.scrollDOM.scrollTo(x, y);
+	}
 
 	/**
 	 * Returns the line count of the document (always c>=1)
