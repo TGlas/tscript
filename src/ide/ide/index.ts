@@ -204,9 +204,8 @@ export function prepare_run() {
 	let source = sourcecode.getValue();
 	if (source.length != 0 && source[source.length - 1] != "\n") {
 		source += "\n";
-		sourcecode
-			.getDoc()
-			// .replaceRange("\n", CodeMirror.Pos(sourcecode.lastLine()));
+		sourcecode.getDoc();
+		// .replaceRange("\n", CodeMirror.Pos(sourcecode.lastLine()));
 	}
 
 	let result = Parser.parse(source, options);
@@ -642,7 +641,7 @@ export function create(container: HTMLElement, options?: any) {
 	// 		"Shift-Tab": "indentLess",
 	// 	},
 	// });
-	sourcecode.on("change", function (cm, changeObj) {
+	sourcecode.onDocChange(function () {
 		ide_document.dirty = true;
 		if (interpreter) {
 			clear();

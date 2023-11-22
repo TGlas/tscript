@@ -299,7 +299,7 @@ function cmd_new() {
 		ide.editor_title.innerHTML = "Editor";
 		ide.ide_document.filename = "";
 		ide.sourcecode.setValue("");
-		ide.sourcecode.getDoc().clearHistory();
+		ide.sourcecode.clearHistory();
 		ide.ide_document.dirty = false;
 
 		updateControls();
@@ -323,8 +323,8 @@ function cmd_load() {
 				ide.sourcecode.setValue(
 					localStorage.getItem("tscript.code." + filename)!
 				);
-				ide.sourcecode.getDoc().setCursor({ line: 0, ch: 0 });
-				ide.sourcecode.getDoc().clearHistory();
+				ide.sourcecode.setCursor({ line: 0, ch: 0 });
+				ide.sourcecode.clearHistory();
 				ide.ide_document.dirty = false;
 
 				updateControls();
