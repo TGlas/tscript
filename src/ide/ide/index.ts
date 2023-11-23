@@ -637,28 +637,6 @@ export function create(container: HTMLElement, options?: any) {
 			utils.updateControls();
 		}
 	});
-	sourcecode.on("gutterClick", function (cm, line) {
-		if (interpreter) {
-			// ask the interpreter for the correct position of the marker
-			let result = interpreter.toggleBreakpoint(line + 1);
-			if (result !== null) {
-				line = result.line;
-				cm.setGutterMarker(
-					line - 1,
-					"breakpoints",
-					result.active ? utils.makeMarker() : null
-				);
-				sourcecode.scrollIntoView({ line: line, ch: 0 }, 40);
-			}
-		} else {
-			// set the marker optimistically, fix as soon as an interpreter is created
-			cm.setGutterMarker(
-				line,
-				"breakpoints",
-				cm.lineInfo(line).gutterMarkers ? null : utils.makeMarker()
-			);
-		}
-	});
 	sourcecode.on("cursorActivity", function (cm) {
 		if (
 			interpreter &&

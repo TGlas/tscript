@@ -2,7 +2,8 @@ import { EditorState, Extension, StateEffect } from "@codemirror/state";
 import { EditorView, Rect } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
-import { baseTheme } from "./styling";
+import { baseTheme, highlighting } from "./styling";
+import { cmtsmode } from "../codemirror-tscriptmode";
 
 interface EditorPosition {
 	line: number;
@@ -15,7 +16,13 @@ export class Dummy {
 
 	public constructor(
 		textarea: any,
-		extensions = [baseTheme, breakpointGutter, basicSetup]
+		extensions = [
+			cmtsmode,
+			baseTheme,
+			highlighting,
+			breakpointGutter,
+			basicSetup,
+		]
 	) {
 		this.extensions = extensions;
 		this.ev = this.editorFromTextArea(textarea);
