@@ -2,6 +2,7 @@ import { EditorState, Extension, StateEffect } from "@codemirror/state";
 import { EditorView, Rect } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
+import { baseTheme } from "./styling";
 
 interface EditorPosition {
 	line: number;
@@ -14,7 +15,7 @@ export class Dummy {
 
 	public constructor(
 		textarea: any,
-		extensions = [breakpointGutter, basicSetup]
+		extensions = [baseTheme, breakpointGutter, basicSetup]
 	) {
 		this.extensions = extensions;
 		this.ev = this.editorFromTextArea(textarea);
@@ -110,13 +111,14 @@ export class Dummy {
 			width: scroller.scrollWidth,
 			height: scroller.scrollHeight,
 			clientWidth: scroller.clientWidth,
-			clientHeight: scroller.clientHeight
-		}
+			clientHeight: scroller.clientHeight,
+		};
 	}
 
-	public charCoords(pos: EditorPosition, mode=""): Rect {
+	public charCoords(pos: EditorPosition, mode = ""): Rect {
 		const rect = this.ev.coordsForChar(Dummy.posToOffset(this.ev, pos));
-		if (rect == null) throw new Error("Pos does not point in front of a character");
+		if (rect == null)
+			throw new Error("Pos does not point in front of a character");
 		return rect;
 	}
 
@@ -124,7 +126,7 @@ export class Dummy {
 		return this.ev.scrollDOM;
 	}
 
-	public scrollTo(x: number|null, y: number|null) {
+	public scrollTo(x: number | null, y: number | null) {
 		if (x == null) x = 0;
 		if (y == null) y = 0;
 		this.ev.scrollDOM.scrollTo(x, y);

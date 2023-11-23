@@ -10,14 +10,12 @@ import { showStandalonePage } from "./standalone";
 
 import "./css/ide.css";
 import "./css/tgui.css";
-import "./css/codemirror.css";
 import "./css/documentation.css";
 import "./css/tutorial.css";
 import "./css/icons.css";
 
 import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
-import "./css-dark/codemirror.css";
 import "./css-dark/documentation.css";
 import "./css-dark/tutorial.css";
 import "./css-dark/icons.css";
