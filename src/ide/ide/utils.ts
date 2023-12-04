@@ -86,7 +86,7 @@ export function updateControls() {
  */
 export function setCursorPosition(line: number, ch: number) {
 	if (typeof ch === "undefined") ch = 0;
-	ide.sourcecode.setCursor(line - 1, ch);
+	ide.sourcecode.setCursor({ line: line - 1, ch });
 	ide.sourcecode.focus();
 	//	module.sourcecode.scrollIntoView({"line": line-1, "ch": 0}, 40);
 	let s = ide.sourcecode.getScrollInfo();

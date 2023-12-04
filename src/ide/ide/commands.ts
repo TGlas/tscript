@@ -2,9 +2,10 @@ import * as ide from ".";
 import { Parser } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
+import { toggleBreakpoint } from "./breakpoint";
 import { confirmFileDiscard, fileDlg, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
-import { makeMarker, updateControls } from "./utils";
+import { updateControls } from "./utils";
 
 export let buttons: any = [
 	{
@@ -268,27 +269,19 @@ export function cmd_export() {
 }
 
 function cmd_toggle_breakpoint() {
-	let cm = ide.sourcecode as any;
-	let line = cm.doc.getCursor().line;
+	let cm = ide.sourcecode;
+	let line = cm.getCursor().line;
 	if (ide.interpreter) {
 		// ask the interpreter for the correct position of the marker
 		let result = ide.interpreter.toggleBreakpoint(line + 1);
 		if (result !== null) {
 			line = result.line;
-			cm.setGutterMarker(
-				line - 1,
-				"breakpoints",
-				result.active ? makeMarker() : null
-			);
+			toggleBreakpoint(cm.getEditorView(), line);
 			ide.sourcecode.scrollIntoView({ line: line - 1, ch: 0 }, 40);
 		}
 	} else {
 		// set the marker optimistically, fix as soon as an interpreter is created
-		cm.setGutterMarker(
-			line,
-			"breakpoints",
-			cm.lineInfo(line).gutterMarkers ? null : makeMarker()
-		);
+		toggleBreakpoint(cm.getEditorView(), line);
 	}
 }
 
@@ -299,7 +292,7 @@ function cmd_new() {
 		ide.editor_title.innerHTML = "Editor";
 		ide.ide_document.filename = "";
 		ide.sourcecode.setValue("");
-		ide.sourcecode.getDoc().clearHistory();
+		ide.sourcecode.clearHistory();
 		ide.ide_document.dirty = false;
 
 		updateControls();
@@ -323,8 +316,8 @@ function cmd_load() {
 				ide.sourcecode.setValue(
 					localStorage.getItem("tscript.code." + filename)!
 				);
-				ide.sourcecode.getDoc().setCursor({ line: 0, ch: 0 });
-				ide.sourcecode.getDoc().clearHistory();
+				ide.sourcecode.setCursor({ line: 0, ch: 0 });
+				ide.sourcecode.clearHistory();
 				ide.ide_document.dirty = false;
 
 				updateControls();

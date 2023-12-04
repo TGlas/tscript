@@ -11,9 +11,11 @@ import { tutorial } from "../tutorial";
 import { buttons, cmd_export } from "./commands";
 import { configDlg, loadConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
+import { add_editor_tabs } from "./add-editor-tabs";
 import * as utils from "./utils";
 
 // import CodeMirror from "codemirror";
+import { toggleBreakpoint } from "./breakpoint";
 import { Dummy } from "./dummy";
 
 // CodeMirror Addons
@@ -33,6 +35,7 @@ import { Dummy } from "./dummy";
 //
 
 export let sourcecode!: Dummy;
+export let tab_editor!: Dummy;
 export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
@@ -50,12 +53,14 @@ export let interpreter: Interpreter | null = null;
 
 let main: any = null;
 let toolbar: any = null;
+let tabstoolbar: any = null;
 let iconlist: any = null;
 let highlight: any = null;
 
 loadConfig();
 
 let standalone: boolean = false;
+
 export function setStandalone(_standalone: boolean) {
 	standalone = _standalone;
 }
@@ -204,9 +209,8 @@ export function prepare_run() {
 	let source = sourcecode.getValue();
 	if (source.length != 0 && source[source.length - 1] != "\n") {
 		source += "\n";
-		sourcecode
-			.getDoc()
-			// .replaceRange("\n", CodeMirror.Pos(sourcecode.lastLine()));
+		sourcecode.getDoc();
+		// .replaceRange("\n", CodeMirror.Pos(sourcecode.lastLine()));
 	}
 
 	let result = Parser.parse(source, options);
@@ -377,25 +381,13 @@ export function prepare_run() {
 		interpreter.reset();
 
 		// set and correct breakpoints
-		let br = new Array();
-		for (let i = 1; i <= sourcecode.lineCount(); i++) {
-			if (sourcecode.lineInfo(i - 1).gutterMarkers) br.push(i);
-		}
-		let result = interpreter.defineBreakpoints(br);
+		let br = sourcecode.getBreakpointLines();
+		let result = interpreter.defineBreakpoints(br.map((i) => i + 1));
+
 		if (result !== null) {
-			for (let i = 1; i <= sourcecode.lineCount(); i++) {
-				if (sourcecode.lineInfo(i - 1).gutterMarkers) {
-					if (!result.hasOwnProperty(i))
-						sourcecode.setGutterMarker(i - 1, "breakpoints", null);
-				} else {
-					if (result.hasOwnProperty(i))
-						sourcecode.setGutterMarker(
-							i - 1,
-							"breakpoints",
-							utils.makeMarker()
-						);
-				}
-			}
+			for (let i = 1; i <= sourcecode.lineCount(); i++)
+				if (br.includes(i - 1) !== result.hasOwnProperty(i))
+					toggleBreakpoint(sourcecode.getEditorView(), i - 1);
 			alert("Note: breakpoints were moved to valid locations");
 		}
 	}
@@ -420,6 +412,20 @@ export function create(container: HTMLElement, options?: any) {
 		parent: main,
 		classname: "ide ide-toolbar",
 	});
+
+    tabstoolbar = tgui.createElement({
+        type: "div",
+        parent: main,
+        classname: "ide ide-tabs-toolbar",
+    });
+
+    tgui.createButton({
+        click: () => add_editor_tabs(tab_editor),
+        text: "+",
+        parent: tabstoolbar,
+        tooltip: "Add a new tab",
+		classname: "ide ide-add-document-tabs",
+    });
 
 	// add the export button on demand
 	if (options["export-button"]) {
@@ -642,33 +648,11 @@ export function create(container: HTMLElement, options?: any) {
 	// 		"Shift-Tab": "indentLess",
 	// 	},
 	// });
-	sourcecode.on("change", function (cm, changeObj) {
+	sourcecode.onDocChange(function () {
 		ide_document.dirty = true;
 		if (interpreter) {
 			clear();
 			utils.updateControls();
-		}
-	});
-	sourcecode.on("gutterClick", function (cm, line) {
-		if (interpreter) {
-			// ask the interpreter for the correct position of the marker
-			let result = interpreter.toggleBreakpoint(line + 1);
-			if (result !== null) {
-				line = result.line;
-				cm.setGutterMarker(
-					line - 1,
-					"breakpoints",
-					result.active ? utils.makeMarker() : null
-				);
-				sourcecode.scrollIntoView({ line: line, ch: 0 }, 40);
-			}
-		} else {
-			// set the marker optimistically, fix as soon as an interpreter is created
-			cm.setGutterMarker(
-				line,
-				"breakpoints",
-				cm.lineInfo(line).gutterMarkers ? null : utils.makeMarker()
-			);
 		}
 	});
 	sourcecode.on("cursorActivity", function (cm) {

@@ -1,148 +1,215 @@
-import { EditorView } from "@codemirror/view"
-import { basicSetup } from "codemirror"
-import { Text } from "@codemirror/state"
-import { javascript } from '@codemirror/lang-javascript'
-import { autocompletion } from "@codemirror/autocomplete"
+import { EditorState, Extension, StateEffect } from "@codemirror/state";
+import { EditorView, Rect } from "@codemirror/view";
+import { basicSetup } from "codemirror";
+import { breakpointGutter, hasBreakpoint } from "./breakpoint";
+import { baseTheme, highlighting } from "./styling";
+import { cmtsmode } from "../codemirror-tscriptmode";
+
+interface EditorPosition {
+	line: number;
+	ch: number;
+}
 
 export class Dummy {
-    private ev: EditorView
+	private ev: EditorView;
+	private extensions!: Extension[];
 
-    public constructor(textarea: any) {
-        this.ev = this.editorFromTextArea(textarea)
-    }
+	public constructor(
+		textarea: any,
+		extensions = [
+			cmtsmode,
+			baseTheme,
+			highlighting,
+			breakpointGutter,
+			basicSetup,
+		]
+	) {
+		this.extensions = extensions;
+		this.ev = this.editorFromTextArea(textarea);
+	}
 
-    public refresh() { }
+	// Missing in CM6
+	public refresh() {}
 
-    public on(stage: string, func: any) { }
+	/**
+	 * Runs the callback function whenever the content of the document changes
+	 * @param callback
+	 */
+	public onDocChange(callback: () => any) {
+		// Add the event listener to the extensions
+		this.extensions.push(
+			EditorView.updateListener.of((viewUpdate) => {
+				if (viewUpdate.docChanged) callback();
+			})
+		);
 
-    public focus() {
-        this.ev.focus();
-    }
+		// Refresh extensions
+		this.ev.dispatch({
+			effects: StateEffect.reconfigure.of(this.extensions),
+		});
+	}
 
-    public getValue(): string {
-        return this.ev.state.doc.toString();
-    }
-    
-    public setValue(content: string) {
-        const text = Text.of(content.split("\n"));
-        this.ev.state.doc.replace(0, this.lineCount(), text);
-    }
+	// Makes the compiler happy
+	public on(stage: string, func: any) {}
 
-    public getDoc(): any { }
+	//
+	public focus() {
+		this.ev.focus();
+	}
 
-    public getOption(opt: string): any { }
+	//
+	public getValue(): string {
+		return this.ev.state.doc.toString();
+	}
 
-    public setOption(opt: string, val: any) { }
+	/**
+	 * Set content of editor.
+	 * @param content
+	 */
+	public setValue(content: string) {
+		this.ev.dispatch({
+			changes: { from: 0, to: this.getDoc().length, insert: content },
+		});
+	}
 
-    public setCursor(i: number, ch: number) { }
+	/**
+	 * Returns the document of the editor
+	 */
+	public getDoc() {
+		return this.ev.state.doc;
+	}
 
-    public getScrollInfo(): any { }
+	/**
+	 * Returns the editor view
+	 */
+	public getEditorView() {
+		return this.ev;
+	}
 
-    public charCoords(a: any, b: any): any { }
+	/**
+	 * Clears the undo / redo history without effecting the content
+	 */
+	public clearHistory() {
+		const es = EditorState.create({
+			doc: this.getDoc(),
+			extensions: this.extensions,
+		});
+		this.ev.setState(es);
+	}
 
-    public getScrollerElement(): any { }
+	public getOption(opt: string): any {}
 
-    public scrollTo(a: any, b: any) { }
+	public setOption(opt: string, val: any) {}
 
-    public lineCount(): number {
-        return this.ev.state.doc.lines;
-    }
-    public lineInfo(a: number): any { }
+	/**
+	 * Sets the cursor to the given position
+	 * @param pos (CM5 position syntax)
+	 */
+	public setCursor(pos: EditorPosition) {
+		const offset = Dummy.posToOffset(this.ev, pos);
+		this.ev.dispatch({ selection: { anchor: offset } });
+	}
 
-    public setGutterMarker(a: any, b: any, c: any) { }
+	public getScrollInfo() {
+		const scroller = this.getScrollerElement();
+		return {
+			left: scroller.scrollLeft,
+			top: scroller.scrollTop,
+			width: scroller.scrollWidth,
+			height: scroller.scrollHeight,
+			clientWidth: scroller.clientWidth,
+			clientHeight: scroller.clientHeight,
+		};
+	}
 
-    public getSelection(): any { }
+	public charCoords(pos: EditorPosition, mode = ""): Rect {
+		const rect = this.ev.coordsForChar(Dummy.posToOffset(this.ev, pos));
+		if (rect == null)
+			throw new Error("Pos does not point in front of a character");
+		return rect;
+	}
 
-    public getCursor(): any { }
+	public getScrollerElement(): HTMLElement {
+		return this.ev.scrollDOM;
+	}
 
-    public findWordAt(a: any): any { }
+	public scrollTo(x: number | null, y: number | null) {
+		if (x == null) x = 0;
+		if (y == null) y = 0;
+		this.ev.scrollDOM.scrollTo(x, y);
+	}
 
-    public getRange(a: any, b: any) { }
+	/**
+	 * Returns the line count of the document (always c>=1)
+	 */
+	public lineCount() {
+		return this.ev.state.doc.lines;
+	}
 
-    public scrollIntoView(a: any, b: any) { }
+	/**
+	 * Returns the indexes of all breakpoints
+	 */
+	public getBreakpointLines() {
+		const lines: number[] = [];
+		for (let i = 0; i < this.lineCount() - 1; i++) {
+			if (hasBreakpoint(this.ev, i)) lines.push(i);
+		}
+		return lines;
+	}
 
-    public lastLine() { }
+	public setGutterMarker(a: any, b: any, c: any) {}
 
-    private editorFromTextArea(textarea, extensions = [basicSetup, javascript()]) {
-        const completions = [
-            // Added TScript keywords and constructs
-            {label: "and", type: "operators"},
-            {label: "break", type: "loop"},
-            {label: "catch", type: "try-catch"},
-            {label: "class", type: "class"},
-            {label: "constructor", type: "class"},
-            {label: "continue", type: "loop"},
-            {label: "else", type: "keyword"},
-            {label: "false", type: "boolean"},
-            {label: "from", type: "import"},
-            {label: "function", type: "function"},
-            {label: "namespace", type: "keyword"},
-            {label: "not", type: "operators"},
-            {label: "null", type: "null"},
-            {label: "or", type: "operators"},
-            {label: "private", type: "visibility"},
-            {label: "protected", type: "visibility"},
-            {label: "public", type: "visibility"},
-            {label: "return", type: "keyword"},
-            {label: "super", type: "parent"},
-            {label: "then", type: "condition"},
-            {label: "this", type: "keyword"},
-            {label: "throw", type: "exception"},
-            {label: "true", type: "boolean"},
-            {label: "try", type: "try-catch"},
-            {label: "use", type: "keyword"},
-            {label: "var", type: "keyword"},
-            {label: "xor", type: "operators"},
-            {label: "constructor", type: "constructor"},
-            {label: "static", type: "visibility"},
-            {label: "return", type: "keyword"},
-            {label: "try", type: "try-catch"},
-            {label: "class", type: "class-decl"},
-            {label: "if", type: "condition"},
-            {label: "for", type: "for-loop"},
-            {label: "while", type: "while-do-loop"},
-            {label: "do", type: "do-while-loop"},
-        ]
+	public getSelection(): any {}
 
-        function myCompletions(context) {
-            let before = context.matchBefore(/\w+/)
-            // If completion wasn't explicitly started and there
-            // is no word before the cursor, don't open completions.
-            if (!context.explicit && !before) return null
+	/**
+	 * Returns the current cursor position
+	 */
+	public getCursor() {
+		return Dummy.offsetToPos(this.ev, this.ev.state.selection.main.head);
+	}
 
-            const customStyle = {
-                '.cm-tooltip-autocomplete': {
-                    backgroundColor: 'lightblue', // Change the background color
-                },
-                '.cm-completionLabel': {
-                    color: 'blue', // Change the text color
-                    fontWeight: 'bold', // Make the text bold
-                },
-                '.cm-completionIcon': {
-                    fontSize: '1.2em', // Change the icon size
-                },
-            };
+	public findWordAt(a: any): any {}
 
-            return {
-              from: before ? before.from : context.pos,
-              options: completions,
-              validFor: /^\w*$/,
-              style: customStyle,
-            }
-          }
+	/**
+	 * Returns text from the document within the given range
+	 */
+	public getRange(from: number, to: number) {
+		return this.ev.state.sliceDoc(from, to);
+	}
 
-        let view = new EditorView({doc: textarea.value, 
-            extensions: [
-                ...extensions,
-                autocompletion({ override: [myCompletions]}),
-            ],
-            parent: document.body,
-        })
-        textarea.parentNode.insertBefore(view.dom, textarea)
-        textarea.style.display = "none"
-        if (textarea.form) textarea.form.addEventListener("submit", () => {
-          textarea.value = view.state.doc.toString()
-        })
-        return view
-      }
+	public scrollIntoView(a: any, b: any) {}
+
+	// public lastLine() {}
+
+	/**
+	 * Converts CM5 position syntax to CM6 syntax
+	 */
+	public static posToOffset(ev: EditorView, pos: EditorPosition) {
+		return ev.state.doc.line(pos.line + 1).from + pos.ch;
+	}
+
+	/**
+	 * Converts CM6 position syntax to CM5 syntax
+	 */
+	public static offsetToPos(ev: EditorView, offset: number): EditorPosition {
+		let line = ev.state.doc.lineAt(offset);
+		return { line: line.number - 1, ch: offset - line.from };
+	}
+
+	/**
+	 * Wrapper from CM5 to CM6
+	 */
+	private editorFromTextArea(textarea) {
+		let view = new EditorView({
+			doc: textarea.value,
+			extensions: this.extensions,
+		});
+		textarea.parentNode.insertBefore(view.dom, textarea);
+		textarea.style.display = "none";
+		if (textarea.form)
+			textarea.form.addEventListener("submit", () => {
+				textarea.value = view.state.doc.toString();
+			});
+		return view;
+	}
 }

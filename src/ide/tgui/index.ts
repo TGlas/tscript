@@ -1,7 +1,6 @@
 import { SVGIcon } from "../icons";
 import { setHotkey } from "./hotkeys";
 import { modal } from "./modals";
-import { savePanelData } from "./panels";
 
 // Re-exports
 export * from "./modals";
