@@ -12,8 +12,7 @@ export function add_editor_tabs(tab_editor) {
     tab_editor = tgui.createElement({
         type: "textarea",
         parent: panel_tab_editor.content,
-        properties: { width: "600", height: "600" },
-        classname: "ide ide-sourcecode",
+        classname: "ide ide-tab-sourcecode",
     });
     tab_editor.addEventListener("contextmenu", function (event) {
         event.preventDefault();

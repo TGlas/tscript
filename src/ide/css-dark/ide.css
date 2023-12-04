@@ -31,6 +31,12 @@
 	color: #fff;
 }
 
+.dark-theme .ide-tab-sourcecode {
+	/* overridden in file codemirror.css, class .CodeMirror */
+	background: #222;
+	color: #fff;
+}
+
 .dark-theme .ide-stackview {
 	background: #222;
 	color: #fff;
