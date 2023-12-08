@@ -45,8 +45,8 @@ export function updateStatus() {
 			(ide.interpreter.status === "running" ||
 				ide.interpreter.status === "waiting" ||
 				ide.interpreter.status === "dialog");
-		if (ide.sourcecode.getOption("readOnly") != should) {
-			ide.sourcecode.setOption("readOnly", should);
+		if (ide.sourcecode.isReadOnly() != should) {
+			ide.sourcecode.setReadOnly(should);
 			let ed: any = document.getElementsByClassName("CodeMirror");
 			let value = should ? 0.6 : 1;
 			for (let i = 0; i < ed.length; i++) ed[i].style.opacity = value;
@@ -88,14 +88,7 @@ export function setCursorPosition(line: number, ch: number) {
 	if (typeof ch === "undefined") ch = 0;
 	ide.sourcecode.setCursor({ line: line - 1, ch });
 	ide.sourcecode.focus();
-	//	module.sourcecode.scrollIntoView({"line": line-1, "ch": 0}, 40);
-	let s = ide.sourcecode.getScrollInfo();
-	let y = ide.sourcecode.charCoords({ line: line - 1, ch: 0 }, "local").top;
-	let h = ide.sourcecode.getScrollerElement().offsetHeight;
-	if (y < s.top + 0.1 * s.clientHeight || y >= s.top + 0.9 * s.clientHeight) {
-		y = y - 0.5 * h - 5;
-		ide.sourcecode.scrollTo(null, y);
-	}
+	ide.sourcecode.scrollIntoView({ line: line - 1, ch: 0 });
 }
 
 export function makeMarker() {

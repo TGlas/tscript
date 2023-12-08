@@ -277,7 +277,7 @@ function cmd_toggle_breakpoint() {
 		if (result !== null) {
 			line = result.line;
 			toggleBreakpoint(cm.getEditorView(), line);
-			ide.sourcecode.scrollIntoView({ line: line - 1, ch: 0 }, 40);
+			ide.sourcecode.scrollIntoView({ line: line - 1, ch: 0 });
 		}
 	} else {
 		// set the marker optimistically, fix as soon as an interpreter is created

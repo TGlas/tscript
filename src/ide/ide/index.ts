@@ -15,7 +15,7 @@ import * as utils from "./utils";
 
 // import CodeMirror from "codemirror";
 import { toggleBreakpoint } from "./breakpoint";
-import { Dummy } from "./dummy";
+import { TScriptEditor } from "./TScriptEditor";
 
 // CodeMirror Addons
 // import "codemirror/addon/comment/comment";
@@ -33,7 +33,7 @@ import { Dummy } from "./dummy";
 // IDE for TScript development
 //
 
-export let sourcecode!: Dummy;
+export let sourcecode!: TScriptEditor;
 export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
@@ -566,17 +566,12 @@ export function create(container: HTMLElement, options?: any) {
 		tgui.setHotkey("F1", function () {
 			let selection = sourcecode.getSelection();
 			// maximum limit of 30 characters
-			// so that there is no problem, when accedentially everything
+			// so that there is no problem, when accidentally everything
 			// in a file is selected
-			if (!selection) {
-				// get current word under the cursor
-				let cursor = sourcecode.getCursor();
+			if (!selection)
+				selection = sourcecode.findWordAt(sourcecode.getCursor());
 
-				let word = sourcecode.findWordAt(cursor);
-
-				selection = sourcecode.getRange(word.anchor, word.head);
-			}
-			selection = selection.substr(0, 30);
+			selection = selection.slice(0, 30);
 			const words = selection.match(/[a-z]+/gi); // global case insensitive
 			showdocConfirm(undefined, words?.join(" "));
 		});
@@ -598,9 +593,7 @@ export function create(container: HTMLElement, options?: any) {
 		state: "left",
 		fallbackState: "float",
 		dockedheight: 600,
-		onArrange: function () {
-			if (sourcecode) sourcecode.refresh();
-		},
+		onArrange: function () {},
 		icon: icons.editor,
 	});
 	panel_editor.textarea = tgui.createElement({
@@ -608,28 +601,7 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_editor.content,
 		classname: "ide ide-sourcecode",
 	});
-	sourcecode = new Dummy(panel_editor.textarea);
-	// sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
-	// 	gutters: ["CodeMirror-linenumbers", "breakpoints"],
-	// 	lineNumbers: true,
-	// 	matchBrackets: true,
-	// 	styleActiveLine: true,
-	// 	mode: "text/tscript",
-	// 	indentUnit: 4,
-	// 	tabSize: 4,
-	// 	indentWithTabs: true,
-	// 	// TODO: Setting in configuration: lineWrapping: true/false,
-	// 	extraKeys: {
-	// 		"Ctrl-D": "toggleComment",
-	// 		"Cmd-D": "toggleComment",
-	// 		"Ctrl-R": "replace",
-	// 		F3: "findNext",
-	// 		"Shift-F3": "findPrev",
-	// 		"Ctrl-Up": "goDocEnd",
-	// 		"Ctrl-Down": "goDocStart",
-	// 		"Shift-Tab": "indentLess",
-	// 	},
-	// });
+	sourcecode = new TScriptEditor(panel_editor.textarea);
 	sourcecode.onDocChange(function () {
 		ide_document.dirty = true;
 		if (interpreter) {
@@ -637,7 +609,8 @@ export function create(container: HTMLElement, options?: any) {
 			utils.updateControls();
 		}
 	});
-	sourcecode.on("cursorActivity", function (cm) {
+
+	sourcecode.onCursorActivity(function (cm) {
 		if (
 			interpreter &&
 			interpreter.status === "running" &&
@@ -716,6 +689,7 @@ export function create(container: HTMLElement, options?: any) {
 			}
 		}
 	});
+
 	editor_title = panel_editor.titlebar; // TODO: remove this, this is only used to update the title
 	//       - add functionality to update title in tgui.js
 

@@ -19,7 +19,7 @@ import { tutorialData } from "../tutorial";
 // import "codemirror/addon/edit/matchbrackets";
 // import "codemirror/addon/edit/closebrackets";
 import "./codemirror-tscriptmode";
-import { Dummy } from "./ide/dummy";
+import { TScriptEditor } from "./ide/TScriptEditor";
 
 ///////////////////////////////////////////////////////////
 // TScript tutorial
@@ -227,7 +227,7 @@ export const tutorial = (function () {
 									value: correct,
 								},
 							});
-							let cm = new Dummy(textarea);
+							let cm = new TScriptEditor(textarea);
 							// let cm = CodeMirror.fromTextArea(textarea, {
 							// 	gutters: [
 							// 		"CodeMirror-linenumbers",
@@ -245,11 +245,7 @@ export const tutorial = (function () {
 							// 		"Ctrl-Down": "scrollDown",
 							// 	},
 							// });
-							cm.setOption("readOnly", true);
-
-							window.setTimeout(function () {
-								cm.refresh();
-							}, 20);
+							cm.setReadOnly(true);
 							tgui.startModal(dlg);
 						};
 					})(correct),
