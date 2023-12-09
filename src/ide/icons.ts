@@ -62,6 +62,12 @@ export const icons: { [id: string]: SVGIcon } = {
 		innerSVG:
 			'<circle cx="20" cy="20" r="18.5" style="stroke-width: 2; stroke: #04d; fill: #16f"/><path d="M 13,15 A 7,7 0 0 1 22.68,8.53 A 7,7 0 0 1 24.95,19.95 L 20 25 L 20 28" style="stroke-width: 2; stroke: #fff; fill: none"/><line x1="20" y1="31" x2="20" y2="34" style="stroke-width: 2; stroke: #fff; fill: none"/>',
 	},
+	msgBoxInformation: {
+		width: 40,
+		height: 40,
+		innerSVG:
+			'<circle cx="20" cy="20" r="18.5" style="stroke-width: 2; stroke: #04d; fill: #16f"/><line x1="20" y1="8" x2="20" y2="11" style="stroke-width: 2; stroke: #fff; fill: none"/><path d="M 16 15 L 20 15 L 20 32" style="stroke-width: 2; stroke: #fff; fill: none"/>',
+	},
 	msgBoxExclamation: {
 		width: 40,
 		height: 40,

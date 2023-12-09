@@ -10,6 +10,8 @@ import { toClipboard } from "./clipboard";
 import { tutorial } from "./tutorial";
 import { Options, defaultOptions } from "../lang/helpers/options";
 
+import { storage } from "./storage";
+
 import CodeMirror from "codemirror";
 
 // CodeMirror Addons
@@ -137,7 +139,8 @@ export let ide = (function () {
 
 	// document properties
 	(module.document = {
-		filename: "", // name in local storage, or empty string
+		file: storage.newFile(),
+		filename: "", // TODO remove this
 		dirty: false, // does the state differ from the last saved state?
 	}),
 		// current interpreter, non-null after successful parsing
@@ -1141,7 +1144,7 @@ export let ide = (function () {
 		}
 
 		// create a filename for the file download from the title
-		let title = module.document.filename;
+		let title = module.document.file.filename;
 		if (!title || title === "") title = "tscript-export";
 		let fn = title;
 		if (
@@ -1290,7 +1293,10 @@ export let ide = (function () {
 			clear();
 
 			module.editor_title.innerHTML = "Editor";
-			module.document.filename = "";
+			module.document.file = storage.newFile(
+				module.document.file.isDevice
+			);
+			module.document.filename = module.document.file.filename; // TODO remove later
 			module.sourcecode.setValue("");
 			module.sourcecode.getDoc().clearHistory();
 			module.document.dirty = false;
@@ -1302,54 +1308,50 @@ export let ide = (function () {
 
 	let cmd_load = function () {
 		confirmFileDiscard("Open document", () => {
-			fileDlg(
-				"Load file",
-				module.document.filename,
-				false,
-				"Load",
-				function (filename) {
+			storage.fileDialog(
+				module.document.file,
+				storage.DialogMode.OPEN,
+				function (file: storage.File) {
 					clear();
+					if (file.load) {
+						module.editor_title.innerHTML = "Editor &mdash; ";
+						tgui.createText(file.filename, module.editor_title);
+						module.document.file = file;
+						module.document.filename = file.filename; // TODO remove later
+						module.sourcecode.setValue(file.load());
+						module.sourcecode
+							.getDoc()
+							.setCursor({ line: 0, ch: 0 });
+						module.sourcecode.getDoc().clearHistory();
+						module.document.dirty = false;
 
-					module.editor_title.innerHTML = "Editor &mdash; ";
-					tgui.createText(filename, module.editor_title);
-					module.document.filename = filename;
-					module.sourcecode.setValue(
-						localStorage.getItem("tscript.code." + filename)
-					);
-					module.sourcecode.getDoc().setCursor({ line: 0, ch: 0 });
-					module.sourcecode.getDoc().clearHistory();
-					module.document.dirty = false;
-
-					updateControls();
-					module.sourcecode.focus();
+						updateControls();
+						module.sourcecode.focus();
+					}
 				}
 			);
 		});
 	};
 
 	let cmd_save = function () {
-		if (module.document.filename === "") {
+		if (module.document.file.save) {
+			// can save
+			module.document.file.save(module.sourcecode.getValue());
+			module.document.dirty = false;
+		} else {
 			cmd_save_as();
-			return;
 		}
-
-		localStorage.setItem(
-			"tscript.code." + module.document.filename,
-			module.sourcecode.getValue()
-		);
-		module.document.dirty = false;
 	};
 
 	let cmd_save_as = function () {
-		let dlg = fileDlg(
-			"Save file as ...",
-			module.document.filename,
-			true,
-			"Save",
-			function (filename) {
+		let dlg = storage.fileDialog(
+			module.document.file,
+			storage.DialogMode.SAVE,
+			function (file: storage.File) {
 				module.editor_title.innerHTML = "Editor &mdash; ";
-				tgui.createText(filename, module.editor_title);
-				module.document.filename = filename;
+				tgui.createText(file.filename, module.editor_title);
+				module.document.file = file;
+				module.document.filename = file.filename; // TODO remove later
 				cmd_save();
 				module.sourcecode.focus();
 			}
@@ -1743,262 +1745,6 @@ export let ide = (function () {
 		}
 
 		tgui.startModal(dlg);
-	}
-
-	function fileDlg(
-		title: string,
-		filename,
-		allowNewFilename: boolean,
-		confirmText: string,
-		onOkay
-	) {
-		// 10px horizontal spacing
-		//  7px vertical spacing
-		// populate array of existing files
-		let files = new Array();
-		for (let key in localStorage) {
-			if (key.substr(0, 13) === "tscript.code.")
-				files.push(key.substr(13));
-		}
-		files.sort();
-
-		// return true on failure, that is when the dialog should be kept open
-		let onFileConfirmation = function () {
-			let fn = name.value;
-			if (fn != "") {
-				if (allowNewFilename || files.indexOf(fn) >= 0) {
-					onOkay(fn);
-					return false; // close dialog
-				}
-			}
-			return true; // keep dialog open
-		};
-
-		// create dialog and its controls
-		let dlg = tgui.createModal({
-			title: title,
-			scalesize: [0.5, 0.7],
-			minsize: [440, 260],
-			buttons: [
-				{
-					text: confirmText,
-					isDefault: true,
-					onClick: onFileConfirmation,
-				},
-				{ text: "Cancel" },
-			],
-			enterConfirms: true,
-			contentstyle: {
-				display: "flex",
-				"flex-direction": "column",
-				"justify-content": "space-between",
-			},
-		});
-
-		let toolbar = tgui.createElement({
-			parent: dlg.content,
-			type: "div",
-			style: {
-				display: "flex",
-				"flex-direction": "row",
-				"justify-content": "space-between",
-				width: "100%",
-				height: "25px",
-				"margin-top": "7px",
-			},
-		});
-		// toolbar
-		{
-			let deleteBtn = tgui.createElement({
-				parent: toolbar,
-				type: "button",
-				style: {
-					width: "100px",
-					height: "100%",
-					"margin-right": "10px",
-				},
-				text: "Delete file",
-				click: () => deleteFile(name.value),
-				classname: "tgui-modal-button",
-			});
-
-			let importBtn = tgui.createElement({
-				parent: toolbar,
-				type: "button",
-				style: {
-					width: "100px",
-					height: "100%",
-					"margin-right": "10px",
-				},
-				text: "Import",
-				click: () => importFile(),
-				classname: "tgui-modal-button",
-			});
-
-			let exportBtn = tgui.createElement({
-				parent: toolbar,
-				type: "button",
-				style: {
-					width: "100px",
-					height: "100%",
-					"margin-right": "10px",
-				},
-				text: "Export",
-				click: () => exportFile(name.value),
-				classname: "tgui-modal-button",
-			});
-
-			// allow multiple selection: export selected
-			// TODO: allow to export all TScript files at once to a zip file
-			// TODO: allow to export whole TScript local storage
-
-			let status = tgui.createElement({
-				parent: toolbar,
-				type: "label",
-				style: {
-					flex: 1,
-					height: "100%",
-					"white-space": "nowrap",
-				},
-				text:
-					(files.length > 0 ? files.length : "No") +
-					" document" +
-					(files.length == 1 ? "" : "s"),
-				classname: "tgui-status-box",
-			});
-		}
-		// end toolbar
-
-		let list = tgui.createElement({
-			parent: dlg.content,
-			type: "select",
-			properties: { size: Math.max(2, files.length), multiple: false },
-			classname: "tgui-list-box",
-			style: {
-				flex: "auto",
-				//background: "#fff",
-				margin: "7px 0px",
-				overflow: "scroll",
-			},
-		});
-		let name = { value: filename };
-		if (allowNewFilename) {
-			name = tgui.createElement({
-				parent: dlg.content,
-				type: "input",
-				style: {
-					height: "25px",
-					//background: "#fff",
-					margin: "0 0px 7px 0px",
-				},
-				classname: "tgui-text-box",
-				text: filename,
-				properties: { type: "text", placeholder: "Filename" },
-			});
-		}
-
-		// populate options
-		for (let i = 0; i < files.length; i++) {
-			let option = new Option(files[i], files[i]);
-			list.options[i] = option;
-		}
-
-		// event handlers
-		list.addEventListener("change", function (event) {
-			if (event.target && event.target.value)
-				name.value = event.target.value;
-		});
-		list.addEventListener("keydown", function (event) {
-			if (event.key === "Backspace" || event.key === "Delete") {
-				event.preventDefault();
-				event.stopPropagation();
-				deleteFile(name.value);
-				return false;
-			}
-		});
-		list.addEventListener("dblclick", function (event) {
-			event.preventDefault();
-			event.stopPropagation();
-			if (!onFileConfirmation()) tgui.stopModal();
-			return false;
-		});
-
-		tgui.startModal(dlg);
-		(allowNewFilename ? name : list).focus();
-		return dlg;
-
-		function deleteFile(filename) {
-			let index = files.indexOf(filename);
-			if (index >= 0) {
-				let onDelete = () => {
-					localStorage.removeItem("tscript.code." + filename);
-					files.splice(index, 1);
-					list.remove(index);
-				};
-
-				tgui.msgBox({
-					title: "Delete file",
-					icon: tgui.msgBoxExclamation,
-					prompt: 'Delete file "' + filename + '"\nAre you sure?',
-					buttons: [
-						{ text: "Delete", isDefault: true, onClick: onDelete },
-						{ text: "Cancel" },
-					],
-				});
-			}
-		}
-
-		function download(filename, text, mime = "text/plain") {
-			var element = document.createElement("a");
-			element.setAttribute(
-				"href",
-				"data:" + mime + ";charset=utf-8," + encodeURIComponent(text)
-			);
-			element.setAttribute("download", filename);
-
-			element.style.display = "none";
-			document.body.appendChild(element);
-
-			element.click();
-
-			document.body.removeChild(element);
-		}
-
-		function exportFile(filename) {
-			let data = localStorage.getItem("tscript.code." + filename);
-			download(filename + ".tscript", data);
-		}
-
-		function importFile() {
-			let fileImport = document.createElement("input");
-			fileImport.type = "file";
-			fileImport.multiple = true;
-			fileImport.style.display = "none";
-			fileImport.accept = ".tscript";
-
-			fileImport.addEventListener("change", async (event: any) => {
-				if (event.target.files) {
-					for (let file of event.target.files) {
-						let filename = file.name.split(".tscript")[0];
-						if (files.includes(filename)) {
-							/*if(!confirm("Replace file \"" + filename + "\"\nAre you sure?"))
-							{
-								return;
-							}*/
-						}
-						let data = await file.text();
-						localStorage.setItem("tscript.code." + filename, data);
-						if (!files.includes(filename)) {
-							files.push(filename);
-							let option = new Option(filename, filename);
-							list.appendChild(option);
-						}
-					}
-				}
-			});
-
-			fileImport.click();
-		}
 	}
 
 	module.create = function (container, options) {
