@@ -17,6 +17,7 @@ export class Dummy {
 	private extensions!: Extension[];
 	private static instances: Dummy[] = [];
 	private instanceId: string;
+	private static focusedInstance: Dummy | null = null;
 
 	public constructor(
 		textarea: any,
@@ -33,22 +34,40 @@ export class Dummy {
 		this.setupEventListeners();
 		Dummy.instances.push(this);
 		this.instanceId = `Editor${instanceCounter++}`;
+		this.focus();
 	}
 
-	//focus listener
+	/**
+	 * Event listener for Editor dom Element, used to focus current Editor und blur others
+	 */
 	private setupEventListeners() {
 		this.ev.dom.addEventListener('click', () => {
 			this.focus();
+			this.resetStyle();
 			console.log(`Focused editor: ${this.getInstanceId()}`);
 		});
 	}
 
-	//return all Instances of the editor
+	private setStyle() {
+		// Modify styles of the EditorView's DOM element
+		this.ev.dom.style.backgroundColor = 'darkblue';
+		this.ev.dom.style.opacity = '0.2';
+	}
+
+	private resetStyle() {
+		this.ev.dom.removeAttribute('style');
+	}
+
+	/**
+	 *  return all Instances of the editor
+	 */
 	public static getInstances() {
 		return Dummy.instances;
 	}
 
-	// return current InstanceId of the Editor
+	/**
+	 *  return current InstanceId of the Editor
+	 */
 	public getInstanceId() {
 		return this.instanceId;
 	}
@@ -77,14 +96,42 @@ export class Dummy {
 	// Makes the compiler happy
 	public on(stage: string, func: any) {}
 
-	//
-	public focus() {
-		this.ev.focus();
+	/**
+	 * remove Focus from Editor
+	 */
+	public blur() {
+		this.ev.contentDOM.blur();
 	}
 
-	public isFocused(): boolean {
-		return this.ev.hasFocus;
+	/**
+	 * Edited focus method, blurs and styles all other Editors to focus on Main Editor
+	 */
+	public focus() {
+		// this.ev.focus();
+		if (Dummy.focusedInstance !== this) {
+			Dummy.blurAllExcept(this);
+			this.ev.focus();
+			this.resetStyle();
+			Dummy.focusedInstance = this;
+		}
 	}
+
+	/**
+	 * Blurs all other Editor Instances
+	 */
+	private static blurAllExcept(instance: Dummy) {
+		Dummy.getInstances().forEach((otherInstance) => {
+			if (otherInstance !== instance) {
+				otherInstance.blur();
+				otherInstance.setStyle();
+			}
+		});
+	}
+
+	//Checks if Editor has Focus
+/*	public isFocused(): boolean {
+		return this.ev.hasFocus;
+	}*/
 
 	//
 	public getValue(): string {
@@ -239,9 +286,6 @@ export class Dummy {
 			textarea.form.addEventListener("submit", () => {
 				textarea.value = view.state.doc.toString();
 			});
-/*		view.dom.addEventListener('focus', () => {
-			console.log('Editor focused');
-		});*/
 		return view;
 	}
 }

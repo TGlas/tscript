@@ -23,5 +23,9 @@ export function add_editor_tabs(tab_editor) {
         return false;
     });
 
+	/*const editorCounter = sourcecodeTabs.length + 1;
+	console.log(editorCounter);
+	localStorage.setItem(`Editor${editorCounter}`, newSourcecode.getValue());
+*/
 	return false;
 }
