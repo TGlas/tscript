@@ -35,7 +35,7 @@ import { Dummy } from "./dummy";
 //
 
 export let sourcecode!: Dummy;
-export let tab_editor!: Dummy;
+export let tscript_editor!: Dummy;
 export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
@@ -53,7 +53,6 @@ export let interpreter: Interpreter | null = null;
 
 let main: any = null;
 let toolbar: any = null;
-let tabstoolbar: any = null;
 let iconlist: any = null;
 let highlight: any = null;
 
@@ -413,20 +412,6 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "ide ide-toolbar",
 	});
 
-    tabstoolbar = tgui.createElement({
-        type: "div",
-        parent: main,
-        classname: "ide ide-tabs-toolbar",
-    });
-
-    tgui.createButton({
-        click: () => add_editor_tabs(tab_editor),
-        text: "+",
-        parent: tabstoolbar,
-        tooltip: "Add a new tab",
-		classname: "ide ide-add-document-tabs",
-    });
-
 	// add the export button on demand
 	if (options["export-button"]) {
 		buttons.push({
@@ -572,6 +557,20 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "tgui tgui-control tgui-toolbar-separator",
 	});
 
+	tgui.createButton({
+		click: () => add_editor_tabs(tscript_editor),
+		text: "+",
+		parent: toolbar,
+		tooltip: "Add a new Editor Panel",
+		classname: "ide ide-add-document-tabs",
+	});
+
+	tgui.createElement({
+		type: "div",
+		parent: toolbar,
+		classname: "tgui tgui-control tgui-toolbar-separator",
+	});
+
 	if (options["documentation-button"]) {
 		tgui.createButton({
 			click: () => showdoc(""),
@@ -627,27 +626,16 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "ide ide-sourcecode",
 	});
 	sourcecode = new Dummy(panel_editor.textarea);
-	// sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
-	// 	gutters: ["CodeMirror-linenumbers", "breakpoints"],
-	// 	lineNumbers: true,
-	// 	matchBrackets: true,
-	// 	styleActiveLine: true,
-	// 	mode: "text/tscript",
-	// 	indentUnit: 4,
-	// 	tabSize: 4,
-	// 	indentWithTabs: true,
-	// 	// TODO: Setting in configuration: lineWrapping: true/false,
-	// 	extraKeys: {
-	// 		"Ctrl-D": "toggleComment",
-	// 		"Cmd-D": "toggleComment",
-	// 		"Ctrl-R": "replace",
-	// 		F3: "findNext",
-	// 		"Shift-F3": "findPrev",
-	// 		"Ctrl-Up": "goDocEnd",
-	// 		"Ctrl-Down": "goDocStart",
-	// 		"Shift-Tab": "indentLess",
-	// 	},
-	// });
+	for (let i = 1; i < Dummy.getInstances().length; i++)
+	{
+		// console.log(i);
+		/*if(tscript_editor.getEditorView().hasFocus)
+		{
+			sourcecode = tscript_editor;
+			console.log(sourcecode.getInstanceId());
+		}*/
+	}
+
 	sourcecode.onDocChange(function () {
 		ide_document.dirty = true;
 		if (interpreter) {

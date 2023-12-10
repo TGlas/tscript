@@ -18,13 +18,6 @@
 	box-shadow: inset 0px -1px 0px #292929;
 }
 
-.dark-theme .ide-tabs-toolbar {
-	background: #303030;
-	color: #fff;
-	border-bottom: #222 solid 1px;
-	box-shadow: inset 0px -1px 0px #292929;
-}
-
 .dark-theme .ide-sourcecode {
 	/* overridden in file codemirror.css, class .CodeMirror */
 	background: #222;

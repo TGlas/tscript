@@ -128,10 +128,12 @@ export class Dummy {
 		});
 	}
 
-	//Checks if Editor has Focus
-/*	public isFocused(): boolean {
-		return this.ev.hasFocus;
-	}*/
+	/**
+	 * Check if Editor has Focus for Interpreter
+	 */
+	// public isFocused(): boolean {
+	// 	return this.ev.hasFocus;
+	// }
 
 	//
 	public getValue(): string {
