@@ -5,6 +5,8 @@ import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
 import { cmtsmode } from "../codemirror-tscriptmode";
 
+let instanceCounter = 1;
+
 interface EditorPosition {
 	line: number;
 	ch: number;
@@ -13,6 +15,8 @@ interface EditorPosition {
 export class Dummy {
 	private ev: EditorView;
 	private extensions!: Extension[];
+	private static instances: Dummy[] = [];
+	private instanceId: string;
 
 	public constructor(
 		textarea: any,
@@ -26,6 +30,27 @@ export class Dummy {
 	) {
 		this.extensions = extensions;
 		this.ev = this.editorFromTextArea(textarea);
+		this.setupEventListeners();
+		Dummy.instances.push(this);
+		this.instanceId = `Editor${instanceCounter++}`;
+	}
+
+	//focus listener
+	private setupEventListeners() {
+		this.ev.dom.addEventListener('click', () => {
+			this.focus();
+			console.log(`Focused editor: ${this.getInstanceId()}`);
+		});
+	}
+
+	//return all Instances of the editor
+	public static getInstances() {
+		return Dummy.instances;
+	}
+
+	// return current InstanceId of the Editor
+	public getInstanceId() {
+		return this.instanceId;
 	}
 
 	// Missing in CM6
@@ -55,6 +80,10 @@ export class Dummy {
 	//
 	public focus() {
 		this.ev.focus();
+	}
+
+	public isFocused(): boolean {
+		return this.ev.hasFocus;
 	}
 
 	//
@@ -210,6 +239,9 @@ export class Dummy {
 			textarea.form.addEventListener("submit", () => {
 				textarea.value = view.state.doc.toString();
 			});
+/*		view.dom.addEventListener('focus', () => {
+			console.log('Editor focused');
+		});*/
 		return view;
 	}
 }
