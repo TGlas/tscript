@@ -1,6 +1,6 @@
 import { RangeSet, StateEffect, StateField } from "@codemirror/state";
 import { EditorView, GutterMarker, gutter } from "@codemirror/view";
-import { Dummy } from "./dummy";
+import { TScriptEditor } from "./TScriptEditor";
 
 const breakpointEffect = StateEffect.define<{ pos: number; on: boolean }>({
 	map: (val, mapping) => ({ pos: mapping.mapPos(val.pos), on: val.on }),
@@ -27,7 +27,7 @@ const breakpointState = StateField.define<RangeSet<GutterMarker>>({
 });
 
 export function hasBreakpoint(view: EditorView, line: number) {
-	const pos = Dummy.posToOffset(view, { line, ch: 0 });
+	const pos = TScriptEditor.posToOffset(view, { line, ch: 0 });
 
 	let breakpoints = view.state.field(breakpointState);
 	let hasBreakpoint = false;
@@ -40,7 +40,7 @@ export function hasBreakpoint(view: EditorView, line: number) {
 export function toggleBreakpoint(view: EditorView, line: number) {
 	view.dispatch({
 		effects: breakpointEffect.of({
-			pos: Dummy.posToOffset(view, { line, ch: 0 }),
+			pos: TScriptEditor.posToOffset(view, { line, ch: 0 }),
 			on: !hasBreakpoint(view, line),
 		}),
 	});
@@ -63,7 +63,10 @@ export const breakpointGutter = [
 		initialSpacer: () => breakpointMarker,
 		domEventHandlers: {
 			mousedown(view, pos) {
-				toggleBreakpoint(view, Dummy.offsetToPos(view, pos.from).line);
+				toggleBreakpoint(
+					view,
+					TScriptEditor.offsetToPos(view, pos.from).line
+				);
 				return true;
 			},
 		},

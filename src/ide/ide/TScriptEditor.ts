@@ -1,9 +1,14 @@
-import { EditorState, Extension, StateEffect } from "@codemirror/state";
-import { EditorView, Rect } from "@codemirror/view";
+import {
+	Compartment,
+	EditorState,
+	Extension,
+	StateEffect,
+} from "@codemirror/state";
+import { EditorView } from "@codemirror/view";
 import { basicSetup } from "codemirror";
+import { cmtsmode } from "../codemirror-tscriptmode";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
-import { cmtsmode } from "../codemirror-tscriptmode";
 
 let instanceCounter = 1;
 
@@ -12,27 +17,37 @@ interface EditorPosition {
 	ch: number;
 }
 
-export class Dummy {
+export class TScriptEditor {
 	private ev: EditorView;
 	private extensions!: Extension[];
-	private static instances: Dummy[] = [];
+	private static instances: TScriptEditor[] = [];
 	private instanceId: string;
-	private static focusedInstance: Dummy | null = null;
+	private static focusedInstance: TScriptEditor | null = null;
 
-	public constructor(
-		textarea: any,
-		extensions = [
-			cmtsmode,
-			baseTheme,
-			highlighting,
-			breakpointGutter,
-			basicSetup,
-		]
-	) {
+	private readOnlyState = new Compartment();
+	private readOnlyDim = new Compartment();
+
+	public constructor(textarea: any, extensions?: Extension[]) {
+		// Default extensions
+		if (!extensions)
+			extensions = [
+				cmtsmode,
+				baseTheme,
+				highlighting,
+				breakpointGutter,
+				basicSetup,
+			];
+
+		// ReadOnly Extensions
+		extensions.push(this.readOnlyState.of(EditorState.readOnly.of(false)));
+		extensions.push(
+			this.readOnlyDim.of(EditorView.editorAttributes.of({}))
+		);
+
 		this.extensions = extensions;
 		this.ev = this.editorFromTextArea(textarea);
 		this.setupEventListeners();
-		Dummy.instances.push(this);
+		TScriptEditor.instances.push(this);
 		this.instanceId = `Editor${instanceCounter++}`;
 		this.focus();
 	}
@@ -62,7 +77,7 @@ export class Dummy {
 	 *  return all Instances of the editor
 	 */
 	public static getInstances() {
-		return Dummy.instances;
+		return TScriptEditor.instances;
 	}
 
 	/**
@@ -93,8 +108,23 @@ export class Dummy {
 		});
 	}
 
-	// Makes the compiler happy
-	public on(stage: string, func: any) {}
+	/**
+	 * Runs the callback function whenever the cursor position changes
+	 * @param callback
+	 */
+	public onCursorActivity(callback: (d: TScriptEditor) => any) {
+		// Add the event listener to the extensions
+		this.extensions.push(
+			EditorView.updateListener.of((viewUpdate) => {
+				if (viewUpdate.selectionSet) callback(this);
+			})
+		);
+
+		// Refresh extensions
+		this.ev.dispatch({
+			effects: StateEffect.reconfigure.of(this.extensions),
+		});
+	}
 
 	/**
 	 * remove Focus from Editor
@@ -107,20 +137,19 @@ export class Dummy {
 	 * Edited focus method, blurs and styles all other Editors to focus on Main Editor
 	 */
 	public focus() {
-		// this.ev.focus();
-		if (Dummy.focusedInstance !== this) {
-			Dummy.blurAllExcept(this);
+		if (TScriptEditor.focusedInstance !== this) {
+			TScriptEditor.blurAllExcept(this);
 			this.ev.focus();
 			this.resetStyle();
-			Dummy.focusedInstance = this;
+			TScriptEditor.focusedInstance = this;
 		}
 	}
 
 	/**
 	 * Blurs all other Editor Instances
 	 */
-	private static blurAllExcept(instance: Dummy) {
-		Dummy.getInstances().forEach((otherInstance) => {
+	private static blurAllExcept(instance: TScriptEditor) {
+		TScriptEditor.getInstances().forEach((otherInstance) => {
 			if (otherInstance !== instance) {
 				otherInstance.blur();
 				otherInstance.setStyle();
@@ -175,19 +204,44 @@ export class Dummy {
 		this.ev.setState(es);
 	}
 
-	public getOption(opt: string): any {}
+	/**
+	 * Gets the readOnly state of the editor
+	 */
+	public isReadOnly() {
+		return this.ev.state.readOnly;
+	}
 
-	public setOption(opt: string, val: any) {}
+	/**
+	 * Sets the readOnly state of the editor
+	 */
+	public setReadOnly(readOnly: boolean) {
+		this.ev.dispatch({
+			effects: this.readOnlyState.reconfigure(
+				EditorState.readOnly.of(readOnly)
+			),
+		});
+
+		this.ev.dispatch({
+			effects: this.readOnlyDim.reconfigure(
+				EditorView.editorAttributes.of(
+					readOnly ? { style: "opacity: 0.6" } : {}
+				)
+			),
+		});
+	}
 
 	/**
 	 * Sets the cursor to the given position
 	 * @param pos (CM5 position syntax)
 	 */
 	public setCursor(pos: EditorPosition) {
-		const offset = Dummy.posToOffset(this.ev, pos);
+		const offset = TScriptEditor.posToOffset(this.ev, pos);
 		this.ev.dispatch({ selection: { anchor: offset } });
 	}
 
+	/**
+	 * Returns the scroll info of the editor
+	 */
 	public getScrollInfo() {
 		const scroller = this.getScrollerElement();
 		return {
@@ -200,21 +254,23 @@ export class Dummy {
 		};
 	}
 
-	public charCoords(pos: EditorPosition, mode = ""): Rect {
-		const rect = this.ev.coordsForChar(Dummy.posToOffset(this.ev, pos));
+	/**
+	 * Returns the bounding box of the character at the given position
+	 */
+	public charCoords(pos: EditorPosition, mode = "") {
+		const rect = this.ev.coordsForChar(
+			TScriptEditor.posToOffset(this.ev, pos)
+		);
 		if (rect == null)
 			throw new Error("Pos does not point in front of a character");
 		return rect;
 	}
 
+	/**
+	 * Returns the scroller element of the editor
+	 */
 	public getScrollerElement(): HTMLElement {
 		return this.ev.scrollDOM;
-	}
-
-	public scrollTo(x: number | null, y: number | null) {
-		if (x == null) x = 0;
-		if (y == null) y = 0;
-		this.ev.scrollDOM.scrollTo(x, y);
 	}
 
 	/**
@@ -235,18 +291,34 @@ export class Dummy {
 		return lines;
 	}
 
-	public setGutterMarker(a: any, b: any, c: any) {}
-
-	public getSelection(): any {}
+	/**
+	 * Returns the currently selected text
+	 */
+	public getSelection() {
+		const selection = this.ev.state.selection.main;
+		return this.getRange(selection.from, selection.to);
+	}
 
 	/**
 	 * Returns the current cursor position
 	 */
 	public getCursor() {
-		return Dummy.offsetToPos(this.ev, this.ev.state.selection.main.head);
+		return TScriptEditor.offsetToPos(
+			this.ev,
+			this.ev.state.selection.main.head
+		);
 	}
 
-	public findWordAt(a: any): any {}
+	/**
+	 * Returns the current word at the given position
+	 */
+	public findWordAt(pos: EditorPosition) {
+		const word = this.ev.state.wordAt(
+			TScriptEditor.posToOffset(this.ev, pos)
+		);
+		if (word) return this.getRange(word.from, word.to);
+		else return "";
+	}
 
 	/**
 	 * Returns text from the document within the given range
@@ -255,9 +327,17 @@ export class Dummy {
 		return this.ev.state.sliceDoc(from, to);
 	}
 
-	public scrollIntoView(a: any, b: any) {}
-
-	// public lastLine() {}
+	/**
+	 * Scrolls a line into view
+	 */
+	public scrollIntoView(pos: EditorPosition) {
+		this.ev.dispatch({
+			effects: EditorView.scrollIntoView(
+				TScriptEditor.posToOffset(this.ev, pos),
+				{ y: "center" }
+			),
+		});
+	}
 
 	/**
 	 * Converts CM5 position syntax to CM6 syntax

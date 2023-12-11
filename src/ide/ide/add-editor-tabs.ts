@@ -1,6 +1,6 @@
 import * as tgui from "../tgui";
 import {icons} from "../icons";
-import { Dummy } from "./dummy";
+import { TScriptEditor } from "./TScriptEditor";
 
 export function add_editor_tabs(tab_editor) {
     let panel_tab_editor = tgui.createPanel({
@@ -16,7 +16,7 @@ export function add_editor_tabs(tab_editor) {
         classname: "ide ide-tab-sourcecode",
     });
 
-	const newSourcecode = new Dummy(tab_editor);
+	const newSourcecode = new TScriptEditor(tab_editor);
 
     tab_editor.addEventListener("contextmenu", function (event) {
         event.preventDefault();
