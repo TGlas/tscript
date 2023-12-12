@@ -582,3 +582,61 @@ export function fileDlg(
 		fileImport.click();
 	}
 }
+
+export function tabRnm(
+	title: string,
+	allowNewFilename: boolean,
+	confirmText: string,
+	onOkay: (filename: string) => any
+) {
+	// return true on failure, that is when the dialog should be kept open
+	let onFileConfirmation = function () {
+		let fn = name.value;
+		if (fn != "") {
+			if (allowNewFilename){
+				onOkay(fn);
+				return false; // close dialog
+			}
+		}
+		return true; // keep dialog open
+	};
+
+	// create dialog and its controls
+	let rnm = tgui.createModal({
+		title: title,
+		scalesize: [0.5, 0.5],
+		minsize: [200, 200],
+		buttons: [
+			{
+				text: confirmText,
+				isDefault: true,
+				onClick: onFileConfirmation,
+			},
+			{ text: "Cancel" },
+		],
+		enterConfirms: true,
+		contentstyle: {
+			display: "flex",
+			"flex-direction": "column",
+			"justify-content": "space-between",
+		},
+	});
+
+	let name = { value: ''};
+	if (allowNewFilename) {
+		name = tgui.createElement({
+			parent: rnm.content,
+			type: "input",
+			style: {
+				height: "40px",
+				//background: "#fff",
+				margin: "0 0px 7px 0px",
+			},
+			classname: "tgui-text-box",
+			properties: { type: "text", placeholder: "Editorname" },
+		});
+	}
+
+	tgui.startModal(rnm);
+	return rnm;
+}
