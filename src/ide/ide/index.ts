@@ -11,7 +11,6 @@ import { tutorial } from "../tutorial";
 import { buttons, cmd_export } from "./commands";
 import { configDlg, loadConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
-import { add_editor_tabs } from "./add-editor-tabs";
 import * as utils from "./utils";
 
 import { toggleBreakpoint } from "./breakpoint";
@@ -542,25 +541,11 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "tgui",
 		style: {
 			float: "left",
-			width: "200px",
+			width: "fit-content",
 			height: "100%",
 			border: "none",
 			margin: "3px",
 		},
-	});
-
-	tgui.createElement({
-		type: "div",
-		parent: toolbar,
-		classname: "tgui tgui-control tgui-toolbar-separator",
-	});
-
-	tgui.createButton({
-		click: () => add_editor_tabs(tscript_editor),
-		text: "+",
-		parent: toolbar,
-		tooltip: "Add a new Editor Panel",
-		classname: "ide ide-add-document-tabs",
 	});
 
 	tgui.createElement({
@@ -617,8 +602,7 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "ide ide-sourcecode",
 	});
 	sourcecode = new TScriptEditor(panel_editor.textarea);
-	for (let i = 1; i < TScriptEditor.getInstances().length; i++)
-	{
+	for (let i = 1; i < TScriptEditor.getInstances().length; i++) {
 		// console.log(i);
 		/*if(tscript_editor.getEditorView().hasFocus)
 		{

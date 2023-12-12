@@ -2,6 +2,7 @@ import * as ide from ".";
 import { Parser } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
+import { add_editor_tabs } from "./add-editor-tabs";
 import { toggleBreakpoint } from "./breakpoint";
 import { confirmFileDiscard, fileDlg, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
@@ -34,6 +35,13 @@ export let buttons: any = [
 		icon: icons.saveDocumentAs,
 		tooltip: "Save document as ...",
 		hotkey: "shift-control-s",
+		group: "file",
+	},
+	{
+		click: add_editor_tabs,
+		icon: icons.newEditor,
+		tooltip: "Open new tab",
+		hotkey: "shift-control-t",
 		group: "file",
 	},
 	{

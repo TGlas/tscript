@@ -56,7 +56,7 @@ export class TScriptEditor {
 	 * Event listener for Editor dom Element, used to focus current Editor und blur others
 	 */
 	private setupEventListeners() {
-		this.ev.dom.addEventListener('click', () => {
+		this.ev.dom.addEventListener("click", () => {
 			this.focus();
 			this.resetStyle();
 			console.log(`Focused editor: ${this.getInstanceId()}`);
@@ -65,12 +65,12 @@ export class TScriptEditor {
 
 	private setStyle() {
 		// Modify styles of the EditorView's DOM element
-		this.ev.dom.style.backgroundColor = 'darkblue';
-		this.ev.dom.style.opacity = '0.2';
+		this.ev.dom.style.backgroundColor = "darkblue";
+		this.ev.dom.style.opacity = "0.2";
 	}
 
 	private resetStyle() {
-		this.ev.dom.removeAttribute('style');
+		this.ev.dom.removeAttribute("style");
 	}
 
 	/**
