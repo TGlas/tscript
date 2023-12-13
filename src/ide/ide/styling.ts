@@ -10,6 +10,10 @@ export const baseTheme = EditorView.baseTheme({
 	},
 
 	"& .cm-activeLine": {
+		backgroundColor: "#aac6ff33",
+	},
+
+	"&.cm-focused .cm-activeLine": {
 		backgroundColor: "#aac6ff99",
 	},
 
@@ -55,6 +59,10 @@ export const baseTheme = EditorView.baseTheme({
 	},
 
 	".dark-theme & .cm-activeLine": {
+		backgroundColor: "#3e3e4533",
+	},
+
+	".dark-theme &.cm-focused .cm-activeLine": {
 		backgroundColor: "#3e3e4599",
 	},
 

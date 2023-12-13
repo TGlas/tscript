@@ -1,6 +1,7 @@
 import { ide_document } from ".";
 import { Options, defaultOptions } from "../../lang/helpers/options";
 import * as tgui from "./../tgui";
+import { TScriptEditor } from "./TScriptEditor";
 import { buttons } from "./commands";
 
 export let options: any = new Options();
@@ -583,32 +584,31 @@ export function fileDlg(
 	}
 }
 
-export function tabRnm(
-	title: string,
-	allowNewFilename: boolean,
-	confirmText: string,
-	onOkay: (filename: string) => any
-) {
+export function tabNameDlg(onOkay: (filename: string) => any) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
-		let fn = name.value;
-		if (fn != "") {
-			if (allowNewFilename){
-				onOkay(fn);
-				return false; // close dialog
-			}
-		}
-		return true; // keep dialog open
+		let filename = name.value;
+
+		// Don't accept empty filenames
+		if (filename === "") return true; // keep dialog open
+
+		// Check if we already have a file named like this
+		const openEditors = TScriptEditor.getInstances();
+		if (openEditors.some((editor) => editor.getFilename() === filename))
+			return true;
+
+		onOkay(filename);
+		return false;
 	};
 
 	// create dialog and its controls
-	let rnm = tgui.createModal({
-		title: title,
-		scalesize: [0.5, 0.5],
-		minsize: [200, 200],
+	let modal = tgui.createModal({
+		title: "New tab",
+		scalesize: [0, 0],
+		minsize: [330, 120],
 		buttons: [
 			{
-				text: confirmText,
+				text: "Confirm",
 				isDefault: true,
 				onClick: onFileConfirmation,
 			},
@@ -617,26 +617,22 @@ export function tabRnm(
 		enterConfirms: true,
 		contentstyle: {
 			display: "flex",
-			"flex-direction": "column",
-			"justify-content": "space-between",
+			"align-items": "center",
 		},
 	});
 
-	let name = { value: ''};
-	if (allowNewFilename) {
-		name = tgui.createElement({
-			parent: rnm.content,
-			type: "input",
-			style: {
-				height: "40px",
-				//background: "#fff",
-				margin: "0 0px 7px 0px",
-			},
-			classname: "tgui-text-box",
-			properties: { type: "text", placeholder: "Editorname" },
-		});
-	}
+	let name = { value: "" };
+	name = tgui.createElement({
+		parent: modal.content,
+		type: "input",
+		style: {
+			width: "100%",
+			height: "25px",
+			"margin-vertical": "7px",
+		},
+		classname: "tgui-text-box",
+		properties: { type: "text", placeholder: "Filename" },
+	});
 
-	tgui.startModal(rnm);
-	return rnm;
+	tgui.startModal(modal);
 }

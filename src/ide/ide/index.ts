@@ -16,22 +16,10 @@ import * as utils from "./utils";
 import { toggleBreakpoint } from "./breakpoint";
 import { TScriptEditor } from "./TScriptEditor";
 
-// CodeMirror Addons
-// import "codemirror/addon/comment/comment";
-// import "codemirror/addon/dialog/dialog";
-// import "codemirror/addon/dialog/dialog.css";
-// import "codemirror/addon/edit/closebrackets";
-// import "codemirror/addon/edit/matchbrackets";
-// import "codemirror/addon/search/jump-to-line";
-// import "codemirror/addon/search/search";
-// import "codemirror/addon/search/searchcursor";
-// import "codemirror/addon/selection/active-line";
-
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
 //
 
-export let tscript_editor!: TScriptEditor;
 export let sourcecode!: TScriptEditor;
 export let turtle: any = null;
 export let canvas: any = null;
@@ -589,7 +577,7 @@ export function create(container: HTMLElement, options?: any) {
 
 	let panel_editor = tgui.createPanel({
 		name: "editor",
-		title: "Editor",
+		title: "Editor - Main",
 		state: "left",
 		fallbackState: "float",
 		dockedheight: 600,
@@ -601,15 +589,7 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_editor.content,
 		classname: "ide ide-sourcecode",
 	});
-	sourcecode = new TScriptEditor(panel_editor.textarea);
-	for (let i = 1; i < TScriptEditor.getInstances().length; i++) {
-		// console.log(i);
-		/*if(tscript_editor.getEditorView().hasFocus)
-		{
-			sourcecode = tscript_editor;
-			console.log(sourcecode.getInstanceId());
-		}*/
-	}
+	sourcecode = new TScriptEditor(panel_editor.textarea, "Main");
 
 	sourcecode.onDocChange(function () {
 		ide_document.dirty = true;

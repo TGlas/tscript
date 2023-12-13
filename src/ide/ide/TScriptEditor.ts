@@ -10,8 +10,6 @@ import { cmtsmode } from "../codemirror-tscriptmode";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
 
-let instanceCounter = 1;
-
 interface EditorPosition {
 	line: number;
 	ch: number;
@@ -21,13 +19,13 @@ export class TScriptEditor {
 	private ev: EditorView;
 	private extensions!: Extension[];
 	private static instances: TScriptEditor[] = [];
-	private instanceId: string;
 	private static focusedInstance: TScriptEditor | null = null;
 
 	private readOnlyState = new Compartment();
 	private readOnlyDim = new Compartment();
+	private filename: string;
 
-	public constructor(textarea: any, extensions?: Extension[]) {
+	public constructor(textarea: any, name: string, extensions?: Extension[]) {
 		// Default extensions
 		if (!extensions)
 			extensions = [
@@ -45,32 +43,12 @@ export class TScriptEditor {
 		);
 
 		this.extensions = extensions;
+		this.filename = name;
+
 		this.ev = this.editorFromTextArea(textarea);
-		this.setupEventListeners();
 		TScriptEditor.instances.push(this);
-		this.instanceId = `Editor${instanceCounter++}`;
+
 		this.focus();
-	}
-
-	/**
-	 * Event listener for Editor dom Element, used to focus current Editor und blur others
-	 */
-	private setupEventListeners() {
-		this.ev.dom.addEventListener("click", () => {
-			this.focus();
-			this.resetStyle();
-			console.log(`Focused editor: ${this.getInstanceId()}`);
-		});
-	}
-
-	private setStyle() {
-		// Modify styles of the EditorView's DOM element
-		this.ev.dom.style.backgroundColor = "darkblue";
-		this.ev.dom.style.opacity = "0.2";
-	}
-
-	private resetStyle() {
-		this.ev.dom.removeAttribute("style");
 	}
 
 	/**
@@ -79,16 +57,6 @@ export class TScriptEditor {
 	public static getInstances() {
 		return TScriptEditor.instances;
 	}
-
-	/**
-	 *  return current InstanceId of the Editor
-	 */
-	public getInstanceId() {
-		return this.instanceId;
-	}
-
-	// Missing in CM6
-	public refresh() {}
 
 	/**
 	 * Runs the callback function whenever the content of the document changes
@@ -127,42 +95,11 @@ export class TScriptEditor {
 	}
 
 	/**
-	 * remove Focus from Editor
-	 */
-	public blur() {
-		this.ev.contentDOM.blur();
-	}
-
-	/**
 	 * Edited focus method, blurs and styles all other Editors to focus on Main Editor
 	 */
 	public focus() {
-		if (TScriptEditor.focusedInstance !== this) {
-			TScriptEditor.blurAllExcept(this);
-			this.ev.focus();
-			this.resetStyle();
-			TScriptEditor.focusedInstance = this;
-		}
+		this.ev.focus();
 	}
-
-	/**
-	 * Blurs all other Editor Instances
-	 */
-	private static blurAllExcept(instance: TScriptEditor) {
-		TScriptEditor.getInstances().forEach((otherInstance) => {
-			if (otherInstance !== instance) {
-				otherInstance.blur();
-				otherInstance.setStyle();
-			}
-		});
-	}
-
-	/**
-	 * Check if Editor has Focus for Interpreter
-	 */
-	// public isFocused(): boolean {
-	// 	return this.ev.hasFocus;
-	// }
 
 	//
 	public getValue(): string {
@@ -191,6 +128,13 @@ export class TScriptEditor {
 	 */
 	public getEditorView() {
 		return this.ev;
+	}
+
+	/**
+	 * Returns the editor filename
+	 */
+	public getFilename() {
+		return this.filename;
 	}
 
 	/**

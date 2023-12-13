@@ -1,23 +1,18 @@
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { TScriptEditor } from "./TScriptEditor";
-import {tabRnm} from "./dialogs";
+import { tabNameDlg } from "./dialogs";
 
 export function add_editor_tabs() {
-	let rnm = tabRnm(
-		"Set Editor Tab name",
-		true,
-		"Set",
-		function (filename) {
-			createEditorTab(filename)
-		}
-	);
+	tabNameDlg(function (filename) {
+		createEditorTab(filename);
+	});
 }
 
 function createEditorTab(name: string) {
 	let panel_tab_editor = tgui.createPanel({
 		name: "tab_editor",
-		title: name,
+		title: `Editor - ${name}`,
 		state: "right",
 		fallbackState: "float",
 		icon: icons.editor,
@@ -29,16 +24,12 @@ function createEditorTab(name: string) {
 		classname: "ide ide-tab-sourcecode",
 	});
 
-	const newSourcecode = new TScriptEditor(tab_editor);
+	new TScriptEditor(tab_editor, name);
 
 	tab_editor.addEventListener("contextmenu", function (event) {
 		event.preventDefault();
 		return false;
 	});
 
-	/*const editorCounter = sourcecodeTabs.length + 1;
-	console.log(editorCounter);
-	localStorage.setItem(`Editor${editorCounter}`, newSourcecode.getValue());
-*/
 	return false;
 }

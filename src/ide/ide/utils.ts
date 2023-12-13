@@ -1,4 +1,5 @@
 import * as ide from ".";
+import { TScriptEditor } from "./TScriptEditor";
 import { programinfo } from "./programinfo";
 import { stackinfo } from "./stackinfo";
 
@@ -46,7 +47,9 @@ export function updateStatus() {
 				ide.interpreter.status === "waiting" ||
 				ide.interpreter.status === "dialog");
 		if (ide.sourcecode.isReadOnly() != should) {
-			ide.sourcecode.setReadOnly(should);
+			TScriptEditor.getInstances().forEach((editor) =>
+				editor.setReadOnly(should)
+			);
 			let ed: any = document.getElementsByClassName("CodeMirror");
 			let value = should ? 0.6 : 1;
 			for (let i = 0; i < ed.length; i++) ed[i].style.opacity = value;
