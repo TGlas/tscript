@@ -86,9 +86,10 @@ export function updateControls() {
  */
 export function setCursorPosition(line: number, ch: number) {
 	if (typeof ch === "undefined") ch = 0;
-	ide.sourcecode.setCursor({ line: line - 1, ch });
-	ide.sourcecode.focus();
-	ide.sourcecode.scrollIntoView({ line: line - 1, ch: 0 });
+	const doc = ide.editor.getCurrentDocument();
+	doc.setCursor({ line: line - 1, ch });
+	doc.focus();
+	doc.scrollIntoView({ line: line - 1, ch: 0 });
 }
 
 export function makeMarker() {

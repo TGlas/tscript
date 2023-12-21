@@ -18,6 +18,7 @@ interface EditorPosition {
 export class TScriptEditor {
 	private extensions!: Extension[];
 	private documents: TScriptDocument[] = [];
+	private currentDocument!: TScriptDocument;
 
 	private readOnlyState = new Compartment();
 	private readOnlyDim = new Compartment();
@@ -39,6 +40,18 @@ export class TScriptEditor {
 			this.readOnlyDim.of(EditorView.editorAttributes.of({}))
 		);
 
+		extensions.push(
+			EditorView.updateListener.of((viewUpdate) => {
+				if (!viewUpdate.focusChanged) return;
+
+				let doc = this.documents.find(
+					(doc) => doc.getEditorView().hasFocus
+				);
+
+				if (doc) this.currentDocument = doc;
+			})
+		);
+
 		this.extensions = extensions;
 	}
 
@@ -49,8 +62,8 @@ export class TScriptEditor {
 		return this.documents;
 	}
 
-	public getFocusedDocument() {
-		return this.documents.find((doc) => doc.getEditorView().hasFocus);
+	public getCurrentDocument() {
+		return this.currentDocument;
 	}
 
 	/**
@@ -148,6 +161,10 @@ export class TScriptEditor {
 	public newDocument(textarea, name: string) {
 		const doc = new TScriptDocument(textarea, name, this.extensions);
 		this.documents.push(doc);
+
+		if (!this.currentDocument) this.currentDocument = doc;
+		doc.focus();
+
 		return doc;
 	}
 }
@@ -172,7 +189,7 @@ export class TScriptDocument {
 	}
 
 	/**
-	 * Edited focus method, blurs and styles all other Editors to focus on Main Editor
+	 * Edited focus method
 	 */
 	public focus() {
 		this.ev.focus();

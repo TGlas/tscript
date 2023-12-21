@@ -151,7 +151,7 @@ export function cmd_export() {
 	}
 
 	// check that the code at least compiles
-	let source = ide.sourcecode.getValue();
+	let source = ide.editor.getCurrentDocument().getValue();
 	ide.clear();
 	let result = Parser.parse(source, options);
 	let program = result.program;
@@ -277,7 +277,7 @@ export function cmd_export() {
 }
 
 function cmd_toggle_breakpoint() {
-	let cm = ide.sourcecode;
+	let cm = ide.editor.getCurrentDocument();
 	let line = cm.getCursor().line;
 	if (ide.interpreter) {
 		// ask the interpreter for the correct position of the marker
@@ -285,7 +285,7 @@ function cmd_toggle_breakpoint() {
 		if (result !== null) {
 			line = result.line;
 			toggleBreakpoint(cm.getEditorView(), line);
-			ide.sourcecode.scrollIntoView({ line: line - 1, ch: 0 });
+			cm.scrollIntoView({ line: line - 1, ch: 0 });
 		}
 	} else {
 		// set the marker optimistically, fix as soon as an interpreter is created
@@ -299,12 +299,13 @@ function cmd_new() {
 
 		ide.editor_title.innerHTML = "Editor";
 		ide.ide_document.filename = "";
-		ide.sourcecode.setValue("");
-		ide.sourcecode.clearHistory();
+		ide.editor.getCurrentDocument().setValue("");
+		ide.editor.clearHistory();
 		ide.ide_document.dirty = false;
 
 		updateControls();
-		ide.sourcecode.focus();
+		// TODO: CHECK
+		// ide.sourcecode.focus();
 	});
 }
 
@@ -321,15 +322,18 @@ function cmd_load() {
 				ide.editor_title.innerHTML = "Editor &mdash; ";
 				tgui.createText(filename, ide.editor_title);
 				ide.ide_document.filename = filename;
-				ide.sourcecode.setValue(
-					localStorage.getItem("tscript.code." + filename)!
-				);
-				ide.sourcecode.setCursor({ line: 0, ch: 0 });
-				ide.sourcecode.clearHistory();
+				ide.editor
+					.getCurrentDocument()
+					.setValue(
+						localStorage.getItem("tscript.code." + filename)!
+					);
+				ide.editor.getCurrentDocument().setCursor({ line: 0, ch: 0 });
+				ide.editor.clearHistory();
 				ide.ide_document.dirty = false;
 
 				updateControls();
-				ide.sourcecode.focus();
+				// TODO: CHECK
+				// ide.sourcecode.focus();
 			}
 		);
 	});
@@ -343,7 +347,7 @@ function cmd_save() {
 
 	localStorage.setItem(
 		"tscript.code." + ide.ide_document.filename,
-		ide.sourcecode.getValue()
+		ide.editor.getCurrentDocument().getValue()
 	);
 	ide.ide_document.dirty = false;
 }
@@ -359,7 +363,9 @@ function cmd_save_as() {
 			tgui.createText(filename, ide.editor_title);
 			ide.ide_document.filename = filename;
 			cmd_save();
-			ide.sourcecode.focus();
+
+			// TODO: CHECK
+			// ide.sourcecode.focus();
 		}
 	);
 }

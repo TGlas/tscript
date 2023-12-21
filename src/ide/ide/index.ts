@@ -21,7 +21,6 @@ import { TScriptDocument, TScriptEditor } from "./TScriptEditor";
 //
 
 export let editor!: TScriptEditor;
-export let sourcecode!: TScriptDocument;
 export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
@@ -151,7 +150,8 @@ export function addMessage(
 		}
 	}
 	messagecontainer.scrollTop = messagecontainer.scrollHeight;
-	if (href) sourcecode.focus();
+	// TODO: CHECK
+	// if (href) sourcecode.focus();
 	return { symbol: th, content: td };
 }
 
@@ -191,11 +191,9 @@ export function prepare_run() {
 	clear();
 
 	// make sure that there is a trailing line for the "end" breakpoint
-	let source = sourcecode.getValue();
+	let source = editor.getCurrentDocument().getValue();
 	if (source.length != 0 && source[source.length - 1] != "\n") {
 		source += "\n";
-		sourcecode.getDoc();
-		// .replaceRange("\n", CodeMirror.Pos(sourcecode.lastLine()));
 	}
 
 	let result = Parser.parse(source, options);
@@ -348,7 +346,8 @@ export function prepare_run() {
 		interpreter.service.statechanged = function (stop) {
 			if (stop) utils.updateControls();
 			else utils.updateStatus();
-			if (interpreter!.status === "finished") sourcecode.focus();
+			// TODO: CHECK
+			// if (interpreter!.status === "finished") sourcecode.focus();
 		};
 		interpreter.service.breakpoint = function () {
 			utils.updateControls();
@@ -366,13 +365,14 @@ export function prepare_run() {
 		interpreter.reset();
 
 		// set and correct breakpoints
-		let br = sourcecode.getBreakpointLines();
+		const doc = editor.getCurrentDocument();
+		let br = doc.getBreakpointLines();
 		let result = interpreter.defineBreakpoints(br.map((i) => i + 1));
 
 		if (result !== null) {
-			for (let i = 1; i <= sourcecode.lineCount(); i++)
+			for (let i = 1; i <= doc.lineCount(); i++)
 				if (br.includes(i - 1) !== result.hasOwnProperty(i))
-					toggleBreakpoint(sourcecode.getEditorView(), i - 1);
+					toggleBreakpoint(doc.getEditorView(), i - 1);
 			alert("Note: breakpoints were moved to valid locations");
 		}
 	}
@@ -553,12 +553,12 @@ export function create(container: HTMLElement, options?: any) {
 
 		// pressing F1
 		tgui.setHotkey("F1", function () {
-			let selection = sourcecode.getSelection();
+			const doc = editor.getCurrentDocument();
+			let selection = doc.getSelection();
 			// maximum limit of 30 characters
 			// so that there is no problem, when accidentally everything
 			// in a file is selected
-			if (!selection)
-				selection = sourcecode.findWordAt(sourcecode.getCursor());
+			if (!selection) selection = doc.findWordAt(doc.getCursor());
 
 			selection = selection.slice(0, 30);
 			const words = selection.match(/[a-z]+/gi); // global case insensitive
@@ -592,7 +592,7 @@ export function create(container: HTMLElement, options?: any) {
 	});
 
 	editor = new TScriptEditor();
-	sourcecode = editor.newDocument(panel_editor.textarea, "Main");
+	editor.newDocument(panel_editor.textarea, "Main");
 
 	editor.onDocChange(function () {
 		ide_document.dirty = true;
@@ -609,7 +609,7 @@ export function create(container: HTMLElement, options?: any) {
 			!interpreter.background
 		) {
 			// highlight variable values in the debugger in stepping mode
-			let cursor = sourcecode.getCursor();
+			let cursor = editor.getCurrentDocument().getCursor();
 			let line = cursor.line + 1;
 			let ch = cursor.ch;
 			let highlight_var: any = null,
@@ -982,7 +982,7 @@ export function create(container: HTMLElement, options?: any) {
 	tutorial.init(
 		tutorial_container,
 		function () {
-			return sourcecode.getValue();
+			return editor.getCurrentDocument().getValue();
 		},
 		function () {
 			messages.innerHTML = "";
@@ -994,7 +994,8 @@ export function create(container: HTMLElement, options?: any) {
 
 	tgui.arrangePanels();
 
-	sourcecode.focus();
+	// TODO: CHECK
+	// sourcecode.focus();
 
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
 }
