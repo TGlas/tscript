@@ -1,7 +1,7 @@
 import { icons } from "../icons";
 import * as tgui from "../tgui";
-import { TScriptEditor } from "./TScriptEditor";
 import { tabNameDlg } from "./dialogs";
+import * as ide from "./index";
 
 export function add_editor_tabs() {
 	tabNameDlg(function (filename) {
@@ -24,7 +24,7 @@ function createEditorTab(name: string) {
 		classname: "ide ide-tab-sourcecode",
 	});
 
-	new TScriptEditor(tab_editor, name);
+	ide.editor.newDocument(tab_editor, name);
 
 	tab_editor.addEventListener("contextmenu", function (event) {
 		event.preventDefault();

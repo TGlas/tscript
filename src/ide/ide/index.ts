@@ -14,13 +14,14 @@ import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 
 import { toggleBreakpoint } from "./breakpoint";
-import { TScriptEditor } from "./TScriptEditor";
+import { TScriptDocument, TScriptEditor } from "./TScriptEditor";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
 //
 
-export let sourcecode!: TScriptEditor;
+export let editor!: TScriptEditor;
+export let sourcecode!: TScriptDocument;
 export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
@@ -589,9 +590,11 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_editor.content,
 		classname: "ide ide-sourcecode",
 	});
-	sourcecode = new TScriptEditor(panel_editor.textarea, "Main");
 
-	sourcecode.onDocChange(function () {
+	editor = new TScriptEditor();
+	sourcecode = editor.newDocument(panel_editor.textarea, "Main");
+
+	editor.onDocChange(function () {
 		ide_document.dirty = true;
 		if (interpreter) {
 			clear();
@@ -599,14 +602,14 @@ export function create(container: HTMLElement, options?: any) {
 		}
 	});
 
-	sourcecode.onCursorActivity(function (cm) {
+	editor.onCursorActivity(function () {
 		if (
 			interpreter &&
 			interpreter.status === "running" &&
 			!interpreter.background
 		) {
 			// highlight variable values in the debugger in stepping mode
-			let cursor = cm.getCursor();
+			let cursor = sourcecode.getCursor();
 			let line = cursor.line + 1;
 			let ch = cursor.ch;
 			let highlight_var: any = null,

@@ -215,8 +215,9 @@ export const tutorial = (function () {
 									value: correct,
 								},
 							});
-							let cm = new TScriptEditor(textarea, "");
-							cm.setReadOnly(true);
+							let editor = new TScriptEditor();
+							editor.newDocument(textarea, "");
+							editor.setReadOnly(true);
 							tgui.startModal(dlg);
 						};
 					})(correct),

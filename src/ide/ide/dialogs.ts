@@ -1,8 +1,8 @@
 import { ide_document } from ".";
 import { Options, defaultOptions } from "../../lang/helpers/options";
 import * as tgui from "./../tgui";
-import { TScriptEditor } from "./TScriptEditor";
 import { buttons } from "./commands";
+import * as ide from "./index";
 
 export let options: any = new Options();
 let theme: string = "default";
@@ -593,8 +593,8 @@ export function tabNameDlg(onOkay: (filename: string) => any) {
 		if (filename === "") return true; // keep dialog open
 
 		// Check if we already have a file named like this
-		const openEditors = TScriptEditor.getInstances();
-		if (openEditors.some((editor) => editor.getFilename() === filename))
+		const docs = ide.editor.getDocuments();
+		if (docs.some((editor) => editor.getFilename() === filename))
 			return true;
 
 		onOkay(filename);

@@ -16,16 +16,13 @@ interface EditorPosition {
 }
 
 export class TScriptEditor {
-	private ev: EditorView;
 	private extensions!: Extension[];
-	private static instances: TScriptEditor[] = [];
-	private static focusedInstance: TScriptEditor | null = null;
+	private documents: TScriptDocument[] = [];
 
 	private readOnlyState = new Compartment();
 	private readOnlyDim = new Compartment();
-	private filename: string;
 
-	public constructor(textarea: any, name: string, extensions?: Extension[]) {
+	public constructor(extensions?: Extension[]) {
 		// Default extensions
 		if (!extensions)
 			extensions = [
@@ -43,19 +40,17 @@ export class TScriptEditor {
 		);
 
 		this.extensions = extensions;
-		this.filename = name;
-
-		this.ev = this.editorFromTextArea(textarea);
-		TScriptEditor.instances.push(this);
-
-		this.focus();
 	}
 
 	/**
 	 *  return all Instances of the editor
 	 */
-	public static getInstances() {
-		return TScriptEditor.instances;
+	public getDocuments() {
+		return this.documents;
+	}
+
+	public getFocusedDocument() {
+		return this.documents.find((doc) => doc.getEditorView().hasFocus);
 	}
 
 	/**
@@ -71,27 +66,109 @@ export class TScriptEditor {
 		);
 
 		// Refresh extensions
-		this.ev.dispatch({
-			effects: StateEffect.reconfigure.of(this.extensions),
-		});
+		this.documents.forEach((doc) =>
+			doc.getEditorView().dispatch({
+				effects: StateEffect.reconfigure.of(this.extensions),
+			})
+		);
 	}
 
 	/**
 	 * Runs the callback function whenever the cursor position changes
 	 * @param callback
 	 */
-	public onCursorActivity(callback: (d: TScriptEditor) => any) {
+	public onCursorActivity(callback: () => any) {
 		// Add the event listener to the extensions
 		this.extensions.push(
 			EditorView.updateListener.of((viewUpdate) => {
-				if (viewUpdate.selectionSet) callback(this);
+				if (viewUpdate.selectionSet) callback();
 			})
 		);
 
 		// Refresh extensions
-		this.ev.dispatch({
-			effects: StateEffect.reconfigure.of(this.extensions),
-		});
+		this.documents.forEach((doc) =>
+			doc.getEditorView().dispatch({
+				effects: StateEffect.reconfigure.of(this.extensions),
+			})
+		);
+	}
+
+	/**
+	 * Gets the readOnly state of the editor
+	 */
+	public isReadOnly() {
+		return this.documents[0]?.getEditorView().state.readOnly;
+	}
+
+	/**
+	 * Sets the readOnly state of the editor
+	 */
+	public setReadOnly(readOnly: boolean) {
+		this.documents.forEach((doc) =>
+			doc.getEditorView().dispatch({
+				effects: this.readOnlyState.reconfigure(
+					EditorState.readOnly.of(readOnly)
+				),
+			})
+		);
+
+		this.documents.forEach((doc) =>
+			doc.getEditorView().dispatch({
+				effects: this.readOnlyDim.reconfigure(
+					EditorView.editorAttributes.of(
+						readOnly ? { style: "opacity: 0.6" } : {}
+					)
+				),
+			})
+		);
+	}
+
+	/**
+	 * Converts CM5 position syntax to CM6 syntax
+	 */
+	public static posToOffset(ev: EditorView, pos: EditorPosition) {
+		return ev.state.doc.line(pos.line + 1).from + pos.ch;
+	}
+
+	/**
+	 * Converts CM6 position syntax to CM5 syntax
+	 */
+	public static offsetToPos(ev: EditorView, offset: number): EditorPosition {
+		let line = ev.state.doc.lineAt(offset);
+		return { line: line.number - 1, ch: offset - line.from };
+	}
+
+	public clearHistory() {
+		this.documents.forEach((doc) => doc.clearHistory());
+	}
+
+	/**
+	 *
+	 */
+	public newDocument(textarea, name: string) {
+		const doc = new TScriptDocument(textarea, name, this.extensions);
+		this.documents.push(doc);
+		return doc;
+	}
+}
+
+export class TScriptDocument {
+	private filename: string;
+	private ev: EditorView;
+	private extensions: Extension[];
+
+	constructor(textarea: any, name: string, extensions: Extension[]) {
+		let view = new EditorView({ doc: textarea.value, extensions });
+		textarea.parentNode.insertBefore(view.dom, textarea);
+		textarea.style.display = "none";
+		if (textarea.form)
+			textarea.form.addEventListener("submit", () => {
+				textarea.value = view.state.doc.toString();
+			});
+
+		this.ev = view;
+		this.filename = name;
+		this.extensions = extensions;
 	}
 
 	/**
@@ -131,13 +208,6 @@ export class TScriptEditor {
 	}
 
 	/**
-	 * Returns the editor filename
-	 */
-	public getFilename() {
-		return this.filename;
-	}
-
-	/**
 	 * Clears the undo / redo history without effecting the content
 	 */
 	public clearHistory() {
@@ -146,32 +216,6 @@ export class TScriptEditor {
 			extensions: this.extensions,
 		});
 		this.ev.setState(es);
-	}
-
-	/**
-	 * Gets the readOnly state of the editor
-	 */
-	public isReadOnly() {
-		return this.ev.state.readOnly;
-	}
-
-	/**
-	 * Sets the readOnly state of the editor
-	 */
-	public setReadOnly(readOnly: boolean) {
-		this.ev.dispatch({
-			effects: this.readOnlyState.reconfigure(
-				EditorState.readOnly.of(readOnly)
-			),
-		});
-
-		this.ev.dispatch({
-			effects: this.readOnlyDim.reconfigure(
-				EditorView.editorAttributes.of(
-					readOnly ? { style: "opacity: 0.6" } : {}
-				)
-			),
-		});
 	}
 
 	/**
@@ -284,34 +328,9 @@ export class TScriptEditor {
 	}
 
 	/**
-	 * Converts CM5 position syntax to CM6 syntax
+	 * Returns the editor filename
 	 */
-	public static posToOffset(ev: EditorView, pos: EditorPosition) {
-		return ev.state.doc.line(pos.line + 1).from + pos.ch;
-	}
-
-	/**
-	 * Converts CM6 position syntax to CM5 syntax
-	 */
-	public static offsetToPos(ev: EditorView, offset: number): EditorPosition {
-		let line = ev.state.doc.lineAt(offset);
-		return { line: line.number - 1, ch: offset - line.from };
-	}
-
-	/**
-	 * Wrapper from CM5 to CM6
-	 */
-	private editorFromTextArea(textarea) {
-		let view = new EditorView({
-			doc: textarea.value,
-			extensions: this.extensions,
-		});
-		textarea.parentNode.insertBefore(view.dom, textarea);
-		textarea.style.display = "none";
-		if (textarea.form)
-			textarea.form.addEventListener("submit", () => {
-				textarea.value = view.state.doc.toString();
-			});
-		return view;
+	public getFilename() {
+		return this.filename;
 	}
 }
