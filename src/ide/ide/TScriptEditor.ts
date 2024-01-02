@@ -100,11 +100,17 @@ export class TScriptEditor {
 	 * Runs the callback function whenever the cursor position changes
 	 * @param callback
 	 */
-	public onCursorActivity(callback: () => any) {
+	public onCursorActivity(callback: (doc: TScriptDocument) => any) {
 		// Add the event listener to the extensions
 		this.extensions.push(
 			EditorView.updateListener.of((viewUpdate) => {
-				if (viewUpdate.selectionSet) callback();
+				if (!viewUpdate.selectionSet) return;
+
+				const doc = this.documents.find(
+					(doc) => doc.getEditorView() === viewUpdate.view
+				);
+
+				if (doc) callback(doc);
 			})
 		);
 

@@ -281,7 +281,10 @@ function cmd_toggle_breakpoint() {
 	let line = cm.getCursor().line;
 	if (ide.interpreter) {
 		// ask the interpreter for the correct position of the marker
-		let result = ide.interpreter.toggleBreakpoint(line + 1);
+		let result = ide.interpreter.toggleBreakpoint(
+			line + 1,
+			cm.getFilename()
+		);
 		if (result !== null) {
 			line = result.line;
 			toggleBreakpoint(cm.getEditorView(), line);

@@ -115,29 +115,10 @@ export function addMessage(
 			msg.ide_line = line;
 			msg.ide_ch = ch;
 			msg.addEventListener("click", function (event) {
-				if (
-					event.target.ide_filename &&
-					event.target.ide_filename !== ide_document.filename
-				) {
-					// Handling a library error properly requires a multi-document editor.
-					let dlg = tgui.createModal({
-						title: "Error in Library File",
-						scalesize: [0.3, 0.15],
-						minsize: [300, 150],
-						buttons: [{ text: "Close" }],
-					});
-					tgui.createElement({
-						parent: dlg.content,
-						type: "div",
-						style: { margin: "10px" },
-						text: "The line cannot be shown because the error occurred in a different file.",
-					});
-					tgui.startModal(dlg);
-					return false;
-				}
 				utils.setCursorPosition(
 					event.target.ide_line,
-					event.target.ide_ch
+					event.target.ide_ch,
+					filename!
 				);
 				if (
 					interpreter &&
@@ -364,17 +345,26 @@ export function prepare_run() {
 		interpreter.eventnames["timer"] = true;
 		interpreter.reset();
 
-		// set and correct breakpoints
-		const doc = editor.getCurrentDocument();
-		let br = doc.getBreakpointLines();
-		let result = interpreter.defineBreakpoints(br.map((i) => i + 1));
+		let breakpointsMoved = false;
+		for (let doc of editor.getDocuments()) {
+			// set and correct breakpoints
+			let br = doc.getBreakpointLines();
 
-		if (result !== null) {
-			for (let i = 1; i <= doc.lineCount(); i++)
-				if (br.includes(i - 1) !== result.hasOwnProperty(i))
-					toggleBreakpoint(doc.getEditorView(), i - 1);
-			alert("Note: breakpoints were moved to valid locations");
+			let result = interpreter.defineBreakpoints(
+				br.map((i) => i + 1),
+				doc.getFilename()
+			);
+
+			if (result !== null) {
+				for (let i = 1; i <= doc.lineCount(); i++)
+					if (br.includes(i - 1) !== result.hasOwnProperty(i))
+						toggleBreakpoint(doc.getEditorView(), i - 1);
+				breakpointsMoved = true;
+			}
 		}
+
+		if (breakpointsMoved)
+			alert("Note: breakpoints were moved to valid locations");
 	}
 }
 
@@ -602,21 +592,25 @@ export function create(container: HTMLElement, options?: any) {
 		}
 	});
 
-	editor.onCursorActivity(function () {
+	editor.onCursorActivity(function (doc) {
 		if (
 			interpreter &&
 			interpreter.status === "running" &&
 			!interpreter.background
 		) {
 			// highlight variable values in the debugger in stepping mode
-			let cursor = editor.getCurrentDocument().getCursor();
+			const cursor = doc.getCursor();
 			let line = cursor.line + 1;
 			let ch = cursor.ch;
 			let highlight_var: any = null,
 				highlight_func: any = null;
 			function rec(pe) {
 				if (pe.buildin) return;
-				if (pe?.where?.line == line && pe.where.ch <= ch) {
+				if (
+					pe?.where?.line == line &&
+					pe.where.ch <= ch &&
+					pe.where.filename == doc.getFilename()
+				) {
 					if (pe.petype == "variable") {
 						if (pe.where.ch + pe.name.length >= ch) {
 							highlight_var = pe;
@@ -655,7 +649,6 @@ export function create(container: HTMLElement, options?: any) {
 					}
 				}
 				if (scope) {
-					console.log(scope, highlight_var);
 					let tv = scope.variables[highlight_var.id];
 					if (!tv) return;
 					let text = TScript.previewValue(tv);
@@ -728,7 +721,11 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_programview.content,
 		nodeclick: function (event, value, id) {
 			if (value.where) {
-				utils.setCursorPosition(value.where.line, value.where.ch);
+				utils.setCursorPosition(
+					value.where.line,
+					value.where.ch,
+					value.where.filename
+				);
 			}
 		},
 	});

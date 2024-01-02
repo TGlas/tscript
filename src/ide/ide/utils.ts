@@ -63,7 +63,12 @@ export function updateControls() {
 		if (ide.interpreter.stack.length > 0) {
 			let frame = ide.interpreter.stack[ide.interpreter.stack.length - 1];
 			let pe = frame.pe[frame.pe.length - 1];
-			if (pe.where) setCursorPosition(pe.where.line, pe.where.ch);
+			if (pe.where)
+				setCursorPosition(
+					pe.where.line,
+					pe.where.ch,
+					pe.where.filename
+				);
 		} else {
 			// it might be appropriate to keep the scroll position after running the program,
 			// because in a large program one would continue editing some location in the middle
@@ -84,9 +89,13 @@ export function updateControls() {
 /**
  * set the cursor in the editor; line is 1-based, ch (char within the line) is 0-based
  */
-export function setCursorPosition(line: number, ch: number) {
-	if (typeof ch === "undefined") ch = 0;
-	const doc = ide.editor.getCurrentDocument();
+export function setCursorPosition(line: number, ch: number, filename: string) {
+	const doc = ide.editor
+		.getDocuments()
+		.find((doc) => doc.getFilename() === filename);
+
+	if (!doc) return;
+
 	doc.setCursor({ line: line - 1, ch });
 	doc.focus();
 	doc.scrollIntoView({ line: line - 1, ch: 0 });
