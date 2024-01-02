@@ -13,7 +13,7 @@ import { defaultOptions, Options } from "../helpers/options";
 
 export class Parser {
 	public static parse(
-		sourcecode,
+		toParse: Record<string, string> | string,
 		options: Options = defaultOptions
 	): { program: any; errors: Array<any> } {
 		// create the initial program structure
@@ -32,9 +32,13 @@ export class Parser {
 			options: options, // make the options available to the interpreter
 		};
 
+		const documents =
+			typeof toParse == "string" ? { Main: toParse } : toParse;
+
 		// create the parser state
 		let state = {
 			program: program, // program tree to be built during parsing
+			documents,
 			source: "", // complete source code
 			pos: 0, // zero-based position in the source code string
 			line: 1, // one-based line number
@@ -282,7 +286,7 @@ export class Parser {
 
 			// parse the user's source code
 			program.where = state.get();
-			parse1(sourcecode);
+			parse1(documents["Main"]);
 			program.lines = state.line;
 
 			// append an "end" breakpoint

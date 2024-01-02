@@ -29,8 +29,9 @@ export function parse_include(state, parent, options: Options) {
 	state.includes.add(fn);
 
 	// load the file
-	let content = localStorage.getItem("tscript.code." + fn);
-	if (content === null) state.error("/argument-mismatch/am-48", [fn]);
+	// let content = localStorage.getItem("tscript.code." + fn);
+	let content = state.documents[fn];
+	if (content == undefined) state.error("/argument-mismatch/am-48", [fn]);
 
 	return { filename: fn, source: content };
 }

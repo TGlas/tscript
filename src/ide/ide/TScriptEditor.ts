@@ -66,6 +66,16 @@ export class TScriptEditor {
 		return this.currentDocument;
 	}
 
+	public getValues() {
+		const values: Record<string, string> = {};
+
+		this.documents.forEach(
+			(doc) => (values[doc.getFilename()] = doc.getValue())
+		);
+
+		return values;
+	}
+
 	/**
 	 * Runs the callback function whenever the content of the document changes
 	 * @param callback

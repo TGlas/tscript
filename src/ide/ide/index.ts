@@ -196,7 +196,7 @@ export function prepare_run() {
 		source += "\n";
 	}
 
-	let result = Parser.parse(source, options);
+	let result = Parser.parse(editor.getValues(), options);
 	let program = result.program;
 	let html = "";
 	let errors = result.errors;
