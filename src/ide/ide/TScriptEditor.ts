@@ -4,8 +4,9 @@ import {
 	Extension,
 	StateEffect,
 } from "@codemirror/state";
-import { EditorView } from "@codemirror/view";
+import { EditorView, keymap } from "@codemirror/view";
 import { basicSetup } from "codemirror";
+import { indentWithTab } from "@codemirror/commands"
 import { cmtsmode } from "../codemirror-tscriptmode";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
@@ -32,6 +33,7 @@ export class TScriptEditor {
 				highlighting,
 				breakpointGutter,
 				basicSetup,
+				keymap.of([indentWithTab])
 			];
 
 		// ReadOnly Extensions
