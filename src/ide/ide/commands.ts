@@ -10,6 +10,10 @@ import { updateControls } from "./utils";
 
 export let buttons: any = [
 	{
+		/**
+		 * TODO
+		 * Merge this button with the functionality of the new editor tab button.
+		 */
 		click: cmd_new,
 		icon: icons.newDocument,
 		tooltip: "New document",
@@ -107,6 +111,10 @@ function cmd_reset() {
 }
 
 function cmd_run() {
+	/**
+	 * TODO
+	 * Save current selected document in RUN SELECTOR and run it.
+	 */
 	if (isInterpreterBusy()) ide.prepare_run();
 	if (!ide.interpreter) return;
 	ide.interpreter.run();
@@ -313,6 +321,12 @@ function cmd_new() {
 }
 
 function cmd_load() {
+	/**
+	 * TODO
+	 * File should be always opened in a new tab.
+	 * Rename the "open" button dialog to "Open in new Tab".
+	 * As no document/ tab gets replaced in the new implementation a check for unsaved changes is not needed.
+	 */
 	confirmFileDiscard("Open document", () => {
 		fileDlg(
 			"Load file",

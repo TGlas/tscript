@@ -171,6 +171,12 @@ export function clear() {
 export function prepare_run() {
 	clear();
 
+	/**
+	 * TODO
+	 * Currently focused document can be different than in the run selector selected document.
+	 * Interpreter should get the run selector selected document.
+	 */
+
 	// make sure that there is a trailing line for the "end" breakpoint
 	let source = editor.getCurrentDocument().getValue();
 	if (source.length != 0 && source[source.length - 1] != "\n") {
@@ -453,6 +459,12 @@ export function create(container: HTMLElement, options?: any) {
 			"text-align": "center",
 		},
 	});
+
+	/**
+	 * TODO
+	 * Create a RUN SELECTOR and list every document that exists in it.
+	 * It would be great if it can be hidden if only a single document exist (main).
+	 */
 
 	programstate.setStateCss = function (state) {
 		let cls = `ide-state-${state}`;

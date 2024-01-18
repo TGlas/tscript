@@ -11,6 +11,23 @@ import { cmtsmode } from "../codemirror-tscriptmode";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
 
+/**
+ * TODO
+ * If the document has unsaved changes show a *, filled circle or a matching icon after the filename.
+ */
+
+/**
+ * TODO
+ * The tgui tab should contain a close button to close the tab only if the tab is a document.
+ * When closing a tab and the document has unsaved changes a dialog should be shown like "Save, Dont Save, Cancel".
+ * It is ok closing all tabs so no editor is opened anymore. The user can just create a new tab.
+ */
+
+/**
+ * TODO
+ * The debugger should be able to open a document in a new tab if the error references a file in the local storage that is not opened.
+ */
+
 interface EditorPosition {
 	line: number;
 	ch: number;
@@ -176,7 +193,15 @@ export class TScriptEditor {
 	/**
 	 *
 	 */
-	public newDocument(textarea, name: string) {
+	public newDocument(textarea, name: string): TScriptDocument {
+		/**
+		 * TODO
+		 * Check if the document with name already exist in local storage.
+		 * Throw an error if it does.
+		 * Error should be handled with a dialog if the use wants to overwrite the file.
+		 * If the user wants to overwrite the file, delete the old file and create a new one/ call this function again.
+		 * Expecially if the tscript website is loaded and there is already a main file in the local storage.
+		 */
 		const doc = new TScriptDocument(textarea, name, this.extensions);
 		this.documents.push(doc);
 
