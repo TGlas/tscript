@@ -259,22 +259,27 @@ export class Interpreter {
 				if (pe.sim.call(this)) break;
 			}
 		} catch (ex: any) {
+			const frame = this.stack[this.stack.length - 1];
+			const pe = frame.pe[frame.pe.length - 1];
+
 			if (ex.name === "Runtime Error" || ex.name === "Parse Error") {
 				this.halt = null;
 				this.background = false;
 				if (this.service.message) {
+					const filename = pe?.where?.filename || ex.filename;
+					const line = pe?.where?.line || ex.line;
+					const ch = pe?.where?.ch || ex.ch;
+
 					this.service.message(
 						"runtime error " +
-							(ex.filename
-								? "in file '" + ex.filename + "'"
-								: "") +
+							(filename ? "in file '" + filename + "'" : "") +
 							"in line " +
-							ex.line +
+							line +
 							": " +
 							ex.message,
-						ex.filename,
-						ex.line,
-						ex.ch,
+						filename,
+						line,
+						ch,
 						ex.href
 					);
 				}
