@@ -13,8 +13,9 @@ import { configDlg, loadConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 
+import { TScriptEditor } from "./TScriptEditor";
 import { toggleBreakpoint } from "./breakpoint";
-import { TScriptDocument, TScriptEditor } from "./TScriptEditor";
+import { createEditorTab, openEditorFromLS } from "./editor-tabs";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -176,6 +177,8 @@ export function prepare_run() {
 	 * Currently focused document can be different than in the run selector selected document.
 	 * Interpreter should get the run selector selected document.
 	 */
+
+	if (!editor.getCurrentDocument()) return;
 
 	// make sure that there is a trailing line for the "end" breakpoint
 	let source = editor.getCurrentDocument().getValue();
@@ -578,28 +581,28 @@ export function create(container: HTMLElement, options?: any) {
 	// prepare tgui panels
 	tgui.preparePanels(area, iconlist);
 
-	let panel_editor = tgui.createPanel({
-		name: "editor",
-		title: "Editor - Main",
-		state: "left",
-		fallbackState: "float",
-		dockedheight: 600,
-		onArrange: function () {},
-		icon: icons.editor,
-	});
-	panel_editor.textarea = tgui.createElement({
-		type: "textarea",
-		parent: panel_editor.content,
-		classname: "ide ide-sourcecode",
-	});
+	// let panel_editor = tgui.createPanel({
+	// 	name: "editor",
+	// 	title: "Editor - Main",
+	// 	state: "left",
+	// 	fallbackState: "float",
+	// 	dockedheight: 600,
+	// 	onArrange: function () {},
+	// 	icon: icons.editor,
+	// });
+	// panel_editor.textarea = tgui.createElement({
+	// 	type: "textarea",
+	// 	parent: panel_editor.content,
+	// 	classname: "ide ide-sourcecode",
+	// });
 
 	editor = new TScriptEditor();
-	editor.newDocument(panel_editor.textarea, "Main");
+	//editor.newDocument(panel_editor.textarea, "Main");
 
 	editor.onDocChange(function () {
 		ide_document.dirty = true;
 		if (interpreter) {
-			clear();
+			//clear();
 			utils.updateControls();
 		}
 	});
@@ -687,8 +690,8 @@ export function create(container: HTMLElement, options?: any) {
 		}
 	});
 
-	editor_title = panel_editor.titlebar; // TODO: remove this, this is only used to update the title
-	//       - add functionality to update title in tgui.js
+	const doc = openEditorFromLS("Main");
+	if (!doc) createEditorTab("Main");
 
 	let panel_messages = tgui.createPanel({
 		name: "messages",

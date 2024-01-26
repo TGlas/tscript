@@ -1,4 +1,5 @@
 import * as ide from ".";
+import { openEditorFromLS } from "./editor-tabs";
 import { programinfo } from "./programinfo";
 import { stackinfo } from "./stackinfo";
 
@@ -90,10 +91,11 @@ export function updateControls() {
  * set the cursor in the editor; line is 1-based, ch (char within the line) is 0-based
  */
 export function setCursorPosition(line: number, ch: number, filename: string) {
-	const doc = ide.editor
+	let doc = ide.editor
 		.getDocuments()
 		.find((doc) => doc.getFilename() === filename);
 
+	if (!doc) doc = openEditorFromLS(filename);
 	if (!doc) return;
 
 	doc.setCursor({ line: line - 1, ch });

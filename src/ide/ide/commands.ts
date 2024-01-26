@@ -2,9 +2,9 @@ import * as ide from ".";
 import { Parser } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { add_editor_tabs } from "./add-editor-tabs";
 import { toggleBreakpoint } from "./breakpoint";
-import { confirmFileDiscard, fileDlg, options } from "./dialogs";
+import { fileDlg, options } from "./dialogs";
+import { createEditorTabByModal, openEditorFromLS } from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { updateControls } from "./utils";
 
@@ -39,13 +39,6 @@ export let buttons: any = [
 		icon: icons.saveDocumentAs,
 		tooltip: "Save document as ...",
 		hotkey: "shift-control-s",
-		group: "file",
-	},
-	{
-		click: add_editor_tabs,
-		icon: icons.newEditor,
-		tooltip: "Open new tab",
-		hotkey: "shift-control-t",
 		group: "file",
 	},
 	{
@@ -305,81 +298,48 @@ function cmd_toggle_breakpoint() {
 }
 
 function cmd_new() {
-	confirmFileDiscard("New document", () => {
-		ide.clear();
-
-		ide.editor_title.innerHTML = "Editor";
-		ide.ide_document.filename = "";
-		ide.editor.getCurrentDocument().setValue("");
-		ide.editor.clearHistory();
-		ide.ide_document.dirty = false;
-
-		updateControls();
-		// TODO: CHECK
-		// ide.sourcecode.focus();
-	});
+	createEditorTabByModal();
 }
 
 function cmd_load() {
-	/**
-	 * TODO
-	 * File should be always opened in a new tab.
-	 * Rename the "open" button dialog to "Open in new Tab".
-	 * As no document/ tab gets replaced in the new implementation a check for unsaved changes is not needed.
-	 */
-	confirmFileDiscard("Open document", () => {
-		fileDlg(
-			"Load file",
-			ide.ide_document.filename,
-			false,
-			"Load",
-			function (filename) {
-				ide.clear();
-
-				ide.editor_title.innerHTML = "Editor &mdash; ";
-				tgui.createText(filename, ide.editor_title);
-				ide.ide_document.filename = filename;
-				ide.editor
-					.getCurrentDocument()
-					.setValue(
-						localStorage.getItem("tscript.code." + filename)!
-					);
-				ide.editor.getCurrentDocument().setCursor({ line: 0, ch: 0 });
-				ide.editor.clearHistory();
-				ide.ide_document.dirty = false;
-
-				updateControls();
-				// TODO: CHECK
-				// ide.sourcecode.focus();
-			}
-		);
-	});
+	fileDlg(
+		"Load file",
+		ide.ide_document.filename,
+		false,
+		"Load",
+		function (filename) {
+			// TODO
+			//ide.editor_title.innerHTML = "Editor &mdash; ";
+			//tgui.createText(filename, ide.editor_title);
+			openEditorFromLS(filename);
+			updateControls();
+			// TODO: CHECK
+			// ide.sourcecode.focus();
+		}
+	);
 }
 
 function cmd_save() {
-	if (ide.ide_document.filename === "") {
-		cmd_save_as();
-		return;
-	}
+	const doc = ide.editor.getCurrentDocument();
 
-	localStorage.setItem(
-		"tscript.code." + ide.ide_document.filename,
-		ide.editor.getCurrentDocument().getValue()
-	);
+	localStorage.setItem(`tscript.code.${doc.getFilename()}`, doc.getValue());
 	ide.ide_document.dirty = false;
 }
 
 function cmd_save_as() {
-	let dlg = fileDlg(
+	const doc = ide.editor.getCurrentDocument();
+
+	fileDlg(
 		"Save file as ...",
-		ide.ide_document.filename,
+		doc.getFilename(),
 		true,
 		"Save",
 		function (filename) {
-			ide.editor_title.innerHTML = "Editor &mdash; ";
-			tgui.createText(filename, ide.editor_title);
-			ide.ide_document.filename = filename;
-			cmd_save();
+			// TODO
+			// ide.editor_title.innerHTML = "Editor &mdash; ";
+			// tgui.createText(filename, ide.editor_title);
+			localStorage.setItem(`tscript.code.${filename}`, doc.getValue());
+			openEditorFromLS(filename);
 
 			// TODO: CHECK
 			// ide.sourcecode.focus();

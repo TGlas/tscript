@@ -260,14 +260,6 @@ const icons = (function () {
 		draw_icon_pencil_overlay(draw);
 	});
 
-	icons.newEditor = svgIcon(20, 20, (draw: SVGDrawingContext) => {
-		draw_icon_paper(draw);
-
-		draw.setStyle("stroke-width: 2; stroke: #44cc22; fill: none;");
-		draw.line(10, 15, 10, 9);
-		draw.line(7, 12, 13, 12);
-	});
-
 	icons.run = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-green-fill");
 		draw.polygon([5, 5], [15, 10], [5, 15]);

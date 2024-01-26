@@ -92,12 +92,6 @@ export const icons: { [id: string]: SVGIcon } = {
 		innerSVG:
 			'<polygon points="3.5,3.5 16.5,3.5 16.5,16.5 5.5,16.5 3.5,14.5" style="stroke: #139; fill: #36d"/><rect x="7" y="11" width="6" height="5" style="stroke: none; fill: #eef"/><rect x="8" y="12" width="2" height="3" style="stroke: none; fill: #36d"/><rect x="6" y="4" width="8" height="5" style="stroke: none; fill: #fff"/><line x1="8" y1="8" x2="18" y2="18" style="stroke-width: 3; stroke: #0005; fill: none"/><polygon points="8,6 11,7 9,9" style="stroke: none; fill: #fc9"/><polygon points="8,6 9.5,6.5 8.5,7.5" style="stroke: none; fill: #000"/><line x1="10" y1="8" x2="18" y2="16" style="stroke-width: 3; stroke: #000; fill: none"/><line x1="10" y1="8" x2="18" y2="16" style="stroke-width: 2; stroke: #dd0; fill: none"/><polygon points="8,6 9.5,6.5 8.5,7.5" style="stroke: none; fill: #000"/><path d="M 19.06,14.94 A 1.5,1.5 0 0 1 19.06,17.06 A 1.5,1.5 0 0 1 16.94,17.06" style="stroke: none; fill: #000"/><circle cx="18" cy="16" r="1" style="stroke: none; fill: #f33"/>',
 	},
-	newEditor: {
-		width: 20,
-		height: 20,
-		innerSVG:
-			'<polygon points="4.5,7.5 8.5,3.5 14.5,3.5 14.5,16.5 4.5,16.5" style="stroke: #333; fill: #fff"/><polyline points="4.5,7.5 8.5,7.5 8.5,3.5" style="stroke: #333; fill: none"/><line x1="10" y1="15" x2="10" y2="9" style="stroke-width: 2; stroke: #44cc22; fill: none;"/><line x1="7" y1="12" x2="13" y2="12" style="stroke-width: 2; stroke: #44cc22; fill: none;"/>',
-	},
 	run: {
 		width: 20,
 		height: 20,

@@ -1,3 +1,4 @@
+import { indentWithTab } from "@codemirror/commands";
 import {
 	Compartment,
 	EditorState,
@@ -6,7 +7,6 @@ import {
 } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { basicSetup } from "codemirror";
-import { indentWithTab } from "@codemirror/commands"
 import { cmtsmode } from "../codemirror-tscriptmode";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
@@ -50,7 +50,7 @@ export class TScriptEditor {
 				highlighting,
 				breakpointGutter,
 				basicSetup,
-				keymap.of([indentWithTab])
+				keymap.of([indentWithTab]),
 			];
 
 		// ReadOnly Extensions
@@ -93,6 +93,17 @@ export class TScriptEditor {
 		);
 
 		return values;
+	}
+
+	public closeDocument(filename) {
+		if (this.currentDocument.getFilename() == filename)
+			this.currentDocument = this.documents.find(
+				(doc) => doc.getFilename() != filename
+			)!;
+
+		this.documents = this.documents.filter(
+			(doc) => doc.getFilename() != filename
+		);
 	}
 
 	/**

@@ -595,7 +595,7 @@ export function tabNameDlg(onOkay: (filename: string) => any) {
 		// Check if we already have a file named like this
 		const docs = ide.editor.getDocuments();
 		if (docs.some((editor) => editor.getFilename() === filename))
-			return true;
+			return true; // TODO
 
 		onOkay(filename);
 		return false;
