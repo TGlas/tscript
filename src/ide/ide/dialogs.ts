@@ -1,4 +1,3 @@
-import { ide_document } from ".";
 import { Options, defaultOptions } from "../../lang/helpers/options";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
@@ -13,12 +12,18 @@ let theme: string = "default";
  * When the document was not changed, or the user allows to discard the changes the function onConfirm is
  * called.
  */
-export function confirmFileDiscard(title: string, onConfirm: () => any) {
-	if (ide_document.dirty) {
+export function confirmFileDiscard(filename: string, onConfirm: () => any) {
+	const doc = ide.editor
+		.getDocuments()
+		.find((d) => d.getFilename() === filename);
+
+	if (!doc) return;
+
+	if (doc.isDirty()) {
 		tgui.msgBox({
 			prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
 			icon: tgui.msgBoxQuestion,
-			title: title,
+			title: filename,
 			buttons: [
 				{ text: "Discard", onClick: onConfirm, isDefault: true },
 				{ text: "Cancel" },
@@ -27,6 +32,18 @@ export function confirmFileDiscard(title: string, onConfirm: () => any) {
 	} else {
 		onConfirm();
 	}
+}
+
+export function confirmFileOverwrite(filename: string, onConfirm: () => any) {
+	tgui.msgBox({
+		prompt: `A document named ${filename} already exists.\nDo you want to overwrite it?`,
+		icon: tgui.msgBoxQuestion,
+		title: filename,
+		buttons: [
+			{ text: "Overwrite", onClick: onConfirm, isDefault: true },
+			{ text: "Cancel" },
+		],
+	});
 }
 
 /**
@@ -514,6 +531,7 @@ export function fileDlg(
 		let index = files.indexOf(filename);
 		if (index >= 0) {
 			let onDelete = () => {
+				ide.editor.closeDocument(filename);
 				localStorage.removeItem("tscript.code." + filename);
 				files.splice(index, 1);
 				list.remove(index);
@@ -584,21 +602,10 @@ export function fileDlg(
 	}
 }
 
-export function tabNameDlg(onOkay: (filename: string) => any) {
+export function tabNameDlg(onOkay: (filename: string) => boolean) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
-		let filename = name.value;
-
-		// Don't accept empty filenames
-		if (filename === "") return true; // keep dialog open
-
-		// Check if we already have a file named like this
-		const docs = ide.editor.getDocuments();
-		if (docs.some((editor) => editor.getFilename() === filename))
-			return true; // TODO
-
-		onOkay(filename);
-		return false;
+		return onOkay(name.value);
 	};
 
 	// create dialog and its controls

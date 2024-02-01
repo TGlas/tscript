@@ -8,25 +8,9 @@ import {
 import { EditorView, keymap } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { cmtsmode } from "../codemirror-tscriptmode";
+import { getPanel, removePanel } from "../tgui";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
-
-/**
- * TODO
- * If the document has unsaved changes show a *, filled circle or a matching icon after the filename.
- */
-
-/**
- * TODO
- * The tgui tab should contain a close button to close the tab only if the tab is a document.
- * When closing a tab and the document has unsaved changes a dialog should be shown like "Save, Dont Save, Cancel".
- * It is ok closing all tabs so no editor is opened anymore. The user can just create a new tab.
- */
-
-/**
- * TODO
- * The debugger should be able to open a document in a new tab if the error references a file in the local storage that is not opened.
- */
 
 interface EditorPosition {
 	line: number;
@@ -36,7 +20,7 @@ interface EditorPosition {
 export class TScriptEditor {
 	private extensions!: Extension[];
 	private documents: TScriptDocument[] = [];
-	private currentDocument!: TScriptDocument;
+	private currentDocument?: TScriptDocument;
 
 	private readOnlyState = new Compartment();
 	private readOnlyDim = new Compartment();
@@ -96,25 +80,34 @@ export class TScriptEditor {
 	}
 
 	public closeDocument(filename) {
-		if (this.currentDocument.getFilename() == filename)
+		const doc = this.documents.find(
+			(doc) => doc.getFilename() === filename
+		);
+
+		if (!doc) return;
+
+		if (this.currentDocument?.getFilename() === filename)
 			this.currentDocument = this.documents.find(
-				(doc) => doc.getFilename() != filename
+				(d) => d.getFilename() != filename
 			)!;
 
-		this.documents = this.documents.filter(
-			(doc) => doc.getFilename() != filename
-		);
+		this.documents = this.documents.filter((d) => d != doc);
+		removePanel(doc.getPanelId());
 	}
 
 	/**
 	 * Runs the callback function whenever the content of the document changes
 	 * @param callback
 	 */
-	public onDocChange(callback: () => any) {
+	public onDocChange(callback: (doc: TScriptDocument) => any) {
 		// Add the event listener to the extensions
 		this.extensions.push(
 			EditorView.updateListener.of((viewUpdate) => {
-				if (viewUpdate.docChanged) callback();
+				const doc = this.documents.find(
+					(doc) => doc.getEditorView() === viewUpdate.view
+				);
+
+				if (viewUpdate.docChanged) callback(doc!);
 			})
 		);
 
@@ -204,20 +197,23 @@ export class TScriptEditor {
 	/**
 	 *
 	 */
-	public newDocument(textarea, name: string): TScriptDocument {
-		/**
-		 * TODO
-		 * Check if the document with name already exist in local storage.
-		 * Throw an error if it does.
-		 * Error should be handled with a dialog if the use wants to overwrite the file.
-		 * If the user wants to overwrite the file, delete the old file and create a new one/ call this function again.
-		 * Expecially if the tscript website is loaded and there is already a main file in the local storage.
-		 */
-		const doc = new TScriptDocument(textarea, name, this.extensions);
+	public newDocument(
+		textarea,
+		name: string,
+		panelId: number
+	): TScriptDocument {
+		const doc = new TScriptDocument(
+			textarea,
+			name,
+			panelId,
+			this.extensions
+		);
 		this.documents.push(doc);
 
-		if (!this.currentDocument) this.currentDocument = doc;
+		this.currentDocument = doc;
 		doc.focus();
+
+		this.setReadOnly(this.isReadOnly());
 
 		return doc;
 	}
@@ -227,8 +223,15 @@ export class TScriptDocument {
 	private filename: string;
 	private ev: EditorView;
 	private extensions: Extension[];
+	private panelId: number;
+	private dirty: boolean;
 
-	constructor(textarea: any, name: string, extensions: Extension[]) {
+	constructor(
+		textarea: any,
+		name: string,
+		panelId: number,
+		extensions: Extension[]
+	) {
 		let view = new EditorView({ doc: textarea.value, extensions });
 		textarea.parentNode.insertBefore(view.dom, textarea);
 		textarea.style.display = "none";
@@ -239,6 +242,8 @@ export class TScriptDocument {
 
 		this.ev = view;
 		this.filename = name;
+		this.panelId = panelId;
+		this.dirty = false;
 		this.extensions = extensions;
 	}
 
@@ -247,6 +252,11 @@ export class TScriptDocument {
 	 */
 	public focus() {
 		this.ev.focus();
+
+		const panel = getPanel(this.panelId);
+		if (panel && (!panel.state || panel.state === "icon")) {
+			panel.dock("left");
+		}
 	}
 
 	//
@@ -296,6 +306,7 @@ export class TScriptDocument {
 	public setCursor(pos: EditorPosition) {
 		const offset = TScriptEditor.posToOffset(this.ev, pos);
 		this.ev.dispatch({ selection: { anchor: offset } });
+		this.focus();
 	}
 
 	/**
@@ -396,6 +407,7 @@ export class TScriptDocument {
 				{ y: "center" }
 			),
 		});
+		this.focus();
 	}
 
 	/**
@@ -403,5 +415,26 @@ export class TScriptDocument {
 	 */
 	public getFilename() {
 		return this.filename;
+	}
+
+	/**
+	 * Returns the editor panelid
+	 */
+	public getPanelId() {
+		return this.panelId;
+	}
+
+	/**
+	 * Returns true if the editor has unsaved changes
+	 */
+	public isDirty() {
+		return this.dirty;
+	}
+
+	/**
+	 * Returns true if the editor has unsaved changes
+	 */
+	public setDirty(dirty: boolean) {
+		this.dirty = dirty;
 	}
 }

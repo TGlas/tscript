@@ -12,7 +12,7 @@ export function showStandalonePage(
 ): void {
 	ide.setStandalone(true);
 	ide.create(container);
-	ide.editor.getCurrentDocument().setValue(data.code);
+	ide.editor.getCurrentDocument()!.setValue(data.code);
 	ide.prepare_run();
 
 	switch (data.mode) {

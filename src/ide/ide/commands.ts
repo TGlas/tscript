@@ -4,16 +4,16 @@ import { icons } from "../icons";
 import * as tgui from "./../tgui";
 import { toggleBreakpoint } from "./breakpoint";
 import { fileDlg, options } from "./dialogs";
-import { createEditorTabByModal, openEditorFromLS } from "./editor-tabs";
+import {
+	closeEditor,
+	createEditorTabByModal,
+	openEditorFromLS,
+} from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { updateControls } from "./utils";
 
 export let buttons: any = [
 	{
-		/**
-		 * TODO
-		 * Merge this button with the functionality of the new editor tab button.
-		 */
 		click: cmd_new,
 		icon: icons.newDocument,
 		tooltip: "New document",
@@ -104,10 +104,6 @@ function cmd_reset() {
 }
 
 function cmd_run() {
-	/**
-	 * TODO
-	 * Save current selected document in RUN SELECTOR and run it.
-	 */
 	if (isInterpreterBusy()) ide.prepare_run();
 	if (!ide.interpreter) return;
 	ide.interpreter.run();
@@ -151,8 +147,10 @@ export function cmd_export() {
 			return;
 	}
 
+	if (!ide.editor.getCurrentDocument()) return;
+
 	// check that the code at least compiles
-	let source = ide.editor.getCurrentDocument().getValue();
+	let source = ide.editor.getCurrentDocument()!.getValue();
 	ide.clear();
 	let result = Parser.parse(ide.editor.getValues(), options);
 	let program = result.program;
@@ -182,8 +180,7 @@ export function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = ide.ide_document.filename;
-	if (!title || title === "") title = "tscript-export";
+	let title = "tscript-export";
 	let fn = title;
 	if (
 		!fn.endsWith("html") &&
@@ -278,7 +275,9 @@ export function cmd_export() {
 }
 
 function cmd_toggle_breakpoint() {
-	let cm = ide.editor.getCurrentDocument();
+	if (!ide.editor.getCurrentDocument()) return;
+
+	let cm = ide.editor.getCurrentDocument()!;
 	let line = cm.getCursor().line;
 	if (ide.interpreter) {
 		// ask the interpreter for the correct position of the marker
@@ -302,32 +301,31 @@ function cmd_new() {
 }
 
 function cmd_load() {
-	fileDlg(
-		"Load file",
-		ide.ide_document.filename,
-		false,
-		"Load",
-		function (filename) {
-			// TODO
-			//ide.editor_title.innerHTML = "Editor &mdash; ";
-			//tgui.createText(filename, ide.editor_title);
-			openEditorFromLS(filename);
-			updateControls();
-			// TODO: CHECK
-			// ide.sourcecode.focus();
+	fileDlg("Load file", "", false, "Load", function (filename) {
+		const docs = ide.editor.getDocuments();
+		let doc = docs.find((d) => d.getFilename() === filename);
+
+		if (doc) {
+			doc.focus();
+			return;
 		}
-	);
+
+		doc = openEditorFromLS(filename);
+		updateControls();
+	});
 }
 
 function cmd_save() {
 	const doc = ide.editor.getCurrentDocument();
+	if (!doc) return;
 
 	localStorage.setItem(`tscript.code.${doc.getFilename()}`, doc.getValue());
-	ide.ide_document.dirty = false;
+	doc.setDirty(false);
 }
 
 function cmd_save_as() {
 	const doc = ide.editor.getCurrentDocument();
+	if (!doc) return;
 
 	fileDlg(
 		"Save file as ...",
@@ -335,14 +333,9 @@ function cmd_save_as() {
 		true,
 		"Save",
 		function (filename) {
-			// TODO
-			// ide.editor_title.innerHTML = "Editor &mdash; ";
-			// tgui.createText(filename, ide.editor_title);
+			closeEditor(filename);
 			localStorage.setItem(`tscript.code.${filename}`, doc.getValue());
 			openEditorFromLS(filename);
-
-			// TODO: CHECK
-			// ide.sourcecode.focus();
 		}
 	);
 }

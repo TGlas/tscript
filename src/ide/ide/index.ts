@@ -50,14 +50,6 @@ export function setStandalone(_standalone: boolean) {
 	standalone = _standalone;
 }
 
-/** document properties */
-export let ide_document = {
-	/** name in local storage, or empty string */
-	filename: "",
-	/** does the state differ from the last saved state? */
-	dirty: false,
-};
-
 /**
  * add a message to the message panel
  */
@@ -172,16 +164,10 @@ export function clear() {
 export function prepare_run() {
 	clear();
 
-	/**
-	 * TODO
-	 * Currently focused document can be different than in the run selector selected document.
-	 * Interpreter should get the run selector selected document.
-	 */
-
 	if (!editor.getCurrentDocument()) return;
 
 	// make sure that there is a trailing line for the "end" breakpoint
-	let source = editor.getCurrentDocument().getValue();
+	let source = editor.getCurrentDocument()!.getValue();
 	if (source.length != 0 && source[source.length - 1] != "\n") {
 		source += "\n";
 	}
@@ -463,12 +449,6 @@ export function create(container: HTMLElement, options?: any) {
 		},
 	});
 
-	/**
-	 * TODO
-	 * Create a RUN SELECTOR and list every document that exists in it.
-	 * It would be great if it can be hidden if only a single document exist (main).
-	 */
-
 	programstate.setStateCss = function (state) {
 		let cls = `ide-state-${state}`;
 		if (this.hasOwnProperty("state_css_class"))
@@ -559,6 +539,8 @@ export function create(container: HTMLElement, options?: any) {
 		// pressing F1
 		tgui.setHotkey("F1", function () {
 			const doc = editor.getCurrentDocument();
+			if (!doc) return;
+
 			let selection = doc.getSelection();
 			// maximum limit of 30 characters
 			// so that there is no problem, when accidentally everything
@@ -581,28 +563,11 @@ export function create(container: HTMLElement, options?: any) {
 	// prepare tgui panels
 	tgui.preparePanels(area, iconlist);
 
-	// let panel_editor = tgui.createPanel({
-	// 	name: "editor",
-	// 	title: "Editor - Main",
-	// 	state: "left",
-	// 	fallbackState: "float",
-	// 	dockedheight: 600,
-	// 	onArrange: function () {},
-	// 	icon: icons.editor,
-	// });
-	// panel_editor.textarea = tgui.createElement({
-	// 	type: "textarea",
-	// 	parent: panel_editor.content,
-	// 	classname: "ide ide-sourcecode",
-	// });
-
 	editor = new TScriptEditor();
-	//editor.newDocument(panel_editor.textarea, "Main");
 
-	editor.onDocChange(function () {
-		ide_document.dirty = true;
+	editor.onDocChange(function (doc) {
+		doc.setDirty(true);
 		if (interpreter) {
-			//clear();
 			utils.updateControls();
 		}
 	});
@@ -994,7 +959,7 @@ export function create(container: HTMLElement, options?: any) {
 	tutorial.init(
 		tutorial_container,
 		function () {
-			return editor.getCurrentDocument().getValue();
+			return editor.getCurrentDocument()!.getValue();
 		},
 		function () {
 			messages.innerHTML = "";
@@ -1005,9 +970,5 @@ export function create(container: HTMLElement, options?: any) {
 	);
 
 	tgui.arrangePanels();
-
-	// TODO: CHECK
-	// sourcecode.focus();
-
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
 }

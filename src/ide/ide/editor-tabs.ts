@@ -1,6 +1,10 @@
 import { icons } from "../icons";
 import * as tgui from "../tgui";
-import { tabNameDlg } from "./dialogs";
+import {
+	confirmFileDiscard,
+	confirmFileOverwrite,
+	tabNameDlg,
+} from "./dialogs";
 import * as ide from "./index";
 
 /**
@@ -21,7 +25,24 @@ export function openEditorFromLS(name: string) {
 
 export function createEditorTabByModal() {
 	tabNameDlg(function (filename) {
-		createEditorTab(filename);
+		// Don't accept empty filenames
+		if (filename === "") return true; // keep dialog open
+
+		const docs = ide.editor.getDocuments();
+		const isOpenDoc = docs.some((d) => d.getFilename() === filename);
+		const isSavedDoc = localStorage.getItem("tscript.code." + filename);
+
+		console.log(isOpenDoc, isSavedDoc);
+
+		if (isOpenDoc || isSavedDoc) {
+			confirmFileOverwrite(filename, () => {
+				ide.editor.closeDocument(filename);
+				createEditorTab(filename);
+			});
+			return false;
+		} else createEditorTab(filename);
+
+		return false;
 	});
 }
 
@@ -30,9 +51,11 @@ export function createEditorTab(name: string) {
 		name: "tab_editor",
 		title: `Editor — ${name}`,
 		state: "left",
-		fallbackState: "float",
+		fallbackState: "icon",
 		icon: icons.editor,
-		onClose: () => closeEditor(name),
+		onClose: () => {
+			confirmFileDiscard(name, () => closeEditor(name));
+		},
 	});
 
 	const tab_editor = tgui.createElement({
@@ -41,7 +64,7 @@ export function createEditorTab(name: string) {
 		classname: "ide ide-tab-sourcecode",
 	});
 
-	ide.editor.newDocument(tab_editor, name);
+	ide.editor.newDocument(tab_editor, name, panel_tab_editor.panelID);
 
 	tab_editor.addEventListener("contextmenu", function (event) {
 		event.preventDefault();

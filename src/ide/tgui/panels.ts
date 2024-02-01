@@ -190,7 +190,6 @@ export function createPanel(description: PanelDescription): Panel {
 	if (control.onClose)
 		control.button_close = createButton({
 			click: function (event) {
-				removePanel(control.panelID);
 				control.onClose!();
 				return false;
 			},
@@ -482,19 +481,24 @@ export function createPanel(description: PanelDescription): Panel {
 	return control;
 }
 
-function removePanel(panelID: number) {
-	const panel = panels.find((p) => p.panelID == panelID)!;
+export function removePanel(panelId: number) {
+	const panel = panels.find((p) => p.panelID == panelId);
+	if (!panel) return;
 
 	interact(panel).unset(); // remove all event listeners set by interact
 	panelcontainer.removeChild(panel.dom);
 
-	panels = panels.filter((p) => p.panelID != panelID);
-	panels_left = panels_left.filter((p) => p.panelID != panelID);
-	panels_right = panels_right.filter((p) => p.panelID != panelID);
-	panels_float = panels_float.filter((p) => p.panelID != panelID);
-	if (panel_max?.panelID == panelID) panel_max = null;
+	panels = panels.filter((p) => p.panelID != panelId);
+	panels_left = panels_left.filter((p) => p.panelID != panelId);
+	panels_right = panels_right.filter((p) => p.panelID != panelId);
+	panels_float = panels_float.filter((p) => p.panelID != panelId);
+	if (panel_max?.panelID == panelId) panel_max = null;
 
 	arrange();
+}
+
+export function getPanel(panelId) {
+	return panels.find((c) => c.panelID == panelId);
 }
 
 /**
