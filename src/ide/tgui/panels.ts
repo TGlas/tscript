@@ -1,5 +1,5 @@
-import { createButton, createElement, createIcon } from "./index";
 import { SVGIcon, icons } from "../icons";
+import { createButton, createElement, createIcon } from "./index";
 let interact = require("interactjs");
 
 ///////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@ interface PanelDescription {
 
 	/** current state */
 	state: "left" | "right" | "max" | "float" | "icon" | "disabled";
+
+	/** show close button */
+	onClose?: () => any;
 
 	/** SVGIcon for the icon representing the panel in "icon" mode, also drawn in the titlebar of the panel */
 	icon: SVGIcon;
@@ -88,6 +91,8 @@ interface Panel extends PanelDescription {
 	button_max: any;
 	/** TODO: document */
 	button_float: any;
+	/** TODO: document */
+	button_close: any;
 	/** TODO: document */
 	button_icon: any;
 	/** TODO: document */
@@ -181,6 +186,20 @@ export function createPanel(description: PanelDescription): Panel {
 		classname: "tgui-panel-titlebar-title",
 		style: { height: "20px", "line-height": "20px" },
 	});
+
+	if (control.onClose)
+		control.button_close = createButton({
+			click: function (event) {
+				control.onClose!();
+				return false;
+			},
+			width: 20,
+			height: 20,
+			icon: icons.close,
+			parent: control.titlebar_container,
+			classname: "tgui-panel-dockbutton",
+			"tooltip-right": "Close",
+		});
 
 	control.button_left = createButton({
 		click: function () {
@@ -460,6 +479,26 @@ export function createPanel(description: PanelDescription): Panel {
 	if (description.state != "disabled") control.dock(description.state, true);
 
 	return control;
+}
+
+export function removePanel(panelId: number) {
+	const panel = panels.find((p) => p.panelID == panelId);
+	if (!panel) return;
+
+	interact(panel).unset(); // remove all event listeners set by interact
+	panelcontainer.removeChild(panel.dom);
+
+	panels = panels.filter((p) => p.panelID != panelId);
+	panels_left = panels_left.filter((p) => p.panelID != panelId);
+	panels_right = panels_right.filter((p) => p.panelID != panelId);
+	panels_float = panels_float.filter((p) => p.panelID != panelId);
+	if (panel_max?.panelID == panelId) panel_max = null;
+
+	arrange();
+}
+
+export function getPanel(panelId) {
+	return panels.find((c) => c.panelID == panelId);
 }
 
 /**

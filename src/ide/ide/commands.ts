@@ -2,9 +2,15 @@ import * as ide from ".";
 import { Parser } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { confirmFileDiscard, fileDlg, options } from "./dialogs";
+import { toggleBreakpoint } from "./breakpoint";
+import { fileDlg, options } from "./dialogs";
+import {
+	closeEditor,
+	createEditorTabByModal,
+	openEditorFromLS,
+} from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
-import { makeMarker, updateControls } from "./utils";
+import { updateControls } from "./utils";
 
 export let buttons: any = [
 	{
@@ -141,10 +147,12 @@ export function cmd_export() {
 			return;
 	}
 
+	if (!ide.editor.getCurrentDocument()) return;
+
 	// check that the code at least compiles
-	let source = ide.sourcecode.getValue();
+	let source = ide.editor.getCurrentDocument()!.getValue();
 	ide.clear();
-	let result = Parser.parse(source, options);
+	let result = Parser.parse(ide.editor.getValues(), options);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {
@@ -172,8 +180,7 @@ export function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = ide.ide_document.filename;
-	if (!title || title === "") title = "tscript-export";
+	let title = "tscript-export";
 	let fn = title;
 	if (
 		!fn.endsWith("html") &&
@@ -268,97 +275,67 @@ export function cmd_export() {
 }
 
 function cmd_toggle_breakpoint() {
-	let cm = ide.sourcecode as any;
-	let line = cm.doc.getCursor().line;
+	if (!ide.editor.getCurrentDocument()) return;
+
+	let cm = ide.editor.getCurrentDocument()!;
+	let line = cm.getCursor().line;
 	if (ide.interpreter) {
 		// ask the interpreter for the correct position of the marker
-		let result = ide.interpreter.toggleBreakpoint(line + 1);
+		let result = ide.interpreter.toggleBreakpoint(
+			line + 1,
+			cm.getFilename()
+		);
 		if (result !== null) {
 			line = result.line;
-			cm.setGutterMarker(
-				line - 1,
-				"breakpoints",
-				result.active ? makeMarker() : null
-			);
-			ide.sourcecode.scrollIntoView({ line: line - 1, ch: 0 }, 40);
+			toggleBreakpoint(cm.getEditorView(), line);
+			cm.scrollIntoView({ line: line - 1, ch: 0 });
 		}
 	} else {
 		// set the marker optimistically, fix as soon as an interpreter is created
-		cm.setGutterMarker(
-			line,
-			"breakpoints",
-			cm.lineInfo(line).gutterMarkers ? null : makeMarker()
-		);
+		toggleBreakpoint(cm.getEditorView(), line);
 	}
 }
 
 function cmd_new() {
-	confirmFileDiscard("New document", () => {
-		ide.clear();
-
-		ide.editor_title.innerHTML = "Editor";
-		ide.ide_document.filename = "";
-		ide.sourcecode.setValue("");
-		ide.sourcecode.getDoc().clearHistory();
-		ide.ide_document.dirty = false;
-
-		updateControls();
-		ide.sourcecode.focus();
-	});
+	createEditorTabByModal();
 }
 
 function cmd_load() {
-	confirmFileDiscard("Open document", () => {
-		fileDlg(
-			"Load file",
-			ide.ide_document.filename,
-			false,
-			"Load",
-			function (filename) {
-				ide.clear();
+	fileDlg("Load file", "", false, "Load", function (filename) {
+		const docs = ide.editor.getDocuments();
+		let doc = docs.find((d) => d.getFilename() === filename);
 
-				ide.editor_title.innerHTML = "Editor &mdash; ";
-				tgui.createText(filename, ide.editor_title);
-				ide.ide_document.filename = filename;
-				ide.sourcecode.setValue(
-					localStorage.getItem("tscript.code." + filename)!
-				);
-				ide.sourcecode.getDoc().setCursor({ line: 0, ch: 0 });
-				ide.sourcecode.getDoc().clearHistory();
-				ide.ide_document.dirty = false;
+		if (doc) {
+			doc.focus();
+			return;
+		}
 
-				updateControls();
-				ide.sourcecode.focus();
-			}
-		);
+		doc = openEditorFromLS(filename);
+		updateControls();
 	});
 }
 
 function cmd_save() {
-	if (ide.ide_document.filename === "") {
-		cmd_save_as();
-		return;
-	}
+	const doc = ide.editor.getCurrentDocument();
+	if (!doc) return;
 
-	localStorage.setItem(
-		"tscript.code." + ide.ide_document.filename,
-		ide.sourcecode.getValue()
-	);
-	ide.ide_document.dirty = false;
+	localStorage.setItem(`tscript.code.${doc.getFilename()}`, doc.getValue());
+	doc.setDirty(false);
 }
 
 function cmd_save_as() {
-	let dlg = fileDlg(
+	const doc = ide.editor.getCurrentDocument();
+	if (!doc) return;
+
+	fileDlg(
 		"Save file as ...",
-		ide.ide_document.filename,
+		doc.getFilename(),
 		true,
 		"Save",
 		function (filename) {
-			ide.editor_title.innerHTML = "Editor &mdash; ";
-			tgui.createText(filename, ide.editor_title);
-			ide.ide_document.filename = filename;
-			cmd_save();
-			ide.sourcecode.focus();
+			closeEditor(filename);
+			localStorage.setItem(`tscript.code.${filename}`, doc.getValue());
+			openEditorFromLS(filename);
 		}
 	);
 }

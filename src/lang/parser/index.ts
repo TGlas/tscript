@@ -13,7 +13,7 @@ import { defaultOptions, Options } from "../helpers/options";
 
 export class Parser {
 	public static parse(
-		sourcecode,
+		toParse: Record<string, string> | string,
 		options: Options = defaultOptions
 	): { program: any; errors: Array<any> } {
 		// create the initial program structure
@@ -32,9 +32,15 @@ export class Parser {
 			options: options, // make the options available to the interpreter
 		};
 
+		const documents =
+			typeof toParse == "string" ? { Main: toParse } : toParse;
+
+		if (documents["Main"] == undefined) alert("No Main file declared");
+
 		// create the parser state
 		let state = {
 			program: program, // program tree to be built during parsing
+			documents,
 			source: "", // complete source code
 			pos: 0, // zero-based position in the source code string
 			line: 1, // one-based line number
@@ -55,6 +61,7 @@ export class Parser {
 				this.source = source;
 				this.impl = impl === null ? {} : impl;
 				this.filename = filename;
+				if (filename != undefined) program.breakpoints[filename] = {};
 				this.pos = 0;
 				this.line = 1;
 				this.ch = 0;
@@ -112,7 +119,12 @@ export class Parser {
 				return this.lookahead(1);
 			},
 			get: function () {
-				return { pos: this.pos, line: this.line, ch: this.ch };
+				return {
+					pos: this.pos,
+					line: this.line,
+					ch: this.ch,
+					filename: this.filename,
+				};
 			},
 			set: function (where) {
 				this.pos = where.pos;
@@ -282,15 +294,15 @@ export class Parser {
 
 			// parse the user's source code
 			program.where = state.get();
-			parse1(sourcecode);
+			parse1(documents["Main"], null, "Main");
 			program.lines = state.line;
 
 			// append an "end" breakpoint
 			state.skip();
-			if (!program.breakpoints.hasOwnProperty(state.line)) {
+			if (!program.breakpoints["Main"].hasOwnProperty(state.line)) {
 				// create and register a new breakpoint
 				let b = create_breakpoint(program, state);
-				program.breakpoints[state.line] = b;
+				program.breakpoints["Main"][state.line] = b;
 				program.commands.push(b);
 			}
 

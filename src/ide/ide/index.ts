@@ -13,25 +13,15 @@ import { configDlg, loadConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 
-import CodeMirror from "codemirror";
-
-// CodeMirror Addons
-import "codemirror/addon/comment/comment";
-import "codemirror/addon/dialog/dialog";
-import "codemirror/addon/dialog/dialog.css";
-import "codemirror/addon/edit/closebrackets";
-import "codemirror/addon/edit/matchbrackets";
-import "codemirror/addon/search/jump-to-line";
-import "codemirror/addon/search/search";
-import "codemirror/addon/search/searchcursor";
-import "codemirror/addon/selection/active-line";
-import "../codemirror-tscriptmode";
+import { TScriptEditor } from "./TScriptEditor";
+import { toggleBreakpoint } from "./breakpoint";
+import { createEditorTab, openEditorFromLS } from "./editor-tabs";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
 //
 
-export let sourcecode!: CodeMirror.EditorFromTextArea;
+export let editor!: TScriptEditor;
 export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
@@ -55,17 +45,10 @@ let highlight: any = null;
 loadConfig();
 
 let standalone: boolean = false;
+
 export function setStandalone(_standalone: boolean) {
 	standalone = _standalone;
 }
-
-/** document properties */
-export let ide_document = {
-	/** name in local storage, or empty string */
-	filename: "",
-	/** does the state differ from the last saved state? */
-	dirty: false,
-};
 
 /**
  * add a message to the message panel
@@ -125,29 +108,10 @@ export function addMessage(
 			msg.ide_line = line;
 			msg.ide_ch = ch;
 			msg.addEventListener("click", function (event) {
-				if (
-					event.target.ide_filename &&
-					event.target.ide_filename !== ide_document.filename
-				) {
-					// Handling a library error properly requires a multi-document editor.
-					let dlg = tgui.createModal({
-						title: "Error in Library File",
-						scalesize: [0.3, 0.15],
-						minsize: [300, 150],
-						buttons: [{ text: "Close" }],
-					});
-					tgui.createElement({
-						parent: dlg.content,
-						type: "div",
-						style: { margin: "10px" },
-						text: "The line cannot be shown because the error occurred in a different file.",
-					});
-					tgui.startModal(dlg);
-					return false;
-				}
 				utils.setCursorPosition(
 					event.target.ide_line,
-					event.target.ide_ch
+					event.target.ide_ch,
+					filename!
 				);
 				if (
 					interpreter &&
@@ -160,7 +124,8 @@ export function addMessage(
 		}
 	}
 	messagecontainer.scrollTop = messagecontainer.scrollHeight;
-	if (href) sourcecode.focus();
+	// TODO: CHECK
+	// if (href) sourcecode.focus();
 	return { symbol: th, content: td };
 }
 
@@ -199,16 +164,15 @@ export function clear() {
 export function prepare_run() {
 	clear();
 
+	if (!editor.getCurrentDocument()) return;
+
 	// make sure that there is a trailing line for the "end" breakpoint
-	let source = sourcecode.getValue();
+	let source = editor.getCurrentDocument()!.getValue();
 	if (source.length != 0 && source[source.length - 1] != "\n") {
 		source += "\n";
-		sourcecode
-			.getDoc()
-			.replaceRange("\n", CodeMirror.Pos(sourcecode.lastLine()));
 	}
 
-	let result = Parser.parse(source, options);
+	let result = Parser.parse(editor.getValues(), options);
 	let program = result.program;
 	let html = "";
 	let errors = result.errors;
@@ -358,7 +322,8 @@ export function prepare_run() {
 		interpreter.service.statechanged = function (stop) {
 			if (stop) utils.updateControls();
 			else utils.updateStatus();
-			if (interpreter!.status === "finished") sourcecode.focus();
+			// TODO: CHECK
+			// if (interpreter!.status === "finished") sourcecode.focus();
 		};
 		interpreter.service.breakpoint = function () {
 			utils.updateControls();
@@ -375,28 +340,26 @@ export function prepare_run() {
 		interpreter.eventnames["timer"] = true;
 		interpreter.reset();
 
-		// set and correct breakpoints
-		let br = new Array();
-		for (let i = 1; i <= sourcecode.lineCount(); i++) {
-			if (sourcecode.lineInfo(i - 1).gutterMarkers) br.push(i);
-		}
-		let result = interpreter.defineBreakpoints(br);
-		if (result !== null) {
-			for (let i = 1; i <= sourcecode.lineCount(); i++) {
-				if (sourcecode.lineInfo(i - 1).gutterMarkers) {
-					if (!result.hasOwnProperty(i))
-						sourcecode.setGutterMarker(i - 1, "breakpoints", null);
-				} else {
-					if (result.hasOwnProperty(i))
-						sourcecode.setGutterMarker(
-							i - 1,
-							"breakpoints",
-							utils.makeMarker()
-						);
-				}
+		let breakpointsMoved = false;
+		for (let doc of editor.getDocuments()) {
+			// set and correct breakpoints
+			let br = doc.getBreakpointLines();
+
+			let result = interpreter.defineBreakpoints(
+				br.map((i) => i + 1),
+				doc.getFilename()
+			);
+
+			if (result !== null) {
+				for (let i = 1; i <= doc.lineCount(); i++)
+					if (br.includes(i - 1) !== result.hasOwnProperty(i))
+						toggleBreakpoint(doc.getEditorView(), i - 1);
+				breakpointsMoved = true;
 			}
-			alert("Note: breakpoints were moved to valid locations");
 		}
+
+		if (breakpointsMoved)
+			alert("Note: breakpoints were moved to valid locations");
 	}
 }
 
@@ -552,7 +515,7 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "tgui",
 		style: {
 			float: "left",
-			width: "200px",
+			width: "fit-content",
 			height: "100%",
 			border: "none",
 			margin: "3px",
@@ -575,19 +538,16 @@ export function create(container: HTMLElement, options?: any) {
 
 		// pressing F1
 		tgui.setHotkey("F1", function () {
-			let selection = sourcecode.getSelection();
+			const doc = editor.getCurrentDocument();
+			if (!doc) return;
+
+			let selection = doc.getSelection();
 			// maximum limit of 30 characters
-			// so that there is no problem, when accedentially everything
+			// so that there is no problem, when accidentally everything
 			// in a file is selected
-			if (!selection) {
-				// get current word under the cursor
-				let cursor = sourcecode.getCursor();
+			if (!selection) selection = doc.findWordAt(doc.getCursor());
 
-				let word = sourcecode.findWordAt(cursor);
-
-				selection = sourcecode.getRange(word.anchor, word.head);
-			}
-			selection = selection.substr(0, 30);
+			selection = selection.slice(0, 30);
 			const words = selection.match(/[a-z]+/gi); // global case insensitive
 			showdocConfirm(undefined, words?.join(" "));
 		});
@@ -603,87 +563,34 @@ export function create(container: HTMLElement, options?: any) {
 	// prepare tgui panels
 	tgui.preparePanels(area, iconlist);
 
-	let panel_editor = tgui.createPanel({
-		name: "editor",
-		title: "Editor",
-		state: "left",
-		fallbackState: "float",
-		dockedheight: 600,
-		onArrange: function () {
-			if (sourcecode) sourcecode.refresh();
-		},
-		icon: icons.editor,
-	});
-	panel_editor.textarea = tgui.createElement({
-		type: "textarea",
-		parent: panel_editor.content,
-		classname: "ide ide-sourcecode",
-	});
-	sourcecode = CodeMirror.fromTextArea(panel_editor.textarea, {
-		gutters: ["CodeMirror-linenumbers", "breakpoints"],
-		lineNumbers: true,
-		matchBrackets: true,
-		styleActiveLine: true,
-		mode: "text/tscript",
-		indentUnit: 4,
-		tabSize: 4,
-		indentWithTabs: true,
-		// TODO: Setting in configuration: lineWrapping: true/false,
-		extraKeys: {
-			"Ctrl-D": "toggleComment",
-			"Cmd-D": "toggleComment",
-			"Ctrl-R": "replace",
-			F3: "findNext",
-			"Shift-F3": "findPrev",
-			"Ctrl-Up": "goDocEnd",
-			"Ctrl-Down": "goDocStart",
-			"Shift-Tab": "indentLess",
-		},
-	});
-	sourcecode.on("change", function (cm, changeObj) {
-		ide_document.dirty = true;
+	editor = new TScriptEditor();
+
+	editor.onDocChange(function (doc) {
+		doc.setDirty(true);
 		if (interpreter) {
-			clear();
 			utils.updateControls();
 		}
 	});
-	sourcecode.on("gutterClick", function (cm, line) {
-		if (interpreter) {
-			// ask the interpreter for the correct position of the marker
-			let result = interpreter.toggleBreakpoint(line + 1);
-			if (result !== null) {
-				line = result.line;
-				cm.setGutterMarker(
-					line - 1,
-					"breakpoints",
-					result.active ? utils.makeMarker() : null
-				);
-				sourcecode.scrollIntoView({ line: line, ch: 0 }, 40);
-			}
-		} else {
-			// set the marker optimistically, fix as soon as an interpreter is created
-			cm.setGutterMarker(
-				line,
-				"breakpoints",
-				cm.lineInfo(line).gutterMarkers ? null : utils.makeMarker()
-			);
-		}
-	});
-	sourcecode.on("cursorActivity", function (cm) {
+
+	editor.onCursorActivity(function (doc) {
 		if (
 			interpreter &&
 			interpreter.status === "running" &&
 			!interpreter.background
 		) {
 			// highlight variable values in the debugger in stepping mode
-			let cursor = cm.getCursor();
+			const cursor = doc.getCursor();
 			let line = cursor.line + 1;
 			let ch = cursor.ch;
 			let highlight_var: any = null,
 				highlight_func: any = null;
 			function rec(pe) {
 				if (pe.buildin) return;
-				if (pe?.where?.line == line && pe.where.ch <= ch) {
+				if (
+					pe?.where?.line == line &&
+					pe.where.ch <= ch &&
+					pe.where.filename == doc.getFilename()
+				) {
 					if (pe.petype == "variable") {
 						if (pe.where.ch + pe.name.length >= ch) {
 							highlight_var = pe;
@@ -722,7 +629,6 @@ export function create(container: HTMLElement, options?: any) {
 					}
 				}
 				if (scope) {
-					console.log(scope, highlight_var);
 					let tv = scope.variables[highlight_var.id];
 					if (!tv) return;
 					let text = TScript.previewValue(tv);
@@ -748,8 +654,9 @@ export function create(container: HTMLElement, options?: any) {
 			}
 		}
 	});
-	editor_title = panel_editor.titlebar; // TODO: remove this, this is only used to update the title
-	//       - add functionality to update title in tgui.js
+
+	const doc = openEditorFromLS("Main");
+	if (!doc) createEditorTab("Main");
 
 	let panel_messages = tgui.createPanel({
 		name: "messages",
@@ -794,7 +701,11 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_programview.content,
 		nodeclick: function (event, value, id) {
 			if (value.where) {
-				utils.setCursorPosition(value.where.line, value.where.ch);
+				utils.setCursorPosition(
+					value.where.line,
+					value.where.ch,
+					value.where.filename
+				);
 			}
 		},
 	});
@@ -1048,7 +959,7 @@ export function create(container: HTMLElement, options?: any) {
 	tutorial.init(
 		tutorial_container,
 		function () {
-			return sourcecode.getValue();
+			return editor.getCurrentDocument()!.getValue();
 		},
 		function () {
 			messages.innerHTML = "";
@@ -1059,8 +970,5 @@ export function create(container: HTMLElement, options?: any) {
 	);
 
 	tgui.arrangePanels();
-
-	sourcecode.focus();
-
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
 }

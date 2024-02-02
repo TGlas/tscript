@@ -1,4 +1,5 @@
 import * as ide from ".";
+import { openEditorFromLS } from "./editor-tabs";
 import { programinfo } from "./programinfo";
 import { stackinfo } from "./stackinfo";
 
@@ -39,14 +40,14 @@ export function updateStatus() {
 	}
 
 	// update read-only state of the editor
-	if (ide.sourcecode) {
+	if (ide.editor) {
 		let should =
 			ide.interpreter !== null &&
 			(ide.interpreter.status === "running" ||
 				ide.interpreter.status === "waiting" ||
 				ide.interpreter.status === "dialog");
-		if (ide.sourcecode.getOption("readOnly") != should) {
-			ide.sourcecode.setOption("readOnly", should);
+		if (ide.editor.isReadOnly() != should) {
+			ide.editor.setReadOnly(should);
 			let ed: any = document.getElementsByClassName("CodeMirror");
 			let value = should ? 0.6 : 1;
 			for (let i = 0; i < ed.length; i++) ed[i].style.opacity = value;
@@ -63,7 +64,12 @@ export function updateControls() {
 		if (ide.interpreter.stack.length > 0) {
 			let frame = ide.interpreter.stack[ide.interpreter.stack.length - 1];
 			let pe = frame.pe[frame.pe.length - 1];
-			if (pe.where) setCursorPosition(pe.where.line, pe.where.ch);
+			if (pe.where)
+				setCursorPosition(
+					pe.where.line,
+					pe.where.ch,
+					pe.where.filename
+				);
 		} else {
 			// it might be appropriate to keep the scroll position after running the program,
 			// because in a large program one would continue editing some location in the middle
@@ -84,18 +90,17 @@ export function updateControls() {
 /**
  * set the cursor in the editor; line is 1-based, ch (char within the line) is 0-based
  */
-export function setCursorPosition(line: number, ch: number) {
-	if (typeof ch === "undefined") ch = 0;
-	ide.sourcecode.setCursor(line - 1, ch);
-	ide.sourcecode.focus();
-	//	module.sourcecode.scrollIntoView({"line": line-1, "ch": 0}, 40);
-	let s = ide.sourcecode.getScrollInfo();
-	let y = ide.sourcecode.charCoords({ line: line - 1, ch: 0 }, "local").top;
-	let h = ide.sourcecode.getScrollerElement().offsetHeight;
-	if (y < s.top + 0.1 * s.clientHeight || y >= s.top + 0.9 * s.clientHeight) {
-		y = y - 0.5 * h - 5;
-		ide.sourcecode.scrollTo(null, y);
-	}
+export function setCursorPosition(line: number, ch: number, filename: string) {
+	let doc = ide.editor
+		.getDocuments()
+		.find((doc) => doc.getFilename() === filename);
+
+	if (!doc) doc = openEditorFromLS(filename);
+	if (!doc) return;
+
+	doc.setCursor({ line: line - 1, ch });
+	doc.focus();
+	doc.scrollIntoView({ line: line - 1, ch: 0 });
 }
 
 export function makeMarker() {

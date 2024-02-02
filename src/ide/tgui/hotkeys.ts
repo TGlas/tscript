@@ -93,7 +93,7 @@ document.addEventListener("keydown", function (event) {
 	return true;
 });
 
-/** 
+/**
  * check whether an element is currently visible to the user
  * https://stackoverflow.com/a/7557433
  */

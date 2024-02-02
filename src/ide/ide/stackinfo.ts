@@ -53,7 +53,7 @@ export function stackinfo(value, node_id) {
 				});
 
 				ret.element.addEventListener("click", function (event) {
-					setCursorPosition(where.line, where.ch);
+					setCursorPosition(where.line, where.ch, where.filename);
 					return false;
 				});
 			}

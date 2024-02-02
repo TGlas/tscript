@@ -12,7 +12,6 @@ export class Interpreter {
 	public status = ""; // program status: "running", "waiting", "dialog", "error", "finished"
 	public dialogResult: any = null; // result (typed value) returned by a modal alert/confirm/prompt dialog
 	public stack: Array<any> = []; // full state of the program
-	public breakpoints = {}; // breakpoints for debugging, keys are lines
 	public stepcounter = 0; // number of program steps already executed
 	public waittime = 0; // time to wait before execution can continue
 	public eventqueue: any = []; // queue of events, with entries of the form {type, event}.
@@ -260,22 +259,27 @@ export class Interpreter {
 				if (pe.sim.call(this)) break;
 			}
 		} catch (ex: any) {
+			const frame = this.stack[this.stack.length - 1];
+			const pe = frame.pe[frame.pe.length - 1];
+
 			if (ex.name === "Runtime Error" || ex.name === "Parse Error") {
 				this.halt = null;
 				this.background = false;
 				if (this.service.message) {
+					const filename = pe?.where?.filename || ex.filename;
+					const line = pe?.where?.line || ex.line;
+					const ch = pe?.where?.ch || ex.ch;
+
 					this.service.message(
 						"runtime error " +
-							(ex.filename
-								? "in file '" + ex.filename + "'"
-								: "") +
+							(filename ? "in file '" + filename + "'" : "") +
 							"in line " +
-							ex.line +
+							line +
 							": " +
 							ex.message,
-						ex.filename,
-						ex.line,
-						ex.ch,
+						filename,
+						line,
+						ch,
 						ex.href
 					);
 				}
@@ -393,21 +397,24 @@ export class Interpreter {
 	// a dictionary. Some breakpoints may get merged this way. If all
 	// provided breakpoints are in legal positions then the function
 	// returns null.
-	public defineBreakpoints(lines) {
+	public defineBreakpoints(lines, filename) {
 		let pos = {};
 		let changed = false;
+		const breakpoints = this.program.breakpoints[filename];
+		if (!breakpoints) return null;
 
 		// loop over all positions
 		for (let i = 0; i < lines.length; i++) {
 			let line = lines[i];
-			if (this.program.breakpoints.hasOwnProperty(line)) {
+
+			if (breakpoints.hasOwnProperty(line)) {
 				// position is valid
 				pos[line] = true;
 			} else {
 				// find a valid position if possible
 				changed = true;
 				while (line <= this.program.lines) {
-					if (this.program.breakpoints.hasOwnProperty(line)) {
+					if (breakpoints.hasOwnProperty(line)) {
 						pos[line] = true;
 						break;
 					} else line++;
@@ -416,9 +423,9 @@ export class Interpreter {
 		}
 
 		// enable/disable break points
-		for (let key in this.program.breakpoints) {
-			if (pos.hasOwnProperty(key)) this.program.breakpoints[key].set();
-			else this.program.breakpoints[key].clear();
+		for (let key in breakpoints) {
+			if (pos.hasOwnProperty(key)) breakpoints[key].set();
+			else breakpoints[key].clear();
 		}
 
 		// return the result
@@ -433,13 +440,15 @@ export class Interpreter {
 	//   active: boolean,    // is the breakpoint active after the action?
 	// }
 	// It no valid position can be found then the function returns null.
-	public toggleBreakpoint(line) {
+	public toggleBreakpoint(line, filename) {
+		const breakpoints = this.program.breakpoints[filename];
+
 		while (line <= this.program.lines) {
-			if (this.program.breakpoints.hasOwnProperty(line)) {
-				this.program.breakpoints[line].toggle();
+			if (breakpoints.hasOwnProperty(line)) {
+				breakpoints[line].toggle();
 				return {
 					line: line,
-					active: this.program.breakpoints[line].active(),
+					active: breakpoints[line].active(),
 				};
 			} else line++;
 		}

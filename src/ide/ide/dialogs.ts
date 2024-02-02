@@ -1,7 +1,7 @@
-import { ide_document } from ".";
 import { Options, defaultOptions } from "../../lang/helpers/options";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
+import * as ide from "./index";
 
 export let options: any = new Options();
 let theme: string = "default";
@@ -12,12 +12,18 @@ let theme: string = "default";
  * When the document was not changed, or the user allows to discard the changes the function onConfirm is
  * called.
  */
-export function confirmFileDiscard(title: string, onConfirm: () => any) {
-	if (ide_document.dirty) {
+export function confirmFileDiscard(filename: string, onConfirm: () => any) {
+	const doc = ide.editor
+		.getDocuments()
+		.find((d) => d.getFilename() === filename);
+
+	if (!doc) return;
+
+	if (doc.isDirty()) {
 		tgui.msgBox({
 			prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
 			icon: tgui.msgBoxQuestion,
-			title: title,
+			title: filename,
 			buttons: [
 				{ text: "Discard", onClick: onConfirm, isDefault: true },
 				{ text: "Cancel" },
@@ -26,6 +32,18 @@ export function confirmFileDiscard(title: string, onConfirm: () => any) {
 	} else {
 		onConfirm();
 	}
+}
+
+export function confirmFileOverwrite(filename: string, onConfirm: () => any) {
+	tgui.msgBox({
+		prompt: `A document named ${filename} already exists.\nDo you want to overwrite it?`,
+		icon: tgui.msgBoxQuestion,
+		title: filename,
+		buttons: [
+			{ text: "Overwrite", onClick: onConfirm, isDefault: true },
+			{ text: "Cancel" },
+		],
+	});
 }
 
 /**
@@ -513,6 +531,7 @@ export function fileDlg(
 		let index = files.indexOf(filename);
 		if (index >= 0) {
 			let onDelete = () => {
+				ide.editor.closeDocument(filename);
 				localStorage.removeItem("tscript.code." + filename);
 				files.splice(index, 1);
 				list.remove(index);
@@ -581,4 +600,46 @@ export function fileDlg(
 
 		fileImport.click();
 	}
+}
+
+export function tabNameDlg(onOkay: (filename: string) => boolean) {
+	// return true on failure, that is when the dialog should be kept open
+	let onFileConfirmation = function () {
+		return onOkay(name.value);
+	};
+
+	// create dialog and its controls
+	let modal = tgui.createModal({
+		title: "New tab",
+		scalesize: [0, 0],
+		minsize: [330, 120],
+		buttons: [
+			{
+				text: "Confirm",
+				isDefault: true,
+				onClick: onFileConfirmation,
+			},
+			{ text: "Cancel" },
+		],
+		enterConfirms: true,
+		contentstyle: {
+			display: "flex",
+			"align-items": "center",
+		},
+	});
+
+	let name = { value: "" };
+	name = tgui.createElement({
+		parent: modal.content,
+		type: "input",
+		style: {
+			width: "100%",
+			height: "25px",
+			"margin-vertical": "7px",
+		},
+		classname: "tgui-text-box",
+		properties: { type: "text", placeholder: "Filename" },
+	});
+
+	tgui.startModal(modal);
 }
