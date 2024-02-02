@@ -4662,6 +4662,39 @@ export const tests: Array<TscriptTest> = [
 			"error",
 		],
 	},
+	{
+		name: "am-49-1",
+		description: "test of argument mismatch error am-49, case 1",
+		code: `
+			canvas.circle(100, 100, -10);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-49" },
+			"error",
+		],
+	},
+	{
+		name: "am-49-2",
+		description: "test of argument mismatch error am-49, case 2",
+		code: `
+			canvas.fillCircle(100, 100, -10);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-49" },
+			"error",
+		],
+	},
+	{
+		name: "am-49-3",
+		description: "test of argument mismatch error am-49, case 3",
+		code: `
+			canvas.frameCircle(100, 100, -10);
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-49" },
+			"error",
+		],
+	},
 
 	// name resolution errors
 	{

@@ -567,6 +567,12 @@ export const lib_canvas = {
 						],
 						this.stack
 					);
+				if (radius.value.b < 0)
+					ErrorHelper.error(
+						"/argument-mismatch/am-49",
+						[],
+						this.stack
+					);
 				this.service.canvas.circle.call(
 					this.service,
 					x.value.b,
@@ -612,6 +618,12 @@ export const lib_canvas = {
 						],
 						this.stack
 					);
+				if (radius.value.b < 0)
+					ErrorHelper.error(
+						"/argument-mismatch/am-49",
+						[],
+						this.stack
+					);
 				this.service.canvas.fillCircle.call(
 					this.service,
 					x.value.b,
@@ -655,6 +667,12 @@ export const lib_canvas = {
 							"numeric argument",
 							TScript.displayname(radius.type),
 						],
+						this.stack
+					);
+				if (radius.value.b < 0)
+					ErrorHelper.error(
+						"/argument-mismatch/am-49",
+						[],
 						this.stack
 					);
 				this.service.canvas.frameCircle.call(

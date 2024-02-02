@@ -2232,6 +2232,16 @@ print(arr.sort(order2));                        # works fine
 		`,
 					children: [],
 				},
+				{
+					id: "am-49",
+					content: `
+			<p>
+			This error is raised when a (possibly filled or framed) circle
+			is drawn on the canvas with a negative radius.
+			</p>
+		`,
+					children: [],
+				},
 			],
 		},
 		{
