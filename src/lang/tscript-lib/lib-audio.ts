@@ -84,7 +84,10 @@ export const lib_audio = {
 							this.service.audioContext.decodeAudioData(
 								buffer,
 								(decoded) => {
-									object.value.b.buffer = decoded;
+									object.value.b = {
+										buffer: decoded,
+										soundloop: null,
+									};
 								}
 							);
 						} catch (ex) {
@@ -132,16 +135,18 @@ export const lib_audio = {
 						object.value.b &&
 						!object.value.b.soundloop
 					) {
-						let sourceNode =
-							this.service.audioContext.createBufferSource();
-						sourceNode.buffer = object.value.b.buffer;
-						sourceNode.connect(
-							this.service.audioContext.destination
-						);
-						sourceNode.loop = true;
-						sourceNode.start();
-
-						object.value.b.soundloop = sourceNode;
+						let context = this.service.audioContext;
+						let doit = function () {
+							if (object.value.b.buffer) {
+								let sourceNode = context.createBufferSource();
+								sourceNode.buffer = object.value.b.buffer;
+								sourceNode.connect(context.destination);
+								sourceNode.loop = true;
+								sourceNode.start();
+								object.value.b.soundloop = sourceNode;
+							} else window.setTimeout(doit, 5);
+						};
+						doit();
 					}
 					return {
 						type: this.program.types[Typeid.typeid_null],
