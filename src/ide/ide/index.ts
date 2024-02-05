@@ -568,6 +568,7 @@ export function create(container: HTMLElement, options?: any) {
 	editor.onDocChange(function (doc) {
 		doc.setDirty(true);
 		if (interpreter) {
+			clear();
 			utils.updateControls();
 		}
 	});
