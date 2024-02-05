@@ -277,6 +277,8 @@ export function cmd_export() {
 function cmd_toggle_breakpoint() {
 	if (!ide.editor.getCurrentDocument()) return;
 
+	if (ide.editor.isReadOnly()) return;
+
 	let cm = ide.editor.getCurrentDocument()!;
 	let line = cm.getCursor().line;
 	if (ide.interpreter) {

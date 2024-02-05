@@ -1,5 +1,6 @@
 import { RangeSet, StateEffect, StateField } from "@codemirror/state";
 import { EditorView, GutterMarker, gutter } from "@codemirror/view";
+import * as ide from ".";
 import { TScriptEditor } from "./TScriptEditor";
 
 const breakpointEffect = StateEffect.define<{ pos: number; on: boolean }>({
@@ -38,6 +39,8 @@ export function hasBreakpoint(view: EditorView, line: number) {
 }
 
 export function toggleBreakpoint(view: EditorView, line: number) {
+	if (ide.editor.isReadOnly()) return;
+
 	view.dispatch({
 		effects: breakpointEffect.of({
 			pos: TScriptEditor.posToOffset(view, { line, ch: 0 }),
