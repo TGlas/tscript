@@ -71,6 +71,8 @@ export function createEditorTab(name: string) {
 		return false;
 	});
 
+	ide.updateRunSelection();
+
 	return false;
 }
 

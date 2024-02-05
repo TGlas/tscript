@@ -11,9 +11,11 @@ import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { parse_include } from "./parse_include";
 import { defaultOptions, Options } from "../helpers/options";
 
+type ToParse = { documents: Record<string, string>; main: string } | string;
+
 export class Parser {
 	public static parse(
-		toParse: Record<string, string> | string,
+		toParse: ToParse,
 		options: Options = defaultOptions
 	): { program: any; errors: Array<any> } {
 		// create the initial program structure
@@ -33,9 +35,9 @@ export class Parser {
 		};
 
 		const documents =
-			typeof toParse == "string" ? { Main: toParse } : toParse;
+			typeof toParse == "string" ? { main: toParse } : toParse.documents;
 
-		if (documents["Main"] == undefined) alert("No Main file declared");
+		const mainDoc = typeof toParse == "string" ? "main" : toParse.main;
 
 		// create the parser state
 		let state = {
@@ -296,15 +298,15 @@ export class Parser {
 
 			// parse the user's source code
 			program.where = state.get();
-			parse1(documents["Main"], null, "Main");
+			parse1(documents[mainDoc], null, mainDoc);
 			program.lines = state.line;
 
 			// append an "end" breakpoint
 			state.skip();
-			if (!program.breakpoints["Main"].hasOwnProperty(state.line)) {
+			if (!program.breakpoints[mainDoc].hasOwnProperty(state.line)) {
 				// create and register a new breakpoint
 				let b = create_breakpoint(program, state);
-				program.breakpoints["Main"][state.line] = b;
+				program.breakpoints[mainDoc][state.line] = b;
 				program.commands.push(b);
 			}
 

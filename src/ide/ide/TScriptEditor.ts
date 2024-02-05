@@ -11,6 +11,7 @@ import { cmtsmode } from "../codemirror-tscriptmode";
 import { getPanel, removePanel } from "../tgui";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
+import { updateRunSelection } from ".";
 
 interface EditorPosition {
 	line: number;
@@ -93,6 +94,7 @@ export class TScriptEditor {
 
 		this.documents = this.documents.filter((d) => d != doc);
 		removePanel(doc.getPanelId());
+		updateRunSelection();
 	}
 
 	/**
@@ -304,9 +306,9 @@ export class TScriptDocument {
 	 * @param pos (CM5 position syntax)
 	 */
 	public setCursor(pos: EditorPosition) {
+		this.focus();
 		const offset = TScriptEditor.posToOffset(this.ev, pos);
 		this.ev.dispatch({ selection: { anchor: offset } });
-		this.focus();
 	}
 
 	/**
@@ -401,13 +403,14 @@ export class TScriptDocument {
 	 * Scrolls a line into view
 	 */
 	public scrollIntoView(pos: EditorPosition) {
+		this.focus();
+
 		this.ev.dispatch({
 			effects: EditorView.scrollIntoView(
 				TScriptEditor.posToOffset(this.ev, pos),
 				{ y: "center" }
 			),
 		});
-		this.focus();
 	}
 
 	/**
