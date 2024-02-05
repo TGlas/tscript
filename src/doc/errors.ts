@@ -1342,6 +1342,32 @@ function example(index) {
 		`,
 					children: [],
 				},
+				{
+					id: "se-91",
+					content: `
+			<p>
+			This error is reported if the <keyword>include</keyword> is not
+			followed by a string literal. The syntax should be
+			<code class="code">include "filename";</code>. For example, an
+			attempt to use the function-style syntax
+			<code class="code">include("filename");</code>
+			results in this error.
+			</p>
+		`,
+					children: [],
+				},
+				{
+					id: "se-92",
+					content: `
+			<p>
+			This error indicates that the semicolon ending an
+			<keyword>include</keyword> statement is missing. Adding the
+			semicolon after the string literal indicating the filename
+			should fix the problem.
+			</p>
+		`,
+					children: [],
+				},
 			],
 		},
 		{
