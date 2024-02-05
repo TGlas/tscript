@@ -11,6 +11,7 @@ import { cmtsmode } from "../codemirror-tscriptmode";
 import { getPanel, removePanel } from "../tgui";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
+import { updateRunSelection } from ".";
 
 interface EditorPosition {
 	line: number;
@@ -93,6 +94,7 @@ export class TScriptEditor {
 
 		this.documents = this.documents.filter((d) => d != doc);
 		removePanel(doc.getPanelId());
+		updateRunSelection();
 	}
 
 	/**

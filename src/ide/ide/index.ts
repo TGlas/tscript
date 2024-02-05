@@ -41,6 +41,7 @@ let main: any = null;
 let toolbar: any = null;
 let iconlist: any = null;
 let highlight: any = null;
+let runselector: HTMLSelectElement;
 
 loadConfig();
 
@@ -172,9 +173,13 @@ export function prepare_run() {
 		source += "\n";
 	}
 
-	let result = Parser.parse(editor.getValues(), options);
+	const toParse = {
+		documents: editor.getValues(),
+		main: getRunSelection(),
+	};
+
+	let result = Parser.parse(toParse, options);
 	let program = result.program;
-	let html = "";
 	let errors = result.errors;
 	if (errors) {
 		for (let i = 0; i < errors.length; i++) {
@@ -425,6 +430,21 @@ export function create(container: HTMLElement, options?: any) {
 			description.tooltip += " (" + description.hotkey + ")";
 		description.parent = toolbar;
 		buttons[i].control = tgui.createButton(description);
+
+		// Insert run-selector right after "run" button
+		if (i === 4) {
+			runselector = tgui.createElement({
+				type: "select",
+				parent: toolbar,
+				classname: "tgui tgui-control",
+				style: {
+					float: "left",
+					"min-width": "100px",
+					height: "22px",
+					"padding-left": "4px",
+				},
+			});
+		}
 	}
 
 	tgui.createElement({
@@ -972,4 +992,26 @@ export function create(container: HTMLElement, options?: any) {
 
 	tgui.arrangePanels();
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
+}
+
+/**
+ * Returns the current filename, selected in the run-selector
+ */
+export function getRunSelection() {
+	return runselector.value;
+}
+
+/**
+ * Updates the run-selector
+ */
+export function updateRunSelection() {
+	const values: string[] = [];
+
+	editor.getDocuments().forEach((doc) => {
+		const filename = doc.getFilename();
+		values.push(`<option value="${filename}">${filename}</option>`);
+	});
+
+	runselector.innerHTML = values.join("");
+	runselector.disabled = values.length == 0;
 }

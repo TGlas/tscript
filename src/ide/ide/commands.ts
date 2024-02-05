@@ -152,7 +152,13 @@ export function cmd_export() {
 	// check that the code at least compiles
 	let source = ide.editor.getCurrentDocument()!.getValue();
 	ide.clear();
-	let result = Parser.parse(ide.editor.getValues(), options);
+
+	const toParse = {
+		documents: ide.editor.getValues(),
+		main: ide.getRunSelection(),
+	};
+
+	let result = Parser.parse(toParse, options);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {
