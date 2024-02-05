@@ -112,11 +112,18 @@ export class Parser {
 				return this.lookahead(1);
 			},
 			get: function () {
-				return { pos: this.pos, line: this.line, ch: this.ch };
+				return {
+					pos: this.pos,
+					line: this.line,
+					ch: this.ch,
+					filename: this.filename,
+				};
 			},
 			set: function (where) {
 				this.pos = where.pos;
-				(this.line = where.line), (this.ch = where.ch);
+				this.line = where.line;
+				this.ch = where.ch;
+				this.filename = where.filename;
 			},
 			indentation: function () {
 				let w = 0;
