@@ -272,7 +272,7 @@ export class Interpreter {
 
 					this.service.message(
 						"runtime error " +
-							(filename ? "in file '" + filename + "'" : "") +
+							(filename ? "in file '" + filename + "' " : "") +
 							"in line " +
 							line +
 							": " +

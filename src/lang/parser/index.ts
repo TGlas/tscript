@@ -128,7 +128,9 @@ export class Parser {
 			},
 			set: function (where) {
 				this.pos = where.pos;
-				(this.line = where.line), (this.ch = where.ch);
+				this.line = where.line;
+				this.ch = where.ch;
+				this.filename = where.filename;
 			},
 			indentation: function () {
 				let w = 0;
