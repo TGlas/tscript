@@ -122,6 +122,15 @@ export function parse_constructor(state, parent, options: Options) {
 			base.typedvalue.value.b = parent.superclass; // ...overwriting (*) here
 		};
 
+		{
+			let where = state.get();
+			let token = Lexer.get_token(state, options);
+			state.set(where);
+			if (token.value !== "(") {
+				state.error("/syntax/se-36", ["constructor super call"]);
+			}
+		}
+
 		// create the call to the superclass constructor
 		func.supercall = parse_call(state, func, base, options);
 		func.supercall.petype = "super call";
