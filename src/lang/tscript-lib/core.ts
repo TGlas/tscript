@@ -1317,7 +1317,11 @@ export const core = {
 							// this allows another timer event to be enqueued,
 							// while the timer event is executed
 							if (t === "timer") this.timerEventEnqueued = false;
-							if (this.eventhandler.hasOwnProperty(t)) {
+							else if (t === "quit") {
+								this.status = "finished";
+								if (this.service.statechanged)
+									this.service.statechanged(true);
+							} else if (this.eventhandler.hasOwnProperty(t)) {
 								let handler = this.eventhandler[t];
 
 								// argument list for the call
