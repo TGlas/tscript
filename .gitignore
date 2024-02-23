@@ -2,4 +2,7 @@ node_modules/
 distribution/
 out/
 build.sh
-
+src/ide/ide/tscript/
+src/ide/ide/syntax/
+log.txt
+.idea

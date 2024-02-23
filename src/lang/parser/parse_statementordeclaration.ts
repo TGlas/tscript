@@ -27,10 +27,12 @@ export function parse_statement_or_declaration(state, parent, options) {
 	if (!state.builtin()) {
 		state.skip();
 
-		if (!state.program.breakpoints.hasOwnProperty(state.line)) {
+		const breakpoints = state.program.breakpoints[state.filename];
+
+		if (!breakpoints.hasOwnProperty(state.line)) {
 			// create and register a new breakpoint
 			let b = create_breakpoint(parent, state);
-			state.program.breakpoints[state.line] = b;
+			breakpoints[state.line] = b;
 			parent.commands.push(b);
 		}
 	}
