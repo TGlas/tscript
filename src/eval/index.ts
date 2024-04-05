@@ -654,7 +654,6 @@ export const evaluation = (function () {
 			) {
 				error = "Error:\n" + result.msg;
 				if (task.tests) {
-					// TODO: report the test case
 					let index = 0;
 					for (let i = 0; i < task.tests.length; i++) {
 						let test = task.tests[i];
@@ -679,12 +678,20 @@ export const evaluation = (function () {
 					!!task["ignore-color"]
 				) {
 					for (let i = 0; i < result.length; i++) {
-						if (result[i] && Array.isArray(result[i]))
+						if (result[i] && Array.isArray(result[i])) {
+							// remove events setting color
 							result[i] = result[i].filter(
 								(event) =>
-									event.type != "canvas setLineColor" &&
-									event.type != "canvas setFillColor"
+									event.type !== "canvas setLineColor" &&
+									event.type !== "canvas setFillColor"
 							);
+							// remove an initial "clear", if present
+							if (
+								result[i].length > 0 &&
+								result[i][0].type === "canvas clear"
+							)
+								result[i].shift();
+						}
 					}
 				}
 				let io =
