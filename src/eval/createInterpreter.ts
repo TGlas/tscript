@@ -1,6 +1,4 @@
-//import { Typeid } from "../lang/helpers/typeIds";
 import { TScript } from "../lang";
-//import { Parser } from "../lang/parser";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
 
@@ -8,6 +6,88 @@ import { Interpreter } from "../lang/interpreter/interpreter";
 // runtime behavior of a program
 export function createInterpreter(program, inputs, output) {
 	let interpreter = new Interpreter(program, createDefaultServices());
+
+	// current image transformation
+	interpreter.service.canvas._trafo_a = Array(Array(1, 0), Array(0, 1));
+	interpreter.service.canvas._trafo_b = Array(0, 0);
+
+	// apply the current transformation to an array of points
+	interpreter.service.canvas._transform = function (points) {
+		let ret = Array();
+		for (let p of points) {
+			ret.push([
+				interpreter.service.canvas._trafo_a[0][0] * p[0] +
+					interpreter.service.canvas._trafo_a[0][1] * p[1] +
+					interpreter.service.canvas._trafo_b[0],
+				interpreter.service.canvas._trafo_a[1][0] * p[0] +
+					interpreter.service.canvas._trafo_a[1][1] * p[1] +
+					interpreter.service.canvas._trafo_b[1],
+			]);
+		}
+		return ret;
+	};
+
+	// alter the current transformation by right-multiplying it with another transformation
+	interpreter.service.canvas._multiply = function (a, b) {
+		interpreter.service.canvas._trafo_a = [
+			[
+				interpreter.service.canvas._trafo_a[0][0] * a[0][0] +
+					interpreter.service.canvas._trafo_a[0][1] * a[1][0],
+				interpreter.service.canvas._trafo_a[1][0] * a[0][0] +
+					interpreter.service.canvas._trafo_a[1][1] * a[1][0],
+			],
+			[
+				interpreter.service.canvas._trafo_a[0][0] * a[0][1] +
+					interpreter.service.canvas._trafo_a[0][1] * a[1][1],
+				interpreter.service.canvas._trafo_a[1][0] * a[0][1] +
+					interpreter.service.canvas._trafo_a[1][1] * a[1][1],
+			],
+		];
+		interpreter.service.canvas._trafo_b = [
+			interpreter.service.canvas._trafo_a[0][0] * b[0] +
+				interpreter.service.canvas._trafo_a[0][1] * b[1] +
+				interpreter.service.canvas._trafo_b[0],
+			interpreter.service.canvas._trafo_a[1][0] * b[0] +
+				interpreter.service.canvas._trafo_a[1][1] * b[1] +
+				interpreter.service.canvas._trafo_b[1],
+		];
+	};
+
+	// compute a quadratic form from the transformation
+	interpreter.service._quadratic = function (scale) {
+		scale *= scale;
+		return [
+			[
+				scale *
+					interpreter.service.canvas._trafo_a[0][0] *
+					interpreter.service.canvas._trafo_a[0][0] +
+					scale *
+						interpreter.service.canvas._trafo_a[0][1] *
+						interpreter.service.canvas._trafo_a[0][1],
+				scale *
+					interpreter.service.canvas._trafo_a[0][0] *
+					interpreter.service.canvas._trafo_a[1][0] +
+					scale *
+						interpreter.service.canvas._trafo_a[0][1] *
+						interpreter.service.canvas._trafo_a[1][1],
+			],
+			[
+				scale *
+					interpreter.service.canvas._trafo_a[1][0] *
+					interpreter.service.canvas._trafo_a[0][0] +
+					scale *
+						interpreter.service.canvas._trafo_a[1][1] *
+						interpreter.service.canvas._trafo_a[0][1],
+				scale *
+					interpreter.service.canvas._trafo_a[1][0] *
+					interpreter.service.canvas._trafo_a[1][0] +
+					scale *
+						interpreter.service.canvas._trafo_a[1][1] *
+						interpreter.service.canvas._trafo_a[1][1],
+			],
+		];
+	};
+
 	interpreter.eventnames["canvas.resize"] = true;
 	interpreter.eventnames["canvas.mousedown"] = true;
 	interpreter.eventnames["canvas.mouseup"] = true;
@@ -124,90 +204,140 @@ export function createInterpreter(program, inputs, output) {
 		output.push({ type: "canvas clear" });
 	};
 	interpreter.service.canvas.line = function (x1, y1, x2, y2) {
+		let points = interpreter.service.canvas._transform([
+			[x1, y1],
+			[x2, y2],
+		]);
 		output.push({
 			type: "canvas line",
-			x1: x1,
-			y1: y1,
-			x2: x2,
-			y2: y2,
+			from: points[0],
+			to: points[1],
 		});
 	};
 	interpreter.service.canvas.rect = function (left, top, width, height) {
+		let points = interpreter.service.canvas._transform([
+			[left, top],
+			[left + width, top],
+			[left + width, top + height],
+			[left, top + height],
+		]);
 		output.push({
-			type: "canvas rect",
-			left: left,
-			top: top,
-			width: width,
-			height: height,
+			type: "canvas curve",
+			points: points,
+			closed: true,
 		});
 	};
 	interpreter.service.canvas.fillRect = function (left, top, width, height) {
+		let points = interpreter.service.canvas._transform([
+			[left, top],
+			[left + width, top],
+			[left + width, top + height],
+			[left, top + height],
+		]);
 		output.push({
-			type: "canvas fillRect",
-			left: left,
-			top: top,
-			width: width,
-			height: height,
+			type: "canvas fill",
+			points: points,
 		});
 	};
 	interpreter.service.canvas.frameRect = function (left, top, width, height) {
+		let points = interpreter.service.canvas._transform([
+			[left, top],
+			[left + width, top],
+			[left + width, top + height],
+			[left, top + height],
+		]);
 		output.push({
-			type: "canvas frameRect",
-			left: left,
-			top: top,
-			width: width,
-			height: height,
+			type: "canvas frame",
+			points: points,
 		});
 	};
 	interpreter.service.canvas.circle = function (x, y, radius) {
-		output.push({ type: "canvas circle", x: x, y: y, radius: radius });
+		output.push({
+			type: "canvas ellipse curve",
+			center: interpreter.service.canvas._transform([[x, y]])[0],
+			shape: interpreter.service.canvas._quadratic(radius),
+		});
 	};
 	interpreter.service.canvas.fillCircle = function (x, y, radius) {
 		output.push({
-			type: "canvas fillCircle",
-			x: x,
-			y: y,
-			radius: radius,
+			type: "canvas ellipse fill",
+			center: interpreter.service.canvas._transform([[x, y]])[0],
+			shape: interpreter.service.canvas._quadratic(radius),
 		});
 	};
 	interpreter.service.canvas.frameCircle = function (x, y, radius) {
 		output.push({
-			type: "canvas frameCircle",
-			x: x,
-			y: y,
-			radius: radius,
+			type: "canvas ellipse frame",
+			center: interpreter.service.canvas._transform([[x, y]])[0],
+			shape: interpreter.service.canvas._quadratic(radius),
 		});
 	};
 	interpreter.service.canvas.curve = function (points, closed) {
 		output.push({
 			type: "canvas curve",
-			points: points,
+			points: interpreter.service.canvas._transform(points),
 			closed: closed,
 		});
 	};
 	interpreter.service.canvas.fillArea = function (points) {
-		output.push({ type: "canvas fillArea", points: points });
+		output.push({
+			type: "canvas fill",
+			points: interpreter.service.canvas._transform(points),
+		});
 	};
 	interpreter.service.canvas.frameArea = function (points) {
-		output.push({ type: "canvas frameArea", points: points });
+		output.push({
+			type: "canvas frame",
+			points: interpreter.service.canvas._transform(points),
+		});
 	};
 	interpreter.service.canvas.text = function (x, y, str) {
-		output.push({ type: "canvas text", x: x, y: y, str: str });
+		let p = interpreter.service.canvas._transform([[x, y]])[0];
+		output.push({ type: "canvas text", position: p, str: str });
 	};
 	interpreter.service.canvas.reset = function () {
-		output.push({ type: "canvas reset" });
+		// output.push({ type: "canvas reset" });
+		interpreter.service.canvas._trafo_a = [
+			[1, 0],
+			[0, 1],
+		];
+		interpreter.service.canvas._trafo_b = [0, 0];
 	};
 	interpreter.service.canvas.shift = function (dx, dy) {
-		output.push({ type: "canvas shift", dx: dx, dy: dy });
+		// output.push({ type: "canvas shift", dx: dx, dy: dy });
+		interpreter.service.canvas._multiply(
+			[
+				[1, 0],
+				[0, 1],
+			],
+			[dx, dy]
+		);
 	};
 	interpreter.service.canvas.scale = function (factor) {
-		output.push({ type: "canvas scale", factor: factor });
+		// output.push({ type: "canvas scale", factor: factor });
+		interpreter.service.canvas._multiply(
+			[
+				[factor, 0],
+				[0, factor],
+			],
+			[0, 0]
+		);
 	};
 	interpreter.service.canvas.rotate = function (angle) {
-		output.push({ type: "canvas rotate", angle: angle });
+		// output.push({ type: "canvas rotate", angle: angle });
+		let c = Math.cos(angle);
+		let s = Math.sin(angle);
+		interpreter.service.canvas._multiply(
+			[
+				[c, -s],
+				[s, c],
+			],
+			[0, 0]
+		);
 	};
 	interpreter.service.canvas.transform = function (A, b) {
-		output.push({ type: "canvas transform", A: A, b: b });
+		// output.push({ type: "canvas transform", A: A, b: b });
+		interpreter.service.canvas._multiply(A, b);
 	};
 
 	return interpreter;
