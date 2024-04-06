@@ -322,11 +322,6 @@ export function createInterpreter(program, inputs, output) {
 				to: points[0],
 			});
 		}
-		//		output.push({
-		//			type: "canvas curve",
-		//			points: interpreter.service.canvas._transform(points),
-		//			closed: closed,
-		//		});
 	};
 	interpreter.service.canvas.fillArea = function (points) {
 		output.push({
@@ -345,7 +340,6 @@ export function createInterpreter(program, inputs, output) {
 		output.push({ type: "canvas text", position: p, str: str });
 	};
 	interpreter.service.canvas.reset = function () {
-		// output.push({ type: "canvas reset" });
 		interpreter.service.canvas._trafo_a = [
 			[1, 0],
 			[0, 1],
@@ -353,7 +347,6 @@ export function createInterpreter(program, inputs, output) {
 		interpreter.service.canvas._trafo_b = [0, 0];
 	};
 	interpreter.service.canvas.shift = function (dx, dy) {
-		// output.push({ type: "canvas shift", dx: dx, dy: dy });
 		interpreter.service.canvas._multiply(
 			[
 				[1, 0],
@@ -363,7 +356,6 @@ export function createInterpreter(program, inputs, output) {
 		);
 	};
 	interpreter.service.canvas.scale = function (factor) {
-		// output.push({ type: "canvas scale", factor: factor });
 		interpreter.service.canvas._multiply(
 			[
 				[factor, 0],
@@ -373,7 +365,6 @@ export function createInterpreter(program, inputs, output) {
 		);
 	};
 	interpreter.service.canvas.rotate = function (angle) {
-		// output.push({ type: "canvas rotate", angle: angle });
 		let c = Math.cos(angle);
 		let s = Math.sin(angle);
 		interpreter.service.canvas._multiply(
@@ -385,7 +376,6 @@ export function createInterpreter(program, inputs, output) {
 		);
 	};
 	interpreter.service.canvas.transform = function (A, b) {
-		// output.push({ type: "canvas transform", A: A, b: b });
 		interpreter.service.canvas._multiply(A, b);
 	};
 

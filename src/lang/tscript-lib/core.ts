@@ -1317,7 +1317,8 @@ export const core = {
 							// this allows another timer event to be enqueued,
 							// while the timer event is executed
 							if (t === "timer") this.timerEventEnqueued = false;
-							else if (t === "quit") {
+
+							if (t === "quit") {
 								this.status = "finished";
 								if (this.service.statechanged)
 									this.service.statechanged(true);
