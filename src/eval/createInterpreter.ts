@@ -222,9 +222,24 @@ export function createInterpreter(program, inputs, output) {
 			[left, top + height],
 		]);
 		output.push({
-			type: "canvas curve",
-			points: points,
-			closed: true,
+			type: "canvas line",
+			from: points[0],
+			to: points[1],
+		});
+		output.push({
+			type: "canvas line",
+			from: points[1],
+			to: points[2],
+		});
+		output.push({
+			type: "canvas line",
+			from: points[2],
+			to: points[3],
+		});
+		output.push({
+			type: "canvas line",
+			from: points[3],
+			to: points[0],
 		});
 	};
 	interpreter.service.canvas.fillRect = function (left, top, width, height) {
@@ -247,8 +262,28 @@ export function createInterpreter(program, inputs, output) {
 			[left, top + height],
 		]);
 		output.push({
-			type: "canvas frame",
+			type: "canvas fill",
 			points: points,
+		});
+		output.push({
+			type: "canvas line",
+			from: points[0],
+			to: points[1],
+		});
+		output.push({
+			type: "canvas line",
+			from: points[1],
+			to: points[2],
+		});
+		output.push({
+			type: "canvas line",
+			from: points[2],
+			to: points[3],
+		});
+		output.push({
+			type: "canvas line",
+			from: points[3],
+			to: points[0],
 		});
 	};
 	interpreter.service.canvas.circle = function (x, y, radius) {
@@ -266,18 +301,32 @@ export function createInterpreter(program, inputs, output) {
 		});
 	};
 	interpreter.service.canvas.frameCircle = function (x, y, radius) {
-		output.push({
-			type: "canvas ellipse frame",
-			center: interpreter.service.canvas._transform([[x, y]])[0],
-			shape: interpreter.service.canvas._quadratic(radius),
-		});
+		let c = interpreter.service.canvas._transform([[x, y]])[0];
+		let q = interpreter.service.canvas._quadratic(radius);
+		output.push({ type: "canvas ellipse fill", center: c, shape: q });
+		output.push({ type: "canvas ellipse curve", center: c, shape: q });
 	};
 	interpreter.service.canvas.curve = function (points, closed) {
-		output.push({
-			type: "canvas curve",
-			points: interpreter.service.canvas._transform(points),
-			closed: closed,
-		});
+		let p = interpreter.service.canvas._transform(points);
+		for (let i = 1; i < p.length; i++) {
+			output.push({
+				type: "canvas line",
+				from: points[i - 1],
+				to: points[i],
+			});
+		}
+		if (closed) {
+			output.push({
+				type: "canvas line",
+				from: points[points.length - 1],
+				to: points[0],
+			});
+		}
+		//		output.push({
+		//			type: "canvas curve",
+		//			points: interpreter.service.canvas._transform(points),
+		//			closed: closed,
+		//		});
 	};
 	interpreter.service.canvas.fillArea = function (points) {
 		output.push({

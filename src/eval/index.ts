@@ -54,6 +54,116 @@ export const evaluation = (function () {
 		return parseFloat(s);
 	}
 
+	// Compare two pairs of coordinates. Allow for a component-wise deviation.
+	// Return null in case of a match and an error message otherwise.
+	function check_coordinates(submission, solution, tolerance = 1e-2) {
+		if (
+			!Array.isArray(submission) ||
+			!Array.isArray(solution) ||
+			submission.length != 2 ||
+			solution.length != 2
+		)
+			return "internal error: unexpected data type in check_coordinates";
+		if (
+			Math.abs(submission[0] - solution[0]) > tolerance ||
+			Math.abs(submission[1] - solution[1]) > tolerance
+		)
+			return (
+				"Wrong coordinates - expected: " +
+				solution +
+				" - obtained: " +
+				submission
+			);
+		else return null;
+	}
+
+	// Compare quadratic forms, used to describe ellipse shapes.
+	// Return null in case of a match and an error message otherwise.
+	function check_quadratic(submission, solution, tolerance = 1e-4) {
+		if (
+			Math.abs(submission[0][0] - solution[0][0]) > tolerance ||
+			Math.abs(submission[0][1] - solution[0][1]) > tolerance ||
+			Math.abs(submission[1][0] - solution[1][0]) > tolerance ||
+			Math.abs(submission[1][1] - solution[1][1]) > tolerance
+		) {
+			if (
+				submission[0][1] === 0 &&
+				submission[1][0] === 0 &&
+				solution[0][1] === 0 &&
+				solution[1][0] === 0 &&
+				Math.abs(submission[0][0] - submission[1][1]) <= tolerance &&
+				Math.abs(solution[0][0] - solution[1][1]) <= tolerance
+			) {
+				let sol = Math.sqrt(solution[0][0]);
+				let sub = Math.sqrt(submission[0][0]);
+				return (
+					"Wrong radius - expected: " + sol + " - obtained: " + sub
+				);
+			} else {
+				return (
+					"Wrong ellipse shape - expected: " +
+					solution +
+					" - obtained: " +
+					submission
+				);
+			}
+		} else return null;
+	}
+
+	// Compare sequences of points forming an outline.
+	// Return null in case of a match and an error message otherwise.
+	function check_outline(submission, solution, tolerance = 1e-2) {
+		if (submission.length !== solution.length) {
+			return (
+				"Number of points does not match - expected " +
+				solution.length +
+				" - obtained " +
+				submission.length
+			);
+		}
+		let n = solution.length;
+		for (let i = 0; i < n; i++) {
+			{
+				let fine = true;
+				for (let j = 0; j < n; j++) {
+					if (
+						check_coordinates(
+							submission[(i + j) % n],
+							solution[j],
+							tolerance
+						)
+					) {
+						fine = false;
+						break;
+					}
+				}
+				if (fine) return null;
+			}
+			{
+				let fine = true;
+				for (let j = 0; j < n; j++) {
+					if (
+						check_coordinates(
+							submission[(i + n - j) % n],
+							solution[j],
+							tolerance
+						)
+					) {
+						fine = false;
+						break;
+					}
+				}
+				if (fine) return null;
+			}
+		}
+		return (
+			"Outlines do not match - expected " +
+			JSON.stringify(solution) +
+			" - obtained " +
+			JSON.stringify(submission)
+		);
+	}
+
 	// Compare two events.
 	// The function returns an error message, or the empty string in case of equality.
 	function compare_events(submission, solution) {
@@ -105,6 +215,51 @@ export const evaluation = (function () {
 				let d = compare_events(submission.from, solution.to);
 				if ((a != "" || b != "") && (c != "" || d != ""))
 					return a != "" ? a : b;
+			} else if (submission.type === "canvas line") {
+				if (
+					check_coordinates(submission.from, solution.from) ||
+					check_coordinates(submission.to, solution.to) ||
+					check_coordinates(submission.from, solution.to) ||
+					check_coordinates(submission.to, solution.from)
+				) {
+					return (
+						"Line coordinates do not match - expected: " +
+						solution.from +
+						" to " +
+						solution.to +
+						" - obtained: " +
+						submission.from +
+						" to " +
+						submission.to
+					);
+				}
+			} else if (submission.type === "canvas fill") {
+				// check all starting points, forward and backward
+				let s = check_outline(submission.points, solution.points);
+				if (s) return s;
+			} else if (submission.type === "canvas ellipse curve") {
+				let s = check_coordinates(submission.center, solution.center);
+				if (s) return s;
+				s = check_quadratic(submission.shape, solution.shape);
+				if (s) return s;
+			} else if (submission.type === "canvas ellipse fill") {
+				let s = check_coordinates(submission.center, solution.center);
+				if (s) return s;
+				s = check_quadratic(submission.shape, solution.shape);
+				if (s) return s;
+			} else if (submission.type === "canvas text") {
+				let s = check_coordinates(
+					submission.position,
+					solution.position
+				);
+				if (s) return s;
+				if (submission.str !== solution.str)
+					return (
+						"Wrong text - expected: " +
+						solution +
+						" - obtained: " +
+						submission
+					);
 			} else {
 				// generic comparison
 				for (let p in submission) {
