@@ -148,6 +148,20 @@ const icons = (function () {
 		draw.line(20, 31, 20, 34);
 	});
 
+	icons.msgBoxInformation = svgIcon(40, 40, (draw: SVGDrawingContext) => {
+		draw.setStyle("stroke-width: 2; stroke: #04d; fill: #16f");
+		draw.circle(20, 20, 18.5);
+
+		draw.setStyle("stroke-width: 2; stroke: #fff; fill: none");
+		draw.line(20, 8, 20, 11);
+
+		draw.beginPath();
+		draw.moveTo(16, 15);
+		draw.lineTo(20, 15);
+		draw.lineTo(20, 32);
+		draw.endPath();
+	});
+
 	icons.msgBoxExclamation = svgIcon(40, 40, (draw: SVGDrawingContext) => {
 		draw.setStyle("stroke-width: 2; stroke: #a91; fill: #ec2");
 		draw.polygon([19, 2], [21, 2], [38, 36], [37, 38], [3, 38], [2, 36]);

@@ -1544,7 +1544,7 @@ export let tgui = (function () {
 	};
 
 	module.msgBoxQuestion = icons.msgBoxQuestion;
-
+	module.msgBoxInformation = icons.msgBoxInformation;
 	module.msgBoxExclamation = icons.msgBoxExclamation;
 
 	// Show a (newly created) modal dialog, that was created by createModal.

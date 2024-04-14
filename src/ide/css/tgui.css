@@ -423,3 +423,36 @@
 	color: #000;
 	overflow: hidden;
 }
+
+.tgui-modal-tab-button {
+	background: #0000;
+	color: #444;
+	border-style: none;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	padding: 0 0 3px 0;
+	box-shadow: 0px 0px 3px #0003;
+}
+
+.tgui-modal-tab-button:hover {
+	color: #000;
+	background: #e4e4e4;
+	box-shadow: inset 0px -3px 3px -3px #0005, 0px 0px 3px #0005;
+}
+
+.tgui-modal-tabs {
+	background: #ddd;
+	border-style: none;
+	box-shadow: inset 0px -3px 3px -3px #0005;
+	overflow: hidden; /* hide bottom shadow */
+}
+
+.tgui-modal-selected-tab-button {
+	background: #eee;
+	color: #000;
+	border-style: none;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	padding: 0 0 3px 0;
+	box-shadow: 0px 0px 3px #0005;
+}
