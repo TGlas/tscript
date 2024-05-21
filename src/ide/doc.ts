@@ -8,7 +8,7 @@ import { Lexer } from "../lang/parser/lexer";
 import { Version } from "../lang/version";
 import { navigate } from "./navigation";
 import { searchengine } from "./search";
-import { tgui } from "./tgui";
+import * as tgui from "./tgui";
 import { toClipboard } from "./clipboard";
 import { escapeHtmlChars } from "../escape";
 

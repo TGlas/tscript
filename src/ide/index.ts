@@ -1,5 +1,5 @@
 import { doc } from "./doc";
-import { ide } from "./ide";
+import * as ide from "./ide";
 import {
 	initializeNavigation,
 	IPageController,
@@ -8,19 +8,17 @@ import {
 import { searchengine } from "./search";
 import { showStandalonePage } from "./standalone";
 
+import "./css/documentation.css";
+import "./css/icons.css";
 import "./css/ide.css";
 import "./css/tgui.css";
-import "./css/codemirror.css";
-import "./css/documentation.css";
 import "./css/tutorial.css";
-import "./css/icons.css";
 
+import "./css-dark/documentation.css";
+import "./css-dark/icons.css";
 import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
-import "./css-dark/codemirror.css";
-import "./css-dark/documentation.css";
 import "./css-dark/tutorial.css";
-import "./css-dark/icons.css";
 
 window.addEventListener("load", () => {
 	const container = document.getElementById("ide-container")!;
@@ -86,7 +84,7 @@ async function loadScriptFromUrl(url: string): Promise<void> {
 	try {
 		const response = await fetch(url);
 		const text = await response.text();
-		ide.sourcecode.setValue(text);
+		ide.editor.getCurrentDocument()!.setValue(text);
 	} catch (error) {
 		if ((error && typeof error === "object") || typeof error === "string")
 			alert("The program could not be loaded:\n" + error.toString());

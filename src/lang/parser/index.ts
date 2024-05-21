@@ -11,9 +11,11 @@ import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { parse_include } from "./parse_include";
 import { defaultOptions, Options } from "../helpers/options";
 
+type ToParse = { documents: Record<string, string>; main: string } | string;
+
 export class Parser {
 	public static parse(
-		sourcecode,
+		toParse: ToParse,
 		options: Options = defaultOptions
 	): { program: any; errors: Array<any> } {
 		// create the initial program structure
@@ -32,9 +34,15 @@ export class Parser {
 			options: options, // make the options available to the interpreter
 		};
 
+		const documents =
+			typeof toParse == "string" ? { main: toParse } : toParse.documents;
+
+		const mainDoc = typeof toParse == "string" ? "main" : toParse.main;
+
 		// create the parser state
 		let state = {
 			program: program, // program tree to be built during parsing
+			documents,
 			source: "", // complete source code
 			pos: 0, // zero-based position in the source code string
 			line: 1, // one-based line number
@@ -55,6 +63,7 @@ export class Parser {
 				this.source = source;
 				this.impl = impl === null ? {} : impl;
 				this.filename = filename;
+				if (filename != undefined) program.breakpoints[filename] = {};
 				this.pos = 0;
 				this.line = 1;
 				this.ch = 0;
@@ -289,15 +298,15 @@ export class Parser {
 
 			// parse the user's source code
 			program.where = state.get();
-			parse1(sourcecode);
+			parse1(documents[mainDoc], null, mainDoc);
 			program.lines = state.line;
 
 			// append an "end" breakpoint
 			state.skip();
-			if (!program.breakpoints.hasOwnProperty(state.line)) {
+			if (!program.breakpoints[mainDoc].hasOwnProperty(state.line)) {
 				// create and register a new breakpoint
 				let b = create_breakpoint(program, state);
-				program.breakpoints[state.line] = b;
+				program.breakpoints[mainDoc][state.line] = b;
 				program.commands.push(b);
 			}
 
