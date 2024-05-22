@@ -186,8 +186,8 @@ export function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = "tscript-export";
-	let fn = title;
+	let title = ide.getRunSelection();
+	let fn = "tscript-export";
 	if (
 		!fn.endsWith("html") &&
 		!fn.endsWith("HTML") &&
@@ -236,13 +236,24 @@ export function cmd_export() {
 
 	// obtain the page itself as a string
 	{
-		var xhr = new XMLHttpRequest();
+		let defer = "defer"; // avoid search key below as string literal
+		let xhr = new XMLHttpRequest();
 		xhr.open("GET", window.location.href, true);
 		xhr.overrideMimeType("text/html");
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
 				// hide the IDE and let canvas or turtle run in full screen
 				let page = xhr.responseText;
+				page = page.replace(
+					"<title>TScript IDE</title>",
+					"<title>" + title + "</title>"
+				);
+				if (page.includes("<script " + defer + ' src="main.js">')) {
+					console.log(page);
+					alert(
+						"It seems that the TScript IDE is running in development mode. Expect the exported website to be broken."
+					);
+				}
 
 				let headEnd = page.indexOf("<head>") + "<head>".length;
 				let header = page.substr(0, headEnd);
