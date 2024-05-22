@@ -1,9 +1,11 @@
+import package_json from "../../package.json";
+
 export const Version = {
-	type: "beta",
-	major: 0,
-	minor: 10,
-	patch: 17,
-	day: 21,
+	type: null, // "beta"
+	major: package_json.version.split(".")[0],
+	minor: package_json.version.split(".")[1],
+	patch: package_json.version.split(".")[2],
+	day: 22,
 	month: 5,
 	year: 2024,
 	full: function () {
