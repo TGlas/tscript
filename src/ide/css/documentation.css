@@ -245,6 +245,7 @@ hr {
 
 .entry {
 	padding: 4px 4px 2px 4px;
+	font-family: sans;
 }
 
 .current {
@@ -252,7 +253,7 @@ hr {
 }
 
 .tgui-tree {
-	font-family: sans-serif;
+	font-family: sans;
 	font-size: 10pt;
 	line-height: 150%;
 	color: #000;

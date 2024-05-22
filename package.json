@@ -13,9 +13,10 @@
     "gen-icons": "npx ts-node ./src/ide/gen-icons.ts"
   },
   "devDependencies": {
+    "@codemirror/buildhelper": "^1.0.0",
     "@interactjs/types": "^1.10.2",
     "@types/chai": "^4.2.14",
-    "@types/codemirror": "^5.60.2",
+    "@types/codemirror": "^6.0.1",
     "@types/lodash": "^4.14.167",
     "@types/mocha": "^9.0.0",
     "chai": "^4.2.0",

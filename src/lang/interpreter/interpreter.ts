@@ -288,8 +288,7 @@ export class Interpreter {
 				if (this.service.shutdown) this.service.shutdown();
 			} else {
 				// report an internal interpreter error
-				console.log("internal runtime error!");
-				console.log(ex);
+				console.log("internal runtime error!", ex);
 				let msg = ErrorHelper.composeError("/internal/ie-2", [
 					ErrorHelper.ex2string(ex),
 				]);

@@ -13,7 +13,8 @@ let panels_left: Panel[] = [];
 let panels_right: Panel[] = [];
 let panels_float: Panel[] = [];
 let panel_max: Panel | null = null;
-let free_panel_id = 1;
+let free_panel_id_back = 1;
+let free_panel_id_front = -1;
 
 // panel containers
 let panelcontainer: any = null;
@@ -60,11 +61,8 @@ interface PanelDescription {
 	/** TODO: document */
 	size?: any;
 
-	/** TODO: document */
+	/** stores the state of the panel before iconizing */
 	fallbackState?: any;
-
-	/** TODO: document */
-	textarea?: any;
 }
 
 interface Panel extends PanelDescription {
@@ -145,8 +143,13 @@ export function createPanel(description: PanelDescription): Panel {
 		classname: "tgui-panel-container",
 	});
 	control.dom = panel;
-	control.panelID = free_panel_id;
-	free_panel_id++;
+	if (control.onClose) {
+		control.panelID = free_panel_id_front;
+		free_panel_id_front--;
+	} else {
+		control.panelID = free_panel_id_back;
+		free_panel_id_back++;
+	}
 
 	if (!control.hasOwnProperty("icon")) control.icon = icons.window;
 

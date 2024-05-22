@@ -1,10 +1,20 @@
-import { indentWithTab } from "@codemirror/commands";
 import {
+	StateCommand,
 	Compartment,
 	EditorState,
 	Extension,
 	StateEffect,
+	EditorSelection,
+	SelectionRange,
+	ChangeSpec,
+	Line,
+	countColumn,
 } from "@codemirror/state";
+import {
+	indentWithTab,
+	toggleLineComment,
+	insertTab,
+} from "@codemirror/commands";
 import { EditorView, keymap } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { cmtsmode } from "../codemirror-tscriptmode";
@@ -12,6 +22,34 @@ import { getPanel, removePanel } from "../tgui";
 import { breakpointGutter, hasBreakpoint } from "./breakpoint";
 import { baseTheme, highlighting } from "./styling";
 import { updateRunSelection } from ".";
+
+// taken from here: https://github.com/codemirror/commands/blob/main/src/commands.ts
+// Sadly, that function is not exported.
+function changeBySelectedLine(
+	state: EditorState,
+	f: (line: Line, changes: ChangeSpec[], range: SelectionRange) => void
+) {
+	let atLine = -1;
+	return state.changeByRange((range) => {
+		let changes: ChangeSpec[] = [];
+		for (let pos = range.from; pos <= range.to; ) {
+			let line = state.doc.lineAt(pos);
+			if (line.number > atLine && (range.empty || range.to > line.from)) {
+				f(line, changes, range);
+				atLine = line.number;
+			}
+			pos = line.to + 1;
+		}
+		let changeSet = state.changes(changes);
+		return {
+			changes,
+			range: EditorSelection.range(
+				changeSet.mapPos(range.anchor, 1),
+				changeSet.mapPos(range.head, 1)
+			),
+		};
+	});
+}
 
 interface EditorPosition {
 	line: number;
@@ -26,6 +64,98 @@ export class TScriptEditor {
 	private readOnlyState = new Compartment();
 	private readOnlyDim = new Compartment();
 
+	// indent selected lines or insert a tabulator character; replace buggy insertTab command
+	private onIndent: StateCommand = ({ state, dispatch }) => {
+		if (state.readOnly) return false;
+		if (state.selection.ranges.some((r) => !r.empty)) {
+			dispatch(
+				state.update(
+					changeBySelectedLine(state, (line, changes) => {
+						changes.push({ from: line.from, insert: "\t" });
+					}),
+					{ userEvent: "input.indent" }
+				)
+			);
+		} else {
+			dispatch(
+				state.update(state.replaceSelection("\t"), {
+					scrollIntoView: true,
+					userEvent: "input",
+				})
+			);
+		}
+		return true;
+	};
+
+	// unindent selected or current line; replace buggy indentLess command
+	private onShiftTab: StateCommand = ({ state, dispatch }) => {
+		if (state.readOnly) return false;
+		dispatch(
+			state.update(
+				changeBySelectedLine(state, (line, changes) => {
+					let space = /^\s*/.exec(line.text)![0];
+					if (!space) return;
+					let len = 1;
+					while (
+						len < space.length &&
+						countColumn(space.substring(0, len), state.tabSize) <
+							state.tabSize
+					)
+						len++;
+					changes.push({ from: line.from, to: line.from + len });
+				}),
+				{ userEvent: "delete.dedent" }
+			)
+		);
+		return true;
+	};
+
+	// toggle comments, called on Ctrl-d (or Cmd-d on Mac)
+	private onToggleLineComment: StateCommand = ({ state, dispatch }) => {
+		if (state.readOnly) return false;
+		let commented = true;
+		let lines: Line[] = [];
+		for (let r of state.selection.ranges) {
+			let pos = r.from;
+			while (true) {
+				let line = state.doc.lineAt(pos);
+				if (line.text.length > 0) {
+					if (line.text[0] !== "#") commented = false;
+					lines.push(line);
+				}
+				pos = line.to + 1;
+				if (pos >= r.to) break;
+			}
+		}
+		if (commented) {
+			// uncomment
+			dispatch(
+				state.update(
+					changeBySelectedLine(state, (line, changes) => {
+						if (line.text.length > 0 && line.text[0] === "#")
+							changes.push({
+								from: line.from,
+								to: line.from + 1,
+							});
+					}),
+					{ userEvent: "delete.uncomment" }
+				)
+			);
+		} else {
+			// comment
+			dispatch(
+				state.update(
+					changeBySelectedLine(state, (line, changes) => {
+						if (line.text.length > 0)
+							changes.push({ from: line.from, insert: "#" });
+					}),
+					{ userEvent: "input.comment" }
+				)
+			);
+		}
+		return true;
+	};
+
 	public constructor(extensions?: Extension[]) {
 		// Default extensions
 		if (!extensions)
@@ -34,8 +164,11 @@ export class TScriptEditor {
 				baseTheme,
 				highlighting,
 				breakpointGutter,
+				keymap.of([
+					{ key: "Tab", run: this.onIndent, shift: this.onShiftTab },
+					{ key: "Mod-d", run: this.onToggleLineComment },
+				]),
 				basicSetup,
-				keymap.of([indentWithTab]),
 			];
 
 		// ReadOnly Extensions

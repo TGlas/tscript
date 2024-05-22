@@ -115,6 +115,11 @@ export const doc_ide: Documentation = {
 		also displays line numbers.
 		</p>
 		<p>
+		Since longer programs usually consist of multiple files, the IDE
+		supports any number of editors. Creating or opening a new file
+		spawns a new editor panel.
+		</p>
+		<p>
 		Besides the hotkeys defined for the
 		<a href="?doc=/ide/toolbar">toolbar</a> buttons, the editor provides
 		the following hotkeys:

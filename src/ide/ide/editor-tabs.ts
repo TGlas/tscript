@@ -32,8 +32,6 @@ export function createEditorTabByModal() {
 		const isOpenDoc = docs.some((d) => d.getFilename() === filename);
 		const isSavedDoc = localStorage.getItem("tscript.code." + filename);
 
-		console.log(isOpenDoc, isSavedDoc);
-
 		if (isOpenDoc || isSavedDoc) {
 			confirmFileOverwrite(filename, () => {
 				ide.editor.closeDocument(filename);
@@ -49,7 +47,7 @@ export function createEditorTabByModal() {
 export function createEditorTab(name: string) {
 	let panel_tab_editor = tgui.createPanel({
 		name: "tab_editor",
-		title: `Editor — ${name}`,
+		title: `Editor \u2014 ${name}`,
 		state: "left",
 		fallbackState: "icon",
 		icon: icons.editor,

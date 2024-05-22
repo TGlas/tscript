@@ -205,6 +205,10 @@ button {
 	color: #000;
 }
 
+.tgui-tree-cell-toggle {
+	transform: translate(0.5em, 0) scale(1.5);
+}
+
 .tgui-label.ide-state-unchecked {
 	background-color: #ee8;
 }

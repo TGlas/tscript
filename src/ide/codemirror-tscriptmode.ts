@@ -7,7 +7,7 @@ const keywords = {
 	then: true,
 	else: true,
 	for: true,
-	// TODO: should in be considered a keyword
+	// TODO: should "in" be considered a keyword?
 	do: true,
 	while: true,
 	break: true,
