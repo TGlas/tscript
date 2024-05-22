@@ -7,7 +7,7 @@ import * as tgui from "./tgui";
 
 // CodeMirror Addons
 import "./codemirror-tscriptmode";
-import { TScriptEditor } from "./ide/TScriptEditor";
+import { TScriptEditor } from "./elements/TScriptEditor";
 
 ///////////////////////////////////////////////////////////
 // TScript tutorial

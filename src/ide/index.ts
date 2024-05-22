@@ -1,5 +1,5 @@
 import { doc } from "./doc";
-import * as ide from "./ide";
+import * as elements from "./elements";
 import {
 	initializeNavigation,
 	IPageController,
@@ -69,7 +69,7 @@ function translateLegacyURL(currentUrl: URL): URL | null {
 
 class IDEPageController implements IPageController {
 	constructor(container: HTMLElement, location: URL) {
-		ide.create(container);
+		elements.create(container);
 
 		const loadUrl = location.searchParams.get("load");
 		if (loadUrl) loadScriptFromUrl(loadUrl);
@@ -84,7 +84,7 @@ async function loadScriptFromUrl(url: string): Promise<void> {
 	try {
 		const response = await fetch(url);
 		const text = await response.text();
-		ide.editor.getCurrentDocument()!.setValue(text);
+		elements.editor.getCurrentDocument()!.setValue(text);
 	} catch (error) {
 		if ((error && typeof error === "object") || typeof error === "string")
 			alert("The program could not be loaded:\n" + error.toString());

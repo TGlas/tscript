@@ -1,4 +1,4 @@
-import * as ide from "./ide";
+import * as elements from "./elements";
 import * as tgui from "./tgui";
 
 export type StandaloneData = {
@@ -10,10 +10,10 @@ export function showStandalonePage(
 	container: HTMLElement,
 	data: StandaloneData
 ): void {
-	ide.setStandalone(true);
-	ide.create(container);
-	ide.editor.getCurrentDocument()!.setValue(data.code);
-	ide.prepare_run();
+	elements.setStandalone(true);
+	elements.create(container);
+	elements.editor.getCurrentDocument()!.setValue(data.code);
+	elements.prepare_run();
 
 	switch (data.mode) {
 		case "canvas":
@@ -23,36 +23,36 @@ export function showStandalonePage(
 			handleTurtle();
 			break;
 	}
-	ide.interpreter!.run();
+	elements.interpreter!.run();
 }
 
 function handleTurtle(): void {
 	tgui.releaseAllHotkeys();
-	ide.turtle.parentNode.removeChild(ide.turtle);
+	elements.turtle.parentNode.removeChild(elements.turtle);
 	document.body.innerHTML = "";
-	document.body.appendChild(ide.turtle);
-	ide.turtle.style.width = "100vh";
-	ide.turtle.style.height = "100vh";
+	document.body.appendChild(elements.turtle);
+	elements.turtle.style.width = "100vh";
+	elements.turtle.style.height = "100vh";
 }
 
 function handleCanvas(): void {
 	tgui.releaseAllHotkeys();
-	let cv = ide.canvas.parentNode;
+	let cv = elements.canvas.parentNode;
 	cv.parentNode.removeChild(cv);
 	document.body.innerHTML = "";
 	document.body.appendChild(cv);
 	cv.style.width = "100vw";
 	cv.style.height = "100vh";
 	cv.style.top = "0px";
-	ide.canvas.width = window.innerWidth;
-	ide.canvas.height = window.innerHeight;
+	elements.canvas.width = window.innerWidth;
+	elements.canvas.height = window.innerHeight;
 	window.addEventListener("resize", function (event) {
 		let w = window.innerWidth;
 		let h = window.innerHeight;
-		ide.canvas.width = w;
-		ide.canvas.height = h;
+		elements.canvas.width = w;
+		elements.canvas.height = h;
 		let e: any = { width: w, height: h };
-		e = ide.createTypedEvent("canvas.ResizeEvent", e);
-		ide.interpreter!.enqueueEvent("canvas.resize", e);
+		e = elements.createTypedEvent("canvas.ResizeEvent", e);
+		elements.interpreter!.enqueueEvent("canvas.resize", e);
 	});
 }
