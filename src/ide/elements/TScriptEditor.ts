@@ -14,6 +14,7 @@ import {
 	indentWithTab,
 	toggleLineComment,
 	insertTab,
+	history,
 } from "@codemirror/commands";
 import { EditorView, keymap } from "@codemirror/view";
 import { basicSetup } from "codemirror";
@@ -169,6 +170,7 @@ export class TScriptEditor {
 					{ key: "Mod-d", run: this.onToggleLineComment },
 				]),
 				basicSetup,
+				history({ minDepth: Infinity }),
 			];
 
 		// ReadOnly Extensions
@@ -325,9 +327,9 @@ export class TScriptEditor {
 		return { line: line.number - 1, ch: offset - line.from };
 	}
 
-	public clearHistory() {
-		this.documents.forEach((doc) => doc.clearHistory());
-	}
+	//	public clearHistory() {
+	//		this.documents.forEach((doc) => doc.clearHistory());
+	//	}
 
 	/**
 	 *
@@ -423,16 +425,16 @@ export class TScriptDocument {
 		return this.ev;
 	}
 
-	/**
-	 * Clears the undo / redo history without effecting the content
-	 */
-	public clearHistory() {
-		const es = EditorState.create({
-			doc: this.getDoc(),
-			extensions: this.extensions,
-		});
-		this.ev.setState(es);
-	}
+	//	/**
+	//	 * Clears the undo / redo history without effecting the content
+	//	 */
+	//	public clearHistory() {
+	//		const es = EditorState.create({
+	//			doc: this.getDoc(),
+	//			extensions: this.extensions,
+	//		});
+	//		this.ev.setState(es);
+	//	}
 
 	/**
 	 * Sets the cursor to the given position
