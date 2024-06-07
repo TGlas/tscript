@@ -2,12 +2,11 @@ import * as ide from ".";
 import { Parser } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { toggleBreakpoint } from "./breakpoint";
 import { fileDlg, options } from "./dialogs";
 import {
 	closeEditor,
 	createEditorTabByModal,
-	openEditorFromLS,
+	openEditorFromLocalStorage,
 } from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { updateControls } from "./utils";
@@ -147,14 +146,14 @@ export function cmd_export() {
 			return;
 	}
 
-	if (!ide.editor.getCurrentDocument()) return;
+	if (!ide.collection.getCurrentEditor()) return;
 
 	// check that the code at least compiles
-	let source = ide.editor.getCurrentDocument()!.getValue();
+	let source = ide.collection.getCurrentEditor()!.text();
 	ide.clear();
 
 	const toParse = {
-		documents: ide.editor.getValues(),
+		documents: ide.collection.getValues(),
 		main: ide.getRunSelection(),
 	};
 
@@ -292,26 +291,24 @@ export function cmd_export() {
 }
 
 function cmd_toggle_breakpoint() {
-	if (!ide.editor.getCurrentDocument()) return;
+	let ed = ide.collection.getCurrentEditor();
+	if (!ed) return;
 
-	if (ide.editor.isReadOnly()) return;
-
-	let cm = ide.editor.getCurrentDocument()!;
-	let line = cm.getCursor().line;
+	let line = ed.getCursorPosition().row;
 	if (ide.interpreter) {
 		// ask the interpreter for the correct position of the marker
 		let result = ide.interpreter.toggleBreakpoint(
 			line + 1,
-			cm.getFilename()
+			ed.properties().name
 		);
 		if (result !== null) {
-			line = result.line;
-			toggleBreakpoint(cm.getEditorView(), line);
-			cm.scrollIntoView({ line: line - 1, ch: 0 });
+			line = result.line - 1;
+			ed.properties().toggleBreakpoint(line);
+			ed.scrollTo(line, 0);
 		}
 	} else {
 		// set the marker optimistically, fix as soon as an interpreter is created
-		toggleBreakpoint(cm.getEditorView(), line);
+		ed.properties().toggleBreakpoint(line);
 	}
 }
 
@@ -320,41 +317,40 @@ function cmd_new() {
 }
 
 function cmd_load() {
-	fileDlg("Load file", "", false, "Load", function (filename) {
-		const docs = ide.editor.getDocuments();
-		let doc = docs.find((d) => d.getFilename() === filename);
-
-		if (doc) {
-			doc.focus();
+	fileDlg("Load file", "", false, "Load", function (name) {
+		let ed = ide.collection.getEditor(name);
+		if (ed) {
+			ed.focus();
 			return;
 		}
 
-		doc = openEditorFromLS(filename);
+		openEditorFromLocalStorage(name);
 		updateControls();
 	});
 }
 
 function cmd_save() {
-	const doc = ide.editor.getCurrentDocument();
-	if (!doc) return;
+	const ed = ide.collection.getCurrentEditor();
+	if (!ed) return;
+	let name = ed.properties().name;
 
-	localStorage.setItem(`tscript.code.${doc.getFilename()}`, doc.getValue());
-	doc.setDirty(false);
+	localStorage.setItem("tscript.code." + name, ed.text());
+	ed.setClean();
 }
 
 function cmd_save_as() {
-	const doc = ide.editor.getCurrentDocument();
-	if (!doc) return;
+	const ed = ide.collection.getCurrentEditor();
+	if (!ed) return;
 
 	fileDlg(
 		"Save file as ...",
-		doc.getFilename(),
+		ed.properties().name,
 		true,
 		"Save",
 		function (filename) {
 			closeEditor(filename);
-			localStorage.setItem(`tscript.code.${filename}`, doc.getValue());
-			openEditorFromLS(filename);
+			localStorage.setItem("tscript.code." + filename, ed.text());
+			openEditorFromLocalStorage(filename);
 		}
 	);
 }

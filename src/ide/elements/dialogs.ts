@@ -12,18 +12,15 @@ let theme: string = "default";
  * When the document was not changed, or the user allows to discard the changes the function onConfirm is
  * called.
  */
-export function confirmFileDiscard(filename: string, onConfirm: () => any) {
-	const doc = ide.editor
-		.getDocuments()
-		.find((d) => d.getFilename() === filename);
+export function confirmFileDiscard(name: string, onConfirm: () => any) {
+	const ed = ide.collection.getEditor(name);
+	if (!ed) return;
 
-	if (!doc) return;
-
-	if (doc.isDirty()) {
+	if (ed.isDirty()) {
 		tgui.msgBox({
 			prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
 			icon: tgui.msgBoxQuestion,
-			title: filename,
+			title: name,
 			buttons: [
 				{ text: "Discard", onClick: onConfirm, isDefault: true },
 				{ text: "Cancel" },
@@ -34,11 +31,14 @@ export function confirmFileDiscard(filename: string, onConfirm: () => any) {
 	}
 }
 
-export function confirmFileOverwrite(filename: string, onConfirm: () => any) {
+export function confirmFileOverwrite(name: string, onConfirm: () => any) {
 	tgui.msgBox({
-		prompt: `A document named ${filename} already exists.\nDo you want to overwrite it?`,
+		prompt:
+			"A document named " +
+			name +
+			"already exists.\nDo you want to overwrite it?",
 		icon: tgui.msgBoxQuestion,
-		title: filename,
+		title: name,
 		buttons: [
 			{ text: "Overwrite", onClick: onConfirm, isDefault: true },
 			{ text: "Cancel" },
@@ -461,7 +461,7 @@ export function fileDlg(
 			text:
 				(files.length > 0 ? files.length : "No") +
 				" document" +
-				(files.length == 1 ? "" : "s"),
+				(files.length === 1 ? "" : "s"),
 			classname: "tgui-status-box",
 		});
 	}
@@ -531,7 +531,7 @@ export function fileDlg(
 		let index = files.indexOf(filename);
 		if (index >= 0) {
 			let onDelete = () => {
-				ide.editor.closeDocument(filename);
+				ide.collection.closeEditor(filename);
 				localStorage.removeItem("tscript.code." + filename);
 				files.splice(index, 1);
 				list.remove(index);

@@ -392,12 +392,12 @@ export class Interpreter {
 
 	// Request to define a number of breakpoints. This function should
 	// be called right after construction of the interpreter. It returns
-	// the line numbers where actual breakpoints are set as the keys of
-	// a dictionary. Some breakpoints may get merged this way. If all
-	// provided breakpoints are in legal positions then the function
-	// returns null.
+	// a Set of (zero-based) line numbers where actual breakpoints are
+	// effective.
+	// Some breakpoints may get merged this way. If all provided
+	// breakpoints are in legal positions then the function returns null.
 	public defineBreakpoints(lines, filename) {
-		let pos = {};
+		let pos = new Set<number>();
 		let changed = false;
 		const breakpoints = this.program.breakpoints[filename];
 		if (!breakpoints) return null;
@@ -408,13 +408,13 @@ export class Interpreter {
 
 			if (breakpoints.hasOwnProperty(line)) {
 				// position is valid
-				pos[line] = true;
+				pos.add(line - 1);
 			} else {
 				// find a valid position if possible
 				changed = true;
-				while (line <= this.program.lines) {
+				while (line < this.program.lines) {
 					if (breakpoints.hasOwnProperty(line)) {
-						pos[line] = true;
+						pos.add(line - 1);
 						break;
 					} else line++;
 				}
@@ -423,13 +423,11 @@ export class Interpreter {
 
 		// enable/disable break points
 		for (let key in breakpoints) {
-			if (pos.hasOwnProperty(key)) breakpoints[key].set();
+			if (pos.has(Number(key) - 1)) breakpoints[key].set();
 			else breakpoints[key].clear();
 		}
-
 		// return the result
-		if (changed) return pos;
-		else return null;
+		return changed ? pos : null;
 	}
 
 	// Request to toggle a breakpoint. Not every line is a valid break

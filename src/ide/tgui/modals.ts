@@ -262,7 +262,6 @@ export function createModal(description: ModalDescription): Modal {
 		});
 
 		let titlebar_title = createElement({
-			// TODO similar to panel titlebars
 			parent: titlebar,
 			type: "span",
 			text: title,
@@ -271,7 +270,7 @@ export function createModal(description: ModalDescription): Modal {
 		});
 
 		if (handleHelp !== null) {
-			// TODO Show help to the current dialog
+			// show help for the current dialog
 			let help = createButton({
 				parent: titlebar,
 				click: function () {
@@ -389,10 +388,6 @@ export function startModal(element: Modal) {
 	//    the old control should not keep the focus
 
 	// add the new modal dialog
-	// TODO: remove following 3 lines
-	element.dom.style.display = "block";
-	element.dom.style.zIndex = "100";
-	element.dom.className += " tgui tgui-modal";
 	document.body.appendChild(element.dom);
 	modal.push(element);
 
