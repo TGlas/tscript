@@ -54,8 +54,9 @@ This project is licensed under the MIT License - see the
 
 ## Acknowledgments
 
-The TScript IDE uses [CodeMirror](https://codemirror.net/)
-and [interact](https://interactjs.io/).
+The TScript IDE uses [interact](https://interactjs.io/).
+In older versions, it relied on the
+[CodeMirror](https://codemirror.net/) editor.
 Thanks to
 [Manuel Fischer](https://github.com/manuel-fischer),
 [TheHllm](https://github.com/TheHllm),
