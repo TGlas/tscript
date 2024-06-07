@@ -1,6 +1,6 @@
 {
   "name": "tscript",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "",
   "main": "tscript.js",
   "scripts": {
@@ -13,10 +13,8 @@
     "gen-icons": "npx ts-node ./src/ide/gen-icons.ts"
   },
   "devDependencies": {
-    "@codemirror/buildhelper": "^1.0.0",
     "@interactjs/types": "^1.10.2",
     "@types/chai": "^4.2.14",
-    "@types/codemirror": "^5.60.15",
     "@types/lodash": "^4.14.167",
     "@types/mocha": "^9.0.0",
     "chai": "^4.2.0",
@@ -35,7 +33,6 @@
     "webpack-dev-server": "^4.1.1"
   },
   "dependencies": {
-    "codemirror": "^6.0.1",
     "interactjs": "^1.10.2"
   }
 }

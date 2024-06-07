@@ -1,7 +1,8 @@
 import * as ide from ".";
-import { openEditorFromLS } from "./editor-tabs";
+import { openEditorFromLocalStorage } from "./editor-tabs";
 import { programinfo } from "./programinfo";
 import { stackinfo } from "./stackinfo";
+import { Editor } from "../editor";
 
 export const type2css = [
 	"ide-keyword",
@@ -39,19 +40,20 @@ export function updateStatus() {
 		else ide.programstate.unchecked();
 	}
 
-	// update read-only state of the editor
-	if (ide.editor) {
+	// update read-only state of the editors
+	if (ide.collection) {
 		let should =
 			ide.interpreter !== null &&
 			(ide.interpreter.status === "running" ||
 				ide.interpreter.status === "waiting" ||
 				ide.interpreter.status === "dialog");
-		if (ide.editor.isReadOnly() != should) {
-			ide.editor.setReadOnly(should);
-			let ed: any = document.getElementsByClassName("CodeMirror");
-			let value = should ? 0.6 : 1;
-			for (let i = 0; i < ed.length; i++) ed[i].style.opacity = value;
-		}
+		ide.collection.setReadOnly(should);
+		//		if (ide.editor.isReadOnly() != should) {
+		//			ide.editor.setReadOnly(should);
+		//			let ed: any = document.getElementsByClassName("CodeMirror");
+		//			let value = should ? 0.6 : 1;
+		//			for (let i = 0; i < ed.length; i++) ed[i].style.opacity = value;
+		//		}
 	}
 }
 
@@ -90,26 +92,23 @@ export function updateControls() {
 /**
  * set the cursor in the editor; line is 1-based, ch (char within the line) is 0-based
  */
-export function setCursorPosition(line: number, ch: number, filename: string) {
-	let doc = ide.editor
-		.getDocuments()
-		.find((doc) => doc.getFilename() === filename);
+export function setCursorPosition(line: number, ch: number, name: string) {
+	let ed = ide.collection.getEditor(name);
+	if (!ed) ed = openEditorFromLocalStorage(name);
+	if (!ed) return;
 
-	if (!doc) doc = openEditorFromLS(filename);
-	if (!doc) return;
-
-	doc.setCursor({ line: line - 1, ch });
-	doc.focus();
-	doc.scrollIntoView({ line: line - 1, ch: 0 });
+	ed.setCursorPosition(line - 1, ch);
+	ed.focus();
+	ed.scrollIntoView();
 }
 
-export function makeMarker() {
-	let marker = document.createElement("span");
-	marker.style.color = "#a00";
-	marker.innerHTML = "\u25CF";
-	return marker;
-}
-
+//export function makeMarker() {
+//	let marker = document.createElement("span");
+//	marker.style.color = "#a00";
+//	marker.innerHTML = "\u25CF";
+//	return marker;
+//}
+//
 export function relpos(element, x, y) {
 	while (element) {
 		x -= element.offsetLeft;

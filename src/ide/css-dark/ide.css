@@ -18,18 +18,6 @@
 	box-shadow: inset 0px -1px 0px #292929;
 }
 
-.dark-theme .ide-sourcecode {
-	/* overridden in file codemirror.css, class .CodeMirror */
-	background: #222;
-	color: #fff;
-}
-
-.dark-theme .ide-tab-sourcecode {
-	/* overridden in file codemirror.css, class .CodeMirror */
-	background: #222;
-	color: #fff;
-}
-
 .dark-theme .ide-stackview {
 	background: #222;
 	color: #fff;
@@ -74,28 +62,6 @@
 
 .dark-theme .ide-index {
 	color: #26f;
-}
-
-.dark-theme .ide-integer {
-	color: #4fe;
-}
-.dark-theme .ide-real {
-	color: #4f4;
-}
-.dark-theme .ide-string {
-	color: #f44;
-}
-.dark-theme .ide-collection {
-	color: #fa4;
-}
-.dark-theme .ide-keyword {
-	color: #4af;
-}
-.dark-theme .ide-builtin {
-	color: #c4f;
-}
-.dark-theme .ide-userclass {
-	color: #fff;
 }
 
 .dark-theme .tgui-label.ide-state-unchecked {

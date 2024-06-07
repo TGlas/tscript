@@ -12,16 +12,14 @@ import { buttons, cmd_export } from "./commands";
 import { configDlg, loadConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
-
-import { TScriptEditor } from "./TScriptEditor";
-import { toggleBreakpoint } from "./breakpoint";
-import { createEditorTab, openEditorFromLS } from "./editor-tabs";
+import { EditorCollection } from "./collection";
+import { createEditorTab, openEditorFromLocalStorage } from "./editor-tabs";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
 //
 
-export let editor!: TScriptEditor;
+export let collection!: EditorCollection;
 export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
@@ -125,8 +123,6 @@ export function addMessage(
 		}
 	}
 	messagecontainer.scrollTop = messagecontainer.scrollHeight;
-	// TODO: CHECK
-	// if (href) sourcecode.focus();
 	return { symbol: th, content: td };
 }
 
@@ -165,16 +161,17 @@ export function clear() {
 export function prepare_run() {
 	clear();
 
-	if (!editor.getCurrentDocument()) return;
+	let ed = collection.getCurrentEditor();
+	if (!ed) return;
 
 	// make sure that there is a trailing line for the "end" breakpoint
-	let source = editor.getCurrentDocument()!.getValue();
-	if (source.length != 0 && source[source.length - 1] != "\n") {
+	let source = ed.text();
+	if (source.length !== 0 && source[source.length - 1] != "\n") {
 		source += "\n";
 	}
 
 	const toParse = {
-		documents: editor.getValues(),
+		documents: collection.getValues(),
 		main: getRunSelection(),
 	};
 
@@ -327,8 +324,10 @@ export function prepare_run() {
 		interpreter.service.statechanged = function (stop) {
 			if (stop) utils.updateControls();
 			else utils.updateStatus();
-			// TODO: CHECK
-			// if (interpreter!.status === "finished") sourcecode.focus();
+			if (interpreter!.status === "finished") {
+				let ed = collection.getCurrentEditor();
+				if (ed) ed.focus();
+			}
 		};
 		interpreter.service.breakpoint = function () {
 			utils.updateControls();
@@ -346,25 +345,27 @@ export function prepare_run() {
 		interpreter.reset();
 
 		let breakpointsMoved = false;
-		for (let doc of editor.getDocuments()) {
+		for (let ed of collection.getEditors()) {
 			// set and correct breakpoints
-			let br = doc.getBreakpointLines();
+			let br = ed.properties().breakpoints;
+			let a = new Array<number>();
+			for (let line of br) a.push(line + 1);
 
-			let result = interpreter.defineBreakpoints(
-				br.map((i) => i + 1),
-				doc.getFilename()
-			);
-
+			let result = interpreter.defineBreakpoints(a, ed.properties().name);
 			if (result !== null) {
-				for (let i = 1; i <= doc.lineCount(); i++)
-					if (br.includes(i - 1) !== result.hasOwnProperty(i))
-						toggleBreakpoint(doc.getEditorView(), i - 1);
+				for (let line of br)
+					if (!result.has(line))
+						ed.properties().toggleBreakpoint(line);
+				for (let line of result)
+					if (!br.has(line)) ed.properties().toggleBreakpoint(line);
 				breakpointsMoved = true;
 			}
 		}
 
-		if (breakpointsMoved)
-			alert("Note: breakpoints were moved to valid locations");
+		//		if (breakpointsMoved)
+		//		{
+		//			alert("Note: breakpoints were moved to valid locations");   // TODO: proper modal dialog!!!
+		//		}
 	}
 }
 
@@ -558,15 +559,19 @@ export function create(container: HTMLElement, options?: any) {
 
 		// pressing F1
 		tgui.setHotkey("F1", function () {
-			const doc = editor.getCurrentDocument();
-			if (!doc) return;
+			const ed = collection.getCurrentEditor();
+			if (!ed) return;
 
-			let selection = doc.getSelection();
+			let selection = ed.selection();
+			if (!selection) {
+				ed.selectWordAtCursor();
+				selection = ed.selection();
+			}
+			if (!selection) return;
+
 			// maximum limit of 30 characters
 			// so that there is no problem, when accidentally everything
 			// in a file is selected
-			if (!selection) selection = doc.findWordAt(doc.getCursor());
-
 			selection = selection.slice(0, 30);
 			const words = selection.match(/[a-z]+/gi); // global case insensitive
 			showdocConfirm(undefined, words?.join(" "));
@@ -583,101 +588,10 @@ export function create(container: HTMLElement, options?: any) {
 	// prepare tgui panels
 	tgui.preparePanels(area, iconlist);
 
-	editor = new TScriptEditor();
+	collection = new EditorCollection();
 
-	editor.onDocChange(function (doc) {
-		doc.setDirty(true);
-		if (interpreter) {
-			clear();
-			utils.updateControls();
-		}
-	});
-
-	editor.onCursorActivity(function (doc) {
-		if (
-			interpreter &&
-			interpreter.status === "running" &&
-			!interpreter.background
-		) {
-			// highlight variable values in the debugger in stepping mode
-			const cursor = doc.getCursor();
-			let line = cursor.line + 1;
-			let ch = cursor.ch;
-			let highlight_var: any = null,
-				highlight_func: any = null;
-			function rec(pe) {
-				if (pe.buildin) return;
-				if (
-					pe?.where?.line == line &&
-					pe.where.ch <= ch &&
-					pe.where.filename == doc.getFilename()
-				) {
-					if (pe.petype == "variable") {
-						if (pe.where.ch + pe.name.length >= ch) {
-							highlight_var = pe;
-							highlight_func = get_function(pe);
-						}
-					} else if (
-						pe.petype == "name" &&
-						pe.reference.petype == "variable"
-					) {
-						if (pe.where.ch + pe.name.length >= ch) {
-							highlight_var = pe.reference;
-							highlight_func = get_function(pe);
-						}
-					}
-				}
-				if (pe.children) {
-					for (let sub of pe.children) rec(sub);
-				}
-			}
-			rec(interpreter.program);
-			if (highlight_var) {
-				// find the value of the variable, if any
-				let scope: any = null;
-				if (highlight_var.scope === "global")
-					scope = interpreter.stack[0];
-				else if (highlight_var.scope === "local") {
-					for (let s = interpreter.stack.length - 1; s > 0; s--) {
-						let frame = interpreter.stack[s];
-						if (
-							frame.pe.length > 0 &&
-							frame.pe[0] === highlight_func
-						) {
-							scope = frame;
-							break;
-						}
-					}
-				}
-				if (scope) {
-					let tv = scope.variables[highlight_var.id];
-					if (!tv) return;
-					let text = TScript.previewValue(tv);
-					if (highlight) highlight.remove();
-					highlight = tgui.createElement({
-						type: "div",
-						parent: document.body,
-						classname: "highlight-overlay",
-						text: highlight_var.name + " = " + text,
-					});
-					window.setTimeout(function () {
-						highlight.style.opacity = 0;
-					}, 100);
-					window.setTimeout(
-						(function (dom) {
-							return function () {
-								dom.remove();
-							};
-						})(highlight),
-						4200
-					);
-				}
-			}
-		}
-	});
-
-	const doc = openEditorFromLS("Main");
-	if (!doc) createEditorTab("Main");
+	const ed = openEditorFromLocalStorage("Main");
+	if (!ed) createEditorTab("Main");
 
 	let panel_messages = tgui.createPanel({
 		name: "messages",
@@ -980,7 +894,8 @@ export function create(container: HTMLElement, options?: any) {
 	tutorial.init(
 		tutorial_container,
 		function () {
-			return editor.getCurrentDocument()!.getValue();
+			let ed = collection.getCurrentEditor();
+			return ed ? ed.text() : "";
 		},
 		function () {
 			messages.innerHTML = "";
@@ -1005,13 +920,15 @@ export function getRunSelection() {
  * Updates the run-selector
  */
 export function updateRunSelection() {
-	const values: string[] = [];
-
-	editor.getDocuments().forEach((doc) => {
-		const filename = doc.getFilename();
-		values.push(`<option value="${filename}">${filename}</option>`);
-	});
-
-	runselector.innerHTML = values.join("");
-	runselector.disabled = values.length == 0;
+	runselector.innerHTML = "";
+	for (let ed of collection.getEditors()) {
+		let name = ed.properties().name;
+		tgui.createElement({
+			type: "option",
+			parent: runselector,
+			properties: { value: name },
+			text: name,
+		});
+	}
+	runselector.disabled = collection.getEditors().size === 0;
 }

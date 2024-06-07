@@ -7,44 +7,37 @@ import {
 } from "./dialogs";
 import * as ide from "./index";
 
-/**
- *
- * @param name Filename to open from local storage
- * @returns true if successful, false otherwhise
- */
-export function openEditorFromLS(name: string) {
-	const file = localStorage.getItem(`tscript.code.${name}`);
-	if (file == undefined) return undefined;
-
-	createEditorTab(name);
-	const doc = ide.editor.getDocuments().find((d) => d.getFilename() == name);
-	doc!.setValue(file);
-
-	return doc;
+// Return an Editor instance
+export function openEditorFromLocalStorage(name: string) {
+	const sourcecode = localStorage.getItem("tscript.code." + name);
+	if (sourcecode === null) return null;
+	return createEditorTab(name, sourcecode);
 }
 
 export function createEditorTabByModal() {
-	tabNameDlg(function (filename) {
+	tabNameDlg(function (name) {
 		// Don't accept empty filenames
-		if (filename === "") return true; // keep dialog open
+		if (!name) return true; // keep dialog open
 
-		const docs = ide.editor.getDocuments();
-		const isOpenDoc = docs.some((d) => d.getFilename() === filename);
-		const isSavedDoc = localStorage.getItem("tscript.code." + filename);
+		let eds = ide.collection.getEditors();
+		let ed = ide.collection.getEditor(name);
+		const isOpenDoc = !!ed;
+		const isSavedDoc =
+			localStorage.getItem("tscript.code." + name) !== null;
 
 		if (isOpenDoc || isSavedDoc) {
-			confirmFileOverwrite(filename, () => {
-				ide.editor.closeDocument(filename);
-				createEditorTab(filename);
+			confirmFileOverwrite(name, () => {
+				ide.collection.closeEditor(name);
+				createEditorTab(name);
 			});
 			return false;
-		} else createEditorTab(filename);
+		} else createEditorTab(name);
 
 		return false;
 	});
 }
 
-export function createEditorTab(name: string) {
+export function createEditorTab(name: string, text: string | null = null) {
 	let panel_tab_editor = tgui.createPanel({
 		name: "tab_editor",
 		title: `Editor \u2014 ${name}`,
@@ -56,24 +49,19 @@ export function createEditorTab(name: string) {
 		},
 	});
 
-	const tab_editor = tgui.createElement({
-		type: "textarea",
-		parent: panel_tab_editor.content,
-		classname: "ide ide-tab-sourcecode",
-	});
+	let ed = ide.collection.createEditor(name, panel_tab_editor.panelID, text);
+	panel_tab_editor.content.appendChild(ed.dom());
+	ed.focus();
 
-	ide.editor.newDocument(tab_editor, name, panel_tab_editor.panelID);
-
-	tab_editor.addEventListener("contextmenu", function (event) {
+	panel_tab_editor.content.addEventListener("contextmenu", function (event) {
 		event.preventDefault();
 		return false;
 	});
 
 	ide.updateRunSelection();
-
-	return false;
+	return ed;
 }
 
 export function closeEditor(filename: string) {
-	ide.editor.closeDocument(filename);
+	ide.collection.closeEditor(filename);
 }

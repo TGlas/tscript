@@ -1,13 +1,10 @@
 "use strict";
 
+import * as tgui from "./tgui";
 import { evaluation } from "../eval";
 import { tutorialData } from "../tutorial";
 import { doc } from "./doc";
-import * as tgui from "./tgui";
-
-// CodeMirror Addons
-import "./codemirror-tscriptmode";
-import { TScriptEditor } from "./elements/TScriptEditor";
+import { Editor } from "./editor";
 
 ///////////////////////////////////////////////////////////
 // TScript tutorial
@@ -205,19 +202,12 @@ export const tutorial = (function () {
 								minsize: [400, 250],
 								buttons: [{ text: "Close" }],
 							});
-
-							let textarea = tgui.createElement({
-								type: "textarea",
+							let editor = new Editor({
+								language: "TScript",
+								text: correct,
 								parent: dlg.content,
-								properties: {
-									rows: "20",
-									cols: "50",
-									value: correct,
-								},
+								readOnly: true,
 							});
-							let editor = new TScriptEditor();
-							editor.newDocument(textarea, "", 0);
-							editor.setReadOnly(true);
 							tgui.startModal(dlg);
 						};
 					})(correct),

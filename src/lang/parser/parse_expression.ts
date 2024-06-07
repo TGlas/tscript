@@ -709,9 +709,13 @@ export function parse_expression(
 				}
 			};
 			ex.sim = simfalse;
-		} else if (token.type === "keyword")
+		} else if (token.type === "keyword") {
+			state.set(where);
 			state.error("/syntax/se-41", [token.value]);
-		else state.error("/syntax/se-42", [token.value]);
+		} else {
+			state.set(where);
+			state.error("/syntax/se-42", [token.value]);
+		}
 
 		// right-unary operators: dot, access, and call
 		while (!state.eof()) {

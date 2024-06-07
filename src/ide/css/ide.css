@@ -84,24 +84,9 @@ button {
 	float: left;
 }
 
-.ide-sourcecode {
-	/* overridden in file codemirror.css, class .CodeMirror */
-	resize: none;
-	width: 60%;
-	height: calc(100% - 200px);
-	background: #fff;
-	color: #000;
-	overflow: scroll;
-}
-
-.ide-tab-sourcecode {
-	/* overridden in file codemirror.css, class .CodeMirror */
-	resize: none;
+.tgui .editor {
 	width: 100%;
-	height: calc(100% - 200px);
-	background: #fff;
-	color: #000;
-	overflow: scroll;
+	height: 100%;
 }
 
 .ide-stackview {
@@ -181,28 +166,6 @@ button {
 
 .ide-index {
 	color: #00f;
-}
-
-.ide-integer {
-	color: #088;
-}
-.ide-real {
-	color: #480;
-}
-.ide-string {
-	color: #c00;
-}
-.ide-collection {
-	color: #c60;
-}
-.ide-keyword {
-	color: #00c;
-}
-.ide-builtin {
-	color: #808;
-}
-.ide-userclass {
-	color: #000;
 }
 
 .tgui-tree-cell-toggle {
