@@ -72,8 +72,7 @@ export class EditorCollection {
 						ed.scrollTo(line, 0);
 					} else toggle = false;
 				}
-				if (toggle)
-				{
+				if (toggle) {
 					let breakpoints = ed.properties().breakpoints;
 					if (breakpoints.has(line)) breakpoints.delete(line);
 					else breakpoints.add(line);
@@ -110,10 +109,10 @@ export class EditorCollection {
 				// change breakpoints
 				let br = ed.properties().breakpoints;
 				let new_br = new Set();
-				for (let b of br)
-				{
+				for (let b of br) {
 					if (b < line) new_br.add(b);
-					else if (b >= line + removed) new_br.add(b + inserted - removed);
+					else if (b >= line + removed)
+						new_br.add(b + inserted - removed);
 				}
 				// modify the existing set instead of assigning a new one since it is enclosed in handlers
 				br.clear();

@@ -8,7 +8,9 @@
 	box-sizing: border-box;
 }
 
-img { max-width: 100%; }
+img {
+	max-width: 100%;
+}
 
 #doc-main {
 	font-family: sans-serif;

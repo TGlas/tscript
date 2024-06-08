@@ -68,7 +68,8 @@ export class SimpleAction extends Action {
 	// Return an object { line, removed, inserted } of line changes
 	// as it is needed for the "changed" event of the editor.
 	public linesChanged(document) {
-		let nr = 0, ni = 0;
+		let nr = 0,
+			ni = 0;
 		for (let c of this.remove) if (c === 10) nr++;
 		for (let c of this.insert) if (c === 10) ni++;
 		if (nr + ni === 0) return { line: null, removed: null, inserted: null };

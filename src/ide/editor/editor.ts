@@ -762,7 +762,9 @@ export class Editor {
 		this.document.execute(action, true);
 		this.scrollIntoView();
 		if (this.eventHandlers.changed) {
-			let {line, removed, inserted} = action.linesChanged(this.document);
+			let { line, removed, inserted } = action.linesChanged(
+				this.document
+			);
 			this.eventHandlers.changed(line, removed, inserted);
 		}
 	}
@@ -819,8 +821,10 @@ export class Editor {
 				this.scrollIntoView();
 				if (this.eventHandlers.changed) {
 					if (action && action instanceof SimpleAction) {
-						let {line, removed, inserted} = action.linesChanged(this.document);
-						this.eventHandlers.changed(line, inserted, removed);   // swap of inserted and removed is intentional!
+						let { line, removed, inserted } = action.linesChanged(
+							this.document
+						);
+						this.eventHandlers.changed(line, inserted, removed); // swap of inserted and removed is intentional!
 					} else this.eventHandlers.changed(null, null, null);
 				}
 			} else if (bound === "redo" && !this.readOnly) {
@@ -828,7 +832,9 @@ export class Editor {
 				this.scrollIntoView();
 				if (this.eventHandlers.changed) {
 					if (action && action instanceof SimpleAction) {
-						let {line, removed, inserted} = action.linesChanged(this.document);
+						let { line, removed, inserted } = action.linesChanged(
+							this.document
+						);
 						this.eventHandlers.changed(line, removed, inserted);
 					} else this.eventHandlers.changed(null, null, null);
 				}
@@ -1442,7 +1448,8 @@ export class Editor {
 		);
 		this.document.execute(action);
 		this.scrollIntoView();
-		if (this.eventHandlers.changed) this.eventHandlers.changed(null, null, null);
+		if (this.eventHandlers.changed)
+			this.eventHandlers.changed(null, null, null);
 
 		this._closeSearch();
 	}
