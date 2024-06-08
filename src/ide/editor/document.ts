@@ -319,18 +319,20 @@ export class Document {
 
 	// undo one action (if possible)
 	public undo() {
-		if (this.history_pos === 0) return;
+		if (this.history_pos === 0) return null;
 		this.history_pos--;
 		let action = this.history[this.history_pos];
 		action.revert(this);
+		return action;
 	}
 
 	// redo one action (if possible)
 	public redo() {
-		if (this.history_pos === this.history.length) return;
+		if (this.history_pos === this.history.length) return null;
 		let action = this.history[this.history_pos];
 		action.execute(this, true);
 		this.history_pos++;
+		return action;
 	}
 
 	// Find a search key in the document.

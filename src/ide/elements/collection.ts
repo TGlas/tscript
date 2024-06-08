@@ -104,7 +104,22 @@ export class EditorCollection {
 				};
 			})(this, ed)
 		);
-		ed.setEventHandler("changed", () => {
+		ed.setEventHandler("changed", (line, removed, inserted) => {
+			if (line !== null) {
+				console.log("lines changed", line, removed, inserted);
+				// change breakpoints
+				let br = ed.properties().breakpoints;
+				let new_br = new Set();
+				for (let b of br)
+				{
+					if (b < line) new_br.add(b);
+					else if (b >= line + removed) new_br.add(b + inserted - removed);
+				}
+				// modify the existing set instead of assigning a new one since it is enclosed in handlers
+				br.clear();
+				for (let b of new_br) br.add(b);
+				ed.draw();
+			}
 			ide.clear();
 			updateStatus();
 		});

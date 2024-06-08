@@ -405,7 +405,14 @@ export class Editor {
 	// An application can set the following event callbacks:
 	//   focus() is triggered when the editor gains focus.
 	//   blur() is triggered when the editor loses focus.
-	//   changed() is triggered after the document has changed.
+	//   changed(line, removed, inserted) is triggered after the
+	//       document has changed. If the change involves line
+	//       breaks then line is the start line of the change,
+	//       removed is the number of lines removed, and inserted
+	//       is the number of additional lines. This information
+	//       allows to keep track of break points. For changes
+	//       not modifying the line structure, all three
+	//       parameters are null.
 	//   barDraw(begin, end) takes a range begin:end of lines.
 	//       It is expected to return an array of nulls or strings,
 	//       one per line, to be drawn into the icon bar. Since the
@@ -754,7 +761,10 @@ export class Editor {
 		);
 		this.document.execute(action, true);
 		this.scrollIntoView();
-		if (this.eventHandlers.changed) this.eventHandlers.changed();
+		if (this.eventHandlers.changed) {
+			let {line, removed, inserted} = action.linesChanged(this.document);
+			this.eventHandlers.changed(line, removed, inserted);
+		}
 	}
 
 	private onScroll(event: Event) {
@@ -805,13 +815,23 @@ export class Editor {
 				this.document.selection = 0;
 				this.document.cursor = this.document.size();
 			} else if (bound === "undo" && !this.readOnly) {
-				this.document.undo();
+				let action = this.document.undo();
 				this.scrollIntoView();
-				if (this.eventHandlers.changed) this.eventHandlers.changed();
+				if (this.eventHandlers.changed) {
+					if (action && action instanceof SimpleAction) {
+						let {line, removed, inserted} = action.linesChanged(this.document);
+						this.eventHandlers.changed(line, inserted, removed);   // swap of inserted and removed is intentional!
+					} else this.eventHandlers.changed(null, null, null);
+				}
 			} else if (bound === "redo" && !this.readOnly) {
-				this.document.redo();
+				let action = this.document.redo();
 				this.scrollIntoView();
-				if (this.eventHandlers.changed) this.eventHandlers.changed();
+				if (this.eventHandlers.changed) {
+					if (action && action instanceof SimpleAction) {
+						let {line, removed, inserted} = action.linesChanged(this.document);
+						this.eventHandlers.changed(line, removed, inserted);
+					} else this.eventHandlers.changed(null, null, null);
+				}
 			} else if (bound === "toggle comment" && !this.readOnly) {
 				// toggle line comments
 				let marker = this.document.language.linecomment;
@@ -849,7 +869,7 @@ export class Editor {
 					this.document.execute(action);
 					this.scrollIntoView();
 					if (this.eventHandlers.changed)
-						this.eventHandlers.changed();
+						this.eventHandlers.changed(null, null, null);
 				}
 			} else if (bound === "bracket") {
 				// jump to matching bracket
@@ -1083,7 +1103,7 @@ export class Editor {
 						this.document.execute(action);
 						this.scrollIntoView();
 						if (this.eventHandlers.changed)
-							this.eventHandlers.changed();
+							this.eventHandlers.changed(null, null, null);
 					}
 				} else {
 					if (
@@ -1100,7 +1120,7 @@ export class Editor {
 						this.document.execute(action);
 						this.scrollIntoView();
 						if (this.eventHandlers.changed)
-							this.eventHandlers.changed();
+							this.eventHandlers.changed(null, null, null);
 					} else {
 						// insert a tabulator as a simple "typing" action
 						this.simpleAction("\t");
@@ -1422,7 +1442,7 @@ export class Editor {
 		);
 		this.document.execute(action);
 		this.scrollIntoView();
-		if (this.eventHandlers.changed) this.eventHandlers.changed();
+		if (this.eventHandlers.changed) this.eventHandlers.changed(null, null, null);
 
 		this._closeSearch();
 	}
