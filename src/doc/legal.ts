@@ -39,13 +39,8 @@ export const doc_legal: Documentation = {
 
 	<h2>Acknowledgments</h2>
 	<p>
-	The TScript IDE uses the following libraries:
+	The TScript IDE uses the following library:
 	<ul>
-		<li>
-			The <a target=\"_blank\" href=\"https://codemirror.net\">CodeMirror</a>
-			editor is used under an
-			<a target=\"_blank\" href=\"https://codemirror.net/LICENSE\">MIT license</a>.
-		</li>
 		<li>
 			The <a target=\"_blank\" href=\"http://interactjs.io/\">interact</a>
 			library is used under an

@@ -1,5 +1,3 @@
-"use strict";
-
 import { Typeid } from "../lang/helpers/typeIds";
 import { TScript } from "../lang";
 import { Parser } from "../lang/parser";

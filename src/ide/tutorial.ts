@@ -1,5 +1,3 @@
-"use strict";
-
 import * as tgui from "./tgui";
 import { evaluation } from "../eval";
 import { tutorialData } from "../tutorial";

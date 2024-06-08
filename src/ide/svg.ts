@@ -1,4 +1,3 @@
-"use strict";
 // This file is considered to be used by 'gen-icons.ts' and
 // would not be part of the output
 

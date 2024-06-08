@@ -1,4 +1,3 @@
-"use strict";
 // This file is only used for generating resources before build time.
 // It generates `icons.ts`
 //

@@ -84,7 +84,7 @@ async function loadScriptFromUrl(url: string): Promise<void> {
 	try {
 		const response = await fetch(url);
 		const text = await response.text();
-		elements.collection.getCurrentEditor()!.setText(text);
+		elements.collection.getActiveEditor()!.setText(text);
 	} catch (error) {
 		if ((error && typeof error === "object") || typeof error === "string")
 			alert("The program could not be loaded:\n" + error.toString());

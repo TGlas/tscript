@@ -12,14 +12,12 @@ export function showStandalonePage(
 ): void {
 	elements.setStandalone(true);
 	elements.create(container);
-	let ed = elements.collection.getCurrentEditor();
-	if (!ed) ed = elements.collection.getEditors()[0];
+	let ed = elements.collection.getActiveEditor();
 	if (!ed) {
 		alert("failed to open web application");
 		document.body.innerHTML = "";
 		return;
 	}
-	ed.focus();
 	ed.setText(data.code);
 	elements.prepare_run();
 

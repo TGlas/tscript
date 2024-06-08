@@ -73,7 +73,7 @@ export class Editor {
 		// document associated with this editor
 		language = new Language(language.toLowerCase());
 		this.document = new Document(language, text);
-		this._setTarget();
+		this.setTarget();
 
 		// color theme, can be "light", "dark" or "auto"
 		this.themeName = theme;
@@ -181,7 +181,7 @@ export class Editor {
 		this.dom_search_key.setAttribute("placeholder", "search text");
 		this.dom_search_key.addEventListener("keydown", (event) => {
 			if (event.key === "Enter") {
-				this._onFind();
+				this.onFind();
 				event.preventDefault();
 				event.stopPropagation();
 			}
@@ -197,7 +197,7 @@ export class Editor {
 		this.dom_search_replacement.setAttribute("placeholder", "replace with");
 		this.dom_search_replacement.addEventListener("keydown", (event) => {
 			if (event.key === "Enter") {
-				this._onReplace();
+				this.onReplace();
 				event.preventDefault();
 				event.stopPropagation();
 			}
@@ -222,7 +222,7 @@ export class Editor {
 
 		this.dom_search_find = document.createElement("button");
 		this.dom_search_find.innerText = "find";
-		this.dom_search_find.addEventListener("click", this._onFind.bind(this));
+		this.dom_search_find.addEventListener("click", this.onFind.bind(this));
 		this.dom_search_find.style.flexGrow = "0";
 		this.dom_search_find.style.padding = "0 3px";
 		this.dom_search_find.style.height = "24px";
@@ -232,7 +232,7 @@ export class Editor {
 		this.dom_search_replace.innerText = "replace";
 		this.dom_search_replace.addEventListener(
 			"click",
-			this._onReplace.bind(this)
+			this.onReplace.bind(this)
 		);
 		this.dom_search_replace.style.flexGrow = "0";
 		this.dom_search_replace.style.padding = "0 3px";
@@ -243,7 +243,7 @@ export class Editor {
 		this.dom_search_replaceall.innerText = "all";
 		this.dom_search_replaceall.addEventListener(
 			"click",
-			this._onReplaceAll.bind(this)
+			this.onReplaceAll.bind(this)
 		);
 		this.dom_search_replaceall.style.flexGrow = "0";
 		this.dom_search_replaceall.style.padding = "0 3px";
@@ -262,57 +262,57 @@ export class Editor {
 		this.dom_search.appendChild(this.dom_search_close);
 
 		// set color these
-		this._applyColorTheme();
+		this.applyColorTheme();
 
 		// register event handlers
 		this.observer = new ResizeObserver((entries) => {
-			this._recalc();
+			this.recalc();
 			this.draw();
 		});
 		this.observer.observe(this.dom_content);
 
-		this.dom_scroller.addEventListener("scroll", this._onScroll.bind(this));
+		this.dom_scroller.addEventListener("scroll", this.onScroll.bind(this));
 
 		this.dom_scroller.addEventListener(
 			"pointerdown",
-			this._onPointerStart.bind(this)
+			this.onPointerStart.bind(this)
 		);
 		this.dom_scroller.addEventListener(
 			"pointermove",
-			this._onPointerMove.bind(this)
+			this.onPointerMove.bind(this)
 		);
 		this.dom_scroller.addEventListener(
 			"pointerup",
-			this._onPointerFinish.bind(this)
+			this.onPointerFinish.bind(this)
 		);
 		this.dom_scroller.addEventListener(
 			"pointercancel",
-			this._onPointerAbort.bind(this)
+			this.onPointerAbort.bind(this)
 		);
 		this.dom_scroller.addEventListener(
 			"dblclick",
-			this._onDoubleClick.bind(this)
+			this.onDoubleClick.bind(this)
 		);
 
 		this.dom_bars.addEventListener(
 			"pointerdown",
-			this._onBarClick.bind(this)
+			this.onBarClick.bind(this)
 		);
 
-		this.dom_focus.addEventListener("focus", this._onFocus.bind(this));
-		this.dom_focus.addEventListener("blur", this._onBlur.bind(this));
+		this.dom_focus.addEventListener("focus", this.onFocus.bind(this));
+		this.dom_focus.addEventListener("blur", this.onBlur.bind(this));
 
-		this.dom_focus.addEventListener("keydown", this._onKey.bind(this));
-		this.dom_focus.addEventListener("input", this._onInput.bind(this));
-		this.dom_focus.addEventListener("cut", this._onCut.bind(this));
-		this.dom_focus.addEventListener("copy", this._onCopy.bind(this));
-		this.dom_focus.addEventListener("paste", this._onPaste.bind(this));
+		this.dom_focus.addEventListener("keydown", this.onKey.bind(this));
+		this.dom_focus.addEventListener("input", this.onInput.bind(this));
+		this.dom_focus.addEventListener("cut", this.onCut.bind(this));
+		this.dom_focus.addEventListener("copy", this.onCopy.bind(this));
+		this.dom_focus.addEventListener("paste", this.onPaste.bind(this));
 
 		if (window.matchMedia) {
 			let mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 			mediaQuery.addEventListener(
 				"change",
-				this._applyColorTheme.bind(this)
+				this.applyColorTheme.bind(this)
 			);
 		}
 
@@ -336,8 +336,8 @@ export class Editor {
 		let props = this.document.properties;
 		this.document = new Document(this.document.language, text);
 		this.document.properties = props;
-		this._docChanged();
-		this._setTarget(0);
+		this.docChanged();
+		this.setTarget(0);
 		this.scrollIntoView();
 		this.draw();
 	}
@@ -376,7 +376,7 @@ export class Editor {
 	// set the theme to "auto", "light" or "dark"
 	public setTheme(name: string) {
 		this.themeName = name;
-		this._applyColorTheme();
+		this.applyColorTheme();
 	}
 
 	// check whether the editor has the keyboard focus
@@ -402,27 +402,29 @@ export class Editor {
 		}, 0);
 	}
 
-	// An application can set the following callbacks:
-	//   barDraw(begin, end) takes a range begin:end of lines.
-	//       It is expected to return an array of nulls or strings,
-	//       one per line, to be drawn into the icon bat. Since the
-	//       bar is narrow, single-character strings are expected.
-	//   barClick(line) takes a line number, and it does not expect
-	//       a return value.
+	// An application can set the following event callbacks:
 	//   focus() is triggered when the editor gains focus.
 	//   blur() is triggered when the editor loses focus.
 	//   changed() is triggered after the document has changed.
+	//   barDraw(begin, end) takes a range begin:end of lines.
+	//       It is expected to return an array of nulls or strings,
+	//       one per line, to be drawn into the icon bar. Since the
+	//       bar is narrow, single-character strings are expected.
+	//   barClick(line) is triggered when the bar is clicked. The
+	//       line number is provided as an argument.
 	public setEventHandler(name: string, handler: any) {
 		if (handler) this.eventHandlers[name] = handler;
 		else delete this.eventHandlers[name];
 	}
 
+	// obtain the current cursor position as an object {row, col}
 	public getCursorPosition() {
 		let iter = new Iterator(this.document);
 		iter.setPosition(this.document.cursor);
 		return { row: iter.row, col: iter.col };
 	}
 
+	// set the cursor position; nothing will be selected
 	public setCursorPosition(row: number, col: number) {
 		let iter = new Iterator(this.document);
 		iter.setCoordinates(row, col);
@@ -587,7 +589,7 @@ export class Editor {
 		}
 	}
 
-	// Scroll such that the given row/col position comes into view.
+	// scroll such that the given row/col position comes into view
 	public scrollTo(row: number, col: number, center: boolean = false) {
 		let pgx = this.offscreen.width - this.charwidth;
 		let pgy = this.offscreen.height - this.em;
@@ -635,22 +637,22 @@ export class Editor {
 		this.scrollTo(iter.row, iter.col, center);
 	}
 
-	// Return true if the document has unsaved changes.
+	// return true if the document has unsaved changes
 	public isDirty() {
 		return this.document.isDirty();
 	}
 
-	// Declare the current document state as clean.
+	// declare the current document state as clean
 	public setClean() {
 		this.document.setClean();
 	}
 
-	// Test whether the editor is on read-only mode.
+	// test whether the editor is in read-only mode
 	public isReadOnly() {
 		return this.readOnly;
 	}
 
-	// Set or clear read-only mode.
+	// set or clear read-only mode
 	public setReadOnly(readOnly: boolean) {
 		if (readOnly === this.readOnly) return;
 		this.readOnly = readOnly;
@@ -667,7 +669,11 @@ export class Editor {
 	}
 
 	// Return an object holding arbitrary extension properties,
-	// i.e., data attached to the editor/document instance.
+	// i.e., data attached to the editor/document instance. The
+	// mechanisms helps to attach data that is not the business
+	// of the core editor itself, but linked to it by the
+	// application. In the IDE, it is used for the filename, the
+	// panel ID, and for managing breakpoints.
 	public properties() {
 		return this.document.properties;
 	}
@@ -676,7 +682,7 @@ export class Editor {
 	// the sizer element used for scrolling as well as the width of the
 	// line number display, which may trigger a size change of the
 	// content canvas.
-	_docChanged() {
+	private docChanged() {
 		let dw = this.document.width();
 		let dh = this.document.height();
 
@@ -696,7 +702,7 @@ export class Editor {
 	}
 
 	// Set the target horizontal cursor position to the current cursor position.
-	_setTarget(x: number | null = null) {
+	private setTarget(x: number | null = null) {
 		if (x === null) {
 			let iter = new Iterator(this.document);
 			iter.setPosition(this.document.cursor);
@@ -706,7 +712,7 @@ export class Editor {
 
 	// Return a range begin:end of selected lines. If nothing is
 	// selected then return line:line+1, where line contains the cursor.
-	_selectedLines() {
+	private selectedLines() {
 		let iter = new Iterator(this.document);
 		iter.setPosition(this.document.cursor);
 		let begin_line = iter.row;
@@ -727,7 +733,7 @@ export class Editor {
 	}
 
 	// Create, execute, and add a SimpleAction.
-	_simple(ins: null | string | Uint32Array) {
+	private simpleAction(ins: null | string | Uint32Array) {
 		if (this.readOnly) return;
 
 		let pos = this.document.cursor;
@@ -751,7 +757,7 @@ export class Editor {
 		if (this.eventHandlers.changed) this.eventHandlers.changed();
 	}
 
-	_onScroll(event: Event) {
+	private onScroll(event: Event) {
 		let x = this.dom_scroller.scrollLeft;
 		let y = this.dom_scroller.scrollTop;
 		this.scroll_x = window.devicePixelRatio * x;
@@ -759,17 +765,17 @@ export class Editor {
 		this.draw();
 	}
 
-	_onFocus(event: Event) {
+	private onFocus(event: Event) {
 		this.draw();
 		if (this.eventHandlers.focus) this.eventHandlers.focus();
 	}
 
-	_onBlur(event: Event) {
+	private onBlur(event: Event) {
 		this.draw();
 		if (this.eventHandlers.blur) this.eventHandlers.blur();
 	}
 
-	_onKey(event: KeyboardEvent) {
+	private onKey(event: KeyboardEvent) {
 		// skip some keys early on
 		if (Editor._modifierKeys.has(event.key) || event.key === "Dead")
 			return true;
@@ -791,7 +797,7 @@ export class Editor {
 				this.dom_search_key.focus();
 			} else if (bound === "find next") {
 				// call the find function using the value already entered into the hidden controls
-				this._onFind();
+				this.onFind();
 			} else if (bound === "replace" && !this.readOnly) {
 				// open find&replace dialog
 				this.dom_search.style.display = "flex";
@@ -811,7 +817,7 @@ export class Editor {
 				let marker = this.document.language.linecomment;
 				if (marker) {
 					let len = marker.length;
-					let [begin, end] = this._selectedLines();
+					let [begin, end] = this.selectedLines();
 
 					// test whether we need to comment or uncomment
 					let commented = true;
@@ -930,13 +936,13 @@ export class Editor {
 							}
 						}
 						this.document.cursor = iter.pos;
-						this._setTarget();
+						this.setTarget();
 					}
 				} else {
 					// move left by one character
 					if (this.document.cursor > 0) {
 						this.document.cursor--;
-						this._setTarget();
+						this.setTarget();
 						this.scrollIntoView();
 					}
 				}
@@ -973,13 +979,13 @@ export class Editor {
 							}
 						}
 						this.document.cursor = iter.pos;
-						this._setTarget();
+						this.setTarget();
 					}
 				} else {
 					// move right by one character
 					if (this.document.cursor < this.document.size()) {
 						this.document.cursor++;
-						this._setTarget();
+						this.setTarget();
 						this.scrollIntoView();
 					}
 				}
@@ -1030,7 +1036,7 @@ export class Editor {
 				if (event.ctrlKey) {
 					// move to the start of the document
 					this.document.cursor = 0;
-					this._setTarget();
+					this.setTarget();
 					this.scrollIntoView();
 				} else {
 					// "smart" home
@@ -1045,14 +1051,14 @@ export class Editor {
 					let h1 = iter.pos;
 					this.document.cursor =
 						this.document.cursor === h1 ? h0 : h1;
-					this._setTarget();
+					this.setTarget();
 					this.scrollIntoView();
 				}
 			} else if (key === "End") {
 				if (event.ctrlKey) {
 					// move to the end of the document
 					this.document.cursor = this.document.size();
-					this._setTarget();
+					this.setTarget();
 					this.scrollIntoView();
 				} else {
 					// move to the end of the line
@@ -1062,7 +1068,7 @@ export class Editor {
 					iter.setCoordinates(y + 1, 0);
 					this.document.cursor =
 						iter.pos - (iter.col === 0 && iter.row > y ? 1 : 0);
-					this._setTarget();
+					this.setTarget();
 					this.scrollIntoView();
 				}
 			}
@@ -1071,7 +1077,7 @@ export class Editor {
 			if (key === "Tab" && !this.readOnly) {
 				if (event.shiftKey) {
 					// unindent the current selection
-					let [begin, end] = this._selectedLines();
+					let [begin, end] = this.selectedLines();
 					let action = new UnindentAction(this.document, begin, end);
 					if (!action.trivial()) {
 						this.document.execute(action);
@@ -1085,7 +1091,7 @@ export class Editor {
 						this.document.selection !== this.document.cursor
 					) {
 						// indent the current selection
-						let [begin, end] = this._selectedLines();
+						let [begin, end] = this.selectedLines();
 						let action = new IndentAction(
 							this.document,
 							begin,
@@ -1097,7 +1103,7 @@ export class Editor {
 							this.eventHandlers.changed();
 					} else {
 						// insert a tabulator as a simple "typing" action
-						this._simple("\t");
+						this.simpleAction("\t");
 					}
 				}
 			} else if (key === "Backspace" && !this.readOnly) {
@@ -1106,12 +1112,12 @@ export class Editor {
 					this.document.selection !== this.document.cursor
 				) {
 					// delete selection
-					this._simple(null);
+					this.simpleAction(null);
 				} else {
 					// delete key left of the cursor
 					if (this.document.cursor > 0) {
 						this.document.selection = this.document.cursor - 1;
-						this._simple(null);
+						this.simpleAction(null);
 					}
 				}
 			} else if (key === "Delete" && !this.readOnly) {
@@ -1120,12 +1126,12 @@ export class Editor {
 					this.document.selection !== this.document.cursor
 				) {
 					// delete selection
-					this._simple(null);
+					this.simpleAction(null);
 				} else {
 					// delete key right of the cursor
 					if (this.document.cursor < this.document.size()) {
 						this.document.selection = this.document.cursor + 1;
-						this._simple(null);
+						this.simpleAction(null);
 					}
 				}
 			} else if (key === "Enter" && !this.readOnly) {
@@ -1142,7 +1148,7 @@ export class Editor {
 					ins.push(iter.character());
 					iter.advance();
 				}
-				this._simple(new Uint32Array(ins));
+				this.simpleAction(new Uint32Array(ins));
 			} else if (key === "Escape") {
 				this._closeSearch();
 			}
@@ -1150,45 +1156,45 @@ export class Editor {
 
 		event.preventDefault();
 		event.stopPropagation();
-		this._docChanged();
+		this.docChanged();
 		this.draw();
 	}
 
-	_onInput(event: any) {
+	private onInput(event: any) {
 		if (this.readOnly) return;
 
 		if (
 			event.inputType === "insertText" ||
 			(event.inputType === "insertCompositionText" && !event.isComposing)
 		) {
-			this._simple(event.data);
-			this._docChanged();
+			this.simpleAction(event.data);
+			this.docChanged();
 			this.draw();
 			this.dom_focus.innerHTML = "";
 		} else if (
 			event.inputType === "insertLineBreak" ||
 			event.inputType === "insertParagraph"
 		) {
-			this._simple("\n");
-			this._docChanged();
+			this.simpleAction("\n");
+			this.docChanged();
 			this.draw();
 			this.dom_focus.innerHTML = "";
 		}
 	}
 
-	_onCut(event: ClipboardEvent) {
+	private onCut(event: ClipboardEvent) {
 		let s = this.selection();
 		if (s.length > 0 && event.clipboardData && !this.readOnly) {
-			this._simple(null);
+			this.simpleAction(null);
 			event.clipboardData.setData("text/plain", s);
 			event.preventDefault();
 			event.stopPropagation();
-			this._docChanged();
+			this.docChanged();
 			this.draw();
 		}
 	}
 
-	_onCopy(event: ClipboardEvent) {
+	private onCopy(event: ClipboardEvent) {
 		let s = this.selection();
 		if (s.length > 0 && event.clipboardData) {
 			event.clipboardData.setData("text/plain", s);
@@ -1197,15 +1203,15 @@ export class Editor {
 		}
 	}
 
-	_onPaste(event: ClipboardEvent) {
+	private onPaste(event: ClipboardEvent) {
 		let selected =
 			this.document.selection !== null &&
 			this.document.selection !== this.document.cursor;
 		if (event.clipboardData && !this.readOnly) {
 			let s = event.clipboardData.getData("Text");
 			if (selected || s.length > 0) {
-				this._simple(s);
-				this._docChanged();
+				this.simpleAction(s);
+				this.docChanged();
 				this.draw();
 			}
 		}
@@ -1216,7 +1222,10 @@ export class Editor {
 
 	// translate pointer coordinates into canvas coordinates
 	// and determine the position within the document
-	_processPointer(event: PointerEvent | MouseEvent, cutoff: boolean = false) {
+	private _processPointer(
+		event: PointerEvent | MouseEvent,
+		cutoff: boolean = false
+	) {
 		// canvas pixel coordinates
 		let x = Math.round(event.offsetX * window.devicePixelRatio) | 0;
 		let y = Math.round(event.offsetY * window.devicePixelRatio) | 0;
@@ -1242,7 +1251,7 @@ export class Editor {
 		};
 	}
 
-	_onPointerStart(event: PointerEvent) {
+	private onPointerStart(event: PointerEvent) {
 		if (event.target !== this.dom_sizer) return; // most probably, a scroll bar is moved
 		let desc = this._processPointer(event);
 		this.dom_focus.focus();
@@ -1259,23 +1268,23 @@ export class Editor {
 			if (!event.shiftKey) this.document.selection = desc.pos;
 		}
 		this.document.cursor = desc.pos;
-		this._setTarget(desc.col);
+		this.setTarget(desc.col);
 
 		// redraw
 		this.draw();
 	}
 
-	_onPointerMove(event: PointerEvent) {
+	private onPointerMove(event: PointerEvent) {
 		if (this.capture === null) return;
 
 		let desc = this._processPointer(event);
 		this.document.cursor = desc.pos;
-		this._setTarget(desc.col);
+		this.setTarget(desc.col);
 
 		this.draw();
 	}
 
-	_onPointerFinish(event: PointerEvent) {
+	private onPointerFinish(event: PointerEvent) {
 		if (this.capture === null) return;
 		this.dom_sizer.releasePointerCapture(this.capture);
 		this.capture = null;
@@ -1284,18 +1293,18 @@ export class Editor {
 		this.document.cursor = desc.pos;
 		if (this.document.selection === this.document.cursor)
 			this.document.selection = null;
-		this._setTarget(desc.col);
+		this.setTarget(desc.col);
 
 		this.draw();
 	}
 
-	_onPointerAbort(event: PointerEvent) {
+	private onPointerAbort(event: PointerEvent) {
 		if (this.capture === null) return;
 		this.dom_sizer.releasePointerCapture(this.capture);
 		this.capture = null;
 	}
 
-	_onDoubleClick(event: MouseEvent) {
+	private onDoubleClick(event: MouseEvent) {
 		if (event.target !== this.dom_sizer) return; // most probably, a scroll bar is moved
 		let desc = this._processPointer(event);
 		this.dom_focus.focus();
@@ -1313,18 +1322,18 @@ export class Editor {
 		this.document.cursor = iter.pos;
 		while (ct.has(Document.chartype(iter.before()))) iter.back();
 		this.document.selection = iter.pos;
-		this._setTarget(desc.col); // maybe set to the cursor instead?
+		this.setTarget(desc.col); // maybe set to the cursor instead?
 
 		// redraw
 		this.draw();
 	}
 
-	_onBarClick(event: PointerEvent) {
+	private onBarClick(event: PointerEvent) {
 		event.preventDefault();
 		event.stopPropagation();
 		this.dom_focus.focus();
 
-		if (!this.eventHandlers.barClick || this.readOnly) return;
+		if (!this.eventHandlers.barClick) return;
 
 		// canvas pixel coordinates
 		let y = Math.round(event.offsetY * window.devicePixelRatio) | 0;
@@ -1337,12 +1346,12 @@ export class Editor {
 		this.draw();
 	}
 
-	_closeSearch() {
+	private _closeSearch() {
 		this.dom_search.style.display = "none";
 		this.focus();
 	}
 
-	_onFind() {
+	private onFind() {
 		let key = Document.str2arr(this.dom_search_key.value);
 		let ignoreCase = this.dom_search_ignorecase.checked;
 
@@ -1360,7 +1369,7 @@ export class Editor {
 		this.draw();
 	}
 
-	_onReplace() {
+	private onReplace() {
 		if (this.readOnly) return;
 
 		let key = Document.str2arr(this.dom_search_key.value);
@@ -1377,7 +1386,7 @@ export class Editor {
 			// replace
 			this.document.selection = pos;
 			this.document.cursor = pos + key.length;
-			this._simple(replacement);
+			this.simpleAction(replacement);
 		} else {
 			// move to next occurrence
 			this.document.selection = pos;
@@ -1387,7 +1396,7 @@ export class Editor {
 		this.draw();
 	}
 
-	_onReplaceAll() {
+	private onReplaceAll() {
 		if (this.readOnly) return;
 
 		let key = Document.str2arr(this.dom_search_key.value);
@@ -1418,7 +1427,7 @@ export class Editor {
 		this._closeSearch();
 	}
 
-	_applyColorTheme() {
+	private applyColorTheme() {
 		let name = this.themeName;
 		if (name === "auto") {
 			let dark =
@@ -1450,7 +1459,7 @@ export class Editor {
 	// Recalculate all sizes. This is called on size changes of the editor.
 	// All values computed here are is SCREEN pixels, not in CSS pixels!
 	// This makes contents scale in an intuitive way with browser zoom.
-	_recalc() {
+	private recalc() {
 		let sw =
 			Math.round(this.dom_content.offsetWidth * window.devicePixelRatio) |
 			0;
@@ -1481,7 +1490,7 @@ export class Editor {
 			this.dom_bar_linenumbers.width / window.devicePixelRatio + "px";
 		this.dom_bar_icon.style.width =
 			this.dom_bar_icon.width / window.devicePixelRatio + "px";
-		this._docChanged();
+		this.docChanged();
 		if (this.devicePixelRatio !== window.devicePixelRatio) {
 			this.devicePixelRatio = window.devicePixelRatio;
 			this.scrollIntoView(); // much more robust than scroll correction

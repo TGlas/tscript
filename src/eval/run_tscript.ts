@@ -1,5 +1,3 @@
-"use strict";
-
 import { Typeid } from "../lang/helpers/typeIds";
 import { Parser } from "../lang/parser";
 import { Interpreter } from "../lang/interpreter/interpreter";

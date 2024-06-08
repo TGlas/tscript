@@ -146,10 +146,10 @@ export function cmd_export() {
 			return;
 	}
 
-	if (!ide.collection.getCurrentEditor()) return;
+	if (!ide.collection.getActiveEditor()) return;
 
 	// check that the code at least compiles
-	let source = ide.collection.getCurrentEditor()!.text();
+	let source = ide.collection.getActiveEditor()!.text();
 	ide.clear();
 
 	const toParse = {
@@ -291,7 +291,7 @@ export function cmd_export() {
 }
 
 function cmd_toggle_breakpoint() {
-	let ed = ide.collection.getCurrentEditor();
+	let ed = ide.collection.getActiveEditor();
 	if (!ed) return;
 
 	let line = ed.getCursorPosition().row;
@@ -330,7 +330,7 @@ function cmd_load() {
 }
 
 function cmd_save() {
-	const ed = ide.collection.getCurrentEditor();
+	const ed = ide.collection.getActiveEditor();
 	if (!ed) return;
 	let name = ed.properties().name;
 
@@ -339,7 +339,7 @@ function cmd_save() {
 }
 
 function cmd_save_as() {
-	const ed = ide.collection.getCurrentEditor();
+	const ed = ide.collection.getActiveEditor();
 	if (!ed) return;
 
 	fileDlg(

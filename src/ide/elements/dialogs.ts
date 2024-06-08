@@ -36,7 +36,7 @@ export function confirmFileOverwrite(name: string, onConfirm: () => any) {
 		prompt:
 			"A document named " +
 			name +
-			"already exists.\nDo you want to overwrite it?",
+			" already exists.\nDo you want to overwrite it?",
 		icon: tgui.msgBoxQuestion,
 		title: name,
 		buttons: [

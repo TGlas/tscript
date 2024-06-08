@@ -8,6 +8,8 @@
 	box-sizing: border-box;
 }
 
+img { max-width: 100%; }
+
 #doc-main {
 	font-family: sans-serif;
 	font-size: 12pt;
@@ -205,6 +207,10 @@ hr {
 
 .nicetable td a {
 	color: #000;
+}
+
+.nicetable.left td {
+	text-align: left !important;
 }
 
 .flex {

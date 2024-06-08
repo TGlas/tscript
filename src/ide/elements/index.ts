@@ -161,7 +161,7 @@ export function clear() {
 export function prepare_run() {
 	clear();
 
-	let ed = collection.getCurrentEditor();
+	let ed = collection.getActiveEditor();
 	if (!ed) return;
 
 	// make sure that there is a trailing line for the "end" breakpoint
@@ -325,7 +325,7 @@ export function prepare_run() {
 			if (stop) utils.updateControls();
 			else utils.updateStatus();
 			if (interpreter!.status === "finished") {
-				let ed = collection.getCurrentEditor();
+				let ed = collection.getActiveEditor();
 				if (ed) ed.focus();
 			}
 		};
@@ -559,7 +559,7 @@ export function create(container: HTMLElement, options?: any) {
 
 		// pressing F1
 		tgui.setHotkey("F1", function () {
-			const ed = collection.getCurrentEditor();
+			const ed = collection.getActiveEditor();
 			if (!ed) return;
 
 			let selection = ed.selection();
@@ -894,7 +894,7 @@ export function create(container: HTMLElement, options?: any) {
 	tutorial.init(
 		tutorial_container,
 		function () {
-			let ed = collection.getCurrentEditor();
+			let ed = collection.getActiveEditor();
 			return ed ? ed.text() : "";
 		},
 		function () {
