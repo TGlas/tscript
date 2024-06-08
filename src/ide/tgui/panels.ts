@@ -688,3 +688,9 @@ function poll() {
 	window.setTimeout(poll, 200);
 }
 window.setTimeout(poll, 1000); // start with a short delay
+
+// Force a complete recalculation of panel positions and sizes.
+export function forceArrange() {
+	currentW = 0;
+	currentH = 0;
+}
