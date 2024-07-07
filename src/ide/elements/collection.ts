@@ -105,7 +105,6 @@ export class EditorCollection {
 		);
 		ed.setEventHandler("changed", (line, removed, inserted) => {
 			if (line !== null) {
-				console.log("lines changed", line, removed, inserted);
 				// change breakpoints
 				let br = ed.properties().breakpoints;
 				let new_br = new Set();

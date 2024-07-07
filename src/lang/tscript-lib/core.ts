@@ -16,6 +16,7 @@ export const core = {
 		},
 		Boolean: {
 			constructor: function (object, value) {
+				if (object === value) this.error("/argument-mismatch/am-50");
 				if (!TScript.isDerivedFrom(value.type, Typeid.typeid_boolean))
 					this.error("/argument-mismatch/am-1", [
 						"value",
@@ -28,6 +29,7 @@ export const core = {
 		},
 		Integer: {
 			constructor: function (object, arg) {
+				if (object === arg) this.error("/argument-mismatch/am-50");
 				if (TScript.isDerivedFrom(arg.type, Typeid.typeid_boolean))
 					object.value.b = arg.value.b ? 1 : 0;
 				else if (TScript.isDerivedFrom(arg.type, Typeid.typeid_integer))
@@ -65,6 +67,7 @@ export const core = {
 		},
 		Real: {
 			constructor: function (object, arg) {
+				if (object === arg) this.error("/argument-mismatch/am-50");
 				if (TScript.isDerivedFrom(arg.type, Typeid.typeid_boolean))
 					object.value.b = arg.value.b ? 1 : 0;
 				else if (
@@ -149,6 +152,7 @@ export const core = {
 		},
 		String: {
 			constructor: function (object, value) {
+				if (object === value) this.error("/argument-mismatch/am-50");
 				object.value.b = TScript.toString.call(this, value);
 			},
 			size: function (object) {
@@ -334,6 +338,8 @@ export const core = {
 		},
 		Array: {
 			constructor: function (object, size_or_other, value) {
+				if (object === size_or_other)
+					this.error("/argument-mismatch/am-50");
 				if (
 					TScript.isDerivedFrom(
 						size_or_other.type,
@@ -690,6 +696,7 @@ export const core = {
 		},
 		Dictionary: {
 			constructor: function (object, other) {
+				if (object === other) this.error("/argument-mismatch/am-50");
 				if (TScript.isDerivedFrom(other.type, Typeid.typeid_null)) {
 					object.value.b = {};
 				} else if (
@@ -802,6 +809,7 @@ export const core = {
 		},
 		Function: {
 			constructor: function (object, value) {
+				if (object === value) this.error("/argument-mismatch/am-50");
 				if (!TScript.isDerivedFrom(value.type, Typeid.typeid_function))
 					this.error("/argument-mismatch/am-1", [
 						"value",

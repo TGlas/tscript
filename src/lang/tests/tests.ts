@@ -4695,6 +4695,125 @@ export const tests: Array<TscriptTest> = [
 			"error",
 		],
 	},
+	{
+		name: "am-50-1",
+		description: "test of argument mismatch error am-50, case 1",
+		code: `
+			class Bad : Boolean {
+			public:
+				constructor()
+				: super(this)   # should raise the error
+				{}
+			}
+			var x = Bad();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-50" },
+			"error",
+		],
+	},
+	{
+		name: "am-50-2",
+		description: "test of argument mismatch error am-50, case 2",
+		code: `
+			class Bad : Integer {
+			public:
+				constructor()
+				: super(this)   # should raise the error
+				{}
+			}
+			var x = Bad();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-50" },
+			"error",
+		],
+	},
+	{
+		name: "am-50-3",
+		description: "test of argument mismatch error am-50, case 3",
+		code: `
+			class Bad : Real {
+			public:
+				constructor()
+				: super(this)   # should raise the error
+				{}
+			}
+			var x = Bad();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-50" },
+			"error",
+		],
+	},
+	{
+		name: "am-50-4",
+		description: "test of argument mismatch error am-50, case 4",
+		code: `
+			class Bad : String {
+			public:
+				constructor()
+				: super(this)   # should raise the error
+				{}
+			}
+			var x = Bad();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-50" },
+			"error",
+		],
+	},
+	{
+		name: "am-50-5",
+		description: "test of argument mismatch error am-50, case 5",
+		code: `
+			class Bad : Array {
+			public:
+				constructor()
+				: super(this)   # should raise the error
+				{}
+			}
+			var x = Bad();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-50" },
+			"error",
+		],
+	},
+	{
+		name: "am-50-6",
+		description: "test of argument mismatch error am-50, case 6",
+		code: `
+			class Bad : Dictionary {
+			public:
+				constructor()
+				: super(this)   # should raise the error
+				{}
+			}
+			var x = Bad();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-50" },
+			"error",
+		],
+	},
+	{
+		name: "am-50-7",
+		description: "test of argument mismatch error am-50, case 7",
+		code: `
+			class Bad : Function {
+			public:
+				constructor()
+				: super(this)   # should raise the error
+				{}
+			}
+			var x = Bad();
+		`,
+		expectation: [
+			{ type: "error", href: "#/errors/argument-mismatch/am-50" },
+			"error",
+		],
+	},
 
 	// name resolution errors
 	{

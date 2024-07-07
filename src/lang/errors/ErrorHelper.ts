@@ -314,6 +314,7 @@ export let errors = {
 		"am-47": "wrong array size",
 		"am-48": "file '$$' not found",
 		"am-49": "radius cannot be negative",
+		"am-50": "value cannot be initialized from itself",
 	},
 	name: {
 		"ne-1": "error in function call; named parameter '$$' is already specified in call to function '$$'",

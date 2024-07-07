@@ -2202,70 +2202,90 @@ print(arr.sort(order2));                        # works fine
 				{
 					id: "am-45",
 					content: `
-			<p>
-			The error indicates that a too large object was created.
-			This applies (in theory) to the types
-			Range, Array, and Dictionary, but in practice it applies only
-			to <a href="?doc=/language/types/range">ranges</a>. In the
-			following code
-			<tscript do-not-run>
-				var r = -2000000000:2000000000;
-			</tscript>
-			the range would span 4000000000 (4 billion) numbers. That
-			number exceeds the Integer range and hence triggers this
-			error message.
-			</p>
-		`,
+						<p>
+						The error indicates that a too large object was created.
+						This applies (in theory) to the types
+						Range, Array, and Dictionary, but in practice it applies only
+						to <a href="?doc=/language/types/range">ranges</a>. In the
+						following code
+						<tscript do-not-run>
+							var r = -2000000000:2000000000;
+						</tscript>
+						the range would span 4000000000 (4 billion) numbers. That
+						number exceeds the Integer range and hence triggers this
+						error message.
+						</p>
+					`,
 					children: [],
 				},
 				{
 					id: "am-46",
 					content: `
-			<p>
-			The error indicates that a given resource string is invalid,
-			or that the resource is of the wrong type. First of all, make
-			sure that the string is a valid data URI. For example, a data
-			URI encoding a JPEG image should start with
-			<code>"data:image/jpeg;base64,"</code> followed by
-			unsystematically looking data.
-			</p>
-			<p>
-			Besides a broken data URI, this error can occur when providing
-			an unsuitable data type. For example, creating a sound object
-			from image data raises this error.
-			</p>
-		`,
+						<p>
+						The error indicates that a given resource string is invalid,
+						or that the resource is of the wrong type. First of all, make
+						sure that the string is a valid data URI. For example, a data
+						URI encoding a JPEG image should start with
+						<code>"data:image/jpeg;base64,"</code> followed by
+						unsystematically looking data.
+						</p>
+						<p>
+						Besides a broken data URI, this error can occur when providing
+						an unsuitable data type. For example, creating a sound object
+						from image data raises this error.
+						</p>
+					`,
 					children: [],
 				},
 				{
 					id: "am-47",
 					content: `
-			<p>
-			The error indicates that an array of the wrong size was passed
-			to a function. For example, the <code>canvas.setPixel</code>
-			function expects an array of size four as its last parameter.
-			</p>
-		`,
+						<p>
+						The error indicates that an array of the wrong size was passed
+						to a function. For example, the <code>canvas.setPixel</code>
+						function expects an array of size four as its last parameter.
+						</p>
+					`,
 					children: [],
 				},
 				{
 					id: "am-48",
 					content: `
-			<p>
-			This error is raised when a file is not found in an
-			<keyword>include</keyword> statement.
-			</p>
-		`,
+						<p>
+						This error is raised when a file is not found in an
+						<keyword>include</keyword> statement.
+						</p>
+					`,
 					children: [],
 				},
 				{
 					id: "am-49",
 					content: `
-			<p>
-			This error is raised when a (possibly filled or framed) circle
-			is drawn on the canvas with a negative radius.
-			</p>
-		`,
+						<p>
+						This error is raised when a (possibly filled or framed) circle
+						is drawn on the canvas with a negative radius.
+						</p>
+					`,
+					children: [],
+				},
+				{
+					id: "am-50",
+					content: `
+						<p>
+						This error occurs on the attempt of initializing (constructing)
+						a value from itself. This is a very rare case. For example, it
+						occurs when instantiating an object of the following class:
+						<tscript do-not-run>
+							class BadInteger : Integer
+							{
+							public:
+								constructor()
+								: super(this)   # attempt to construct integer part from the object itself
+								{ }
+							}
+						</tscript>
+						</p>
+					`,
 					children: [],
 				},
 			],
