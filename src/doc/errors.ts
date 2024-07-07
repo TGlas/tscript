@@ -2273,14 +2273,16 @@ print(arr.sort(order2));                        # works fine
 					content: `
 						<p>
 						This error occurs on the attempt of initializing (constructing)
-						a value from itself. This is a very rare case. For example, it
-						occurs when instantiating an object of the following class:
+						a built-in value from itself, or from another value that is still
+						in the process of being constructed. This is a very rare case.
+						For example, it occurs when instantiating an object of the
+						following class:
 						<tscript do-not-run>
 							class BadInteger : Integer
 							{
 							public:
 								constructor()
-								: super(this)   # attempt to construct integer part from the object itself
+								: super(this)   # attempt to construct integer part from itself
 								{ }
 							}
 						</tscript>
