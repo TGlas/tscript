@@ -308,6 +308,9 @@ export function prepare_run() {
 					type: "p",
 					parent: dlg.content,
 					text: msg,
+					style: {
+						"white-space": "pre-wrap", // do linebreaks
+					},
 				});
 				dlg.content.appendChild(input);
 				tgui.startModal(dlg);
