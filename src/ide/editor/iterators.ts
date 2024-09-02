@@ -148,7 +148,7 @@ export class Iterator {
 		return true;
 	}
 
-	// Jump forward by n characters with the leaf, of to the beginning of the next leaf is n is omitted.
+	// Jump forward by n characters within the leaf, or to the beginning of the next leaf is n is omitted.
 	// This function invalidates row and col, which must not be used thereafter.
 	public jump(n: number | null = null) {
 		let delta = this.leaf.data.length - this.offset;

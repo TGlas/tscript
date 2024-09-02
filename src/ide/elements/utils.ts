@@ -97,7 +97,7 @@ export function setCursorPosition(line: number, ch: number, name: string) {
 	if (!ed) ed = openEditorFromLocalStorage(name);
 	if (!ed) return;
 
-	ed.setCursorPosition(line - 1, ch);
+	ed.setCursorPositionByCharacter(line - 1, ch);
 	ed.focus();
 	ed.scrollIntoView();
 }

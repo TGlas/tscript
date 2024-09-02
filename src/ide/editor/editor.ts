@@ -137,6 +137,18 @@ export class Editor {
 		this.dom_display.style.tabSize = "4";
 		this.dom_content.appendChild(this.dom_display);
 
+		this.dom_focus = document.createElement("div");
+		this.dom_focus.className = "focus";
+		this.dom_focus.style.position = "absolute";
+		this.dom_focus.style.left = "0px";
+		this.dom_focus.style.top = "0px";
+		this.dom_focus.style.width = "100%";
+		this.dom_focus.style.height = "100%";
+		this.dom_focus.style.caretColor = "transparent";
+		this.dom_focus.setAttribute("tabindex", "0");
+		this.dom_focus.setAttribute("contenteditable", "true");
+		this.dom_content.appendChild(this.dom_focus);
+
 		this.dom_scroller = document.createElement("div");
 		this.dom_scroller.className = "scroller";
 		this.dom_scroller.style.position = "absolute";
@@ -151,12 +163,7 @@ export class Editor {
 		this.dom_sizer.className = "sizer";
 		this.dom_sizer.style.minWidth = "100%";
 		this.dom_sizer.style.minHeight = "100%";
-		this.dom_sizer.style.caretColor = "transparent";
 		this.dom_scroller.appendChild(this.dom_sizer);
-
-		this.dom_focus = this.dom_sizer;
-		this.dom_focus.setAttribute("tabindex", "0");
-		this.dom_focus.setAttribute("contenteditable", "true");
 
 		this.dom_search = document.createElement("div");
 		this.dom_search.className = "search";
@@ -441,6 +448,18 @@ export class Editor {
 		this.draw();
 	}
 
+	// set the cursor position; nothing will be selected
+	// The difference to setCursorPosition is that ch is the character in the line, so a tabulator is a single character.
+	public setCursorPositionByCharacter(row: number, ch: number) {
+		let iter = new Iterator(this.document);
+		iter.setCoordinates(row, 0);
+		for (let i = 0; i < ch; i++) iter.advance();
+		this.document.cursor = iter.pos;
+		this.document.selection = null;
+		this.scrollIntoView();
+		this.draw();
+	}
+
 	// canvas drawing, including bars and content.
 	public draw() {
 		if (!this.offscreen) return;
@@ -604,9 +623,9 @@ export class Editor {
 		if (center) {
 			this.scroll_x = Math.max(0, this.em * row + this.hpad - pgy / 2);
 			this.scroll_y = Math.max(0, this.charwidth * col - pgx / 2);
-			this.dom_scroller.scrollTop =
-				this.scroll_x / window.devicePixelRatio;
 			this.dom_scroller.scrollLeft =
+				this.scroll_x / window.devicePixelRatio;
+			this.dom_scroller.scrollTop =
 				this.scroll_y / window.devicePixelRatio;
 		} else {
 			if (this.em * row < this.scroll_y) {
@@ -769,7 +788,7 @@ export class Editor {
 		}
 	}
 
-	private onScroll(event: Event) {
+	private onScroll(event: any = null) {
 		let x = this.dom_scroller.scrollLeft;
 		let y = this.dom_scroller.scrollTop;
 		this.scroll_x = window.devicePixelRatio * x;
@@ -807,6 +826,7 @@ export class Editor {
 				// open find dialog
 				this.dom_search.style.display = "flex";
 				this.dom_search_key.focus();
+				this.dom_search_key.select();
 			} else if (bound === "find next") {
 				// call the find function using the value already entered into the hidden controls
 				this.onFind();
@@ -1314,6 +1334,7 @@ export class Editor {
 		if (this.capture === null) return;
 		this.dom_sizer.releasePointerCapture(this.capture);
 		this.capture = null;
+		this.focus();
 
 		let desc = this._processPointer(event);
 		this.document.cursor = desc.pos;
