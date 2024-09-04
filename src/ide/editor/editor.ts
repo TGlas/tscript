@@ -1279,7 +1279,7 @@ export class Editor {
 		let y = Math.round(event.offsetY * window.devicePixelRatio) | 0;
 
 		// character grid coordinates
-		let cx = Math.round(x / this.charwidth) | 0;
+		let cx = Math.round((x - this.hpad) / this.charwidth) | 0;
 		let cy = Math.floor(y / this.em) | 0;
 		if (cx < 0) cx = 0;
 
