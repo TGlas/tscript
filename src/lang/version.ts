@@ -5,7 +5,7 @@ export const Version = {
 	major: package_json.version.split(".")[0],
 	minor: package_json.version.split(".")[1],
 	patch: package_json.version.split(".")[2],
-	day: 2,
+	day: 4,
 	month: 9,
 	year: 2024,
 	full: function () {

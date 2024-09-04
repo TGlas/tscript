@@ -625,29 +625,39 @@ export class Editor {
 		if (center) {
 			this.scroll_x = Math.max(0, this.em * row + this.hpad - pgy / 2);
 			this.scroll_y = Math.max(0, this.charwidth * col - pgx / 2);
-			this.dom_scroller.scrollLeft =
-				this.scroll_x / window.devicePixelRatio;
-			this.dom_scroller.scrollTop =
-				this.scroll_y / window.devicePixelRatio;
+			window.setTimeout(() => {
+				this.dom_scroller.scrollLeft =
+					this.scroll_x / window.devicePixelRatio;
+				this.dom_scroller.scrollTop =
+					this.scroll_y / window.devicePixelRatio;
+			}, 0);
 		} else {
 			if (this.em * row < this.scroll_y) {
 				this.scroll_y = this.em * row;
-				this.dom_scroller.scrollTop =
-					this.scroll_y / window.devicePixelRatio;
+				window.setTimeout(() => {
+					this.dom_scroller.scrollTop =
+						this.scroll_y / window.devicePixelRatio;
+				}, 0);
 			} else if (this.em * row > this.scroll_y + pgy) {
 				this.scroll_y = this.em * row - pgy;
-				this.dom_scroller.scrollTop =
-					this.scroll_y / window.devicePixelRatio;
+				window.setTimeout(() => {
+					this.dom_scroller.scrollTop =
+						this.scroll_y / window.devicePixelRatio;
+				}, 0);
 			}
 
 			if (this.charwidth * col - this.hpad < this.scroll_x) {
 				this.scroll_x = Math.max(0, this.charwidth * col - this.hpad);
-				this.dom_scroller.scrollLeft =
-					this.scroll_x / window.devicePixelRatio;
+				window.setTimeout(() => {
+					this.dom_scroller.scrollLeft =
+						this.scroll_x / window.devicePixelRatio;
+				}, 0);
 			} else if (this.charwidth * col + this.hpad > this.scroll_x + pgx) {
 				this.scroll_x = this.charwidth * col + this.hpad - pgx;
-				this.dom_scroller.scrollLeft =
-					this.scroll_x / window.devicePixelRatio;
+				window.setTimeout(() => {
+					this.dom_scroller.scrollLeft =
+						this.scroll_x / window.devicePixelRatio;
+				}, 0);
 			}
 		}
 	}
