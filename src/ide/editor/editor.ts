@@ -380,8 +380,10 @@ export class Editor {
 		this.document.selection = iter.pos;
 	}
 
-	// set the theme to "auto", "light" or "dark"
+	// Set the theme to "default", "auto", "light" or "dark".
+	// Here, "default" simply maps to "auto".
 	public setTheme(name: string) {
+		if (name === "default") name = "auto";
 		this.themeName = name;
 		this.applyColorTheme();
 	}

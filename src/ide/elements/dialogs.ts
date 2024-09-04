@@ -301,6 +301,8 @@ export function configDlg() {
 		sel.addEventListener("change", function (event) {
 			theme = sel.value;
 			tgui.setTheme(theme);
+			for (let editor of ide.collection.getEditors())
+				editor.setTheme(theme);
 		});
 	}
 
