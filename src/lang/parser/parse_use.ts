@@ -27,15 +27,20 @@ export function parse_use(state, parent, options) {
 	// handle the optional "from" part
 	let from = parent;
 	if (token.value === "from") {
+		let where = state.get();
 		from = parse_expression(state, parent, options, false, true);
-		if (!is_name(from) || from["super"])
+		if (!is_name(from) || from["super"]) {
+			state.set(where);
 			state.error("/syntax/se-10", ["use directive"]);
+		}
 		use.from = from;
 		use.children.push(from);
 
 		token = Lexer.get_token(state, options);
-		if (token.type !== "keyword" || token.value !== "use")
+		if (token.type !== "keyword" || token.value !== "use") {
+			state.set(Lexer.before_token);
 			state.error("/syntax/se-65");
+		}
 	}
 
 	// parse names with optional identifiers
@@ -46,9 +51,12 @@ export function parse_use(state, parent, options) {
 		if (nspace) Lexer.get_token(state, options);
 
 		// parse a name
+		let where = state.get();
 		let ex = parse_expression(state, parent, options, false, true);
-		if (!is_name(ex) || ex["super"])
+		if (!is_name(ex) || ex["super"]) {
+			state.set(where);
 			state.error("/syntax/se-10", ["use directive"]);
+		}
 		use.children.push(ex);
 
 		// parse optional "as" part
@@ -56,7 +64,10 @@ export function parse_use(state, parent, options) {
 		if (token.type === "identifier" && token.value === "as") {
 			if (nspace) state.error("/syntax/se-66");
 			token = Lexer.get_token(state, options);
-			if (token.type !== "identifier") state.error("/syntax/se-67");
+			if (token.type !== "identifier") {
+				state.set(Lexer.before_token);
+				state.error("/syntax/se-67");
+			}
 			let identifier = token.value;
 			use.names.set(ex, identifier);
 			token = Lexer.get_token(state, options);
@@ -65,7 +76,10 @@ export function parse_use(state, parent, options) {
 		// check for delimiter
 		if (token.type === "delimiter" && token.value === ";") break;
 		else if (token.type === "delimiter" && token.value === ",") {
-		} else state.error("/syntax/se-68");
+		} else {
+			state.set(Lexer.before_token);
+			state.error("/syntax/se-68");
+		}
 	}
 
 	// resolve the "from" term (if given) and patch the name expressions
@@ -76,7 +90,8 @@ export function parse_use(state, parent, options) {
 			delete use.from.passResolve;
 			delete use.from.passResolveBack;
 			if (
-				(use.from.petype == "name" || use.from.petype == "constant") &&
+				(use.from.petype === "name" ||
+					use.from.petype === "constant") &&
 				use.from.reference
 			)
 				use.from = use.from.reference;
@@ -89,11 +104,11 @@ export function parse_use(state, parent, options) {
 		let from = use.from ? use.from : use.parent;
 
 		for (let [ex, name] of use.names.entries()) {
-			if (ex.petype == "name" || ex.petype == "constant")
+			if (ex.petype === "name" || ex.petype === "constant")
 				ex = ex.reference;
 			if (name === true) {
 				// import a whole namespace
-				if (ex.petype != "namespace")
+				if (ex.petype !== "namespace")
 					state.error("/name/ne-23", [ex.name]);
 				for (let key in ex.names) {
 					if (!ex.names.hasOwnProperty(key)) continue;

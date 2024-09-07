@@ -74,25 +74,34 @@ export function parse_trycatch(state, parent, options) {
 	// parse the catch statement
 	let where_catch = state.get();
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "catch")
+	if (token.type !== "keyword" || token.value !== "catch") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-82");
+	}
 
 	// handle the "var" keyword
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "var")
+	if (token.type !== "keyword" || token.value !== "var") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-84");
+	}
 
 	// parse the variable name
 	// TODO: allow for more general names?
 	let where_var = state.get();
 	token = Lexer.get_token(state, options);
-	if (token.type !== "identifier") state.error("/syntax/se-85");
+	if (token.type !== "identifier") {
+		state.set(where_var);
+		state.error("/syntax/se-85");
+	}
 	let name = token.value;
 
 	// handle the "do" keyword
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "do")
+	if (token.type !== "keyword" || token.value !== "do") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-86");
+	}
 
 	// create the catch part, which declares the exception variable
 	trycatch.catch_part = {

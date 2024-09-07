@@ -26,7 +26,10 @@ export function parse_class(state, parent, options: Options) {
 	token = Lexer.get_token(state, options);
 	if (token.type !== "identifier") state.error("/syntax/se-54");
 	let cname = token.value;
-	if (parent.names.hasOwnProperty(cname)) state.error("/name/ne-18", [cname]);
+	if (parent.names.hasOwnProperty(cname)) {
+		state.set(Lexer.before_token);
+		state.error("/name/ne-18", [cname]);
+	}
 
 	// check class name
 	if (
@@ -34,6 +37,7 @@ export function parse_class(state, parent, options: Options) {
 		!state.builtin() &&
 		(cname[0] < "A" || cname[0] > "Z")
 	) {
+		state.set(Lexer.before_token);
 		state.error("/style/ste-4", [cname]);
 	}
 
@@ -183,8 +187,10 @@ export function parse_class(state, parent, options: Options) {
 		// parse the next token to check for '{'
 		token = Lexer.get_token(state, options);
 	}
-	if (token.type !== "grouping" || token.value !== "{")
+	if (token.type !== "grouping" || token.value !== "{") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-40", ["class declaration"]);
+	}
 	state.indent.push(-1 - token.line);
 
 	// parse the class body
@@ -214,8 +220,10 @@ export function parse_class(state, parent, options: Options) {
 			access = token.value;
 			Lexer.get_token(state, options);
 			token = Lexer.get_token(state, options);
-			if (token.type !== "operator" || token.value !== ":")
+			if (token.type !== "operator" || token.value !== ":") {
+				state.set(Lexer.before_token);
 				state.error("/syntax/se-55", [access]);
+			}
 			continue;
 		}
 

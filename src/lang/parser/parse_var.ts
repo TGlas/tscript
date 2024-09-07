@@ -68,6 +68,7 @@ export function parse_var(
 			token.value[0] >= "A" &&
 			token.value[0] <= "Z"
 		) {
+			state.set(Lexer.before_token);
 			state.error("/style/ste-3", ["variable", token.value]);
 		}
 
@@ -146,8 +147,10 @@ export function parse_var(
 
 		// parse the delimiter
 		if (token.type === "delimiter" && token.value === ";") break;
-		else if (token.type !== "delimiter" || token.value !== ",")
+		else if (token.type !== "delimiter" || token.value !== ",") {
+			state.set(Lexer.before_token);
 			state.error(pe.initializer ? "/syntax/se-51b" : "/syntax/se-51");
+		}
 	}
 	return ret;
 }

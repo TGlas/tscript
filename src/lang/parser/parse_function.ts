@@ -25,9 +25,15 @@ export function parse_function(
 
 	// obtain function name
 	token = Lexer.get_token(state, options);
-	if (token.type !== "identifier") state.error("/syntax/se-52");
+	if (token.type !== "identifier") {
+		state.set(Lexer.before_token);
+		state.error("/syntax/se-52");
+	}
 	let fname = token.value;
-	if (parent.names.hasOwnProperty(fname)) state.error("/name/ne-15", [fname]);
+	if (parent.names.hasOwnProperty(fname)) {
+		state.set(Lexer.before_token);
+		state.error("/name/ne-15", [fname]);
+	}
 
 	// check function name
 	if (
@@ -36,6 +42,7 @@ export function parse_function(
 		fname[0] >= "A" &&
 		fname[0] <= "Z"
 	) {
+		state.set(Lexer.before_token);
 		state.error("/style/ste-3", ["function", fname]);
 	}
 
@@ -58,8 +65,10 @@ export function parse_function(
 
 	// parse the parameters
 	token = Lexer.get_token(state, options);
-	if (token.type !== "grouping" || token.value !== "(")
+	if (token.type !== "grouping" || token.value !== "(") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-36", ["function declaration"]);
+	}
 	while (true) {
 		// parse ) or ,
 		let token = Lexer.get_token(state, options, true);
@@ -76,7 +85,10 @@ export function parse_function(
 		// parse the parameter name
 		let where = state.get();
 		token = Lexer.get_token(state, options);
-		if (token.type !== "identifier") state.error("/syntax/se-33");
+		if (token.type !== "identifier") {
+			state.set(Lexer.before_token);
+			state.error("/syntax/se-33");
+		}
 		let name = token.value;
 		let id = func.variables.length;
 		let variable = {
@@ -108,7 +120,10 @@ export function parse_function(
 		}
 
 		// register the parameter
-		if (func.names.hasOwnProperty(name)) state.error("/name/ne-16", [name]);
+		if (func.names.hasOwnProperty(name)) {
+			state.set(Lexer.before_token);
+			state.error("/name/ne-16", [name]);
+		}
 		func.names[name] = variable;
 		func.variables[id] = variable;
 		func.params.push(param);
@@ -116,8 +131,10 @@ export function parse_function(
 
 	// parse the function body
 	token = Lexer.get_token(state, options);
-	if (token.type !== "grouping" || token.value !== "{")
+	if (token.type !== "grouping" || token.value !== "{") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-40", ["function declaration"]);
+	}
 	state.indent.push(-1 - token.line);
 	while (true) {
 		token = Lexer.get_token(state, options, true);

@@ -128,7 +128,10 @@ export function parse_for(state, parent, options) {
 		// Note: the program element does *not* need a step function, it is only there to define the variable's id
 		Lexer.get_token(state, options);
 		token = Lexer.get_token(state, options);
-		if (token.type !== "identifier") state.error("/syntax/se-70");
+		if (token.type !== "identifier") {
+			state.set(Lexer.before_token);
+			state.error("/syntax/se-70");
+		}
 		let fn = get_function(parent);
 		let id = fn.variables.length;
 		let pe: any = {
@@ -147,8 +150,10 @@ export function parse_for(state, parent, options) {
 
 		// parse "in"
 		token = Lexer.get_token(state, options);
-		if (token.type !== "identifier" || token.value !== "in")
+		if (token.type !== "identifier" || token.value !== "in") {
+			state.set(Lexer.before_token);
 			state.error("/syntax/se-71");
+		}
 
 		// parse the iterable object
 		forloop.iterable = parse_expression(state, parent, options);
@@ -156,8 +161,10 @@ export function parse_for(state, parent, options) {
 
 		// parse the "do" keyword
 		token = Lexer.get_token(state, options);
-		if (token.type !== "keyword" || token.value !== "do")
+		if (token.type !== "keyword" || token.value !== "do") {
+			state.set(Lexer.before_token);
 			state.error("/syntax/se-72");
+		}
 	} else {
 		state.set(where);
 		let ex = parse_expression(state, forloop, options);
@@ -190,12 +197,17 @@ export function parse_for(state, parent, options) {
 
 			// parse the "do" keyword
 			token = Lexer.get_token(state, options);
-			if (token.type !== "keyword" || token.value !== "do")
+			if (token.type !== "keyword" || token.value !== "do") {
+				state.set(Lexer.before_token);
 				state.error("/syntax/se-72");
+			}
 		} else if (token.type === "keyword" && token.value === "do") {
 			forloop.iterable = ex;
 			forloop.children.push(forloop.iterable);
-		} else state.error("/syntax/se-73");
+		} else {
+			state.set(Lexer.before_token);
+			state.error("/syntax/se-73");
+		}
 	}
 
 	// parse the loop body

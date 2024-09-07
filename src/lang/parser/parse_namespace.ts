@@ -16,8 +16,10 @@ export function parse_namespace(state, parent, options) {
 	);
 
 	// check the parent
-	if (parent.petype !== "global scope" && parent.petype !== "namespace")
+	if (parent.petype !== "global scope" && parent.petype !== "namespace") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-63");
+	}
 
 	// display name prefix
 	let prefix = "";
@@ -31,7 +33,10 @@ export function parse_namespace(state, parent, options) {
 
 	// obtain namespace name
 	token = Lexer.get_token(state, options);
-	if (token.type !== "identifier") state.error("/syntax/se-64");
+	if (token.type !== "identifier") {
+		state.set(Lexer.before_token);
+		state.error("/syntax/se-64");
+	}
 	let nname = token.value;
 
 	// check namespace name
@@ -41,6 +46,7 @@ export function parse_namespace(state, parent, options) {
 		nname[0] >= "A" &&
 		nname[0] <= "Z"
 	) {
+		state.set(Lexer.before_token);
 		state.error("/style/ste-3", ["namespace", nname]);
 	}
 
@@ -49,8 +55,10 @@ export function parse_namespace(state, parent, options) {
 	if (parent.names.hasOwnProperty(nname)) {
 		// extend the existing namespace
 		global_nspace = parent.names[nname];
-		if (global_nspace.petype !== "namespace")
+		if (global_nspace.petype !== "namespace") {
+			state.set(Lexer.before_token);
 			state.error("/name/ne-19", [nname]);
+		}
 	} else {
 		// create the namespace
 		global_nspace = {
@@ -81,8 +89,10 @@ export function parse_namespace(state, parent, options) {
 
 	// parse the namespace body
 	token = Lexer.get_token(state, options);
-	if (token.type !== "grouping" || token.value !== "{")
+	if (token.type !== "grouping" || token.value !== "{") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-40", ["namespace declaration"]);
+	}
 	state.indent.push(-1 - token.line);
 	while (true) {
 		// check for end-of-body

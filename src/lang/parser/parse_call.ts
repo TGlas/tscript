@@ -70,7 +70,10 @@ export function parse_call(state, parent, base, options: Options) {
 			// delimiter or end
 			token = Lexer.get_token(state, options);
 			if (token.type === "grouping" && token.value === ")") break;
-			else if (token.value !== ",") state.error("/syntax/se-15");
+			else if (token.value !== ",") {
+				state.set(Lexer.before_token);
+				state.error("/syntax/se-15");
+			}
 		}
 	}
 
@@ -123,11 +126,13 @@ export function parse_call(state, parent, base, options: Options) {
 							)
 								error = true;
 						} else error = true;
-						if (error)
+						if (error) {
+							state.set(Lexer.before_token);
 							state.error("/name/ne-25", [
 								TScript.displayname(cls),
 								cls.class_constructor.access,
 							]);
+						}
 					}
 					f = base.typedvalue.value.b.class_constructor;
 				} else state.error("/syntax/se-16", [base.typedvalue.type]);
@@ -177,7 +182,11 @@ export function parse_call(state, parent, base, options: Options) {
 						!f.params[j].hasOwnProperty("defaultvalue")
 					)
 						state.error("/name/ne-4", [
-							j + 1,
+							j +
+								1 +
+								" (" +
+								TScript.displayname(f.params[j]) +
+								")",
 							TScript.displayname(f),
 						]);
 				}

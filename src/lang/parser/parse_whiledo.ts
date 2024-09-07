@@ -72,8 +72,10 @@ export function parse_whiledo(state, parent, options) {
 
 	// parse the "do" keyword
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "do")
+	if (token.type !== "keyword" || token.value !== "do") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-76");
+	}
 
 	// parse the loop body
 	whiledo.body = parse_statement(state, whiledo, options);

@@ -54,8 +54,10 @@ export function parse_expression(
 			ex.sub = parse_expression(state, parent, options);
 			ex.children = [ex.sub];
 			let token = Lexer.get_token(state, options);
-			if (token.type !== "grouping" || token.value !== ")")
+			if (token.type !== "grouping" || token.value !== ")") {
+				state.set(Lexer.before_token);
 				state.error("/syntax/se-22");
+			}
 			ex.step = function () {
 				let frame = this.stack[this.stack.length - 1];
 				let ip = frame.ip[frame.ip.length - 1];
@@ -95,7 +97,10 @@ export function parse_expression(
 		} else if (token.type === "integer") {
 			// constant
 			let v = parseFloat(token.value);
-			if (v > 2147483647) state.error("/syntax/se-23");
+			if (v > 2147483647) {
+				state.set(Lexer.before_token);
+				state.error("/syntax/se-23");
+			}
 			v = v | 0;
 			ex.petype = "constant";
 			ex.typedvalue = {
@@ -264,7 +269,7 @@ export function parse_expression(
 				}
 				if (first) first = false;
 				else {
-					if (token.type === "delimiter" && token.value !== ",")
+					if (token.type !== "delimiter" || token.value !== ",")
 						state.error("/syntax/se-27");
 					Lexer.get_token(state, options);
 					token = Lexer.get_token(state, options, true);
@@ -274,15 +279,21 @@ export function parse_expression(
 					}
 				}
 				token = Lexer.get_token(state, options);
-				if (token.type !== "string" && token.type !== "identifier")
+				if (token.type !== "string" && token.type !== "identifier") {
+					state.set(Lexer.before_token);
 					state.error("/syntax/se-28");
-				if (keys.hasOwnProperty("#" + token.value))
+				}
+				if (keys.hasOwnProperty("#" + token.value)) {
+					state.set(Lexer.before_token);
 					state.error("/syntax/se-26", [token.value]);
+				}
 				keys["#" + token.value] = true;
 				ex.keys.push(token.value);
 				token = Lexer.get_token(state, options);
-				if (token.type !== "operator" || token.value !== ":")
+				if (token.type !== "operator" || token.value !== ":") {
+					state.set(Lexer.before_token);
 					state.error("/syntax/se-29");
+				}
 				let sub = parse_expression(state, parent, options);
 				ex.values.push(sub);
 				ex.children.push(sub);
@@ -310,10 +321,15 @@ export function parse_expression(
 			if (token.type == "keyword" && token.value == "super") {
 				// parse super.identifier
 				token = Lexer.get_token(state, options);
-				if (token.type !== "delimiter" || token.value !== ".")
+				if (token.type !== "delimiter" || token.value !== ".") {
+					state.set(Lexer.before_token);
 					state.error("/syntax/se-8");
+				}
 				token = Lexer.get_token(state, options);
-				if (token.type !== "identifier") state.error("/syntax/se-9");
+				if (token.type !== "identifier") {
+					state.set(Lexer.before_token);
+					state.error("/syntax/se-9");
+				}
 				ex.name = token.value;
 				ex["super"] = true;
 			}
@@ -522,7 +538,10 @@ export function parse_expression(
 					return false;
 				};
 				ex.sim = simfalse;
-			} else state.error("/syntax/se-47");
+			} else {
+				state.set(Lexer.before_token);
+				state.error("/syntax/se-47");
+			}
 		} else if (token.type === "keyword" && token.value === "function") {
 			// create the anonymous function
 			let func = {
@@ -556,11 +575,15 @@ export function parse_expression(
 					}
 
 					// parse the parameter name
-					if (token.type !== "identifier")
+					if (token.type !== "identifier") {
+						state.set(Lexer.before_token);
 						state.error("/syntax/se-32");
+					}
 					let name = token.value;
-					if (func.names.hasOwnProperty(name))
+					if (func.names.hasOwnProperty(name)) {
+						state.set(Lexer.before_token);
 						state.error("/name/ne-17", [name]);
+					}
 					let id = func.variables.length;
 					let variable = {
 						petype: "variable",
@@ -584,7 +607,10 @@ export function parse_expression(
 							token.type === "grouping" &&
 							token.value === "]"
 						) {
-						} else state.error("/syntax/se-31");
+						} else {
+							state.set(Lexer.before_token);
+							state.error("/syntax/se-31");
+						}
 
 						// parse the identifier again, but this time as its own initializer
 						state.set(where);
@@ -601,12 +627,16 @@ export function parse_expression(
 
 				// prepare the opening parenthesis
 				token = Lexer.get_token(state, options);
-			} else if (token.type !== "grouping" || token.value !== "(")
+			} else if (token.type !== "grouping" || token.value !== "(") {
+				state.set(Lexer.before_token);
 				state.error("/syntax/se-35");
+			}
 
 			// parse the parameters
-			if (token.type !== "grouping" || token.value !== "(")
+			if (token.type !== "grouping" || token.value !== "(") {
+				state.set(Lexer.before_token);
 				state.error("/syntax/se-36", ["anonymous function"]);
+			}
 			while (true) {
 				// parse ) or ,
 				let token = Lexer.get_token(state, options, true);
@@ -615,15 +645,20 @@ export function parse_expression(
 					break;
 				}
 				if (func.params.length !== 0) {
-					if (token.type !== "delimiter" || token.value !== ",")
+					if (token.type !== "delimiter" || token.value !== ",") {
+						state.set(Lexer.before_token);
 						state.error("/syntax/se-37");
+					}
 					Lexer.get_token(state, options);
 				}
 
 				// parse the parameter name
 				let where = state.get();
 				token = Lexer.get_token(state, options);
-				if (token.type !== "identifier") state.error("/syntax/se-33");
+				if (token.type !== "identifier") {
+					state.set(Lexer.before_token);
+					state.error("/syntax/se-33");
+				}
 				let name = token.value;
 				let id = func.variables.length;
 				let variable = {
@@ -649,8 +684,10 @@ export function parse_expression(
 				}
 
 				// register the parameter
-				if (func.names.hasOwnProperty(name))
+				if (func.names.hasOwnProperty(name)) {
+					state.set(where);
 					state.error("/name/ne-16", [name]);
+				}
 				func.names[name] = variable;
 				func.variables[id] = variable;
 				func.params.push(param);
@@ -658,8 +695,10 @@ export function parse_expression(
 
 			// parse the function body
 			token = Lexer.get_token(state, options);
-			if (token.type !== "grouping" || token.value !== "{")
+			if (token.type !== "grouping" || token.value !== "{") {
+				state.set(Lexer.before_token);
 				state.error("/syntax/se-40", ["anonymous function"]);
+			}
 			state.indent.push(-1 - token.line);
 			while (true) {
 				token = Lexer.get_token(state, options, true);
@@ -725,7 +764,10 @@ export function parse_expression(
 				// public member access operator
 				Lexer.get_token(state, options);
 				let token = Lexer.get_token(state, options);
-				if (token.type !== "identifier") state.error("/syntax/se-43");
+				if (token.type !== "identifier") {
+					state.set(Lexer.before_token);
+					state.error("/syntax/se-43");
+				}
 				let op: any = {
 					petype: "access of member " + token.value,
 					children: [ex],
@@ -1034,8 +1076,10 @@ export function parse_expression(
 				Lexer.get_token(state, options);
 				let arg = parse_expression(state, parent, options);
 				let token = Lexer.get_token(state, options);
-				if (token.type !== "grouping" || token.value !== "]")
+				if (token.type !== "grouping" || token.value !== "]") {
+					state.set(Lexer.before_token);
 					state.error("/syntax/se-44");
+				}
 				let op = {
 					petype: "item access",
 					children: [ex, arg],

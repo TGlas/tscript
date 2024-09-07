@@ -15,7 +15,7 @@ export class Lexer {
 		then: true,
 		else: true,
 		for: true,
-		// TODO: should 'in' be considered a keyword?
+		// 'in' is not a keyword
 		do: true,
 		while: true,
 		break: true,
@@ -75,6 +75,7 @@ export class Lexer {
 		peek = typeof peek !== "undefined" ? peek : false;
 		let where = peek ? state.get() : false;
 		state.skip();
+		Lexer.before_token = state.get();
 		let line = state.line;
 		if (state.eof())
 			return { type: "end-of-file", value: "", code: "", line: line };
@@ -258,37 +259,5 @@ export class Lexer {
 		return tok;
 	}
 
-	// This function checks whether the next token is a keyword. If so then
-	// the keyword is returned without altering the state, otherwise the
-	// function returns the empty string.
-	public static peek_keyword(state) {
-		let where = state.get();
-		state.skip();
-		if (state.eof()) return "";
-
-		let c = state.current();
-		if ((c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || c === "_") {
-			// parse an identifier or a keyword
-			let start = state.pos;
-			state.advance();
-			while (state.good()) {
-				let c = state.current();
-				if (
-					(c >= "A" && c <= "Z") ||
-					(c >= "a" && c <= "z") ||
-					(c >= "0" && c <= "9") ||
-					c === "_"
-				)
-					state.advance();
-				else break;
-			}
-			let value = state.source.substring(start, state.pos);
-			state.set(where);
-			if (Lexer.keywords.hasOwnProperty(value)) return value;
-			else return "";
-		} else {
-			state.set(where);
-			return "";
-		}
-	}
+	public static before_token = {}; // state stored by get_token that can be restored with state.set()
 }

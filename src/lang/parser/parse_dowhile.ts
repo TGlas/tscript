@@ -75,8 +75,10 @@ export function parse_dowhile(state, parent, options: Options) {
 
 	// parse the "while" keyword
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "while")
+	if (token.type !== "keyword" || token.value !== "while") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-74");
+	}
 
 	// parse the condition
 	dowhile.condition = parse_expression(state, parent, options);
@@ -84,8 +86,10 @@ export function parse_dowhile(state, parent, options: Options) {
 
 	// parse the final semicolon
 	token = Lexer.get_token(state, options);
-	if (token.type !== "delimiter" || token.value !== ";")
+	if (token.type !== "delimiter" || token.value !== ";") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-75");
+	}
 
 	return dowhile;
 }

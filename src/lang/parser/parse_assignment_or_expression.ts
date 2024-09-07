@@ -22,8 +22,10 @@ export function parse_assignment_or_expression(
 		let op = Lexer.get_token(state, options);
 		let rhs = parse_expression(state, parent, options);
 		token = Lexer.get_token(state, options);
-		if (token.type !== "delimiter" || token.value !== ";")
+		if (token.type !== "delimiter" || token.value !== ";") {
+			state.set(Lexer.before_token);
 			state.error("/syntax/se-48");
+		}
 
 		return {
 			petype: "assignment " + op.value,
@@ -86,6 +88,7 @@ export function parse_assignment_or_expression(
 			sim: simfalse,
 		};
 	} else {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-49");
 	}
 }

@@ -27,8 +27,10 @@ export function parse_continue(state, parent, options: Options) {
 
 	// parse the closing semicolon
 	token = Lexer.get_token(state, options);
-	if (token.type !== "delimiter" || token.value !== ";")
+	if (token.type !== "delimiter" || token.value !== ";") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-81c");
+	}
 
 	// create the continue object
 	return {

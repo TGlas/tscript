@@ -88,8 +88,10 @@ export function parse_throw(state, parent, options) {
 
 	// parse the closing semicolon
 	token = Lexer.get_token(state, options);
-	if (token.type !== "delimiter" || token.value !== ";")
+	if (token.type !== "delimiter" || token.value !== ";") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-87");
+	}
 
 	return ret;
 }

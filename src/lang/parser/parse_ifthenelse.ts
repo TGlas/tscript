@@ -68,8 +68,10 @@ export function parse_ifthenelse(state, parent, options) {
 
 	// parse the then-part
 	token = Lexer.get_token(state, options);
-	if (token.type !== "keyword" || token.value !== "then")
+	if (token.type !== "keyword" || token.value !== "then") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-69");
+	}
 	ifthenelse.then_part = parse_statement(state, parent, options);
 	ifthenelse.children.push(ifthenelse.then_part);
 

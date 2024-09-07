@@ -22,10 +22,11 @@ import { Typeid } from "../helpers/typeIds";
 //                  continue
 //  * sim: function providing the return value of the next
 //         call to step without actually running it.
-//  * where: object with fields pos, line and ch describing
-//           the location in the source code where the
-//           program element is defined (missing for a few
-//           implicit elements, as well as for built-ins).
+//  * where: object with fields pos, line, ch and filename
+//           describing the location in the source code
+//           where the program element is defined (missing
+//           where the implicit elements, as well as for
+//           built-ins).
 //
 
 export const assignments = {

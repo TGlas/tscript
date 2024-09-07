@@ -43,8 +43,10 @@ export function parse_constructor(state, parent, options: Options) {
 
 	// parse the parameters
 	token = Lexer.get_token(state, options);
-	if (token.type !== "grouping" || token.value !== "(")
+	if (token.type !== "grouping" || token.value !== "(") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-36", ["constructor declaration"]);
+	}
 	while (true) {
 		// parse ) or ,
 		let token = Lexer.get_token(state, options, true);
@@ -61,7 +63,10 @@ export function parse_constructor(state, parent, options: Options) {
 		// parse the parameter name
 		let where = state.get();
 		token = Lexer.get_token(state, options);
-		if (token.type !== "identifier") state.error("/syntax/se-33");
+		if (token.type !== "identifier") {
+			state.set(Lexer.before_token);
+			state.error("/syntax/se-33");
+		}
 		let name = token.value;
 		let id = func.variables.length;
 		let variable = {
@@ -93,7 +98,10 @@ export function parse_constructor(state, parent, options: Options) {
 		}
 
 		// register the parameter
-		if (func.names.hasOwnProperty(name)) state.error("/name/ne-16", [name]);
+		if (func.names.hasOwnProperty(name)) {
+			state.set(where);
+			state.error("/name/ne-16", [name]);
+		}
 		func.names[name] = variable;
 		func.variables[id] = variable;
 		func.params.push(param);
@@ -102,8 +110,10 @@ export function parse_constructor(state, parent, options: Options) {
 	token = Lexer.get_token(state, options);
 	if (token.value === ":") {
 		token = Lexer.get_token(state, options);
-		if (token.type !== "keyword" || token.value !== "super")
+		if (token.type !== "keyword" || token.value !== "super") {
+			state.set(Lexer.before_token);
 			state.error("/syntax/se-53");
+		}
 
 		// implicit expression to the left of the super call
 		let base = {
@@ -141,8 +151,10 @@ export function parse_constructor(state, parent, options: Options) {
 	}
 
 	// parse the constructor body
-	if (token.type !== "grouping" || token.value !== "{")
+	if (token.type !== "grouping" || token.value !== "{") {
+		state.set(Lexer.before_token);
 		state.error("/syntax/se-40", ["constructor declaration"]);
+	}
 	state.indent.push(-1 - token.line);
 	while (true) {
 		token = Lexer.get_token(state, options, true);
