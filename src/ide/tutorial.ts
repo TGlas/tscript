@@ -24,7 +24,7 @@ export const tutorial = (function () {
 	// store the current state in localStorage
 	function storeState() {
 		let s = JSON.stringify(module.state);
-		localStorage.setItem("tutorial", s);
+		localStorage.setItem("tscript.tutorial", s);
 	}
 
 	// get the last processed section of the unit plus 1
@@ -379,7 +379,7 @@ export const tutorial = (function () {
 		module.clearErrorMessage = clearErrorMessage;
 		module.showErrorMessage = showErrorMessage;
 
-		let s = localStorage.getItem("tutorial");
+		let s = localStorage.getItem("tscript.tutorial");
 		if (s) module.state = JSON.parse(s);
 		else storeState();
 

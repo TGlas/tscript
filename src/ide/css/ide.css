@@ -248,3 +248,101 @@ button {
 	user-select: none;
 	z-index: 10;
 }
+
+div.tabs-container {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+div.tabs-container.horizontal {
+	display: flex;
+	flex-direction: column;
+}
+
+div.tabs-container.vertical {
+	display: flex;
+	flex-direction: row;
+}
+
+div.tabs {
+	display: flex;
+	background: #fff;
+	user-select: none;
+}
+
+div.tabs-container.horizontal div.tabs {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	width: 100%;
+	border-bottom: 1px solid #aaa;
+}
+
+div.tabs-container.vertical div.tabs {
+	flex-direction: column;
+	align-items: flex-start;
+	height: 100%;
+	overflow: auto;
+	border-right: 1px solid #aaa;
+}
+
+div.switch {
+	font-size: 150%;
+	padding: 0 5px;
+}
+div.switch:hover {
+	color: #f00;
+}
+
+div.tabs div.file {
+	white-space: nowrap;
+	height: 20px;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	background: #fff;
+	margin: 0 2px;
+	padding: 2px 4px;
+	border-right: 1px solid #aaa;
+	border-bottom: 1px solid #aaa;
+	border-radius: 4px;
+}
+div.tabs-container.vertical div.tabs div.file {
+	width: 100%;
+}
+div.tabs div.file.active {
+	background: #cdd;
+}
+
+div.tabs div.file span.name {
+	font-size: 90%;
+}
+
+div.tabs div.file span.close {
+	color: #800;
+}
+div.tabs div.file span.close:hover {
+	color: #f00;
+}
+
+div.tabs-container.horizontal .name {
+	order: 1;
+}
+div.tabs-container.horizontal .close {
+	order: 2;
+	padding: 0 1px 0 5px;
+}
+div.tabs-container.vertical .name {
+	order: 2;
+}
+div.tabs-container.vertical .close {
+	order: 1;
+	padding: 0 5px 0 1px;
+}
+
+div.editorcontainer {
+	width: 100%;
+	height: 100%;
+}

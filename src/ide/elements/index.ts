@@ -9,11 +9,15 @@ import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
 import { buttons, cmd_export } from "./commands";
-import { configDlg, loadConfig, options } from "./dialogs";
+import { configDlg, loadConfig, saveConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 import { EditorCollection } from "./collection";
-import { createEditorTab, openEditorFromLocalStorage } from "./editor-tabs";
+import {
+	tab_config,
+	createEditorTab,
+	openEditorFromLocalStorage,
+} from "./editor-tabs";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -24,6 +28,10 @@ export let turtle: any = null;
 export let canvas: any = null;
 export let editor_title: any = null;
 export let createTypedEvent: any = null;
+
+export let panel_editor: any = null;
+export let editorcontainer: any = null;
+export let editortabs: any = null;
 
 export let messages: any = null;
 let messagecontainer: any = null;
@@ -40,8 +48,6 @@ let toolbar: any = null;
 let iconlist: any = null;
 let highlight: any = null;
 let runselector: HTMLSelectElement;
-
-loadConfig();
 
 let standalone: boolean = false;
 
@@ -373,6 +379,8 @@ export function prepare_run() {
 }
 
 export function create(container: HTMLElement, options?: any) {
+	let config = loadConfig();
+
 	if (!options)
 		options = { "export-button": true, "documentation-button": true };
 
@@ -593,8 +601,68 @@ export function create(container: HTMLElement, options?: any) {
 
 	collection = new EditorCollection();
 
-	const ed = openEditorFromLocalStorage("Main");
-	if (!ed) createEditorTab("Main");
+	panel_editor = tgui.createPanel({
+		name: "tab_editor",
+		title: `Editor \u2014 ${name}`,
+		state: "left",
+		fallbackState: "icon",
+		icon: icons.editor,
+		//		onClose: () => {
+		//			confirmFileDiscard(name, () => closeEditor(name));
+		//		},
+	});
+	panel_editor.content.addEventListener("contextmenu", function (event) {
+		event.preventDefault();
+		return false;
+	});
+
+	if (config.hasOwnProperty("tabs")) {
+		for (let key in config.tabs) tab_config[key] = config.tabs[key];
+	}
+	let p = tgui.createElement({
+		type: "div",
+		parent: panel_editor.content,
+		classname: "tabs-container " + tab_config.align,
+	});
+	editortabs = tgui.createElement({
+		type: "div",
+		parent: p,
+		classname: "tabs",
+	});
+	let s = tgui.createElement({
+		type: "div",
+		parent: editortabs,
+		classname: "switch",
+		text: "\u21CC",
+		click: function (event) {
+			p.classList.toggle("horizontal");
+			p.classList.toggle("vertical");
+			tab_config.align =
+				tab_config.align === "horizontal" ? "vertical" : "horizontal";
+			saveConfig();
+		},
+	});
+	editorcontainer = tgui.createElement({
+		type: "div",
+		parent: p,
+		classname: "editorcontainer",
+	});
+
+	if (config.hasOwnProperty("open")) {
+		for (let filename of config.open) {
+			console.log("[create]", filename);
+			openEditorFromLocalStorage(filename, false);
+		}
+	}
+	if (config.hasOwnProperty("active")) {
+		let ed = collection.getEditor(config.active);
+		if (ed) collection.setActiveEditor(ed, false);
+	}
+
+	if (collection.getEditors().size === 0) {
+		const ed = openEditorFromLocalStorage("Main");
+		if (!ed) createEditorTab("Main");
+	}
 
 	let panel_messages = tgui.createPanel({
 		name: "messages",

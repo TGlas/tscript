@@ -1,17 +1,25 @@
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import {
+	saveConfig,
 	confirmFileDiscard,
 	confirmFileOverwrite,
 	tabNameDlg,
 } from "./dialogs";
 import * as ide from "./index";
 
+export let tab_config: any = { align: "horizontal" };
+
 // Return an Editor instance
-export function openEditorFromLocalStorage(name: string) {
+export function openEditorFromLocalStorage(
+	name: string,
+	save_config: boolean = true
+) {
 	const sourcecode = localStorage.getItem("tscript.code." + name);
 	if (sourcecode === null) return null;
-	return createEditorTab(name, sourcecode);
+	let ed = createEditorTab(name, sourcecode);
+	if (save_config) saveConfig();
+	return ed;
 }
 
 export function createEditorTabByModal() {
@@ -38,25 +46,38 @@ export function createEditorTabByModal() {
 }
 
 export function createEditorTab(name: string, text: string | null = null) {
-	let panel_tab_editor = tgui.createPanel({
-		name: "tab_editor",
-		title: `Editor \u2014 ${name}`,
-		state: "left",
-		fallbackState: "icon",
-		icon: icons.editor,
-		onClose: () => {
-			confirmFileDiscard(name, () => closeEditor(name));
-		},
+	// create a new tab
+	let tab = tgui.createElement({
+		type: "div",
+		parent: ide.editortabs,
+		classname: "file active",
+	});
+	tgui.createElement({
+		type: "span",
+		parent: tab,
+		classname: "name",
+		text: name,
+		click: (function (filename) {
+			return function (event) {
+				let ed = ide.collection.getEditor(filename);
+				if (ed) ide.collection.setActiveEditor(ed);
+			};
+		})(name),
+	});
+	tgui.createElement({
+		type: "span",
+		parent: tab,
+		classname: "close",
+		text: "\u00d7",
+		click: (function (filename) {
+			return function (event) {
+				confirmFileDiscard(filename, () => closeEditor(filename));
+			};
+		})(name),
 	});
 
-	let ed = ide.collection.createEditor(name, panel_tab_editor.panelID, text);
-	panel_tab_editor.content.appendChild(ed.dom());
-	ed.focus();
-
-	panel_tab_editor.content.addEventListener("contextmenu", function (event) {
-		event.preventDefault();
-		return false;
-	});
+	// create a new editor
+	let ed = ide.collection.createEditor(tab, name, text);
 
 	ide.updateRunSelection();
 	return ed;

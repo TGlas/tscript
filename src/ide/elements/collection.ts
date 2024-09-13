@@ -3,6 +3,7 @@ import { getPanel, removePanel } from "../tgui";
 import { updateRunSelection } from ".";
 import { updateStatus, updateControls } from "./utils";
 import { Editor, Document } from "../editor";
+import { saveConfig } from "./dialogs";
 
 // This class collects all editor instances of the multi-document IDE.
 // It keeps track of the currently "active" document.
@@ -25,6 +26,18 @@ export class EditorCollection {
 		return null;
 	}
 
+	// obtain the currently active editor
+	public getActiveEditor(): Editor | null {
+		return this.active;
+	}
+
+	// obtain an array containing all filenames of open editors
+	public getFilenames() {
+		let a = new Array<string>();
+		for (let ed of this.editors) a.push(ed.properties().name);
+		return a;
+	}
+
 	// obtain the texts (strings) represented by all editors
 	public getValues() {
 		let values: Record<string, string> = {};
@@ -32,9 +45,22 @@ export class EditorCollection {
 		return values;
 	}
 
-	// obtain the currently active editor
-	public getActiveEditor(): Editor | null {
-		return this.active;
+	public setActiveEditor(ed: Editor, save_config: boolean = true) {
+		if (ed === this.active) return;
+
+		let active = ide.collection.getActiveEditor();
+		if (active) active.properties().tab.classList.remove("active");
+
+		this.active = ed;
+
+		ide.editorcontainer.innerHTML = "";
+		if (ed) {
+			ed.properties().tab.classList.add("active");
+			ide.editorcontainer.appendChild(ed.dom());
+			ed.focus();
+		}
+
+		if (save_config) saveConfig();
 	}
 
 	// convenience function for setting the read-only state of all editors
@@ -44,10 +70,17 @@ export class EditorCollection {
 
 	// create a new editor instance
 	public createEditor(
+		tab: any,
 		name: string,
-		panelID: number,
-		text: string | null = null
+		text: string | null = null,
+		save_config: boolean = true
 	) {
+		console.log("[createEditor]", name);
+		if (this.getEditor(name))
+			throw new Error(
+				"[collection] internal error: duplicate filename '" + name + "'"
+			);
+
 		let config: any = {
 			language: "TScript",
 			keybindings: this.keybindings,
@@ -55,8 +88,8 @@ export class EditorCollection {
 		if (text) config.text = text;
 		let ed = new Editor(config);
 		this.editors.add(ed);
+		ed.properties().tab = tab;
 		ed.properties().name = name;
-		ed.properties().panelID = panelID;
 		ed.properties().breakpoints = new Set<number>();
 		ed.properties().toggleBreakpoint = (function (ed) {
 			return function (line) {
@@ -121,6 +154,7 @@ export class EditorCollection {
 			ide.clear();
 			updateStatus();
 		});
+		this.setActiveEditor(ed, save_config);
 		return ed;
 	}
 
@@ -129,10 +163,11 @@ export class EditorCollection {
 		let ed = this.getEditor(name);
 		if (!ed) return;
 
+		ed.properties().tab.remove();
 		this.editors.delete(ed);
 		if (this.active === ed)
-			this.active = this.editors.values().next().value;
-		removePanel(ed.properties().panelID);
+			this.setActiveEditor(this.editors.values().next().value);
+
 		updateRunSelection();
 	}
 }

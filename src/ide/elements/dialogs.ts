@@ -1,6 +1,7 @@
 import { Options, defaultOptions } from "../../lang/helpers/options";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
+import { tab_config, openEditorFromLocalStorage } from "./editor-tabs";
 import * as ide from "./index";
 
 export let options: any = new Options();
@@ -51,8 +52,9 @@ export function confirmFileOverwrite(name: string, onConfirm: () => any) {
  */
 export function loadConfig() {
 	let str = localStorage.getItem("tscript.ide.config");
+	let config: any = null;
 	if (str) {
-		let config = JSON.parse(str);
+		config = JSON.parse(str);
 		if (config.hasOwnProperty("hotkeys")) {
 			let n = Math.min(buttons.length, config.hotkeys.length);
 			for (let i = 0; i < n; i++) {
@@ -69,13 +71,22 @@ export function loadConfig() {
 	document.addEventListener("DOMContentLoaded", function () {
 		tgui.setTheme(theme);
 	});
+	return config;
 }
 
 /**
  * Save hotkeys
  */
-function saveConfig() {
-	let config: any = { options: options, hotkeys: [], theme };
+export function saveConfig() {
+	let config: any = {
+		options: options,
+		hotkeys: [],
+		theme,
+		tabs: tab_config,
+		open: ide.collection.getFilenames(),
+	};
+	let active = ide.collection.getActiveEditor();
+	if (active) config.active = active.properties().name;
 	for (let i = 0; i < buttons.length; i++) {
 		config.hotkeys.push(buttons[i].hotkey);
 	}
