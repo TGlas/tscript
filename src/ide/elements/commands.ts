@@ -148,8 +148,6 @@ export function cmd_export() {
 
 	if (!ide.collection.getActiveEditor()) return;
 
-	// check that the code at least compiles
-	let source = ide.collection.getActiveEditor()!.text();
 	ide.clear();
 
 	const toParse = {
@@ -157,6 +155,7 @@ export function cmd_export() {
 		main: ide.getRunSelection(),
 	};
 
+	// check that the code at least compiles
 	let result = Parser.parse(toParse, options);
 	let program = result.program;
 	let errors = result.errors;
@@ -230,8 +229,8 @@ export function cmd_export() {
 
 	tgui.startModal(dlg);
 
-	// escape the TScript source code; prepare it to reside inside a single-quoted string
-	source = escape(source);
+	// escape the TScript source code; prepare it to reside inside an html document
+	let source = JSON.stringify(toParse);
 
 	// obtain the page itself as a string
 	{
@@ -259,17 +258,17 @@ export function cmd_export() {
 				let footer = page.substr(headEnd);
 
 				let scriptOpen =
-					'window.TScript = {}; window.TScript.code = unescape("' +
+					"window.TScript = {}; window.TScript.code = " +
 					source +
-					'"); ' +
+					"; " +
 					"window.TScript.mode = ";
 				let scriptClose =
-					';window.TScript.name = unescape("' + escape(title) + '")';
+					"; window.TScript.name = " + JSON.stringify(title) + ";\n";
 
 				let genCode = function genCode(mode) {
 					let s = document.createElement("script");
 					s.innerHTML =
-						scriptOpen + '"' + escape(mode) + '"' + scriptClose;
+						scriptOpen + JSON.stringify(mode) + scriptClose;
 					let script = s.outerHTML;
 
 					let blob = new Blob([header + script + footer], {
@@ -282,8 +281,10 @@ export function cmd_export() {
 				status.innerHTML = "status: ready for download";
 				download_turtle.href = genCode("turtle");
 				download_turtle.style.display = "block";
+				download_turtle.download = title + ".html";
 				download_canvas.href = genCode("canvas");
 				download_canvas.style.display = "block";
+				download_canvas.download = title + ".html";
 			}
 		};
 		xhr.send();

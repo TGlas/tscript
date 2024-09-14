@@ -164,21 +164,15 @@ export function clear() {
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
  */
-export function prepare_run() {
+export function prepare_run(run_selection: string | null = null) {
 	clear();
 
 	let ed = collection.getActiveEditor();
 	if (!ed) return;
 
-	// make sure that there is a trailing line for the "end" breakpoint
-	let source = ed.text();
-	if (source.length !== 0 && source[source.length - 1] != "\n") {
-		source += "\n";
-	}
-
 	const toParse = {
 		documents: collection.getValues(),
-		main: getRunSelection(),
+		main: run_selection ? run_selection : getRunSelection(),
 	};
 
 	let result = Parser.parse(toParse, options);
@@ -384,6 +378,8 @@ export function create(container: HTMLElement, options?: any) {
 	if (!options)
 		options = { "export-button": true, "documentation-button": true };
 
+	let standalone = options.standalone;
+
 	tgui.releaseAllHotkeys();
 
 	// create HTML elements of the GUI
@@ -421,7 +417,7 @@ export function create(container: HTMLElement, options?: any) {
 		group: "config",
 	});
 
-	// prepare menu bar
+	// prepare toolbar
 	let curgroup: string = buttons[0].group;
 	for (let i = 0; i < buttons.length; i++) {
 		let description = Object.assign({}, buttons[i]);
@@ -435,8 +431,8 @@ export function create(container: HTMLElement, options?: any) {
 			curgroup = description.group;
 		}
 
-		description.width = 20;
-		description.height = 20;
+		//		description.width = 20;
+		//		description.height = 20;
 		description.style = { float: "left", height: "22px" };
 		if (description.hotkey)
 			description.tooltip += " (" + description.hotkey + ")";
@@ -603,20 +599,17 @@ export function create(container: HTMLElement, options?: any) {
 
 	panel_editor = tgui.createPanel({
 		name: "tab_editor",
-		title: `Editor \u2014 ${name}`,
+		title: "Editor \u2014 ",
 		state: "left",
 		fallbackState: "icon",
 		icon: icons.editor,
-		//		onClose: () => {
-		//			confirmFileDiscard(name, () => closeEditor(name));
-		//		},
 	});
 	panel_editor.content.addEventListener("contextmenu", function (event) {
 		event.preventDefault();
 		return false;
 	});
 
-	if (config.hasOwnProperty("tabs")) {
+	if (config && config.hasOwnProperty("tabs")) {
 		for (let key in config.tabs) tab_config[key] = config.tabs[key];
 	}
 	let p = tgui.createElement({
@@ -648,19 +641,20 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "editorcontainer",
 	});
 
-	if (config.hasOwnProperty("open")) {
-		for (let filename of config.open) {
-			openEditorFromLocalStorage(filename, false);
+	if (!standalone) {
+		if (config && config.hasOwnProperty("open")) {
+			for (let filename of config.open) {
+				openEditorFromLocalStorage(filename, false);
+			}
 		}
-	}
-	if (config.hasOwnProperty("active")) {
-		let ed = collection.getEditor(config.active);
-		if (ed) collection.setActiveEditor(ed, false);
-	}
-
-	if (collection.getEditors().size === 0) {
-		const ed = openEditorFromLocalStorage("Main");
-		if (!ed) createEditorTab("Main");
+		if (config && config.hasOwnProperty("active")) {
+			let ed = collection.getEditor(config.active);
+			if (ed) collection.setActiveEditor(ed, false);
+		}
+		if (collection.getEditors().size === 0) {
+			const ed = openEditorFromLocalStorage("Main");
+			if (!ed) createEditorTab("Main");
+		}
 	}
 
 	let panel_messages = tgui.createPanel({

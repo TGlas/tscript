@@ -1,8 +1,9 @@
 import * as elements from "./elements";
+import { createEditorTab } from "./elements/editor-tabs";
 import * as tgui from "./tgui";
 
 export type StandaloneData = {
-	code: string;
+	code: { documents: any; main: string };
 	mode: "canvas" | "turtle";
 };
 
@@ -11,15 +12,18 @@ export function showStandalonePage(
 	data: StandaloneData
 ): void {
 	elements.setStandalone(true);
-	elements.create(container);
+	elements.create(container, { standalone: data });
+
+	for (let filename in data.code.documents)
+		createEditorTab(filename, data.code.documents[filename], false);
 	let ed = elements.collection.getActiveEditor();
 	if (!ed) {
 		alert("failed to open web application");
 		document.body.innerHTML = "";
 		return;
 	}
-	ed.setText(data.code);
-	elements.prepare_run();
+
+	elements.prepare_run(data.code.main);
 
 	switch (data.mode) {
 		case "canvas":
