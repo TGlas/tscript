@@ -270,6 +270,7 @@ div.tabs {
 	display: flex;
 	background: #fff;
 	user-select: none;
+	flex-grow: 0;
 }
 
 div.tabs-container.horizontal div.tabs {
@@ -284,8 +285,9 @@ div.tabs-container.vertical div.tabs {
 	flex-direction: column;
 	align-items: flex-start;
 	height: 100%;
-	overflow: auto;
 	border-right: 1px solid #aaa;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 div.switch {
@@ -342,7 +344,11 @@ div.tabs-container.vertical .close {
 	padding: 0 5px 0 1px;
 }
 
-div.editorcontainer {
+div.tabs-container.horizontal div.editorcontainer {
 	width: 100%;
+	flex-grow: 1000000;
+}
+div.tabs-container.vertical div.editorcontainer {
 	height: 100%;
+	flex-grow: 1000000;
 }
