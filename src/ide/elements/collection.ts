@@ -75,7 +75,6 @@ export class EditorCollection {
 		text: string | null = null,
 		save_config: boolean = true
 	) {
-		console.log("[createEditor]", name);
 		if (this.getEditor(name))
 			throw new Error(
 				"[collection] internal error: duplicate filename '" + name + "'"

@@ -650,7 +650,6 @@ export function create(container: HTMLElement, options?: any) {
 
 	if (config.hasOwnProperty("open")) {
 		for (let filename of config.open) {
-			console.log("[create]", filename);
 			openEditorFromLocalStorage(filename, false);
 		}
 	}
