@@ -599,7 +599,7 @@ export function create(container: HTMLElement, options?: any) {
 
 	panel_editor = tgui.createPanel({
 		name: "tab_editor",
-		title: "Editor \u2014 ",
+		title: "Editor",
 		state: "left",
 		fallbackState: "icon",
 		icon: icons.editor,

@@ -630,7 +630,7 @@ export function setTheme(newTheme: string) {
 	if (theme !== newTheme) {
 		if (newTheme === "light")
 			document.body.classList.remove(`${theme}-theme`);
-		else if (theme == "light")
+		else if (theme === "light")
 			document.body.classList.add(`${newTheme}-theme`);
 		else
 			document.body.classList.replace(

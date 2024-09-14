@@ -104,3 +104,24 @@
 	color: #46f !important;
 	border-color: #fff;
 }
+
+.dark-theme .tabs {
+	color: #eee;
+	background: #222;
+}
+
+.dark-theme .switch:hover {
+	color: #f88;
+}
+
+.dark-theme .tabs div.file.active {
+	background: #455;
+}
+
+.dark-theme .tabs div.file span.close {
+	color: #f88;
+	flex-grow: 0;
+}
+.dark-theme .tabs div.file span.close:hover {
+	color: #f44;
+}

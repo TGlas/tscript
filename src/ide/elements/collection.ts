@@ -60,6 +60,14 @@ export class EditorCollection {
 			ed.focus();
 		}
 
+		if (ide.panel_editor) {
+			let title = ed ? ed.properties().name : null;
+			ide.panel_editor.title = title;
+			if (ed)
+				ide.panel_editor.titlebar.innerText = "Editor \u2014 " + title;
+			else ide.panel_editor.titlebar.innerText = "Editor";
+		}
+
 		if (save_config) saveConfig();
 	}
 
