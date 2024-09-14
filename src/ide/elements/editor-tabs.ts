@@ -17,7 +17,7 @@ export function openEditorFromLocalStorage(
 ) {
 	const sourcecode = localStorage.getItem("tscript.code." + name);
 	if (sourcecode === null) return null;
-	let ed = createEditorTab(name, sourcecode);
+	let ed = createEditorTab(name, sourcecode, save_config);
 	if (save_config) saveConfig();
 	return ed;
 }
@@ -45,7 +45,11 @@ export function createEditorTabByModal() {
 	});
 }
 
-export function createEditorTab(name: string, text: string | null = null) {
+export function createEditorTab(
+	name: string,
+	text: string | null = null,
+	save_config: boolean = true
+) {
 	// create a new tab
 	let tab = tgui.createElement({
 		type: "div",
@@ -77,7 +81,7 @@ export function createEditorTab(name: string, text: string | null = null) {
 	});
 
 	// create a new editor
-	let ed = ide.collection.createEditor(tab, name, text);
+	let ed = ide.collection.createEditor(tab, name, text, save_config);
 
 	ide.updateRunSelection();
 	return ed;

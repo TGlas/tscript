@@ -159,14 +159,15 @@ export class EditorCollection {
 	}
 
 	// close an editor, remove it from the set
-	public closeEditor(name: string) {
+	public closeEditor(name: string, save_config: boolean = true) {
 		let ed = this.getEditor(name);
 		if (!ed) return;
 
 		ed.properties().tab.remove();
 		this.editors.delete(ed);
 		if (this.active === ed)
-			this.setActiveEditor(this.editors.values().next().value);
+			this.setActiveEditor(this.editors.values().next().value, false);
+		if (save_config) saveConfig();
 
 		updateRunSelection();
 	}

@@ -90,6 +90,7 @@ export function saveConfig() {
 	for (let i = 0; i < buttons.length; i++) {
 		config.hotkeys.push(buttons[i].hotkey);
 	}
+	console.log("[saveConfig]", config);
 	localStorage.setItem("tscript.ide.config", JSON.stringify(config));
 }
 
