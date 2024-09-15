@@ -1,8 +1,9 @@
 import { SVGIcon } from "../icons";
 import { setHotkey } from "./hotkeys";
 import { modal } from "./modals";
+import { panels } from "./panels";
 
-// Re-exports
+// re-exports
 export * from "./modals";
 export * from "./panels";
 export * from "./hotkeys";
@@ -639,6 +640,10 @@ export function setTheme(newTheme: string) {
 			);
 
 		theme = newTheme;
+
+		for (let panel of panels) {
+			if (panel.onThemeChange) panel.onThemeChange(newTheme);
+		}
 	}
 }
 

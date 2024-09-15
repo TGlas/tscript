@@ -1,9 +1,8 @@
 import * as ide from ".";
 import { getPanel, removePanel } from "../tgui";
-//import { updateRunSelection } from ".";
 import { updateStatus, updateControls } from "./utils";
 import { Editor, Document } from "../editor";
-import { saveConfig } from "./dialogs";
+import { theme, saveConfig } from "./dialogs";
 
 // This class collects all editor instances of the multi-document IDE.
 // It keeps track of the currently "active" document.
@@ -163,6 +162,7 @@ export class EditorCollection {
 			ide.clear();
 			updateStatus();
 		});
+		ed.setTheme(theme);
 		this.setActiveEditor(ed, save_config);
 		return ed;
 	}

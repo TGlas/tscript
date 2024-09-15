@@ -115,7 +115,8 @@
 }
 
 .dark-theme .tabs div.file.active {
-	background: #455;
+	background: #044;
+	color: #fff;
 }
 
 .dark-theme .tabs div.file span.close {

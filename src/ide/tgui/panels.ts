@@ -52,8 +52,11 @@ interface PanelDescription {
 	/** callback function(width, height) on resize */
 	onResize?: (width: number, height: number) => any;
 
-	/** callback function() on arranging (possible position/size change) */
+	/** callback function on arranging (possible position/size change) */
 	onArrange?: () => any;
+
+	/** callback function on theme change */
+	onThemeChange?: (theme) => any;
 
 	/** TODO: document */
 	pos?: any;

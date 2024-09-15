@@ -5,7 +5,7 @@ import { tab_config, openEditorFromLocalStorage } from "./editor-tabs";
 import * as ide from "./index";
 
 export let options: any = new Options();
-let theme: string = "default";
+export let theme: string = "default";
 
 /**
  * Check if the document has been changed and when this is the case, ask the user to discard the changes,
@@ -68,9 +68,6 @@ export function loadConfig() {
 			theme = config.theme;
 		}
 	}
-	document.addEventListener("DOMContentLoaded", function () {
-		tgui.setTheme(theme);
-	});
 	return config;
 }
 
