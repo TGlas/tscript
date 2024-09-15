@@ -862,7 +862,7 @@ export const core = {
 			},
 			size: function (object) {
 				return {
-					type: this.program.types[Typeid.typeid_integer],
+					type: this.program.types[Typeid.typeid_real],
 					value: {
 						b: Math.max(
 							0,

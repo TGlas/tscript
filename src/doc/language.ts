@@ -4335,7 +4335,9 @@ print(Dictionary.merge(dict1, dict2));      # prints {a:1,b:2,c:2}
 			</td></tr>
 			<tr><th>size</th><td>
 				<code class="code">function size()</code> returns the size of
-				the range.
+				the range. In order to avoid overflow for very large ranges the
+				return value is of type <code>Real</code>, although it is always
+				a non-negative integer.
 			</td></tr>
 			<tr><th>begin</th><td>
 				<code class="code">function begin()</code> returns the begin of
