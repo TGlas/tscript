@@ -1194,10 +1194,14 @@ export const tests: Array<TscriptTest> = [
 		code: `
 			var a = 5:15;
 			var b = 15:5;
+			var c = -2^31:2147483647;
 			print(a);
 			print(a.size());
 			print(a.begin());
 			print(a.end());
+			print(Type(a.size()) == Real);
+			print(Type(a.begin()) == Integer);
+			print(Type(a.end()) == Integer);
 			print(a[2]);
 			print(a[2:6]);
 			print(b);
@@ -1205,18 +1209,25 @@ export const tests: Array<TscriptTest> = [
 			print(b.begin());
 			print(b.end());
 			print(a == Range(5, 15));
+			print(c.size());
+			print(Type(c.size()) == Real);
 		`,
 		expectation: [
 			{ type: "print", message: "5:15" },
 			{ type: "print", message: "10" },
 			{ type: "print", message: "5" },
 			{ type: "print", message: "15" },
+			{ type: "print", message: "true" },
+			{ type: "print", message: "true" },
+			{ type: "print", message: "true" },
 			{ type: "print", message: "7" },
 			{ type: "print", message: "7:11" },
 			{ type: "print", message: "15:5" },
 			{ type: "print", message: "0" },
 			{ type: "print", message: "15" },
 			{ type: "print", message: "5" },
+			{ type: "print", message: "true" },
+			{ type: "print", message: "4294967295" },
 			{ type: "print", message: "true" },
 			"finished",
 		],
