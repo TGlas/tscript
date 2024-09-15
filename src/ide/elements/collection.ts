@@ -1,6 +1,6 @@
 import * as ide from ".";
 import { getPanel, removePanel } from "../tgui";
-import { updateRunSelection } from ".";
+//import { updateRunSelection } from ".";
 import { updateStatus, updateControls } from "./utils";
 import { Editor, Document } from "../editor";
 import { saveConfig } from "./dialogs";
@@ -79,6 +79,7 @@ export class EditorCollection {
 	// create a new editor instance
 	public createEditor(
 		tab: any,
+		runoption: any,
 		name: string,
 		text: string | null = null,
 		save_config: boolean = true
@@ -96,6 +97,7 @@ export class EditorCollection {
 		let ed = new Editor(config);
 		this.editors.add(ed);
 		ed.properties().tab = tab;
+		ed.properties().runoption = runoption;
 		ed.properties().name = name;
 		ed.properties().breakpoints = new Set<number>();
 		ed.properties().toggleBreakpoint = (function (ed) {
@@ -171,11 +173,10 @@ export class EditorCollection {
 		if (!ed) return;
 
 		ed.properties().tab.remove();
+		ed.properties().runoption.remove();
 		this.editors.delete(ed);
 		if (this.active === ed)
 			this.setActiveEditor(this.editors.values().next().value, false);
 		if (save_config) saveConfig();
-
-		updateRunSelection();
 	}
 }

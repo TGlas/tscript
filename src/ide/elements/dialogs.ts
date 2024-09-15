@@ -84,6 +84,7 @@ export function saveConfig() {
 		theme,
 		tabs: tab_config,
 		open: ide.collection.getFilenames(),
+		main: ide.getRunSelection(),
 	};
 	let active = ide.collection.getActiveEditor();
 	if (active) config.active = active.properties().name;

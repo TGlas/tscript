@@ -47,7 +47,7 @@ let main: any = null;
 let toolbar: any = null;
 let iconlist: any = null;
 let highlight: any = null;
-let runselector: HTMLSelectElement;
+export let runselector: HTMLSelectElement;
 
 let standalone: boolean = false;
 
@@ -431,8 +431,6 @@ export function create(container: HTMLElement, options?: any) {
 			curgroup = description.group;
 		}
 
-		//		description.width = 20;
-		//		description.height = 20;
 		description.style = { float: "left", height: "22px" };
 		if (description.hotkey)
 			description.tooltip += " (" + description.hotkey + ")";
@@ -650,6 +648,9 @@ export function create(container: HTMLElement, options?: any) {
 		if (config && config.hasOwnProperty("active")) {
 			let ed = collection.getEditor(config.active);
 			if (ed) collection.setActiveEditor(ed, false);
+		}
+		if (config && config.hasOwnProperty("main")) {
+			runselector.value = config.main;
 		}
 		if (collection.getEditors().size === 0) {
 			const ed = openEditorFromLocalStorage("Main");
@@ -978,21 +979,4 @@ export function create(container: HTMLElement, options?: any) {
  */
 export function getRunSelection() {
 	return runselector.value;
-}
-
-/**
- * Updates the run-selector
- */
-export function updateRunSelection() {
-	runselector.innerHTML = "";
-	for (let ed of collection.getEditors()) {
-		let name = ed.properties().name;
-		tgui.createElement({
-			type: "option",
-			parent: runselector,
-			properties: { value: name },
-			text: name,
-		});
-	}
-	runselector.disabled = collection.getEditors().size === 0;
 }

@@ -80,10 +80,23 @@ export function createEditorTab(
 		})(name),
 	});
 
-	// create a new editor
-	let ed = ide.collection.createEditor(tab, name, text, save_config);
+	// create a "run" option
+	let runoption = tgui.createElement({
+		type: "option",
+		parent: ide.runselector,
+		properties: { value: name },
+		text: name,
+	});
 
-	ide.updateRunSelection();
+	// create a new editor
+	let ed = ide.collection.createEditor(
+		tab,
+		runoption,
+		name,
+		text,
+		save_config
+	);
+
 	return ed;
 }
 
