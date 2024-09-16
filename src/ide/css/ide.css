@@ -320,7 +320,7 @@ button {
 
 .tabs div.file span.name {
 	font-size: 90%;
-	flex-grow: 1000000;
+	flex-grow: 1;
 }
 
 .tabs div.file span.close {
@@ -348,9 +348,9 @@ button {
 
 .tabs-container.horizontal div.editorcontainer {
 	width: 100%;
-	flex-grow: 1000000;
+	height: calc(100% - 27px);
 }
 .tabs-container.vertical div.editorcontainer {
 	height: 100%;
-	flex-grow: 1000000;
+	flex-grow: 1;
 }

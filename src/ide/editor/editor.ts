@@ -698,10 +698,12 @@ export class Editor {
 			this.dom_search_replacement.setAttribute("disabled", "disabled");
 			this.dom_search_replace.setAttribute("disabled", "disabled");
 			this.dom_search_replaceall.setAttribute("disabled", "disabled");
+			this.dom_focus.setAttribute("contenteditable", "false");
 		} else {
 			this.dom_search_replacement.removeAttribute("disabled");
 			this.dom_search_replace.removeAttribute("disabled");
 			this.dom_search_replaceall.removeAttribute("disabled");
+			this.dom_focus.setAttribute("contenteditable", "true");
 		}
 		this.draw();
 	}
@@ -1228,7 +1230,7 @@ export class Editor {
 			this.simpleAction(event.data);
 			this.docChanged();
 			this.draw();
-			this.dom_focus.innerHTML = "";
+			this.dom_focus.innerHTML = ""; // TODO: this line kills the document bar!?!
 		} else if (
 			event.inputType === "insertLineBreak" ||
 			event.inputType === "insertParagraph"
