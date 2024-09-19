@@ -19,6 +19,8 @@ import {
 	openEditorFromLocalStorage,
 } from "./editor-tabs";
 
+export { createEditorTab };
+
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
 //
