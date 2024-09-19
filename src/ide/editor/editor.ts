@@ -339,13 +339,16 @@ export class Editor {
 	}
 
 	// Set the document text. Essentially, this amounts to creating a new document.
-	public setText(text: string) {
+	public setText(text: string, options: any = {}) {
 		let props = this.document.properties;
 		this.document = new Document(this.document.language, text);
 		this.document.properties = props;
 		this.docChanged();
 		this.setTarget(0);
-		this.scrollIntoView();
+		if (options.hasOwnProperty("cursor"))
+			this.setCursorPosition(options.cursor.row, options.cursor.col);
+		if (!options.hasOwnProperty("scrollIntoView") || options.scrollIntoView)
+			this.scrollIntoView();
 		this.draw();
 	}
 
