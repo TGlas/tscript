@@ -44,6 +44,7 @@ export class Document {
 		let a = new Uint32Array(text.length);
 		for (let i = 0; i < text.length; i++) {
 			let c = <number>text.codePointAt(i);
+			if (c < 32 && c !== 9 && c !== 10) continue;
 			a[n] = c;
 			n++;
 			if (c >= 65536) i++;
