@@ -106,7 +106,7 @@ export const doc_ide: Documentation = {
 		of a modern browser-based text editor with syntax highlighting
 		for the TScript programming language. The program code is typed,
 		pasted, or loaded into this panel. Breakpoints can be toggled
-		(added/removed) by clicking the bat on the left, which also
+		(added/removed) by clicking the bar on the left, which also
 		displays line numbers.
 		</p>
 		<p>
