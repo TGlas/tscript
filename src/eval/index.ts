@@ -214,10 +214,10 @@ export const evaluation = (function () {
 					return a != "" ? a : b;
 			} else if (submission.type === "canvas line") {
 				if (
-					check_coordinates(submission.from, solution.from) ||
-					check_coordinates(submission.to, solution.to) ||
-					check_coordinates(submission.from, solution.to) ||
-					check_coordinates(submission.to, solution.from)
+					(check_coordinates(submission.from, solution.from) ||
+						check_coordinates(submission.to, solution.to)) &&
+					(check_coordinates(submission.from, solution.to) ||
+						check_coordinates(submission.to, solution.from))
 				) {
 					return (
 						"Line coordinates do not match - expected: " +
