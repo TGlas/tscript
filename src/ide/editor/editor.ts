@@ -144,6 +144,7 @@ export class Editor {
 		this.dom_focus.style.top = "0px";
 		this.dom_focus.style.width = "100%";
 		this.dom_focus.style.height = "100%";
+		this.dom_focus.style.color = "transparent";
 		this.dom_focus.style.caretColor = "transparent";
 		this.dom_focus.setAttribute("tabindex", "0");
 		this.dom_focus.setAttribute("contenteditable", "true");
@@ -326,6 +327,8 @@ export class Editor {
 		// show the editor
 		if (parent) parent.appendChild(this.dom_main);
 		if (focus) this.focus();
+
+		this.docChanged(); // webkit fix
 	}
 
 	// Return the main DOM element of the editor.
@@ -825,7 +828,11 @@ export class Editor {
 
 	private onKey(event: KeyboardEvent) {
 		// skip some keys early on
-		if (Editor._modifierKeys.has(event.key) || event.key === "Dead")
+		if (
+			Editor._modifierKeys.has(event.key) ||
+			event.key === "Dead" ||
+			event.key === "Unidentified"
+		)
 			return true;
 		let key = event.key; // modifiable variable
 
@@ -1228,7 +1235,9 @@ export class Editor {
 
 		if (
 			event.inputType === "insertText" ||
-			(event.inputType === "insertCompositionText" && !event.isComposing)
+			(event.inputType === "insertCompositionText" &&
+				!event.isComposing) ||
+			event.inputType === "insertFromComposition" // needed for webkit
 		) {
 			this.simpleAction(event.data);
 			this.docChanged();
@@ -1522,7 +1531,7 @@ export class Editor {
 	}
 
 	// Recalculate all sizes. This is called on size changes of the editor.
-	// All values computed here are is SCREEN pixels, not in CSS pixels!
+	// All values computed here are in SCREEN pixels, not in CSS pixels!
 	// This makes contents scale in an intuitive way with browser zoom.
 	private recalc() {
 		let sw =
