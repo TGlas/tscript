@@ -296,21 +296,7 @@ function cmd_toggle_breakpoint() {
 	if (!ed) return;
 
 	let line = ed.getCursorPosition().row;
-	if (ide.interpreter) {
-		// ask the interpreter for the correct position of the marker
-		let result = ide.interpreter.toggleBreakpoint(
-			line + 1,
-			ed.properties().name
-		);
-		if (result !== null) {
-			line = result.line - 1;
-			ed.properties().toggleBreakpoint(line);
-			ed.scrollTo(line, 0);
-		}
-	} else {
-		// set the marker optimistically, fix as soon as an interpreter is created
-		ed.properties().toggleBreakpoint(line);
-	}
+	ed.properties().toggleBreakpoint(line);
 }
 
 function cmd_new() {

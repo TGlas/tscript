@@ -50,7 +50,7 @@ export function copyconstant(constant) {
 // The breakpoint is initially inactive.
 export function create_breakpoint(parent, state) {
 	let active = false;
-	return {
+	let obj = {
 		petype: "breakpoint",
 		parent: parent,
 		line: state.line,
@@ -79,4 +79,5 @@ export function create_breakpoint(parent, state) {
 		},
 		sim: () => active,
 	};
+	return obj;
 }

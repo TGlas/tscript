@@ -436,7 +436,7 @@ export class Interpreter {
 	//   line: number,       // position of the toggle
 	//   active: boolean,    // is the breakpoint active after the action?
 	// }
-	// It no valid position can be found then the function returns null.
+	// If no valid position can be found then the function returns null.
 	public toggleBreakpoint(line, filename) {
 		const breakpoints = this.program.breakpoints[filename];
 

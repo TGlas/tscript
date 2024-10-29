@@ -1242,7 +1242,7 @@ export class Editor {
 			this.simpleAction(event.data);
 			this.docChanged();
 			this.draw();
-			this.dom_focus.innerHTML = ""; // TODO: this line kills the document bar!?!
+			this.dom_focus.innerHTML = "";
 		} else if (
 			event.inputType === "insertLineBreak" ||
 			event.inputType === "insertParagraph"
