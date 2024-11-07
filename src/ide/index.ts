@@ -9,6 +9,7 @@ import { searchengine } from "./search";
 import { showStandalonePage } from "./standalone";
 
 import "./css/documentation.css";
+import "./css/responsive.css";
 import "./css/icons.css";
 import "./css/ide.css";
 import "./css/tgui.css";
