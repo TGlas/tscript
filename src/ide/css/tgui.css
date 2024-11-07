@@ -162,7 +162,7 @@
 	font-family: monospace;
 	font-size: 9pt;
 	line-height: 13px;
-	overflow: scroll;
+	overflow: auto;
 }
 
 .tgui-tree-main {
