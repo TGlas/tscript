@@ -54,7 +54,7 @@ export function createInterpreter(program, inputs, output) {
 	};
 
 	// compute a quadratic form from the transformation
-	interpreter.service._quadratic = function (scale) {
+	interpreter.service.canvas._quadratic = function (scale) {
 		scale *= scale;
 		return [
 			[
