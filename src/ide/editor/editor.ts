@@ -628,6 +628,7 @@ export class Editor {
 		let pgx = this.offscreen.width - this.charwidth;
 		let pgy = this.offscreen.height - this.em;
 
+		const delay = 0;
 		if (center) {
 			this.scroll_x = Math.max(0, this.em * row + this.hpad - pgy / 2);
 			this.scroll_y = Math.max(0, this.charwidth * col - pgx / 2);
@@ -636,34 +637,41 @@ export class Editor {
 					this.scroll_x / window.devicePixelRatio;
 				this.dom_scroller.scrollTop =
 					this.scroll_y / window.devicePixelRatio;
-			}, 0);
+			}, delay);
 		} else {
 			if (this.em * row < this.scroll_y) {
 				this.scroll_y = this.em * row;
 				window.setTimeout(() => {
+					this.scroll_y = this.em * row;
 					this.dom_scroller.scrollTop =
 						this.scroll_y / window.devicePixelRatio;
-				}, 0);
+				}, delay);
 			} else if (this.em * row > this.scroll_y + pgy) {
 				this.scroll_y = this.em * row - pgy;
 				window.setTimeout(() => {
+					this.scroll_y = this.em * row - pgy;
 					this.dom_scroller.scrollTop =
 						this.scroll_y / window.devicePixelRatio;
-				}, 0);
+				}, delay);
 			}
 
 			if (this.charwidth * col - this.hpad < this.scroll_x) {
 				this.scroll_x = Math.max(0, this.charwidth * col - this.hpad);
 				window.setTimeout(() => {
+					this.scroll_x = Math.max(
+						0,
+						this.charwidth * col - this.hpad
+					);
 					this.dom_scroller.scrollLeft =
 						this.scroll_x / window.devicePixelRatio;
-				}, 0);
+				}, delay);
 			} else if (this.charwidth * col + this.hpad > this.scroll_x + pgx) {
 				this.scroll_x = this.charwidth * col + this.hpad - pgx;
 				window.setTimeout(() => {
+					this.scroll_x = this.charwidth * col + this.hpad - pgx;
 					this.dom_scroller.scrollLeft =
 						this.scroll_x / window.devicePixelRatio;
-				}, 0);
+				}, delay);
 			}
 		}
 	}
@@ -779,7 +787,10 @@ export class Editor {
 	}
 
 	// Create, execute, and add a SimpleAction.
-	private simpleAction(ins: null | string | Uint32Array) {
+	private simpleAction(
+		ins: null | string | Uint32Array,
+		canMerge: boolean = true
+	) {
 		if (this.readOnly) return;
 
 		let pos = this.document.cursor;
@@ -796,9 +807,10 @@ export class Editor {
 			this.document,
 			pos,
 			rem,
-			ins ? ins : null
+			ins ? ins : null,
+			canMerge
 		);
-		this.document.execute(action, true);
+		this.document.execute(action, canMerge);
 		this.scrollIntoView();
 		if (this.eventHandlers.changed) {
 			let { line, removed, inserted } = action.linesChanged(
@@ -862,7 +874,6 @@ export class Editor {
 				this.document.cursor = this.document.size();
 			} else if (bound === "undo" && !this.readOnly) {
 				let action = this.document.undo();
-				this.scrollIntoView();
 				if (this.eventHandlers.changed) {
 					if (action && action instanceof SimpleAction) {
 						let { line, removed, inserted } = action.linesChanged(
@@ -871,9 +882,9 @@ export class Editor {
 						this.eventHandlers.changed(line, inserted, removed); // swap of inserted and removed is intentional!
 					} else this.eventHandlers.changed(null, null, null);
 				}
+				this.scrollIntoView();
 			} else if (bound === "redo" && !this.readOnly) {
 				let action = this.document.redo();
-				this.scrollIntoView();
 				if (this.eventHandlers.changed) {
 					if (action && action instanceof SimpleAction) {
 						let { line, removed, inserted } = action.linesChanged(
@@ -882,6 +893,7 @@ export class Editor {
 						this.eventHandlers.changed(line, removed, inserted);
 					} else this.eventHandlers.changed(null, null, null);
 				}
+				this.scrollIntoView();
 			} else if (bound === "toggle comment" && !this.readOnly) {
 				// toggle line comments
 				let marker = this.document.language.linecomment;
@@ -1282,7 +1294,7 @@ export class Editor {
 		if (event.clipboardData && !this.readOnly) {
 			let s = event.clipboardData.getData("Text");
 			if (selected || s.length > 0) {
-				this.simpleAction(s);
+				this.simpleAction(s, false);
 				this.docChanged();
 				this.draw();
 			}

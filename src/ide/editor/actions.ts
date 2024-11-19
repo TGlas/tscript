@@ -36,12 +36,14 @@ export class SimpleAction extends Action {
 	pos: number;
 	remove: Uint32Array;
 	insert: Uint32Array;
+	canMerge: boolean;
 
 	public constructor(
 		document: Document,
 		pos: number,
 		remove: number | null | Uint32Array = null,
-		insert: null | Uint32Array = null
+		insert: null | Uint32Array = null,
+		canMerge: boolean = true
 	) {
 		super();
 		this.pos = pos;
@@ -51,6 +53,7 @@ export class SimpleAction extends Action {
 				: remove
 			: Action.empty;
 		this.insert = insert ? insert : Action.empty;
+		this.canMerge = canMerge;
 	}
 
 	public execute(document, redo) {

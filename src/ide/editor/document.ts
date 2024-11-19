@@ -266,8 +266,9 @@ export class Document {
 		if (canMerge && this.history_pos > 0) {
 			let prev = this.history[this.history_pos - 1];
 			if (
+				action instanceof SimpleAction &&
 				prev instanceof SimpleAction &&
-				action instanceof SimpleAction
+				prev.canMerge
 			) {
 				if (
 					action.remove.length === 0 &&
