@@ -811,6 +811,7 @@ export class Editor {
 			canMerge
 		);
 		this.document.execute(action, canMerge);
+		this.setTarget();
 		this.scrollIntoView();
 		if (this.eventHandlers.changed) {
 			let { line, removed, inserted } = action.linesChanged(
@@ -874,6 +875,7 @@ export class Editor {
 				this.document.cursor = this.document.size();
 			} else if (bound === "undo" && !this.readOnly) {
 				let action = this.document.undo();
+				this.setTarget();
 				if (this.eventHandlers.changed) {
 					if (action && action instanceof SimpleAction) {
 						let { line, removed, inserted } = action.linesChanged(
@@ -885,6 +887,7 @@ export class Editor {
 				this.scrollIntoView();
 			} else if (bound === "redo" && !this.readOnly) {
 				let action = this.document.redo();
+				this.setTarget();
 				if (this.eventHandlers.changed) {
 					if (action && action instanceof SimpleAction) {
 						let { line, removed, inserted } = action.linesChanged(
@@ -929,6 +932,7 @@ export class Editor {
 						? new UncommentAction(this.document, begin, end)
 						: new CommentAction(this.document, begin, end);
 					this.document.execute(action);
+					this.setTarget();
 					this.scrollIntoView();
 					if (this.eventHandlers.changed)
 						this.eventHandlers.changed(null, null, null);
@@ -941,6 +945,7 @@ export class Editor {
 				if (result.status === "match") {
 					this.document.cursor = result.position;
 					this.document.selection = null;
+					this.setTarget();
 					this.scrollIntoView();
 					this.draw();
 				}
@@ -1163,6 +1168,7 @@ export class Editor {
 					let action = new UnindentAction(this.document, begin, end);
 					if (!action.trivial()) {
 						this.document.execute(action);
+						this.setTarget();
 						this.scrollIntoView();
 						if (this.eventHandlers.changed)
 							this.eventHandlers.changed(null, null, null);
@@ -1180,6 +1186,7 @@ export class Editor {
 							end
 						);
 						this.document.execute(action);
+						this.setTarget();
 						this.scrollIntoView();
 						if (this.eventHandlers.changed)
 							this.eventHandlers.changed(null, null, null);
@@ -1506,6 +1513,7 @@ export class Editor {
 			replacement
 		);
 		this.document.execute(action);
+		this.setTarget();
 		this.scrollIntoView();
 		if (this.eventHandlers.changed)
 			this.eventHandlers.changed(null, null, null);
