@@ -21,15 +21,18 @@ import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 
 export function resolve_name(state, name, parent, errorname) {
+	console.log("[resolve_name]", name);
 	// prepare a generic "not defined" error
 	let error = "/name/ne-5";
 	let arg = [errorname, name];
 	let lookup = null;
 	let pe: any = parent;
 	while (pe) {
+		if (name === "colors") console.log(pe);
 		// check name inside pe
 		if (pe.hasOwnProperty("names") && pe.names.hasOwnProperty(name)) {
 			let n = pe.names[name];
+			console.log("n", n);
 
 			// check whether a variable or function is accessible
 			if (
@@ -40,6 +43,7 @@ export function resolve_name(state, name, parent, errorname) {
 			) {
 				// find the context
 				let context = get_context(pe);
+				console.log("context", context);
 				if (
 					n.petype !== "variable" &&
 					context.petype === "global scope"
@@ -78,7 +82,7 @@ export function resolve_name(state, name, parent, errorname) {
 				n.petype !== "variable" ||
 				n.parent.petype === "type" ||
 				!n.hasOwnProperty("where") ||
-				n.where.pos < state.pos
+				n.where.totalpos < state.totalpos
 			)
 				return pe;
 		}

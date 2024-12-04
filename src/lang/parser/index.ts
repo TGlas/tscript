@@ -48,6 +48,7 @@ export class Parser {
 			line: 1, // one-based line number
 			filename: null, // filename or null
 			ch: 0, // zero-based character number within the line
+			totalpos: 0, // sequential character index respecting include order
 			indent: [0], // stack of nested indentation widths
 			errors: [], // list of errors, currently at most one
 			impl: {}, // implementations of built-in functions
@@ -125,6 +126,7 @@ export class Parser {
 					pos: this.pos,
 					line: this.line,
 					ch: this.ch,
+					totalpos: this.totalpos,
 					filename: this.filename,
 				};
 			},
@@ -132,6 +134,7 @@ export class Parser {
 				this.pos = where.pos;
 				this.line = where.line;
 				this.ch = where.ch;
+				this.totalpos = where.totalpos;
 				this.filename = where.filename;
 			},
 			indentation: function () {
@@ -159,6 +162,7 @@ export class Parser {
 					}
 					this.pos++;
 					this.ch++;
+					this.totalpos++;
 				}
 			},
 			skip: function () {
@@ -168,21 +172,25 @@ export class Parser {
 					if (c === "#") {
 						this.pos++;
 						this.ch++;
+						this.totalpos++;
 						if (this.current() === "*") {
 							this.pos++;
 							this.ch++;
+							this.totalpos++;
 							let star = false;
 							while (this.good()) {
 								if (this.current() === "\n") {
 									this.pos++;
 									this.line++;
 									this.ch = 0;
+									this.totalpos++;
 									star = false;
 									continue;
 								}
 								if (star && this.current() === "#") {
 									this.pos++;
 									this.ch++;
+									this.totalpos++;
 									break;
 								}
 								star = this.current() === "*";
@@ -193,6 +201,7 @@ export class Parser {
 							while (this.good() && this.current() !== "\n") {
 								this.pos++;
 								this.ch++;
+								this.totalpos++;
 							}
 						}
 						continue;
@@ -205,6 +214,7 @@ export class Parser {
 						lines.push(this.line);
 					} else this.ch++;
 					this.pos++;
+					this.totalpos++;
 				}
 				return lines;
 			},
@@ -251,6 +261,7 @@ export class Parser {
 				}
 			}
 		};
+		console.log(program);
 
 		// recursive compiler pass through the syntax tree
 		function compilerPass(passname) {
