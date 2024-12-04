@@ -261,7 +261,6 @@ export class Parser {
 				}
 			}
 		};
-		console.log(program);
 
 		// recursive compiler pass through the syntax tree
 		function compilerPass(passname) {

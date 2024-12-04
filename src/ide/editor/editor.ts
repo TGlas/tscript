@@ -169,7 +169,7 @@ export class Editor {
 		this.dom_search = document.createElement("div");
 		this.dom_search.className = "search";
 		this.dom_search.addEventListener("keydown", (event) => {
-			if (event.key === "Escape") this._closeSearch();
+			if (event.key === "Escape") this.closeSearch();
 		});
 		this.dom_search.style.fontFamily = "sans";
 		this.dom_search.style.fontSize = "14px";
@@ -262,7 +262,7 @@ export class Editor {
 		this.dom_search_close.className = "close";
 		this.dom_search_close.innerText = "\u2715";
 		this.dom_search_close.addEventListener("click", (event) => {
-			this._closeSearch();
+			this.closeSearch();
 		});
 		this.dom_search_close.style.flexGrow = "0";
 		this.dom_search_close.style.fontSize = "24px";
@@ -687,6 +687,20 @@ export class Editor {
 			iter.setPosition(this.document.cursor);
 		}
 		this.scrollTo(iter.row, iter.col, center);
+	}
+
+	// This function enforces that the scroll state becomes consistent
+	// with the internal state stored in the variables scroll_x and
+	// scroll_y. It should be called after (re-)adding the editor to the
+	// DOM.
+	public updateScrollbars() {
+		const delay = 0;
+		window.setTimeout(() => {
+			this.dom_scroller.scrollLeft =
+				this.scroll_x / window.devicePixelRatio;
+			this.dom_scroller.scrollTop =
+				this.scroll_y / window.devicePixelRatio;
+		}, delay);
 	}
 
 	// return true if the document has unsaved changes
@@ -1239,7 +1253,7 @@ export class Editor {
 				}
 				this.simpleAction(new Uint32Array(ins));
 			} else if (key === "Escape") {
-				this._closeSearch();
+				this.closeSearch();
 			}
 		} else return true;
 
@@ -1313,7 +1327,7 @@ export class Editor {
 
 	// translate pointer coordinates into canvas coordinates
 	// and determine the position within the document
-	private _processPointer(
+	private processPointer(
 		event: PointerEvent | MouseEvent,
 		cutoff: boolean = false
 	) {
@@ -1344,7 +1358,7 @@ export class Editor {
 
 	private onPointerStart(event: PointerEvent) {
 		if (event.target !== this.dom_sizer) return; // most probably, a scroll bar is moved
-		let desc = this._processPointer(event);
+		let desc = this.processPointer(event);
 		this.dom_focus.focus();
 
 		// acquire pointer capture
@@ -1368,7 +1382,7 @@ export class Editor {
 	private onPointerMove(event: PointerEvent) {
 		if (this.capture === null) return;
 
-		let desc = this._processPointer(event);
+		let desc = this.processPointer(event);
 		this.document.cursor = desc.pos;
 		this.setTarget(desc.col);
 
@@ -1381,7 +1395,7 @@ export class Editor {
 		this.capture = null;
 		this.focus();
 
-		let desc = this._processPointer(event);
+		let desc = this.processPointer(event);
 		this.document.cursor = desc.pos;
 		if (this.document.selection === this.document.cursor)
 			this.document.selection = null;
@@ -1398,7 +1412,7 @@ export class Editor {
 
 	private onDoubleClick(event: MouseEvent) {
 		if (event.target !== this.dom_sizer) return; // most probably, a scroll bar is moved
-		let desc = this._processPointer(event);
+		let desc = this.processPointer(event);
 		this.dom_focus.focus();
 
 		// find the word or number at the cursor position
@@ -1438,7 +1452,7 @@ export class Editor {
 		this.draw();
 	}
 
-	private _closeSearch() {
+	private closeSearch() {
 		this.dom_search.style.display = "none";
 		this.focus();
 	}
@@ -1518,7 +1532,7 @@ export class Editor {
 		if (this.eventHandlers.changed)
 			this.eventHandlers.changed(null, null, null);
 
-		this._closeSearch();
+		this.closeSearch();
 	}
 
 	private applyColorTheme() {

@@ -57,6 +57,7 @@ export class EditorCollection {
 			ed.properties().tab.classList.add("active");
 			ide.editorcontainer.appendChild(ed.dom());
 			ed.focus();
+			ed.updateScrollbars();
 		}
 
 		if (ide.panel_editor) {
