@@ -189,26 +189,27 @@ export const doc_errors: Documentation = {
 					id: "se-5",
 					content: `
 			<p>
-			This error is reported if an invalid character was encountered
-			in the program. All characters are legal inside comments and
-			string literals, but not in the rest of the program. The exact
-			rules which character is legal in which context are determined
-			by the
+			This error is reported if an invalid character was encountered in the
+			program. All characters are legal inside comments and string literals,
+			but not in the rest of the program. The exact rules which character is
+			legal in which context are determined by the
 			<a href="?doc=/language/syntax/EBNF-syntax">syntax rules</a>.
-			For example, the character <code class="code">@</code> is not
-			legal outside comments and string literals.
+			For example, the characters <code class="code">@</code> and
+			<code class="code">â</code> are not legal outside comments and string
+			literals.
 			</p><p>
-			This error can be irritating in particular if a whitespace
-			character is reported as offending:
-			<code class="code">syntax error; invalid&nbsp;character&nbsp;'&nbsp;'</code>.
-			In this case, most likely,
-			the program contains a whitespace that is neither a normal space
-			nor a tabulator. The most common such character is the
-			non-breaking space. It looks like a normal space character, but
-			it is not. On some systems it can be produced by pressing the
-			space bar while holding the control and shift modifiers.
-			To solve the problem, simply overwrite the non-breaking space
-			with a normal space character (space bar).
+			This error can be irritating in particular if a whitespace character
+			is reported:
+			</p><p>
+			<pre class="code">syntax&nbsp;error;&nbsp;invalid&nbsp;character&nbsp;'&nbsp;'</pre>
+			</p><p>
+			In this case the program contains a whitespace that is neither a normal
+			space nor a tabulator. The most common such character is the
+			non-breaking space. It looks like a normal space character, but it is
+			not. On some systems it can be produced by pressing the space bar while
+			holding the control and shift modifiers. To solve the problem, simply
+			overwrite the non-breaking space with a normal space character (space
+			bar).
 			</p>
 		`,
 					children: [],
