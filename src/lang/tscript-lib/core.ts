@@ -332,7 +332,7 @@ export const core = {
 				return {
 					type: this.program.types[Typeid.typeid_string],
 					value: {
-						b: object.value.b.replace(
+						b: object.value.b.replaceAll(
 							pattern.value.b,
 							replacement.value.b
 						),
