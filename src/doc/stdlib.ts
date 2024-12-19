@@ -938,6 +938,7 @@ canvas.fillArea(points);                                            # fills the 
 			canvas.setFillColor(1, 0, 0);
 			canvas.fillRect(0, a, 1, b);
 			canvas.paintImage(1, 0, null);
+			wait(0.01);
 		}
 		</tscript>
 	</div>
