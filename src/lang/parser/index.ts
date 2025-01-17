@@ -206,7 +206,13 @@ export class Parser {
 						}
 						continue;
 					}
-					if (c !== " " && c !== "\t" && c !== "\r" && c !== "\n")
+					if (
+						c !== " " &&
+						c !== "\u00a0" &&
+						c !== "\t" &&
+						c !== "\r" &&
+						c !== "\n"
+					)
 						break;
 					if (c === "\n") {
 						this.line++;
