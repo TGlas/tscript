@@ -155,13 +155,14 @@ export class Iterator {
 		if (delta <= 0) return;
 		if (n === null) n = delta;
 		if (n > delta) throw "[Document.jump] invalid jump length";
-		this.pos += delta;
+		this.pos += n;
+		this.offset += n;
 		if (n === delta) {
 			if (this.leaf.next) {
 				this.leaf = this.leaf.next;
 				this.offset = 0;
 			}
-		} else this.offset += n;
+		}
 	}
 
 	// Move backward by one character.

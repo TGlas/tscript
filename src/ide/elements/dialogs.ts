@@ -578,6 +578,7 @@ export function fileDlg(
 
 	function exportFile(filename) {
 		let data = localStorage.getItem("tscript.code." + filename);
+		if (!filename || !data) return;
 		download(filename + ".tscript", data);
 	}
 
