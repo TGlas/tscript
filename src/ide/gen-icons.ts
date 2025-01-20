@@ -27,7 +27,7 @@ function svgIcon(
 	return {
 		width: width,
 		height: height,
-		innerSVG: svg.serialize_childs(),
+		innerSVG: svg.serialize_children(),
 	};
 }
 
@@ -332,6 +332,52 @@ const icons = (function () {
 		draw.lineTo(17, 17);
 		draw.endPath();
 	}); //*/
+
+	icons.uploadDocument = svgIcon(20, 20, (draw: SVGDrawingContext) => {
+		let group = draw.group();
+		group.attributes.set("transform", "scale(0.7 0.7) translate(0 7)");
+		let sub = new SVGDrawingContext(group);
+		sub.setStyle("fill: #ec5; stroke: #330");
+		sub.polygon(
+			[2.5, 4.5],
+			[7.5, 4.5],
+			[9.5, 6.5],
+			[15.5, 6.5],
+			[15.5, 15.5],
+			[2.5, 15.5]
+		);
+		sub.setStyle("fill: #fd6; stroke: #330");
+		sub.polygon([5.5, 8.5], [17.5, 8.5], [15.5, 15.5], [3.5, 15.5]);
+
+		draw.setStyle("stroke: #111; fill: #fff");
+		draw.polygon(
+			[14, 15],
+			[14, 7],
+			[12, 7],
+			[16, 1],
+			[20, 7],
+			[18, 7],
+			[18, 15]
+		);
+	});
+
+	icons.downloadDocument = svgIcon(20, 20, (draw: SVGDrawingContext) => {
+		let group = draw.group();
+		group.attributes.set("transform", "scale(0.7 0.7) translate(0 7)");
+		let sub = new SVGDrawingContext(group);
+		draw_icon_floppy_disk(sub);
+
+		draw.setStyle("stroke: #111; fill: #fff");
+		draw.polygon(
+			[14, 1],
+			[14, 9],
+			[12, 9],
+			[16, 15],
+			[20, 9],
+			[18, 9],
+			[18, 1]
+		);
+	});
 
 	icons.export = svgIcon(20, 20, (draw: SVGDrawingContext) => {
 		draw.setClass("icon-green-frame");

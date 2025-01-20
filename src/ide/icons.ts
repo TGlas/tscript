@@ -138,6 +138,18 @@ export const icons: { [id: string]: SVGIcon } = {
 		innerSVG:
 			'<path d="M 11.54,11.54 A 5,5 0 0 1 4.46,4.46 A 5,5 0 0 1 11.54,11.54 L 17 17" class="icon-neutral-line" style="stroke-width: 1.5"/>',
 	},
+	uploadDocument: {
+		width: 20,
+		height: 20,
+		innerSVG:
+			'<g transform="scale(0.7 0.7) translate(0 7)"><polygon points="2.5,4.5 7.5,4.5 9.5,6.5 15.5,6.5 15.5,15.5 2.5,15.5" style="fill: #ec5; stroke: #330"/><polygon points="5.5,8.5 17.5,8.5 15.5,15.5 3.5,15.5" style="fill: #fd6; stroke: #330"/></g><polygon points="14,15 14,7 12,7 16,1 20,7 18,7 18,15" style="stroke: #111; fill: #fff"/>',
+	},
+	downloadDocument: {
+		width: 20,
+		height: 20,
+		innerSVG:
+			'<g transform="scale(0.7 0.7) translate(0 7)"><polygon points="3.5,3.5 16.5,3.5 16.5,16.5 5.5,16.5 3.5,14.5" style="stroke: #139; fill: #36d"/><rect x="7" y="11" width="6" height="5" style="stroke: none; fill: #eef"/><rect x="8" y="12" width="2" height="3" style="stroke: none; fill: #36d"/><rect x="6" y="4" width="8" height="5" style="stroke: none; fill: #fff"/></g><polygon points="14,1 14,9 12,9 16,15 20,9 18,9 18,1" style="stroke: #111; fill: #fff"/>',
+	},
 	export: {
 		width: 20,
 		height: 20,

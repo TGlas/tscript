@@ -431,36 +431,6 @@ export function fileDlg(
 			classname: "tgui-modal-button",
 		});
 
-		let importBtn = tgui.createElement({
-			parent: toolbar,
-			type: "button",
-			style: {
-				width: "100px",
-				height: "100%",
-				"margin-right": "10px",
-			},
-			text: "Import",
-			click: () => importFile(),
-			classname: "tgui-modal-button",
-		});
-
-		let exportBtn = tgui.createElement({
-			parent: toolbar,
-			type: "button",
-			style: {
-				width: "100px",
-				height: "100%",
-				"margin-right": "10px",
-			},
-			text: "Export",
-			click: () => exportFile(name.value),
-			classname: "tgui-modal-button",
-		});
-
-		// allow multiple selection: export selected
-		// TODO: allow to export all TScript files at once to a zip file
-		// TODO: allow to export whole TScript local storage
-
 		let status = tgui.createElement({
 			parent: toolbar,
 			type: "label",
@@ -558,59 +528,6 @@ export function fileDlg(
 				],
 			});
 		}
-	}
-
-	function download(filename, text, mime = "text/plain") {
-		var element = document.createElement("a");
-		element.setAttribute(
-			"href",
-			"data:" + mime + ";charset=utf-8," + encodeURIComponent(text)
-		);
-		element.setAttribute("download", filename);
-
-		element.style.display = "none";
-		document.body.appendChild(element);
-
-		element.click();
-
-		document.body.removeChild(element);
-	}
-
-	function exportFile(filename) {
-		let data = localStorage.getItem("tscript.code." + filename);
-		if (!filename || !data) return;
-		download(filename + ".tscript", data);
-	}
-
-	function importFile() {
-		let fileImport = document.createElement("input");
-		fileImport.type = "file";
-		fileImport.multiple = true;
-		fileImport.style.display = "none";
-		fileImport.accept = ".tscript";
-
-		fileImport.addEventListener("change", async (event: any) => {
-			if (event.target.files) {
-				for (let file of event.target.files) {
-					let filename = file.name.split(".tscript")[0];
-					if (files.includes(filename)) {
-						/*if(!confirm("Replace file \"" + filename + "\"\nAre you sure?"))
-						{
-							return;
-						}*/
-					}
-					let data = await file.text();
-					localStorage.setItem("tscript.code." + filename, data);
-					if (!files.includes(filename)) {
-						files.push(filename);
-						let option = new Option(filename, filename);
-						list.appendChild(option);
-					}
-				}
-			}
-		});
-
-		fileImport.click();
 	}
 }
 

@@ -8,7 +8,7 @@ import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
-import { buttons, cmd_export } from "./commands";
+import { buttons, cmd_upload, cmd_download, cmd_export } from "./commands";
 import { configDlg, loadConfig, saveConfig, options } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
@@ -396,6 +396,21 @@ export function create(container: HTMLElement, options?: any) {
 		type: "div",
 		parent: main,
 		classname: "ide ide-toolbar",
+	});
+
+	buttons.push({
+		click: cmd_upload,
+		icon: icons.uploadDocument,
+		tooltip: "Upload document",
+		hotkey: null,
+		group: "export",
+	});
+	buttons.push({
+		click: cmd_download,
+		icon: icons.downloadDocument,
+		tooltip: "Download document",
+		hotkey: null,
+		group: "export",
 	});
 
 	// add the export button on demand

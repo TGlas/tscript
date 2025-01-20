@@ -89,12 +89,6 @@ export let buttons: any = [
 		hotkey: "F8",
 		group: "debug",
 	},
-	/*{
-		click: function() { module.sourcecode.execCommand("findPersistent"); },
-		icon: icons.search,
-		tooltip: "Search",
-		group: "edit",
-	},*/
 ];
 
 function cmd_reset() {
@@ -340,6 +334,57 @@ function cmd_save_as() {
 			openEditorFromLocalStorage(filename);
 		}
 	);
+}
+
+export function cmd_upload() {
+	let dom_file = tgui.createElement({
+		type: "input",
+		parent: document.body,
+		properties: { type: "file", multiple: "multiple" },
+		events: {
+			change: async (event) => {
+				event.preventDefault();
+				if (!dom_file.files) return;
+				for (let i = 0; i < dom_file.files.length; i++) {
+					let file = dom_file.files[i];
+					let filename = file.name.split(".tscript")[0];
+					let content = await file.text();
+					if (!content) continue;
+					localStorage.setItem("tscript.code." + filename, content); // write or overwrite
+					let ed = ide.collection.getEditor(filename);
+					if (ed) {
+						ide.collection.setActiveEditor(ed);
+						ed.setText(content);
+						ed.focus();
+					} else {
+						openEditorFromLocalStorage(filename);
+					}
+					updateControls();
+				}
+			},
+		},
+	});
+	dom_file.click();
+	dom_file.remove();
+}
+
+export function cmd_download() {
+	const ed = ide.collection.getActiveEditor();
+	if (!ed) return;
+	let filename = ed.properties().name;
+	let content = ed.text();
+
+	let link = tgui.createElement({
+		type: "a",
+		parent: document.body,
+		properties: {
+			href:
+				"data:text/plain;charset=utf-8," + encodeURIComponent(content),
+			download: filename + ".tscript",
+		},
+	});
+	link.click();
+	link.remove();
 }
 
 function isInterpreterBusy() {

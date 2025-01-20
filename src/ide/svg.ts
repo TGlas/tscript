@@ -1,22 +1,21 @@
-// This file is considered to be used by 'gen-icons.ts' and
-// would not be part of the output
+// This file is used by 'gen-icons.ts'. It is not included in the output.
 
 class SVGNode {
 	type: string;
 	attributes: Map<string, string>;
-	childs: SVGNode[];
+	children: SVGNode[];
 	constructor(url, type) {
 		// url ignored
 		this.type = type;
 		this.attributes = new Map<string, string>();
-		this.childs = [];
+		this.children = [];
 	}
 	setAttribute(name, value) {
 		this.attributes.set(name, value);
 	}
 
 	appendChild(node: SVGNode) {
-		this.childs.push(node);
+		this.children.push(node);
 	}
 
 	serialize(): string {
@@ -26,17 +25,17 @@ class SVGNode {
 		for (let [name, value] of this.attributes.entries()) {
 			attrs += ` ${name}="${value}"`;
 		}
-		let childs = this.serialize_childs();
-		if (childs) return `<${this.type}${attrs}>${childs}</${this.type}>`;
+		let children = this.serialize_children();
+		if (children) return `<${this.type}${attrs}>${children}</${this.type}>`;
 		else return `<${this.type}${attrs}/>`;
 	}
-	serialize_childs(): string {
+	serialize_children(): string {
 		// like innerHTML
-		let childs = "";
-		for (let child of this.childs) {
-			childs += child.serialize();
+		let children = "";
+		for (let child of this.children) {
+			children += child.serialize();
 		}
-		return childs;
+		return children;
 	}
 }
 
@@ -104,6 +103,12 @@ export class SVGDrawingContext {
 		if (this.style) el.setAttribute("style", this.style);
 		this.svg.appendChild(el);
 		return this;
+	}
+
+	group(): SVGNode {
+		let el = createSvgElement("g", {});
+		this.addElement(el);
+		return el;
 	}
 
 	rect(
