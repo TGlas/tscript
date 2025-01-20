@@ -375,6 +375,7 @@ export function createDefaultServices() {
 				let ctx = bmp.getContext("2d");
 				if (!source) source = this.canvas.dom;
 				if (!source) return;
+				if (source.width === 0 || source.height === 0) return;
 				ctx.drawImage(source, x, y);
 			},
 			paintImageSection: function (
@@ -395,6 +396,7 @@ export function createDefaultServices() {
 				let ctx = bmp.getContext("2d");
 				if (!source) source = this.canvas.dom;
 				if (!source) return;
+				if (source.width === 0 || source.height === 0) return;
 				ctx.drawImage(source, sx, sy, sw, sh, dx, dy, dw, dh);
 			},
 			reset: function () {

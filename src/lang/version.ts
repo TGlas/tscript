@@ -5,9 +5,9 @@ export const Version = {
 	major: package_json.version.split(".")[0],
 	minor: package_json.version.split(".")[1],
 	patch: package_json.version.split(".")[2],
-	day: 4,
-	month: 12,
-	year: 2024,
+	day: 20,
+	month: 1,
+	year: 2025,
 	full: function () {
 		let s =
 			"TScript version " +
