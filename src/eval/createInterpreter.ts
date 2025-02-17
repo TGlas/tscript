@@ -29,21 +29,21 @@ export function createInterpreter(program, inputs, output) {
 
 	// alter the current transformation by right-multiplying it with another transformation
 	interpreter.service.canvas._multiply = function (a, b) {
-		interpreter.service.canvas._trafo_a = [
+		let new_a = [
 			[
 				interpreter.service.canvas._trafo_a[0][0] * a[0][0] +
 					interpreter.service.canvas._trafo_a[0][1] * a[1][0],
-				interpreter.service.canvas._trafo_a[1][0] * a[0][0] +
-					interpreter.service.canvas._trafo_a[1][1] * a[1][0],
-			],
-			[
 				interpreter.service.canvas._trafo_a[0][0] * a[0][1] +
 					interpreter.service.canvas._trafo_a[0][1] * a[1][1],
+			],
+			[
+				interpreter.service.canvas._trafo_a[1][0] * a[0][0] +
+					interpreter.service.canvas._trafo_a[1][1] * a[1][0],
 				interpreter.service.canvas._trafo_a[1][0] * a[0][1] +
 					interpreter.service.canvas._trafo_a[1][1] * a[1][1],
 			],
 		];
-		interpreter.service.canvas._trafo_b = [
+		let new_b = [
 			interpreter.service.canvas._trafo_a[0][0] * b[0] +
 				interpreter.service.canvas._trafo_a[0][1] * b[1] +
 				interpreter.service.canvas._trafo_b[0],
@@ -51,6 +51,8 @@ export function createInterpreter(program, inputs, output) {
 				interpreter.service.canvas._trafo_a[1][1] * b[1] +
 				interpreter.service.canvas._trafo_b[1],
 		];
+		interpreter.service.canvas._trafo_a = new_a;
+		interpreter.service.canvas._trafo_b = new_b;
 	};
 
 	// compute a quadratic form from the transformation
