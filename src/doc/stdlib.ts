@@ -426,7 +426,7 @@ print(c);			   # prints [0, 1, 2], since it's a copy
 		</p>
 		<p>
 		At program start, the turtle is located at the origin of its coordinate
-		system, it is equipped with a black pen, it and faces upwards, or in
+		system, it is equipped with a black pen, and it faces upwards, or in
 		other words, along the positive y-axis. The turtle can move and turn.
 		While doing so it can lower and raise a pen. While lowered, the pen
 		draws the path taken by the turtle. The result of such drawing is known
@@ -451,6 +451,7 @@ print(c);			   # prints [0, 1, 2], since it's a copy
 		<tr><th>turn</th><td>
 			The <code class="code">function turn(degrees)</code> rotates the
 			turtle clockwise, where 360 <i>degrees</i> are one full rotation.
+			A negative angle corresponds to a counter-clockwise rotation.
 		</td></tr>
 		<tr><th>color</th><td>
 			The <code class="code">function color(red, green, blue)</code>
@@ -465,20 +466,28 @@ print(c);			   # prints [0, 1, 2], since it's a copy
 		<div class="example">
 		<h3>Example</h3>
 		<tscript>
-turtle.pen(true);		   # lower the pen
-turtle.move(50);			# black line upwards
-turtle.color(1,0,0);		# turn color red
-turtle.turn(90);			# turn 90 degrees clockwise
-turtle.move(50);			# red line to the right
-turtle.color(0,1,0);		# turn color green
-turtle.turn(90);			# turn 90 degress clockwise
-turtle.move(50);			# green line downwards
-turtle.color(0,0,1);		# turn color blue
-turtle.turn(90);			# turn 90 degrees clockwise
-turtle.move(50);			# blue line to the left
+turtle.move(30);            # black line upwards
+turtle.color(1,0,0);        # turn color red
+turtle.turn(60);            # turn 60 degrees clockwise
+turtle.move(30);            # red line
+turtle.color(1,1,0);        # turn color yellow
+turtle.turn(60);            # turn 60 degress clockwise
+turtle.move(15);            # yellow line
+turtle.pen(false);          # rise the pen
+turtle.move(15);            # move but do not draw (pen is up)
+turtle.pen(true);           # lower the pen
+turtle.color(0,1,0);        # turn color green
+turtle.turn(60);            # turn 60 degrees clockwise
+turtle.move(30);            # green line
+turtle.color(0,0,1);        # turn color blue
+turtle.turn(60);            # turn 60 degrees clockwise
+turtle.move(30);            # blue line
+turtle.color(1,0,1);        # turn color pink
+turtle.turn(60);            # turn 60 degrees clockwise
+turtle.move(30);            # pink line back to the origin
 		</tscript>
 		<div style="text-align: center; margin: 20px;">
-		<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAHXCAMAAAD9dRLCAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACKUExURe7u7vDPz/Kvr+/b29TU1NeXl+pqavd3d/J5dNSKZszSq9vv25iYmJZcXMhTU/aBgeaJeIa7RnjmZq/yr3tzc5+Oju/e3t/gz4LteHf0dHd3d97v3oH2gXf3d2Fhj2JivpiY9I6Z6lOer2rchsPDw4aGxmFh4Xd393N381x53JfNvs/wz8PD8dTU8ADkF9wAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALKSURBVHhe7dM3UiQBEEXBQS6igUVrrdX9r4fTPhEzVvMyrXJ/xKsZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwq6XlaVsZdzCf1bX1fxO2sbm1PS5hLsPO7t6E/d8/OByXMJfh6Phkwk7PzgWwkOFiGK9Jury6FsBCBBAngDgBxAkgTgBxAogTQJwA4gQQJ4A4AcQJIE4AcQKIE0CcAOIEECeAOAHECSBOAHECiBNAnADiBBAngDgBxAkgTgBxAogTQJwA4gQQJ4A4AcQJIE4AcQKIE0CcAOIEECeAOAHECSBOAHECiBNAnADiBBAngDgBxAkgTgBxAogTQJwA4gQQJ4A4AcQJIE4AcQKIE0CcAOIEECeAOAHECSBOAHECiBNAnADiBBAngDgBxAkgTgBxAogTQJwA4gQQJ4A4AcQJIE4AcQKIE0CcAOIEECeAOAHECSBOAHECiBNAnADiBBAngDgBxAkgTgBxAogTQJwA4gQQJ4A4AcQJIE4AcQKIE0CcAOIEECeAOAHECSBOAHECiBNAnADiBBAngDgBxAkgTgBxAogTQJwA4gQQJ4A4AcQJIE4AcQKIE0CcAOIEECeAOAHECSBOAHECiBNAnADiBBAngDgBxAkgTgBxAogTQJwA4gQQJ4A4AcQJIE4AcQKIE0CcAOIEECeAOAHECSBOAHECiBNAnADiBBAngDgBxAkgTgBxAogTQJwA4gQQJ4A4AcQJIE4AcQKIE0CcAOIEECeAOAHEDTe3dxN2//AogIU8Pb+8Ttjb+8fnuIT5fI2/NFXf4w4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPjjZrMfL8fhleLB8v4AAAAASUVORK5CYII=">
+		<img src="data:image/png;base64,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">
 		</div>
 	</div>
 	`,
@@ -702,15 +711,22 @@ turtle.move(50);			# blue line to the left
 		<div class="example">
 		<h3>Example</h3>
 		<tscript>
-var points = [[10, 10],[100, 10],[100, 100],[55, 150],[10, 100]];   # array with corners of the polygon
+var points = [                  # polygon vertices
+	[60, 60],
+	[150, 60],
+	[150, 150],
+	[105, 200],
+	[60, 150]
+];
 
-canvas.setLineColor(1,0,0);                                         # set the line color to red
-canvas.curve(points, true);                                         # connect the points in the array
+canvas.setFillColor(1,1,0);     # set the fill color to yellow
+canvas.fillArea(points);        # fill the polygon
 
-canvas.setFillColor(0,0,1);                                         # set the fill color to blue
-canvas.fillArea(points);                                            # fills the area surrounded by the points
+canvas.setLineColor(1,0,0);     # lines in red
+canvas.setLineWidth(10);        # lines 10 pixels wide
+canvas.curve(points, true);     # draw polygon outline
 		</tscript>
-		<img style="display: block; margin: 1em auto;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALAAAADwCAMAAACXMR4AAAAC61BMVEUEMv8RMflhQNj71c1kQdf+8uX+8ub///H+8+b2tbX1tbW6eLvwoacgMfN2TdG9eru9eroIMfz+/vD+9un83NMIMf3+/e/+9en959wTMfj+/O4KMfz+9+omMvH+6t/XmLoXMfcWMff+7eH++etHOeMkMvHam7r+/O8gMvMpMu8oMvD+9OdvR9L72dEOMfodMvSubb2rar4VMffAfbu7erwQMfn2x8XBf7o3Ner72tFpRNUiMvJXPN1rRdQqMu/829N9TMzSkro0NOuaX8OcYcOCTsv+8eT949nrtL/VlbqWW8RrQ9R0SdGhZMFJOeJsRdQ+NudAN+b6zsg4NelnQtX+++3Uk7rOiLVCOOX719DIg7f95Nroo7J/TMxSO99gQNgxNOz+7+P95txUO94cMvSpaL7+8+ejZcE8NuiYW8P41tH+8eVeP9mYXsT4zMhySNK3dbywbr2aXcI7Nej++eyfYsL96d7gnrb4z8saMvVkQdZbPtvEgbr5083tusT+7uKNVseRWMXnscHpsr/FgbdQOuAMMfuATcunZ7/61M1OOuD84Nasa73knbOPVsb6z8k8NejLhbakZ8H72NBVPN0HMf383dTqsr7nrr73vrv83tX62dL+69+UWsQvNO341dDpsL69e7udYcOTXMaWXsX2yMfJibxcP9rmrb7st8D4zsnbl7WQV8a5eLxuRtPemrb30s/84tiCTsrnr77Njryzcb3wuL13SdClZ8CLU8floLT3xMHhn7f0ubvanbz97OH3ysfyoqdiQdflq77519HqtsL0uLlpRdXlsMGkZsD1vr5LOuH3vLvDg7x7S835y8W+e7rLjLzenbfvt77jqb27wsJIOuO7eLv3wsChZcJoQ9XCfrj20M4sM+72urjoqrnotcPRjbbvv8XRkbpFOeT1tbTqnav2zcqJUsjyqa4VM/fmobL+++7gqsFkQ9fmprjPkLzXlbfcn7zVk7eET8rho7rkpLj0wcLGg7l0iYtwAAAGw0lEQVR42u3d91dTZxgHcLTCa6fNTUhICAQNMmKEAMrGSEBEhqDIVhCQVYaIW4GKIlOxqNCKcdW9Fbd11VEH1n0qVq1a29o97fixb6rnaFnJTe7inOf5A+75nOd8773vzck5XzPUw8YM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"/>
+		<img style="display: block; margin: 1em auto;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIMAAACxCAMAAADQ8f7yAAAAYFBMVEX//+7/cWn/9eX/z8H/hHv/Xlj/ODT/AAD//wD/S0b/vAD/JSP/qp//zwD/4tP/vK//lwD/EgD/EhH/l43/qgD/JQD/9QD/cQD/OAD/hAD/SwD/4gD/XgD/9ub/IQD/49TtVKObAAAB30lEQVR42u3bR24DMRBEUSoNrZxzuv8tvaVg2Axd5ADGr7WG+Ku3UjvHGGOMMWacbzAaaKCBhv/R8CUeDTTQQAMNNNBAAw000EADDTTQQAMNNNBAAw000EADDTTQQAMNNNBAAw000EADDTTQQAMNNKQ2bLQJm6L/9B6UCYfC/xXPdAmz0v82b5eqhOU2p2Ec/vh41yTcj+Gr4+ghyiD8+eWkSDhdwjcHCdcwk/CDm6LhFr44STrJmYafPOwJj/C9adpZ0LALPzpbE87ha90w8TZpNQ8/u9oSruFb81XygdRoF364EfHo/W6UcaW1/rhVOGh49H6ddSq28BIwP3j0i8x7tb0CzE8e99lHcwIwc3msAGY+j3owC3hUg1nCoxjMMh6lYJbyKASznEcZmBYeRWDaeJSAaeVRAKadRzOYCh6tYEp4tIGp4dEEpopHA5g6HovBVPJYCKaWxyIw1TwWgKnnMRvMGjxmglmHxzwwK/GYA2YtHjPArMdjMpg1eUwEsy6PSWDW5jEBzPo8RsFswWMEzNerBY8RMNvwGAGzDY8RMJvwGAOzCY8xMJvwGAOzCY8xMJvwGAFz4frZvj2Pf4A5dv1t0J7HX8CcuH43bc7jzz277tl3g3u/HWOMVdo3CO9/RNXVrEEAAAAASUVORK5CYII="/>
 	</div>
 		<h3>Transformations</h3>
 		<table class="methods">
