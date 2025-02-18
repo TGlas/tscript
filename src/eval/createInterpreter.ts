@@ -217,6 +217,14 @@ export function createInterpreter(program, inputs, output) {
 		});
 	};
 	interpreter.service.canvas.rect = function (left, top, width, height) {
+		if (width < 0) {
+			left += width;
+			width = -width;
+		}
+		if (height < 0) {
+			top += height;
+			height = -height;
+		}
 		let points = interpreter.service.canvas._transform([
 			[left, top],
 			[left + width, top],
@@ -245,6 +253,14 @@ export function createInterpreter(program, inputs, output) {
 		});
 	};
 	interpreter.service.canvas.fillRect = function (left, top, width, height) {
+		if (width < 0) {
+			left += width;
+			width = -width;
+		}
+		if (height < 0) {
+			top += height;
+			height = -height;
+		}
 		let points = interpreter.service.canvas._transform([
 			[left, top],
 			[left + width, top],
@@ -257,6 +273,14 @@ export function createInterpreter(program, inputs, output) {
 		});
 	};
 	interpreter.service.canvas.frameRect = function (left, top, width, height) {
+		if (width < 0) {
+			left += width;
+			width = -width;
+		}
+		if (height < 0) {
+			top += height;
+			height = -height;
+		}
 		let points = interpreter.service.canvas._transform([
 			[left, top],
 			[left + width, top],
