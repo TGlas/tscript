@@ -201,7 +201,7 @@ export const tutorial = (function () {
 								buttons: [{ text: "Close" }],
 							});
 							let editor = new Editor({
-								language: "TScript",
+								language: "tscript",
 								text: correct,
 								parent: dlg.content,
 								readOnly: true,

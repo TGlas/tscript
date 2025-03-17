@@ -9,7 +9,12 @@ import { Document } from "./document";
 // ideally before creating editor instances.
 //
 
-let language_definitions = {
+interface LanguageDefinition {
+	comments: { line?: string; begin?: string; end?: string };
+	highlight: Record<string, string>;
+}
+
+const language_definitions = {
 	plain: {
 		comments: {},
 		highlight: {
@@ -92,7 +97,9 @@ let language_definitions = {
 			comment: "gray comment; \n plain start;",
 		},
 	},
-};
+} satisfies Record<string, LanguageDefinition>;
+
+export type LanguageIdentifier = keyof typeof language_definitions;
 
 // Language definition, consisting of comments and a syntax scanner.
 // The special property of the scanner is that it can enter in the middle of a token.
@@ -110,11 +117,11 @@ export class Language {
 	table: Array<Uint32Array> = []; // transition table
 	num_pending: Array<number> = []; // state -> # pending characters
 
-	public constructor(name: string) {
-		if (!language_definitions.hasOwnProperty(name))
+	public constructor(name: LanguageIdentifier) {
+		if (!Object.hasOwn(language_definitions, name))
 			throw "unknown highlighting language";
-		let definition = language_definitions[name];
-		let rules = definition.highlight;
+		const definition: LanguageDefinition = language_definitions[name];
+		const rules = definition.highlight;
 
 		this.linecomment = definition.comments.line
 			? Document.str2arr(definition.comments.line)
@@ -128,7 +135,7 @@ export class Language {
 
 		// count and enumerate named rules
 		let num = 1;
-		let name2state = {};
+		const name2state: Partial<Record<string, number>> = {};
 		name2state["start"] = 0;
 		this.table.push(new Uint32Array(99));
 		this.num_pending.push(0);
@@ -143,7 +150,7 @@ export class Language {
 		// parse named rules and create transition tables
 		for (let rulename in rules) {
 			let rule = rules[rulename];
-			let state = name2state[rulename];
+			let state = name2state[rulename]!;
 			let trans = this.table[state];
 			let pos = 0;
 			let scanColor = () => {
@@ -169,8 +176,8 @@ export class Language {
 					identifier += rule[pos];
 					pos++;
 				}
-				if (name2state.hasOwnProperty(identifier))
-					return name2state[identifier];
+				if (Object.hasOwn(name2state, identifier))
+					return name2state[identifier]!;
 				throw "invalid scanner rule (" + pos + "): " + rule;
 			};
 			let scanSemicolon = () => {
@@ -191,7 +198,7 @@ export class Language {
 				let set = new Set<number>();
 				while (true) {
 					let begin = rule.charCodeAt(pos);
-					if (begin === " ") break;
+					if (begin === 0x20) break; // Space
 					begin = this.character2code(begin);
 					let end = begin;
 					pos++;
@@ -264,7 +271,7 @@ export class Language {
 					let keywords = rule
 						.substring(pos, rule.length - 1)
 						.split(" ");
-					let prefixes = new Map<Uint32Array, number>(); // map prefix to state index
+					const prefixes = new Map<string, number>(); // map prefix to state index
 					for (let kw of keywords) {
 						if (kw === "") continue;
 						let prev_s = state;

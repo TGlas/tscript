@@ -1,16 +1,46 @@
+import { getResolvedTheme, ThemeName } from "../tgui";
+import {
+	CommentAction,
+	IndentAction,
+	ReplaceAction,
+	SimpleAction,
+	UncommentAction,
+	UnindentAction,
+} from "./actions";
 import { Document } from "./document";
 import { Iterator } from "./iterators";
-import { Language } from "./language";
-import { themes } from "./theme";
-import {
-	Action,
-	SimpleAction,
-	IndentAction,
-	UnindentAction,
-	CommentAction,
-	UncommentAction,
-	ReplaceAction,
-} from "./actions";
+import { Language, LanguageIdentifier } from "./language";
+import { ThemeDefinition, themes } from "./theme";
+
+interface EditorOptions {
+	language: LanguageIdentifier;
+	text: string;
+	parent: HTMLElement;
+	focus: boolean;
+	theme: ThemeName;
+	readOnly: boolean;
+	keybindings: ReadonlyMap<string, KeyCommand>;
+}
+
+type KeyCommand =
+	| "find"
+	| "replace"
+	| "find next"
+	| "select all"
+	| "undo"
+	| "redo"
+	| "toggle comment"
+	| "bracket";
+
+const defaultKeyBindings = new Map<string, KeyCommand>([
+	["ctrl+f", "find"],
+	["f3", "find next"],
+	["ctrl+a", "select all"],
+	["ctrl+z", "undo"],
+	["shift+ctrl+z", "redo"],
+	["ctrl+d", "toggle comment"],
+	["ctrl+b", "bracket"],
+]);
 
 // The editor class links all components (DOM elements and internal
 // management objects) together. It refers to exactly one document in a
@@ -19,8 +49,9 @@ import {
 export class Editor {
 	private document: Document;
 	private readOnly: boolean;
-	private themeName: string;
-	private theme: any = null;
+	private themeName: ThemeName;
+	/** assigned by {@link applyColorTheme} */
+	private theme!: ThemeDefinition;
 	private offscreen: OffscreenCanvas;
 	private devicePixelRatio: number = 0;
 	private scroll_x: number = 0;
@@ -56,27 +87,26 @@ export class Editor {
 	private dom_search_replaceall: HTMLElement;
 	private dom_search_close: HTMLElement;
 	private observer: ResizeObserver;
-	private keybindings: Map<string, string>;
+	private keybindings: ReadonlyMap<string, KeyCommand>;
 
-	public constructor(options: any = {}) {
+	public constructor(options: Partial<EditorOptions> = {}) {
 		// extract options with defaults
-		let language = options.language ? options.language : "plain";
-		let text = options.text ? options.text : "";
-		let parent = options.parent ? options.parent : null;
-		let focus = !!options.focus;
-		let theme = options.theme ? options.theme : "auto";
-		this.keybindings = options.keybindings
-			? options.keybindings
-			: new Map(Editor.defaultKeyBindings);
-		this.readOnly = !!options.readOnly;
+		const {
+			language: languageId = "plain",
+			text = "",
+			parent,
+			focus = false,
+		} = options;
+		this.keybindings = options.keybindings ?? defaultKeyBindings;
+		this.readOnly = options.readOnly ?? false;
 
 		// document associated with this editor
-		language = new Language(language.toLowerCase());
+		const language = new Language(languageId);
 		this.document = new Document(language, text);
 		this.setTarget();
 
-		// color theme, can be "light", "dark" or "auto"
-		this.themeName = theme;
+		// color theme name
+		this.themeName = options.theme ?? getResolvedTheme();
 
 		// offscreen canvas for smooth drawing updates
 		this.offscreen = new OffscreenCanvas(0, 0);
@@ -269,7 +299,8 @@ export class Editor {
 		this.dom_search_close.style.cursor = "pointer";
 		this.dom_search.appendChild(this.dom_search_close);
 
-		// set color these
+		// set color theme
+		// initializes this.theme
 		this.applyColorTheme();
 
 		// register event handlers
@@ -386,11 +417,11 @@ export class Editor {
 		this.document.selection = iter.pos;
 	}
 
-	// Set the theme to "default", "auto", "light" or "dark".
-	// Here, "default" simply maps to "auto".
-	public setTheme(name: string) {
-		if (name === "default") name = "auto";
-		this.themeName = name;
+	/**
+	 * Set the theme
+	 */
+	public setTheme(theme: ThemeName) {
+		this.themeName = theme;
 		this.applyColorTheme();
 	}
 
@@ -870,8 +901,9 @@ export class Editor {
 		if (event.altKey) keyname += "alt+";
 		keyname += key.toLowerCase();
 
-		if (this.keybindings.has(keyname)) {
-			// configurable hotkey
+		// configurable hotkey
+		const bound = this.keybindings.get(keyname);
+		if (bound !== undefined) {
 			let bound = this.keybindings.get(keyname);
 			if (bound === "find") {
 				// open find dialog
@@ -1536,15 +1568,7 @@ export class Editor {
 	}
 
 	private applyColorTheme() {
-		let name = this.themeName;
-		if (name === "auto") {
-			let dark =
-				window.matchMedia &&
-				window.matchMedia("(prefers-color-scheme: dark)").matches;
-			name = dark ? "dark" : "light";
-		}
-		if (!themes.hasOwnProperty(name)) return;
-		this.theme = themes[name];
+		this.theme = themes[this.themeName];
 
 		// set CSS colors directly in the DOM
 		this.dom_bars.style.borderRight =
@@ -1637,15 +1661,5 @@ export class Editor {
 		"Delete",
 		"Enter",
 		"Escape",
-	]);
-
-	public static defaultKeyBindings = new Map([
-		["ctrl+f", "find"],
-		["f3", "find next"],
-		["ctrl+a", "select all"],
-		["ctrl+z", "undo"],
-		["shift+ctrl+z", "redo"],
-		["ctrl+d", "toggle comment"],
-		["ctrl+b", "bracket"],
 	]);
 }

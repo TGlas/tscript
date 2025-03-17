@@ -618,10 +618,6 @@ export function create(container: HTMLElement, options?: any) {
 		state: "left",
 		fallbackState: "icon",
 		icon: icons.editor,
-		onThemeChange: function (theme) {
-			let eds = collection.getEditors();
-			for (let ed of eds) ed.setTheme(theme);
-		},
 	});
 	panel_editor.content.addEventListener("contextmenu", function (event) {
 		event.preventDefault();
@@ -993,8 +989,6 @@ export function create(container: HTMLElement, options?: any) {
 
 	tgui.arrangePanels();
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
-
-	if (!standalone && config && config.theme) tgui.setTheme(config.theme);
 }
 
 /**
