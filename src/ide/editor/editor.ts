@@ -9,7 +9,7 @@ import {
 } from "./actions";
 import { Document } from "./document";
 import { Iterator } from "./iterators";
-import { Language, LanguageIdentifier } from "./language";
+import { HightlightColor, Language, LanguageIdentifier } from "./language";
 import { ThemeDefinition, themes } from "./theme";
 
 interface EditorOptions {
@@ -620,7 +620,7 @@ export class Editor {
 						ctx.fillRect(x, y, this.charwidth, this.em);
 					}
 					let uni = v[index] & 0x1fffff;
-					let col = (v[index] / 0x200000) & 15;
+					const col = ((v[index] / 0x200000) & 15) as HightlightColor;
 					if (uni > 32) {
 						// draw the character
 						ctx.fillStyle = colors[col];
@@ -633,7 +633,7 @@ export class Editor {
 					}
 					if (v[index] & 0x4000000) {
 						// draw the cursor
-						ctx.fillStyle = colors[0];
+						ctx.fillStyle = colors[HightlightColor.Plain];
 						ctx.fillRect(
 							x - 0.04 * this.charwidth,
 							y + 0.05 * this.em,

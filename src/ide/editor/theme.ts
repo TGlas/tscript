@@ -6,6 +6,7 @@
 //
 
 import { ThemeName } from "../tgui";
+import { HightlightColor } from "./language";
 
 export interface ThemeDefinition {
 	bars: {
@@ -21,18 +22,7 @@ export interface ThemeDefinition {
 	};
 	content: {
 		background: string;
-		highlight: [
-			string,
-			string,
-			string,
-			string,
-			string,
-			string,
-			string,
-			string,
-			string,
-			string
-		];
+		highlight: Record<HightlightColor, string>;
 		cursorline: [string, string];
 		selection: [string, string];
 		bracket: [string, string];

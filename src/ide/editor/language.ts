@@ -14,6 +14,19 @@ interface LanguageDefinition {
 	highlight: Record<string, string>;
 }
 
+export const enum HightlightColor {
+	Plain,
+	Keyword,
+	Bracket,
+	NumberLiteral,
+	StringLiteral,
+	EscapeSequence,
+	Brown, // unused
+	Orange, // unused
+	Yellow, // unused
+	Comment,
+}
+
 const language_definitions = {
 	plain: {
 		comments: {},
@@ -153,12 +166,14 @@ export class Language {
 			let state = name2state[rulename]!;
 			let trans = this.table[state];
 			let pos = 0;
-			let scanColor = () => {
+			let scanColor = (): HightlightColor => {
 				while (rule[pos] === " ") pos++;
-				for (let c in Language.scanner_colors) {
+				for (const [c, value] of Object.entries(
+					Language.scanner_colors
+				)) {
 					if (rule.substring(pos, pos + c.length) === c) {
 						pos += c.length;
-						return Language.scanner_colors[c];
+						return value;
 					}
 				}
 				throw "invalid scanner rule (" + pos + "): " + rule;
@@ -393,7 +408,7 @@ export class Language {
 	}
 
 	// access the components of a table entry individually
-	public static highlight(entry: number) {
+	public static highlight(entry: number): HightlightColor {
 		return entry & Language.scanresult_highlight_mask;
 	}
 	public static bracket(entry: number) {
@@ -420,19 +435,19 @@ export class Language {
 	private static readonly scanresult_pending_mask = 4096 - 64; // bit mask for the number of pending characters
 	private static readonly scanresult_pending = 64; // divisor for the number of pending characters
 	private static readonly scanresult_state = 4096; // divisor for the successor state
-	private static readonly scanner_colors = {
-		plain: 0,
-		black: 0, // plain in light theme
-		white: 0, // plain in dark theme
-		blue: 1,
-		green: 2,
-		cyan: 3,
-		red: 4,
-		magenta: 5,
-		brown: 6,
-		orange: 7,
-		yellow: 8,
-		gray: 9,
-		grey: 9,
+	private static readonly scanner_colors: Record<string, HightlightColor> = {
+		plain: HightlightColor.Plain,
+		black: HightlightColor.Plain, // plain in light theme
+		white: HightlightColor.Plain, // plain in dark theme
+		blue: HightlightColor.Keyword,
+		green: HightlightColor.Bracket,
+		cyan: HightlightColor.NumberLiteral,
+		red: HightlightColor.StringLiteral,
+		magenta: HightlightColor.EscapeSequence,
+		brown: HightlightColor.Brown,
+		orange: HightlightColor.Orange,
+		yellow: HightlightColor.Yellow,
+		gray: HightlightColor.Comment,
+		grey: HightlightColor.Comment,
 	};
 }
