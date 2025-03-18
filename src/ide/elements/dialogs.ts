@@ -1,11 +1,10 @@
 import { Options, defaultOptions } from "../../lang/helpers/options";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
-import { tab_config, openEditorFromLocalStorage } from "./editor-tabs";
+import { tab_config } from "./editor-tabs";
 import * as ide from "./index";
 
 export let options: any = new Options();
-export let theme: string = "default";
 
 /**
  * Check if the document has been changed and when this is the case, ask the user to discard the changes,
@@ -64,9 +63,11 @@ export function loadConfig() {
 		if (config.hasOwnProperty("options")) {
 			options = Object.assign(options, defaultOptions, config.options);
 		}
-		if (config.hasOwnProperty("theme")) {
-			theme = config.theme;
-		}
+
+		const configuredTheme = config.theme;
+		tgui.setThemeConfig(
+			tgui.isThemeConfig(configuredTheme) ? configuredTheme : "default"
+		);
 	}
 	return config;
 }
@@ -78,7 +79,7 @@ export function saveConfig() {
 	let config: any = {
 		options: options,
 		hotkeys: [],
-		theme,
+		theme: tgui.getThemeConfig(),
 		tabs: tab_config,
 		open: ide.collection.getFilenames(),
 		main: ide.getRunSelection(),
@@ -276,7 +277,7 @@ export function configDlg() {
 			parent: div_appearance,
 			type: "p",
 		});
-		const themes = [
+		const themes: { id: tgui.ThemeConfiguration; display: string }[] = [
 			{ id: "default", display: "System Default" },
 			{ id: "light", display: "Light" },
 			{ id: "dark", display: "Dark" },
@@ -306,12 +307,10 @@ export function configDlg() {
 				html: t.display,
 			});
 		}
-		sel.value = theme;
-		sel.addEventListener("change", function (event) {
-			theme = sel.value;
-			tgui.setTheme(theme);
-			for (let editor of ide.collection.getEditors())
-				editor.setTheme(theme);
+		sel.value = tgui.getThemeConfig();
+		sel.addEventListener("change", () => {
+			const theme = sel.value as tgui.ThemeConfiguration;
+			tgui.setThemeConfig(theme);
 		});
 	}
 

@@ -55,9 +55,6 @@ interface PanelDescription {
 	/** callback function on arranging (possible position/size change) */
 	onArrange?: () => any;
 
-	/** callback function on theme change */
-	onThemeChange?: (theme) => any;
-
 	/** TODO: document */
 	pos?: any;
 

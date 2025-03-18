@@ -5,7 +5,38 @@
 // creating editor instances.
 //
 
-export let themes = {
+import { ThemeName } from "../tgui";
+import { HightlightColor } from "./language";
+
+export interface ThemeDefinition {
+	bars: {
+		linenumbers: {
+			background: string;
+			color: string;
+		};
+		icons: {
+			background: string;
+			color: string;
+		};
+		separator: string;
+	};
+	content: {
+		background: string;
+		highlight: Record<HightlightColor, string>;
+		cursorline: [string, string];
+		selection: [string, string];
+		bracket: [string, string];
+	};
+	search: {
+		background: string;
+		separator: string;
+		fields: string;
+		color: string;
+		close: string;
+	};
+}
+
+export const themes: Record<ThemeName, ThemeDefinition> = {
 	light: {
 		bars: {
 			linenumbers: {

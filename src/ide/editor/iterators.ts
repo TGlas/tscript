@@ -1,6 +1,6 @@
 import { tabWidth, Node, Interior, Leaf } from "./tree";
 import { Document } from "./document";
-import { Language } from "./language";
+import { HightlightColor, Language } from "./language";
 
 // An iterator represents a position in a document.
 // It keeps track of character index (pos) and layout position (row/col),
@@ -202,12 +202,19 @@ export class Iterator {
 	public _advanced(c) {}
 }
 
+type OnHighlightCb = (
+	a: number,
+	b: number,
+	c: HightlightColor,
+	d: boolean
+) => void;
+
 // In addition to a plain Iterator, a HighlightingIterator runs the
 // language scanner while traversing the document in order to provide
 // syntax highlighting information.
 export class HighlightingIterator extends Iterator {
 	state: number;
-	private onHighlight: (a: number, b: number, c: number, d: boolean) => void;
+	private onHighlight: OnHighlightCb;
 
 	// Construct a highlighting iterator.
 	// The #onHighlight callback is called with the following arguments:
@@ -217,10 +224,7 @@ export class HighlightingIterator extends Iterator {
 	//   - num is the number of consecutive characters to be highlighted
 	//   - highlight is the color/style index
 	//   - bracket is true if the character is an active bracket
-	public constructor(
-		document: Document,
-		onHighlight: (a: number, b: number, c: number, d: boolean) => void
-	) {
+	public constructor(document: Document, onHighlight: OnHighlightCb) {
 		super(document);
 		this.state = this.leaf.state; // scanner state at the iterator position
 		this.onHighlight = onHighlight; // callback; invoked as soon as highlighting becomes unambiguous

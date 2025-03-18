@@ -30,7 +30,7 @@ export const doc = (function () {
 			let config = JSON.parse(str);
 			if (config.hasOwnProperty("theme")) theme = config.theme;
 		}
-		tgui.setTheme(theme);
+		if (tgui.isThemeConfig(theme)) tgui.setThemeConfig(theme);
 		return null;
 	}
 

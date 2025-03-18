@@ -1,17 +1,21 @@
 import * as ide from ".";
-import { getPanel, removePanel } from "../tgui";
-import { updateStatus, updateControls } from "./utils";
-import { Editor, Document } from "../editor";
-import { theme, saveConfig } from "./dialogs";
+import { Editor } from "../editor";
+import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
+import { saveConfig } from "./dialogs";
+import { updateStatus } from "./utils";
 
 // This class collects all editor instances of the multi-document IDE.
 // It keeps track of the currently "active" document.
 export class EditorCollection {
 	private editors: Set<Editor> = new Set<Editor>();
 	private active: Editor | null = null;
-	public keybindings: Map<string, string> = Editor.defaultKeyBindings;
 
-	public constructor() {}
+	public constructor() {
+		subscribeOnThemeChange(() => {
+			const theme = getResolvedTheme();
+			for (const editor of this.editors) editor.setTheme(theme);
+		});
+	}
 
 	// return the collection of all editors as a set
 	public getEditors() {
@@ -44,7 +48,7 @@ export class EditorCollection {
 		return values;
 	}
 
-	public setActiveEditor(ed: Editor, save_config: boolean = true) {
+	public setActiveEditor(ed: Editor | null, save_config: boolean = true) {
 		if (ed === this.active) return;
 
 		let active = ide.collection.getActiveEditor();
@@ -89,12 +93,10 @@ export class EditorCollection {
 				"[collection] internal error: duplicate filename '" + name + "'"
 			);
 
-		let config: any = {
-			language: "TScript",
-			keybindings: this.keybindings,
-		};
-		if (text) config.text = text;
-		let ed = new Editor(config);
+		let ed = new Editor({
+			language: "tscript",
+			text: text ?? "",
+		});
 		this.editors.add(ed);
 		ed.properties().tab = tab;
 		ed.properties().runoption = runoption;
@@ -163,7 +165,6 @@ export class EditorCollection {
 			ide.clear();
 			updateStatus();
 		});
-		ed.setTheme(theme);
 		this.setActiveEditor(ed, save_config);
 		return ed;
 	}
@@ -176,8 +177,10 @@ export class EditorCollection {
 		ed.properties().tab.remove();
 		ed.properties().runoption.remove();
 		this.editors.delete(ed);
-		if (this.active === ed)
-			this.setActiveEditor(this.editors.values().next().value, false);
+		if (this.active === ed) {
+			const nextActive = this.editors.values().next().value;
+			this.setActiveEditor(nextActive ?? null, false);
+		}
 		if (save_config) saveConfig();
 	}
 }

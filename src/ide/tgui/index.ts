@@ -1,19 +1,16 @@
 import { SVGIcon } from "../icons";
 import { setHotkey } from "./hotkeys";
 import { modal } from "./modals";
-import { panels } from "./panels";
 
 // re-exports
+export * from "./hotkeys";
 export * from "./modals";
 export * from "./panels";
-export * from "./hotkeys";
+export * from "./theme";
 
 ///////////////////////////////////////////////////////////
 // simplistic GUI framework
 //
-
-/** light theme, indicated by no theme css class in the body dom element which is the initial state */
-export let theme = "light";
 
 interface ElementDescription<T = keyof HTMLElementTagNameMap> {
 	/** HTML element type name */
@@ -611,40 +608,6 @@ export function setTooltip(
 		text: tooltip,
 		classname: "tgui tgui-tooltip tgui-tooltip-" + direction,
 	});
-}
-
-/**
- * set the theme
- */
-export function setTheme(newTheme: string) {
-	if (newTheme === "default") {
-		// Auto detect theme of the operating system
-		if (window.matchMedia) {
-			var q = window.matchMedia("(prefers-color-scheme: dark)");
-			newTheme = q.matches ? "dark" : "light";
-		} else {
-			newTheme = "light";
-		}
-	}
-
-	// Note that the light theme is represented in the body tag by no class at all
-	if (theme !== newTheme) {
-		if (newTheme === "light")
-			document.body.classList.remove(`${theme}-theme`);
-		else if (theme === "light")
-			document.body.classList.add(`${newTheme}-theme`);
-		else
-			document.body.classList.replace(
-				`${theme}-theme`,
-				`${newTheme}-theme`
-			);
-
-		theme = newTheme;
-
-		for (let panel of panels) {
-			if (panel.onThemeChange) panel.onThemeChange(newTheme);
-		}
-	}
 }
 
 export let separator = createElement({
