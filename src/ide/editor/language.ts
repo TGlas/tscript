@@ -104,9 +104,9 @@ let language_definitions = {
 //    - whether or not the scanner shall be applied again to the same input after the transition
 //    - a color (or style) in which the pending characters shall be highlighted
 export class Language {
-	linecomment: Uint32Array | null; // marker for line comments as array of point points
-	blockcomment_begin: Uint32Array | null; // begin marker for block comments as array of point points
-	blockcomment_end: Uint32Array | null; // end marker for block comments as array of point points
+	linecomment: Uint32Array | null; // marker for line comments as array of code points
+	blockcomment_begin: Uint32Array | null; // begin marker for block comments as array of code points
+	blockcomment_end: Uint32Array | null; // end marker for block comments as array of code points
 	table: Array<Uint32Array> = []; // transition table
 	num_pending: Array<number> = []; // state -> # pending characters
 
@@ -334,7 +334,7 @@ export class Language {
 		}
 	}
 
-	// Turn a 32-bit unicode codepoint into a code in the range 0:99.
+	// Turn a 32-bit unicode code point into a code in the range 0:99.
 	public character2code(character: number) {
 		if (character === 0) return 0;
 		if (character === 9) return 1;
