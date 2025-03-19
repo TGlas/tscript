@@ -91,73 +91,61 @@ export class EditorCollection {
 			readOnly: ide.shouldLockEditors(),
 		});
 		this.editors.add(ed);
+
+		const breakpoints = new Set<number>();
+		function toggleBreakpoint(line: number) {
+			const interpreter = ide.interpreterSession?.interpreter;
+			if (interpreter) {
+				// ask the interpreter for the correct position of the marker
+				let result = interpreter.toggleBreakpoint(
+					line + 1,
+					ed.properties().name
+				);
+				if (result !== null) {
+					line = result.line - 1;
+					ed.scrollTo(line, 0);
+				} else return;
+			}
+
+			if (!breakpoints.delete(line)) breakpoints.add(line);
+			ed.focus();
+			ed.draw();
+		}
+
 		ed.properties().tab = tab;
 		ed.properties().runoption = runoption;
 		ed.properties().name = name;
-		ed.properties().breakpoints = new Set<number>();
-		ed.properties().toggleBreakpoint = (function (ed) {
-			return function (line) {
-				let toggle = true;
-				const interpreter = ide.interpreterSession?.interpreter;
-				if (interpreter) {
-					// ask the interpreter for the correct position of the marker
-					let result = interpreter.toggleBreakpoint(
-						line + 1,
-						ed.properties().name
-					);
-					if (result !== null) {
-						line = result.line - 1;
-						ed.scrollTo(line, 0);
-					} else toggle = false;
+		ed.properties().breakpoints = breakpoints;
+		ed.properties().toggleBreakpoint = toggleBreakpoint;
+
+		ed.events.barClick = toggleBreakpoint;
+		ed.events.barDraw = (begin, end) => {
+			let a = new Array<string | null>();
+			for (let line = begin; line < end; line++) {
+				a.push(breakpoints.has(line) ? "\u23FA" : null);
+			}
+			return a;
+		};
+		ed.events.focus = () => {
+			this.active = ed;
+		};
+		ed.events.changed = (lineChange) => {
+			if (lineChange) {
+				const { line, removed, inserted } = lineChange;
+				// shift affected breakpoints
+				// iterate over copy while modifying the original
+				for (const b of [...breakpoints]) {
+					// is the line of this breakpoint affected? -> delete
+					if (b >= line) breakpoints.delete(b);
+
+					// was the line _not_ removed? -> re-add with offset
+					if (b >= line + removed)
+						breakpoints.add(b + inserted - removed);
 				}
-				if (toggle) {
-					let breakpoints = ed.properties().breakpoints;
-					if (breakpoints.has(line)) breakpoints.delete(line);
-					else breakpoints.add(line);
-					ed.focus();
-					ed.draw();
-				}
-			};
-		})(ed);
-		ed.setEventHandler(
-			"barDraw",
-			(function (breakpoints) {
-				return function (begin, end) {
-					let a = new Array<string | null>();
-					for (let line = begin; line < end; line++) {
-						if (breakpoints.has(line)) a.push("\u23FA");
-						else a.push(null);
-					}
-					return a;
-				};
-			})(ed.properties().breakpoints)
-		);
-		ed.setEventHandler("barClick", ed.properties().toggleBreakpoint);
-		ed.setEventHandler(
-			"focus",
-			(function (collection, ed) {
-				return function (event) {
-					collection.active = ed;
-				};
-			})(this, ed)
-		);
-		ed.setEventHandler("changed", (line, removed, inserted) => {
-			if (line !== null) {
-				// change breakpoints
-				let br = ed.properties().breakpoints;
-				let new_br = new Set();
-				for (let b of br) {
-					if (b < line) new_br.add(b);
-					else if (b >= line + removed)
-						new_br.add(b + inserted - removed);
-				}
-				// modify the existing set instead of assigning a new one since it is enclosed in handlers
-				br.clear();
-				for (let b of new_br) br.add(b);
 				ed.draw();
 			}
 			ide.clear();
-		});
+		};
 		this.setActiveEditor(ed, save_config);
 		return ed;
 	}
