@@ -1,10 +1,20 @@
+import { ParserState } from ".";
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Options } from "../helpers/options";
 import { Lexer } from "./lexer";
 import { peek_keyword } from "./parser_helper";
 
+interface IncludeResult {
+	filename: string;
+	source: string;
+}
+
 // return the included string in case of an include statement and null otherwise
-export function parse_include(state, parent, options: Options) {
+export function parse_include(
+	state: ParserState,
+	parent,
+	options: Options
+): IncludeResult | null {
 	// handle "include" keyword
 	if (peek_keyword(state) !== "include") return null;
 	let token = Lexer.get_token(state, options);

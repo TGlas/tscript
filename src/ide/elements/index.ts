@@ -191,10 +191,10 @@ export function prepare_run(run_selection: string | null = null) {
 					err.line +
 					": " +
 					err.message,
-				err.filename,
+				err.filename ?? undefined,
 				err.line,
 				err.ch,
-				err.href
+				err.type === "error" ? err.href : undefined
 			);
 		}
 	}

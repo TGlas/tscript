@@ -164,10 +164,10 @@ export function cmd_export() {
 					err.line +
 					": " +
 					err.message,
-				err.filename,
+				err.filename ?? undefined,
 				err.line,
 				err.ch,
-				err.href
+				err.type === "error" ? err.href : undefined
 			);
 		}
 		return;

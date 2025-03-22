@@ -1,6 +1,7 @@
-import { Lexer } from "./lexer";
+import { ParserState } from ".";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
+import { isKeyword, Keyword } from "./lexer";
 
 ///////////////////////////////////////////////////////////
 // The parser parses source code and translates the program
@@ -422,7 +423,7 @@ export const binary_operator_impl = {
 // This function checks whether the next token is a keyword. If so then
 // the keyword is returned without altering the state, otherwise the
 // function returns the empty string.
-export function peek_keyword(state) {
+export function peek_keyword(state: ParserState): Keyword | "" {
 	let where = state.get();
 	state.skip();
 	if (state.eof()) return "";
@@ -445,7 +446,7 @@ export function peek_keyword(state) {
 		}
 		let value = state.source.substring(start, state.pos);
 		state.set(where);
-		if (Lexer.keywords.hasOwnProperty(value)) return value;
+		if (isKeyword(value)) return value;
 		else return "";
 	} else {
 		state.set(where);

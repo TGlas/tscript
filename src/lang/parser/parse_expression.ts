@@ -96,7 +96,7 @@ export function parse_expression(
 			ex.sim = simfalse;
 		} else if (token.type === "integer") {
 			// constant
-			let v = parseFloat(token.value);
+			let v = token.value;
 			if (v > 2147483647) {
 				state.set(Lexer.before_token);
 				state.error("/syntax/se-23");
@@ -111,7 +111,7 @@ export function parse_expression(
 			ex.sim = simfalse;
 		} else if (token.type === "real") {
 			// constant
-			let v = parseFloat(token.value);
+			let v = token.value;
 			ex.petype = "constant";
 			ex.typedvalue = {
 				type: get_program(parent).types[Typeid.typeid_real],

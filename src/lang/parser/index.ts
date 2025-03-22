@@ -11,13 +11,148 @@ import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { parse_include } from "./parse_include";
 import { defaultOptions, Options } from "../helpers/options";
 
-type ToParse = { documents: Record<string, string>; main: string } | string;
+export interface ParserPosition {
+	/** filename or null */
+	filename: string | null;
+
+	/** zero-based position in the source code string */
+	pos: number;
+
+	/** one-based line number */
+	line: number;
+
+	/** zero-based character number within the line */
+	ch: number;
+
+	/** sequential character index respecting include order */
+	totalpos: number;
+}
+
+type ErrorPosition = Partial<Pick<ParserPosition, "filename" | "line" | "ch">>;
+export type ParseError = ErrorPosition & {
+	type: "error";
+	message: string;
+	href: string;
+	name?: "Parse Error";
+};
+type ParseWarning = ErrorPosition & {
+	type: "warning";
+	message: string;
+};
+type ParseErrorOrWarning = ParseError | ParseWarning;
+
+export interface ParserState extends ParserPosition {
+	/** program tree to be built during parsing */
+	program: any;
+
+	documents: Record<string, string>;
+
+	/** current source code */
+	source: string;
+
+	/** stack of nested indentation widths */
+	indent: number[];
+
+	/** list of errors, currently at most one */
+	errors: ParseErrorOrWarning[];
+
+	/** implementation of built-in functions */
+	impl: object | null;
+
+	/** set of filenames */
+	includes: Set<string>;
+
+	/** @returns whether the parser has builtin implementations attached */
+	builtin(this: ParserState): boolean;
+
+	/**
+	 * Sets the code to be parsed
+	 *
+	 * @param source the code to parse
+	 * @param impl builtin implementations to attach to functions and constructors
+	 * @param filename the filename related to the code
+	 */
+	setSource(
+		this: ParserState,
+		source: string,
+		impl?: object | null,
+		filename?: string | null
+	): void;
+
+	/** @returns Whether there is text to parse and no errors have occurred */
+	good(this: ParserState): boolean;
+
+	/** inverse of {@link good} */
+	bad(this: ParserState): boolean;
+
+	/** @returns whether the end of the code has been reached */
+	eof(this: ParserState): boolean;
+
+	/**
+	 * Emits an error. The error will be added to the state and also thrown.
+	 *
+	 * @param path the error path
+	 * @param args formatting arguments for the error
+	 */
+	error(
+		this: ParserState,
+		path: string,
+		args?: { toString(): string }[]
+	): never;
+
+	/**
+	 * Emits a warning
+	 *
+	 * @param msg the message
+	 */
+	warning(this: ParserState, msg: string): void;
+
+	/** @returns the current character at {@link pos} */
+	current(this: ParserState): string;
+
+	/** @returns the character at {@link pos} + 1 */
+	next(this: ParserState): string;
+
+	/**
+	 * @param num the lookahead offset
+	 * @returns the character at {@link pos} + {@link num}
+	 */
+	lookahead(this: ParserState, num: number): string;
+
+	/** @returns the current position of the parser */
+	get(this: ParserState): ParserPosition;
+
+	/** Sets the current position */
+	set(this: ParserState, pos: ParserPosition): void;
+
+	/** @returns the current indentation level in spaces */
+	indentation(this: ParserState): number;
+
+	/**
+	 * Advance the parser by {@link n} characters
+	 *
+	 * @param n the amount of characters to advance by (defaults to 1)
+	 */
+	advance(this: ParserState, n?: number): void;
+
+	/** Skip whitespace and comments */
+	skip(this: ParserState): void;
+}
+
+export type ParseInput =
+	| { documents: Record<string, string>; main: string }
+	| string;
+
+export interface ParseResult {
+	program: any;
+	errors: ParseErrorOrWarning[];
+}
 
 export class Parser {
 	public static parse(
-		toParse: ToParse,
+		toParse: ParseInput,
 		options: Options = defaultOptions
-	): { program: any; errors: Array<any> } {
+	): ParseResult {
 		// create the initial program structure
 		let program: any = {
 			petype: "global scope", // like a main function, but with more stuff
@@ -40,29 +175,29 @@ export class Parser {
 		const mainDoc = typeof toParse == "string" ? "main" : toParse.main;
 
 		// create the parser state
-		let state = {
-			program: program, // program tree to be built during parsing
+		let state: ParserState = {
+			program,
 			documents,
-			source: "", // complete source code
-			pos: 0, // zero-based position in the source code string
-			line: 1, // one-based line number
-			filename: null, // filename or null
-			ch: 0, // zero-based character number within the line
-			totalpos: 0, // sequential character index respecting include order
-			indent: [0], // stack of nested indentation widths
-			errors: [], // list of errors, currently at most one
-			impl: {}, // implementations of built-in functions
-			includes: new Set(), // set of filenames
-			builtin: function () {
-				return Object.keys(this.impl).length > 0;
+			source: "",
+			pos: 0,
+			line: 1,
+			filename: null,
+			ch: 0,
+			totalpos: 0,
+			indent: [0],
+			errors: [],
+			impl: null,
+			includes: new Set(),
+			builtin() {
+				return this.impl !== null;
 			},
-			setSource: function (
-				source,
+			setSource(
+				source: string,
 				impl: any = null,
 				filename: string | null = null
 			) {
 				this.source = source;
-				this.impl = impl === null ? {} : impl;
+				this.impl = impl;
 				this.filename = filename;
 				if (filename != undefined) program.breakpoints[filename] = {};
 				this.pos = 0;
@@ -70,21 +205,21 @@ export class Parser {
 				this.ch = 0;
 				this.skip();
 			},
-			good: function () {
+			good() {
 				return (
 					this.pos < this.source.length && this.errors.length === 0
 				);
 			},
-			bad: function () {
+			bad() {
 				return !this.good();
 			},
-			eof: function () {
+			eof() {
 				return this.pos >= this.source.length;
 			},
-			error: function (path, args) {
+			error(path, args) {
 				if (typeof args === "undefined") args = [];
 				let msg = ErrorHelper.composeError(path, args);
-				let err = {
+				let err: ParseError = {
 					type: "error",
 					filename: this.filename,
 					line: this.line,
@@ -100,7 +235,7 @@ export class Parser {
 				//pe.href = "#/errors" + path;
 				throw err;
 			},
-			warning: function (msg) {
+			warning(msg) {
 				this.errors.push({
 					type: "warning",
 					filename: this.filename,
@@ -108,20 +243,20 @@ export class Parser {
 					message: msg,
 				});
 			},
-			current: function () {
+			current() {
 				return this.pos >= this.source.length
 					? ""
 					: this.source[this.pos];
 			},
-			lookahead: function (num) {
+			lookahead(num) {
 				return this.pos + num >= this.source.length
 					? ""
 					: this.source[this.pos + num];
 			},
-			next: function () {
+			next() {
 				return this.lookahead(1);
 			},
-			get: function () {
+			get() {
 				return {
 					pos: this.pos,
 					line: this.line,
@@ -130,14 +265,14 @@ export class Parser {
 					filename: this.filename,
 				};
 			},
-			set: function (where) {
+			set(where) {
 				this.pos = where.pos;
 				this.line = where.line;
 				this.ch = where.ch;
 				this.totalpos = where.totalpos;
 				this.filename = where.filename;
 			},
-			indentation: function () {
+			indentation() {
 				let w = 0;
 				for (let i = this.pos - this.ch; i < this.pos; i++) {
 					let c = this.source[i];
@@ -149,7 +284,7 @@ export class Parser {
 				}
 				return w;
 			},
-			advance: function (n) {
+			advance(n) {
 				if (typeof n === "undefined") n = 1;
 
 				if (this.pos + n > this.source.length)
@@ -165,8 +300,7 @@ export class Parser {
 					this.totalpos++;
 				}
 			},
-			skip: function () {
-				let lines = new Array();
+			skip() {
 				while (this.good()) {
 					let c = this.current();
 					if (c === "#") {
@@ -217,12 +351,10 @@ export class Parser {
 					if (c === "\n") {
 						this.line++;
 						this.ch = 0;
-						lines.push(this.line);
 					} else this.ch++;
 					this.pos++;
 					this.totalpos++;
 				}
-				return lines;
 			},
 		};
 
@@ -338,7 +470,7 @@ export class Parser {
 					return { program: null, errors: state.errors };
 			} else {
 				// report an internal parser error
-				let err = {
+				let err: ParseError = {
 					type: "error",
 					href: "#/errors/internal/ie-1",
 					message: ErrorHelper.composeError("/internal/ie-1", [

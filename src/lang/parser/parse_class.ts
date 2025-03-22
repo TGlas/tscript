@@ -1,5 +1,5 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
-import { Lexer } from "./lexer";
+import { Keyword, Lexer } from "./lexer";
 import { get_program } from "../helpers/getParents";
 import { constantstep } from "../helpers/steps";
 import { Typeid } from "../helpers/typeIds";
@@ -194,7 +194,7 @@ export function parse_class(state, parent, options: Options) {
 	state.indent.push(-1 - token.line);
 
 	// parse the class body
-	let access = null;
+	let access: Keyword | null = null;
 	while (true) {
 		// check for end-of-class-body
 		token = Lexer.get_token(state, options, true);
