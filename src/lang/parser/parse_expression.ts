@@ -15,9 +15,10 @@ import { Typeid } from "../helpers/typeIds";
 import { parse_call } from "./parse_call";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { resolve_name } from "./parse_fn";
+import { ParserState } from ".";
 
 export function parse_expression(
-	state,
+	state: ParserState,
 	parent,
 	options,
 	lhs: boolean = false,

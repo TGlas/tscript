@@ -3,8 +3,9 @@ import { Lexer } from "./lexer";
 import { get_function } from "../helpers/getParents";
 import { simfalse } from "../helpers/sims";
 import { parse_statement } from "./parse_statement";
+import { ParserState } from ".";
 
-export function parse_trycatch(state, parent, options) {
+export function parse_trycatch(state: ParserState, parent, options) {
 	// handle "try" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

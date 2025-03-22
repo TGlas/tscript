@@ -5,8 +5,9 @@ import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression, is_name } from "./parse_expression";
 import { parse_statement } from "./parse_statement";
+import { ParserState } from ".";
 
-export function parse_for(state, parent, options) {
+export function parse_for(state: ParserState, parent, options) {
 	// handle "for" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

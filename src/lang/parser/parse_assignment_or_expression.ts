@@ -4,9 +4,10 @@ import { simfalse } from "../helpers/sims";
 import { parse_expression } from "./parse_expression";
 import { parse_lhs } from "./parse_lhs";
 import { Options } from "../helpers/options";
+import { ParserState } from ".";
 
 export function parse_assignment_or_expression(
-	state,
+	state: ParserState,
 	parent,
 	options: Options
 ) {

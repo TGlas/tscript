@@ -1,8 +1,13 @@
+import { ParserState } from ".";
 import { create_breakpoint } from "../interpreter/interpreter_helper";
 import { parse_declaration } from "./parse_declaration";
 import { parse_statement } from "./parse_statement";
 
-export function parse_statement_or_declaration(state, parent, options) {
+export function parse_statement_or_declaration(
+	state: ParserState,
+	parent,
+	options
+) {
 	function markAsBuiltin(value) {
 		if (Array.isArray(value)) {
 			for (let i = 0; i < value.length; i++) markAsBuiltin(value[i]);
@@ -24,7 +29,7 @@ export function parse_statement_or_declaration(state, parent, options) {
 		}
 	}
 
-	if (!state.builtin()) {
+	if (!state.builtin() && state.filename) {
 		state.skip();
 
 		const breakpoints = state.program.breakpoints[state.filename];

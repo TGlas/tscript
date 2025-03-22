@@ -2,8 +2,9 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { simtrue } from "../helpers/sims";
 import { Options } from "../helpers/options";
+import { ParserState } from ".";
 
-export function parse_continue(state, parent, options: Options) {
+export function parse_continue(state: ParserState, parent, options: Options) {
 	// handle "continue" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

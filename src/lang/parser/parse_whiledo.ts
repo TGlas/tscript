@@ -4,8 +4,9 @@ import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
 import { parse_statement } from "./parse_statement";
+import { ParserState } from ".";
 
-export function parse_whiledo(state, parent, options) {
+export function parse_whiledo(state: ParserState, parent, options) {
 	// handle "while" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

@@ -2,9 +2,10 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { peek_keyword } from "./parser_helper";
 import { parse_expression, is_name } from "./parse_expression";
+import { ParserState } from ".";
 
 // Parse a "use" declaration.
-export function parse_use(state, parent, options) {
+export function parse_use(state: ParserState, parent, options) {
 	// handle "use" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

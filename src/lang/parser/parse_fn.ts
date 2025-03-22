@@ -1,26 +1,9 @@
-import { ErrorHelper } from "../errors/ErrorHelper";
-import { Lexer } from "./lexer";
-import {
-	assignments,
-	binary_operator_impl,
-	binary_operator_precedence,
-	left_unary_operator_impl,
-	left_unary_operator_precedence,
-	peek_keyword,
-} from "./parser_helper";
-import { create_breakpoint } from "../interpreter/interpreter_helper";
-import {
-	get_context,
-	get_function,
-	get_program,
-	get_type,
-} from "../helpers/getParents";
-import { scopestep } from "../helpers/steps";
-import { simfalse, simtrue } from "../helpers/sims";
+import { ParserState } from ".";
 import { TScript } from "..";
-import { Typeid } from "../helpers/typeIds";
+import { ErrorHelper } from "../errors/ErrorHelper";
+import { get_context, get_function, get_type } from "../helpers/getParents";
 
-export function resolve_name(state, name, parent, errorname) {
+export function resolve_name(state: ParserState, name, parent, errorname) {
 	// prepare a generic "not defined" error
 	let error = "/name/ne-5";
 	let arg = [errorname, name];
@@ -125,7 +108,7 @@ export function resolve_namespace_name(name, parent) {
 	}
 }
 
-export function resolve_names(pe, state) {
+export function resolve_names(pe, state: ParserState) {
 	if (pe.hasOwnProperty("resolve")) {
 		var temp = state.get();
 		state.set(pe.where);

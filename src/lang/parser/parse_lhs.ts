@@ -4,8 +4,9 @@ import { TScript } from "..";
 import { simtrue } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
+import { ParserState } from ".";
 
-export function parse_lhs(state, parent, options) {
+export function parse_lhs(state: ParserState, parent, options) {
 	// parse the LHS as an expression
 	let ex = parse_expression(state, parent, options, true);
 	let back = ex.passResolveBack;

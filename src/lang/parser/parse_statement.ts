@@ -13,10 +13,11 @@ import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { parse_throw } from "./parse_throw";
 import { parse_trycatch } from "./parse_trycatch";
 import { parse_whiledo } from "./parse_whiledo";
+import { ParserState } from ".";
 
 // Parse a single statement, or a group of statements.
 export function parse_statement(
-	state,
+	state: ParserState,
 	parent,
 	options,
 	var_allowed: boolean = false
