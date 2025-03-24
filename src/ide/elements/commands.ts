@@ -1,5 +1,5 @@
 import * as ide from ".";
-import { Parser } from "../../lang/parser";
+import { parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
 import { fileDlg, parseOptions } from "./dialogs";
@@ -150,7 +150,7 @@ export function cmd_export() {
 	};
 
 	// check that the code at least compiles
-	let result = Parser.parse(toParse, parseOptions);
+	let result = parseProgram(toParse, parseOptions);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {

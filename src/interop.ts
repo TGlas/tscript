@@ -3,7 +3,7 @@ import { Typeid } from "./lang/helpers/typeIds";
 import { createDefaultServices } from "./lang/interpreter/defaultService";
 import { Interpreter as _Interpreter } from "./lang/interpreter/interpreter";
 import { Lexer } from "./lang/parser/lexer";
-import { Parser } from "./lang/parser";
+import { parseProgramFromString } from "./lang/parser";
 import { TScript } from "./lang";
 import { Version } from "./lang/version";
 import { evaluation as _evaluation } from "./eval";
@@ -32,9 +32,7 @@ export const json2typed = TScript.json2typed;
 export const mul32 = TScript.mul32;
 export const mod = TScript.mod;
 export const order = TScript.order;
-export const parse = function (code) {
-	return Parser.parse(code);
-};
+export const parse = parseProgramFromString;
 export const previewValue = TScript.previewValue;
 export const typed2json = TScript.typed2json;
 

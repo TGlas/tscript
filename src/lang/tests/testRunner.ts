@@ -2,7 +2,7 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Typeid } from "../helpers/typeIds";
 import { createDefaultServices } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
-import { Parser, ParseResult } from "../parser";
+import { parseProgramFromString, ParseResult } from "../parser";
 import { TScript } from "..";
 import { TscriptTest } from "./tests";
 
@@ -58,7 +58,7 @@ export class TestRunner {
 		// parse the program
 		let parsed: ParseResult;
 		try {
-			parsed = Parser.parse(test.code);
+			parsed = parseProgramFromString(test.code);
 			if (test.parseOnly) {
 				cb.suc(test);
 				return;

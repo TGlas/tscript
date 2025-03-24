@@ -3,7 +3,7 @@ import { get_function } from "../../lang/helpers/getParents";
 import { Typeid } from "../../lang/helpers/typeIds";
 import { createDefaultServices } from "../../lang/interpreter/defaultService";
 import { Interpreter } from "../../lang/interpreter/interpreter";
-import { Parser } from "../../lang/parser";
+import { parseProgram } from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
@@ -177,7 +177,7 @@ export function prepare_run(run_selection: string | null = null) {
 		main: run_selection ? run_selection : getRunSelection(),
 	};
 
-	let result = Parser.parse(toParse, parseOptions);
+	let result = parseProgram(toParse, parseOptions);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors) {

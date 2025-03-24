@@ -2,7 +2,7 @@ import { documentationData } from "../doc";
 import { ErrorHelper } from "../lang/errors/ErrorHelper";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
-import { defaultParseOptions, Parser } from "../lang/parser";
+import { defaultParseOptions, parseProgramFromString } from "../lang/parser";
 import { Lexer } from "../lang/parser/lexer";
 import { Version } from "../lang/version";
 import { navigate } from "./navigation";
@@ -276,7 +276,7 @@ export const doc = (function () {
 	// Check code for correctness by parsing and running it.
 	// On success, the function does nothing, otherwise is throws an error message.
 	function checkCode(code) {
-		let result = Parser.parse(code);
+		let result = parseProgramFromString(code);
 		if (result.hasOwnProperty("errors") && result.errors.length > 0)
 			throw result.errors[0].message;
 		let interpreter = new Interpreter(

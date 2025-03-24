@@ -1,6 +1,5 @@
 import { Typeid } from "../lang/helpers/typeIds";
-import { Parser } from "../lang/parser";
-import { Interpreter } from "../lang/interpreter/interpreter";
+import { parseProgramFromString } from "../lang/parser";
 import { createInterpreter } from "./createInterpreter";
 
 // This function runs a TScript program. It returns an array of
@@ -13,7 +12,7 @@ export function run_tscript(code, maxseconds = 3.0, inputs = []) {
 	inputs = inputs.slice();
 	let output = new Array();
 
-	let result = Parser.parse(code);
+	let result = parseProgramFromString(code);
 	let errors = result.errors;
 	if (errors.length > 0) {
 		for (let i = 0; i < errors.length; i++) {

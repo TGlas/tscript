@@ -52,9 +52,6 @@ export interface ParserState extends ParserPosition {
 	/** stack of nested indentation widths */
 	indent: number[];
 
-	/** list of errors, currently at most one */
-	errors: ParseErrorOrWarning[];
-
 	/** implementation of built-in functions */
 	impl: object | null;
 
@@ -147,349 +144,347 @@ export const defaultParseOptions: ParseOptions = {
 	checkstyle: false,
 };
 
-export type ParseInput =
-	| { documents: Record<string, string>; main: string }
-	| string;
+export interface ParseInput {
+	documents: Record<string, string>;
+	main: string;
+}
 
 export interface ParseResult {
 	program: any;
 	errors: ParseErrorOrWarning[];
 }
 
-export class Parser {
-	public static parse(
-		toParse: ParseInput,
-		options: ParseOptions = defaultParseOptions
-	): ParseResult {
-		// create the initial program structure
-		let program: any = {
-			petype: "global scope", // like a main function, but with more stuff
-			children: new Array(), // children in the abstract syntax tree
-			parent: null, // top of the hierarchy
-			commands: [], // sequence of commands
-			types: [], // array of all types
-			names: {}, // names of all global things
-			variables: [], // mapping of index to name
-			breakpoints: {}, // mapping of line numbers (preceded by '#') to breakpoints (some lines do not have breakpoints)
-			lines: 0, // total number of lines in the program = maximal line number
-			step: scopestep, // execute all commands within the scope
-			sim: simfalse, // simulate commands
+export function parseProgramFromString(source: string, options?: ParseOptions) {
+	return parseProgram(
+		{
+			documents: { main: source },
+			main: "main",
+		},
+		options
+	);
+}
+
+export function parseProgram(
+	input: ParseInput,
+	options: ParseOptions = defaultParseOptions
+): ParseResult {
+	const { documents, main: mainDoc } = input;
+
+	/** list of errors */
+	const errors: ParseErrorOrWarning[] = [];
+	const program = createEmptyProgram();
+	const state = createParserState(program, documents, errors);
+
+	/** parse one library or program */
+	function parse1(
+		source: string,
+		impl: any = null,
+		filename: string | null = null
+	) {
+		state.setSource(source, impl, filename);
+		while (state.good()) {
+			let inc = parse_include(state, program, options);
+			if (inc !== null) {
+				// safe the state
+				let backup = {
+					source: state.source,
+					pos: state.pos,
+					line: state.line,
+					filename: state.filename,
+					ch: state.ch,
+					indent: state.indent.slice(),
+				};
+
+				// import the file
+				parse1(inc.source, null, inc.filename);
+
+				// restore the state
+				state.source = backup.source;
+				state.pos = backup.pos;
+				state.line = backup.line;
+				state.filename = backup.filename;
+				state.ch = backup.ch;
+				state.indent = backup.indent;
+			} else {
+				let p = parse_statement_or_declaration(state, program, options);
+				program.commands.push(p);
+				program.children.push(p);
+			}
+		}
+	}
+
+	try {
+		// pass 1: build an abstract syntax tree
+
+		// parse the language core
+		parse1(core.source, core.impl);
+
+		// parse the built-in libraries
+		parse1(lib_math.source, lib_math.impl);
+		parse1(lib_turtle.source, lib_turtle.impl);
+		parse1(lib_canvas.source, lib_canvas.impl);
+		parse1(lib_audio.source, lib_audio.impl);
+
+		// parse the user's source code
+		program.where = state.get();
+		parse1(documents[mainDoc], null, mainDoc);
+		program.lines = state.line;
+
+		// append an "end" breakpoint
+		state.skip();
+		if (!program.breakpoints[mainDoc].hasOwnProperty(state.line)) {
+			// create and register a new breakpoint
+			let b = create_breakpoint(program, state);
+			program.breakpoints[mainDoc][state.line] = b;
+			program.commands.push(b);
+		}
+
+		// pass 2: resolve all names
+		compilerPass(state, "Resolve");
+
+		// further passes may follow in the future, e.g., for optimizations
+		// compilerPass("Optimize");
+	} catch (ex: any) {
+		// ignore the actual exception and rely on state.errors instead
+		if (ex.name !== "Parse Error") {
+			// report an internal parser error
+			errors.push({
+				type: "error",
+				href: "#/errors/internal/ie-1",
+				message: ErrorHelper.composeError("/internal/ie-1", [
+					ErrorHelper.ex2string(ex),
+				]),
+			});
+		}
+	}
+
+	return errors.length > 0
+		? { program: null, errors }
+		: { program, errors: [] };
+}
+
+/** recursive compiler pass through the syntax tree */
+function compilerPass(state: ParserState, passname: string) {
+	let forward = "pass" + passname;
+	let backward = "pass" + passname + "Back";
+	let all = new Set();
+	function rec(pe) {
+		if (all.has(pe)) return;
+		all.add(pe);
+		if (pe.hasOwnProperty("petype") && pe.hasOwnProperty(forward)) {
+			let w = state.get();
+			if (pe.hasOwnProperty("where")) state.set(pe.where);
+			pe[forward](state);
+			delete pe[forward];
+			state.set(w);
+		}
+		if (pe.hasOwnProperty("children")) {
+			for (let sub of pe.children) rec(sub);
+		}
+		if (pe.hasOwnProperty("petype") && pe.hasOwnProperty(backward)) {
+			let w = state.get();
+			if (pe.hasOwnProperty("where")) state.set(pe.where);
+			pe[backward](state);
+			delete pe[backward];
+			state.set(w);
+		}
+	}
+	rec(state.program);
+}
+
+/** creates the initial program structure */
+const createEmptyProgram = (): any => ({
+	petype: "global scope", // like a main function, but with more stuff
+	children: new Array(), // children in the abstract syntax tree
+	parent: null, // top of the hierarchy
+	commands: [], // sequence of commands
+	types: [], // array of all types
+	names: {}, // names of all global things
+	variables: [], // mapping of index to name
+	breakpoints: {}, // mapping of line numbers (preceded by '#') to breakpoints (some lines do not have breakpoints)
+	lines: 0, // total number of lines in the program = maximal line number
+	step: scopestep, // execute all commands within the scope
+	sim: simfalse, // simulate commands
+});
+
+const createParserState = (
+	program: any,
+	documents: ParserState["documents"],
+	errors: ParseErrorOrWarning[]
+): ParserState => ({
+	program,
+	documents,
+	source: "",
+	pos: 0,
+	line: 1,
+	filename: null,
+	ch: 0,
+	totalpos: 0,
+	indent: [0],
+	impl: null,
+	includes: new Set(),
+	builtin() {
+		return this.impl !== null;
+	},
+	setSource(
+		source: string,
+		impl: any = null,
+		filename: string | null = null
+	) {
+		this.source = source;
+		this.impl = impl;
+		this.filename = filename;
+		if (filename != undefined) this.program.breakpoints[filename] = {};
+		this.pos = 0;
+		this.line = 1;
+		this.ch = 0;
+		this.skip();
+	},
+	good() {
+		return this.pos < this.source.length && errors.length === 0;
+	},
+	bad() {
+		return !this.good();
+	},
+	eof() {
+		return this.pos >= this.source.length;
+	},
+	error(path, args) {
+		if (typeof args === "undefined") args = [];
+		let msg = ErrorHelper.composeError(path, args);
+		let err: ParseError = {
+			type: "error",
+			filename: this.filename,
+			line: this.line,
+			ch: this.ch,
+			message: msg,
+			href: "#/errors" + path,
+			name: "Parse Error",
 		};
+		errors.push(err);
 
-		const documents =
-			typeof toParse == "string" ? { main: toParse } : toParse.documents;
+		//let pe:any = ErrorHelper.getError(path, args, undefined, this.line, this.ch);
+		//let pe:any = new ParseError("err");
+		//pe.href = "#/errors" + path;
+		throw err;
+	},
+	warning(msg) {
+		errors.push({
+			type: "warning",
+			filename: this.filename,
+			line: this.line,
+			message: msg,
+		});
+	},
+	current() {
+		return this.pos >= this.source.length ? "" : this.source[this.pos];
+	},
+	lookahead(num) {
+		return this.pos + num >= this.source.length
+			? ""
+			: this.source[this.pos + num];
+	},
+	next() {
+		return this.lookahead(1);
+	},
+	get() {
+		return {
+			pos: this.pos,
+			line: this.line,
+			ch: this.ch,
+			totalpos: this.totalpos,
+			filename: this.filename,
+		};
+	},
+	set(where) {
+		this.pos = where.pos;
+		this.line = where.line;
+		this.ch = where.ch;
+		this.totalpos = where.totalpos;
+		this.filename = where.filename;
+	},
+	indentation() {
+		let w = 0;
+		for (let i = this.pos - this.ch; i < this.pos; i++) {
+			let c = this.source[i];
+			if (c === " ") w++;
+			else if (c === "\t") {
+				w += 4;
+				w -= w % 4;
+			} else break;
+		}
+		return w;
+	},
+	advance(n) {
+		if (typeof n === "undefined") n = 1;
 
-		const mainDoc = typeof toParse == "string" ? "main" : toParse.main;
-
-		// create the parser state
-		let state: ParserState = {
-			program,
-			documents,
-			source: "",
-			pos: 0,
-			line: 1,
-			filename: null,
-			ch: 0,
-			totalpos: 0,
-			indent: [0],
-			errors: [],
-			impl: null,
-			includes: new Set(),
-			builtin() {
-				return this.impl !== null;
-			},
-			setSource(
-				source: string,
-				impl: any = null,
-				filename: string | null = null
-			) {
-				this.source = source;
-				this.impl = impl;
-				this.filename = filename;
-				if (filename != undefined) program.breakpoints[filename] = {};
-				this.pos = 0;
-				this.line = 1;
+		if (this.pos + n > this.source.length)
+			n = this.source.length - this.pos;
+		for (let i = 0; i < n; i++) {
+			let c = this.current();
+			if (c === "\n") {
+				this.line++;
 				this.ch = 0;
-				this.skip();
-			},
-			good() {
-				return (
-					this.pos < this.source.length && this.errors.length === 0
-				);
-			},
-			bad() {
-				return !this.good();
-			},
-			eof() {
-				return this.pos >= this.source.length;
-			},
-			error(path, args) {
-				if (typeof args === "undefined") args = [];
-				let msg = ErrorHelper.composeError(path, args);
-				let err: ParseError = {
-					type: "error",
-					filename: this.filename,
-					line: this.line,
-					ch: this.ch,
-					message: msg,
-					href: "#/errors" + path,
-					name: "Parse Error",
-				};
-				this.errors.push(err);
-
-				//let pe:any = ErrorHelper.getError(path, args, undefined, this.line, this.ch);
-				//let pe:any = new ParseError("err");
-				//pe.href = "#/errors" + path;
-				throw err;
-			},
-			warning(msg) {
-				this.errors.push({
-					type: "warning",
-					filename: this.filename,
-					line: this.line,
-					message: msg,
-				});
-			},
-			current() {
-				return this.pos >= this.source.length
-					? ""
-					: this.source[this.pos];
-			},
-			lookahead(num) {
-				return this.pos + num >= this.source.length
-					? ""
-					: this.source[this.pos + num];
-			},
-			next() {
-				return this.lookahead(1);
-			},
-			get() {
-				return {
-					pos: this.pos,
-					line: this.line,
-					ch: this.ch,
-					totalpos: this.totalpos,
-					filename: this.filename,
-				};
-			},
-			set(where) {
-				this.pos = where.pos;
-				this.line = where.line;
-				this.ch = where.ch;
-				this.totalpos = where.totalpos;
-				this.filename = where.filename;
-			},
-			indentation() {
-				let w = 0;
-				for (let i = this.pos - this.ch; i < this.pos; i++) {
-					let c = this.source[i];
-					if (c === " ") w++;
-					else if (c === "\t") {
-						w += 4;
-						w -= w % 4;
-					} else break;
-				}
-				return w;
-			},
-			advance(n) {
-				if (typeof n === "undefined") n = 1;
-
-				if (this.pos + n > this.source.length)
-					n = this.source.length - this.pos;
-				for (let i = 0; i < n; i++) {
-					let c = this.current();
-					if (c === "\n") {
-						this.line++;
-						this.ch = 0;
-					}
+			}
+			this.pos++;
+			this.ch++;
+			this.totalpos++;
+		}
+	},
+	skip() {
+		while (this.good()) {
+			let c = this.current();
+			if (c === "#") {
+				this.pos++;
+				this.ch++;
+				this.totalpos++;
+				if (this.current() === "*") {
 					this.pos++;
 					this.ch++;
 					this.totalpos++;
-				}
-			},
-			skip() {
-				while (this.good()) {
-					let c = this.current();
-					if (c === "#") {
-						this.pos++;
-						this.ch++;
-						this.totalpos++;
-						if (this.current() === "*") {
+					let star = false;
+					while (this.good()) {
+						if (this.current() === "\n") {
+							this.pos++;
+							this.line++;
+							this.ch = 0;
+							this.totalpos++;
+							star = false;
+							continue;
+						}
+						if (star && this.current() === "#") {
 							this.pos++;
 							this.ch++;
 							this.totalpos++;
-							let star = false;
-							while (this.good()) {
-								if (this.current() === "\n") {
-									this.pos++;
-									this.line++;
-									this.ch = 0;
-									this.totalpos++;
-									star = false;
-									continue;
-								}
-								if (star && this.current() === "#") {
-									this.pos++;
-									this.ch++;
-									this.totalpos++;
-									break;
-								}
-								star = this.current() === "*";
-								this.pos++;
-								this.ch++;
-							}
-						} else {
-							while (this.good() && this.current() !== "\n") {
-								this.pos++;
-								this.ch++;
-								this.totalpos++;
-							}
+							break;
 						}
-						continue;
+						star = this.current() === "*";
+						this.pos++;
+						this.ch++;
 					}
-					if (
-						c !== " " &&
-						c !== "\u00a0" &&
-						c !== "\t" &&
-						c !== "\r" &&
-						c !== "\n"
-					)
-						break;
-					if (c === "\n") {
-						this.line++;
-						this.ch = 0;
-					} else this.ch++;
-					this.pos++;
-					this.totalpos++;
-				}
-			},
-		};
-
-		// parse one library or program
-		let parse1 = function (
-			source,
-			impl: any = null,
-			filename: string | null = null
-		) {
-			state.setSource(source, impl, filename);
-			while (state.good()) {
-				let inc = parse_include(state, program, options);
-				if (inc !== null) {
-					// safe the state
-					let backup = {
-						source: state.source,
-						pos: state.pos,
-						line: state.line,
-						filename: state.filename,
-						ch: state.ch,
-						indent: state.indent.slice(),
-					};
-
-					// import the file
-					parse1(inc.source, null, inc.filename);
-
-					// restore the state
-					state.source = backup.source;
-					state.pos = backup.pos;
-					state.line = backup.line;
-					state.filename = backup.filename;
-					state.ch = backup.ch;
-					state.indent = backup.indent;
 				} else {
-					let p = parse_statement_or_declaration(
-						state,
-						program,
-						options
-					);
-					program.commands.push(p);
-					program.children.push(p);
+					while (this.good() && this.current() !== "\n") {
+						this.pos++;
+						this.ch++;
+						this.totalpos++;
+					}
 				}
+				continue;
 			}
-		};
-
-		// recursive compiler pass through the syntax tree
-		function compilerPass(passname) {
-			let forward = "pass" + passname;
-			let backward = "pass" + passname + "Back";
-			let all = new Set();
-			function rec(pe) {
-				if (all.has(pe)) return;
-				all.add(pe);
-				if (pe.hasOwnProperty("petype") && pe.hasOwnProperty(forward)) {
-					let w = state.get();
-					if (pe.hasOwnProperty("where")) state.set(pe.where);
-					pe[forward](state);
-					delete pe[forward];
-					state.set(w);
-				}
-				if (pe.hasOwnProperty("children")) {
-					for (let sub of pe.children) rec(sub);
-				}
-				if (
-					pe.hasOwnProperty("petype") &&
-					pe.hasOwnProperty(backward)
-				) {
-					let w = state.get();
-					if (pe.hasOwnProperty("where")) state.set(pe.where);
-					pe[backward](state);
-					delete pe[backward];
-					state.set(w);
-				}
-			}
-			rec(program);
+			if (
+				c !== " " &&
+				c !== "\u00a0" &&
+				c !== "\t" &&
+				c !== "\r" &&
+				c !== "\n"
+			)
+				break;
+			if (c === "\n") {
+				this.line++;
+				this.ch = 0;
+			} else this.ch++;
+			this.pos++;
+			this.totalpos++;
 		}
-
-		try {
-			// pass 1: build an abstract syntax tree
-
-			// parse the language core
-			parse1(core.source, core.impl);
-
-			// parse the built-in libraries
-			parse1(lib_math.source, lib_math.impl);
-			parse1(lib_turtle.source, lib_turtle.impl);
-			parse1(lib_canvas.source, lib_canvas.impl);
-			parse1(lib_audio.source, lib_audio.impl);
-
-			// parse the user's source code
-			program.where = state.get();
-			parse1(documents[mainDoc], null, mainDoc);
-			program.lines = state.line;
-
-			// append an "end" breakpoint
-			state.skip();
-			if (!program.breakpoints[mainDoc].hasOwnProperty(state.line)) {
-				// create and register a new breakpoint
-				let b = create_breakpoint(program, state);
-				program.breakpoints[mainDoc][state.line] = b;
-				program.commands.push(b);
-			}
-
-			// pass 2: resolve all names
-			compilerPass("Resolve");
-
-			// further passes may follow in the future, e.g., for optimizations
-			// compilerPass("Optimize");
-		} catch (ex: any) {
-			// ignore the actual exception and rely on state.errors instead
-			if (ex.name === "Parse Error") {
-				if (state.errors.length > 0)
-					return { program: null, errors: state.errors };
-			} else {
-				// report an internal parser error
-				let err: ParseError = {
-					type: "error",
-					href: "#/errors/internal/ie-1",
-					message: ErrorHelper.composeError("/internal/ie-1", [
-						ErrorHelper.ex2string(ex),
-					]),
-				};
-				return { program: null, errors: [err] };
-			}
-		}
-
-		if (state.errors.length > 0)
-			return { program: null, errors: state.errors };
-		else return { program: program, errors: [] };
-	}
-}
+	},
+});
