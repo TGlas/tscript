@@ -1,5 +1,5 @@
 import * as ide from ".";
-import { parseProgram } from "../../lang/parser";
+import { ParseInput, parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
 import { fileDlg, parseOptions } from "./dialogs";
@@ -140,17 +140,14 @@ export function cmd_export() {
 			return;
 	}
 
-	if (!ide.collection.getActiveEditor()) return;
+	const parsedFiles = new Map<string, ParseInput>();
+	const parseInput = ide.createParseInput(undefined, parsedFiles);
+	if (!parseInput) return;
 
 	ide.clear();
 
-	const toParse = {
-		documents: ide.collection.getValues(),
-		main: ide.getRunSelection(),
-	};
-
 	// check that the code at least compiles
-	let result = parseProgram(toParse, parseOptions);
+	let result = parseProgram(parseInput, parseOptions);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {
@@ -178,7 +175,7 @@ export function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = ide.getRunSelection();
+	let title = parseInput.filename;
 	let fn = "tscript-export";
 	if (
 		!fn.endsWith("html") &&
@@ -224,7 +221,12 @@ export function cmd_export() {
 	tgui.startModal(dlg);
 
 	// escape the TScript source code; prepare it to reside inside an html document
-	let source = JSON.stringify(toParse);
+	let source = JSON.stringify({
+		documents: Object.fromEntries(
+			Array.from(parsedFiles.values(), (f) => [f.filename, f.source])
+		),
+		main: parseInput.filename,
+	});
 
 	// obtain the page itself as a string
 	{

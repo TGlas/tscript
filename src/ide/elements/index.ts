@@ -3,7 +3,7 @@ import { get_function } from "../../lang/helpers/getParents";
 import { Typeid } from "../../lang/helpers/typeIds";
 import { createDefaultServices } from "../../lang/interpreter/defaultService";
 import { Interpreter } from "../../lang/interpreter/interpreter";
-import { parseProgram } from "../../lang/parser";
+import { ParseInput, parseProgram } from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
@@ -163,21 +163,43 @@ export function clear() {
 }
 
 /**
+ * Create ParseInput from the current editors
+ *
+ * @param runSelection the name of the selected file to run
+ * @returns a ParseInput object or `null` if no editors are open
+ */
+export function createParseInput(
+	runSelection = getRunSelection(),
+	files = new Map<string, ParseInput>()
+): ParseInput | null {
+	function getFile(filename: string): ParseInput | null {
+		const existing = files.get(filename);
+		if (existing) return existing;
+
+		const source =
+			collection.getEditor(filename)?.text() ??
+			localStorage.getItem(`tscript.code.${filename}`);
+		if (!source) return null;
+
+		const file: ParseInput = { filename, source, resolveInclude: getFile };
+		files.set(filename, file);
+		return file;
+	}
+
+	return getFile(runSelection);
+}
+
+/**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
  */
-export function prepare_run(run_selection: string | null = null) {
+export function prepare_run(runSelection?: string) {
 	clear();
 
-	let ed = collection.getActiveEditor();
-	if (!ed) return;
+	const parseInput = createParseInput(runSelection);
+	if (!parseInput) return;
 
-	const toParse = {
-		documents: collection.getValues(),
-		main: run_selection ? run_selection : getRunSelection(),
-	};
-
-	let result = parseProgram(toParse, parseOptions);
+	let result = parseProgram(parseInput, parseOptions);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors) {

@@ -44,8 +44,6 @@ export interface ParserState extends ParserPosition {
 	/** program tree to be built during parsing */
 	program: any;
 
-	documents: Record<string, string>;
-
 	/** current source code */
 	source: string;
 
@@ -54,9 +52,6 @@ export interface ParserState extends ParserPosition {
 
 	/** implementation of built-in functions */
 	impl: object | null;
-
-	/** set of filenames */
-	includes: Set<string>;
 
 	/** @returns whether the parser has builtin implementations attached */
 	builtin(this: ParserState): boolean;
@@ -145,8 +140,16 @@ export const defaultParseOptions: ParseOptions = {
 };
 
 export interface ParseInput {
-	documents: Record<string, string>;
-	main: string;
+	filename: string;
+	source: string;
+
+	/**
+	 * Resolve an include statement.
+	 *
+	 * @param filename the filename as specified in the include statement
+	 * @returns the file to be included or null if none could be found
+	 */
+	resolveInclude(filename: string): ParseInput | null;
 }
 
 export interface ParseResult {
@@ -157,26 +160,29 @@ export interface ParseResult {
 export function parseProgramFromString(source: string, options?: ParseOptions) {
 	return parseProgram(
 		{
-			documents: { main: source },
-			main: "main",
+			filename: "main",
+			source,
+			resolveInclude: () => null,
 		},
 		options
 	);
 }
 
 export function parseProgram(
-	input: ParseInput,
+	mainInput: ParseInput,
 	options: ParseOptions = defaultParseOptions
 ): ParseResult {
-	const { documents, main: mainDoc } = input;
-
+	const includedFiles = new Set<string>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
 	const program = createEmptyProgram();
-	const state = createParserState(program, documents, errors);
+	const state = createParserState(program, errors);
 
-	/** parse one library or program */
-	function parse1(
+	/**
+	 * Parse one library or program from a string, optionally attaching built-in implementations.
+	 * Includes are not supported.
+	 */
+	function parseString(
 		source: string,
 		impl: any = null,
 		filename: string | null = null
@@ -185,26 +191,57 @@ export function parseProgram(
 		while (state.good()) {
 			let inc = parse_include(state, program, options);
 			if (inc !== null) {
-				// safe the state
-				let backup = {
-					source: state.source,
-					pos: state.pos,
-					line: state.line,
-					filename: state.filename,
-					ch: state.ch,
-					indent: state.indent.slice(),
-				};
+				// includes are not allowed
+				// pretend the file was not found
+				state.set(inc.position);
+				state.error("/argument-mismatch/am-48", [inc.filename]);
+			} else {
+				let p = parse_statement_or_declaration(state, program, options);
+				program.commands.push(p);
+				program.children.push(p);
+			}
+		}
+	}
 
-				// import the file
-				parse1(inc.source, null, inc.filename);
+	/**
+	 * Parse one library or program from a file. Includes are supported
+	 */
+	function parseFile(file: ParseInput) {
+		includedFiles.add(file.filename);
+		state.setSource(file.source, null, file.filename);
+		while (state.good()) {
+			const inc = parse_include(state, program, options);
+			if (inc !== null) {
+				const targetFile = file.resolveInclude(inc.filename);
+				if (!targetFile) {
+					// the file was not found
+					state.set(inc.position);
+					state.error("/argument-mismatch/am-48", [inc.filename]);
+					return;
+				}
 
-				// restore the state
-				state.source = backup.source;
-				state.pos = backup.pos;
-				state.line = backup.line;
-				state.filename = backup.filename;
-				state.ch = backup.ch;
-				state.indent = backup.indent;
+				if (!includedFiles.has(targetFile.filename)) {
+					// safe the state
+					let backup = {
+						source: state.source,
+						pos: state.pos,
+						line: state.line,
+						filename: state.filename,
+						ch: state.ch,
+						indent: state.indent.slice(),
+					};
+
+					// import the file
+					parseFile(targetFile);
+
+					// restore the state
+					state.source = backup.source;
+					state.pos = backup.pos;
+					state.line = backup.line;
+					state.filename = backup.filename;
+					state.ch = backup.ch;
+					state.indent = backup.indent;
+				}
 			} else {
 				let p = parse_statement_or_declaration(state, program, options);
 				program.commands.push(p);
@@ -217,25 +254,27 @@ export function parseProgram(
 		// pass 1: build an abstract syntax tree
 
 		// parse the language core
-		parse1(core.source, core.impl);
+		parseString(core.source, core.impl);
 
 		// parse the built-in libraries
-		parse1(lib_math.source, lib_math.impl);
-		parse1(lib_turtle.source, lib_turtle.impl);
-		parse1(lib_canvas.source, lib_canvas.impl);
-		parse1(lib_audio.source, lib_audio.impl);
+		parseString(lib_math.source, lib_math.impl);
+		parseString(lib_turtle.source, lib_turtle.impl);
+		parseString(lib_canvas.source, lib_canvas.impl);
+		parseString(lib_audio.source, lib_audio.impl);
 
 		// parse the user's source code
 		program.where = state.get();
-		parse1(documents[mainDoc], null, mainDoc);
+		parseFile(mainInput);
 		program.lines = state.line;
 
 		// append an "end" breakpoint
 		state.skip();
-		if (!program.breakpoints[mainDoc].hasOwnProperty(state.line)) {
+		if (
+			!program.breakpoints[mainInput.filename].hasOwnProperty(state.line)
+		) {
 			// create and register a new breakpoint
 			let b = create_breakpoint(program, state);
-			program.breakpoints[mainDoc][state.line] = b;
+			program.breakpoints[mainInput.filename][state.line] = b;
 			program.commands.push(b);
 		}
 
@@ -309,11 +348,9 @@ const createEmptyProgram = (): any => ({
 
 const createParserState = (
 	program: any,
-	documents: ParserState["documents"],
 	errors: ParseErrorOrWarning[]
 ): ParserState => ({
 	program,
-	documents,
 	source: "",
 	pos: 0,
 	line: 1,
@@ -322,7 +359,6 @@ const createParserState = (
 	totalpos: 0,
 	indent: [0],
 	impl: null,
-	includes: new Set(),
 	builtin() {
 		return this.impl !== null;
 	},

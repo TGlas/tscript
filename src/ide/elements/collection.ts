@@ -41,13 +41,6 @@ export class EditorCollection {
 		return a;
 	}
 
-	// obtain the texts (strings) represented by all editors
-	public getValues() {
-		let values: Record<string, string> = {};
-		for (let ed of this.editors) values[ed.properties().name] = ed.text();
-		return values;
-	}
-
 	public setActiveEditor(ed: Editor | null, save_config: boolean = true) {
 		if (ed === this.active) return;
 
