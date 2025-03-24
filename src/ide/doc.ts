@@ -1,9 +1,8 @@
 import { documentationData } from "../doc";
 import { ErrorHelper } from "../lang/errors/ErrorHelper";
-import { defaultOptions } from "../lang/helpers/options";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
-import { Parser } from "../lang/parser";
+import { defaultParseOptions, Parser } from "../lang/parser";
 import { Lexer } from "../lang/parser/lexer";
 import { Version } from "../lang/version";
 import { navigate } from "./navigation";
@@ -183,7 +182,7 @@ export const doc = (function () {
 				return { type: "comment" };
 			}
 		} else {
-			let ret = Lexer.get_token(state, defaultOptions, true);
+			let ret = Lexer.get_token(state, defaultParseOptions, true);
 			state.advance(ret.code.length);
 			return ret;
 		}

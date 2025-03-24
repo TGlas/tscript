@@ -7,14 +7,13 @@ import { constantstep, constructorstep, callstep } from "../helpers/steps";
 import { simfalse, callsim } from "../helpers/sims";
 import { parse_expression } from "./parse_expression";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
-import { Options } from "../helpers/options";
-import { ParserState } from ".";
+import { ParseOptions, ParserState } from ".";
 
 // Parse a constructor declaration.
 export function parse_constructor(
 	state: ParserState,
 	parent,
-	options: Options
+	options: ParseOptions
 ) {
 	// check that the parent is indeed a type
 	ErrorHelper.assert(

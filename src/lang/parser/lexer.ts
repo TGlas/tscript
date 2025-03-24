@@ -5,8 +5,7 @@
 // input stream. It handles composite operators properly.
 //
 
-import { ParserPosition, ParserState } from ".";
-import { Options } from "../helpers/options";
+import { ParseOptions, ParserPosition, ParserState } from ".";
 
 interface LexerTokenObj<T extends string, V> {
 	type: T;
@@ -93,7 +92,7 @@ export class Lexer {
 	// always be tested for its type first, and then for a certain value.
 	public static get_token(
 		state: ParserState,
-		options: Options,
+		options: ParseOptions,
 		peek: boolean | undefined = undefined
 	): LexerToken {
 		peek = typeof peek !== "undefined" ? peek : false;

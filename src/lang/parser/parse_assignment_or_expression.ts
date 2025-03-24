@@ -3,13 +3,12 @@ import { assignments } from "./parser_helper";
 import { simfalse } from "../helpers/sims";
 import { parse_expression } from "./parse_expression";
 import { parse_lhs } from "./parse_lhs";
-import { Options } from "../helpers/options";
-import { ParserState } from ".";
+import { ParseOptions, ParserState } from ".";
 
 export function parse_assignment_or_expression(
 	state: ParserState,
 	parent,
-	options: Options
+	options: ParseOptions
 ) {
 	// try to parse an expression
 	let where = state.get();

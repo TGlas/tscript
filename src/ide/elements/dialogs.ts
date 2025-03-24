@@ -1,10 +1,10 @@
-import { Options, defaultOptions } from "../../lang/helpers/options";
+import { defaultParseOptions, ParseOptions } from "../../lang/parser";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
 import { tab_config } from "./editor-tabs";
 import * as ide from "./index";
 
-export let options: any = new Options();
+export let parseOptions: ParseOptions = defaultParseOptions;
 
 /**
  * Check if the document has been changed and when this is the case, ask the user to discard the changes,
@@ -61,7 +61,10 @@ export function loadConfig() {
 			}
 		}
 		if (config.hasOwnProperty("options")) {
-			options = Object.assign(options, defaultOptions, config.options);
+			parseOptions = {
+				...defaultParseOptions,
+				...config.options,
+			};
 		}
 
 		const configuredTheme = config.theme;
@@ -77,7 +80,7 @@ export function loadConfig() {
  */
 export function saveConfig() {
 	let config: any = {
-		options: options,
+		options: parseOptions,
 		hotkeys: [],
 		theme: tgui.getThemeConfig(),
 		tabs: tab_config,
@@ -338,7 +341,7 @@ export function configDlg() {
 			id: "chkCodingStyle",
 			properties: { type: "checkbox" },
 			click: function (event) {
-				options.checkstyle = checkbox.checked;
+				parseOptions.checkstyle = checkbox.checked;
 			},
 		});
 		let lbl = tgui.createElement({
@@ -348,7 +351,7 @@ export function configDlg() {
 			properties: { for: "chkCodingStyle" },
 			style: { "padding-left": "5px" },
 		});
-		if (options.checkstyle) checkbox.checked = true;
+		if (parseOptions.checkstyle) checkbox.checked = true;
 	}
 
 	tgui.startModal(dlg);

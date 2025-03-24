@@ -1,6 +1,5 @@
-import { ParserState } from ".";
+import { ParseOptions, ParserState } from ".";
 import { ErrorHelper } from "../errors/ErrorHelper";
-import { Options } from "../helpers/options";
 import { Lexer } from "./lexer";
 import { peek_keyword } from "./parser_helper";
 
@@ -13,7 +12,7 @@ interface IncludeResult {
 export function parse_include(
 	state: ParserState,
 	parent,
-	options: Options
+	options: ParseOptions
 ): IncludeResult | null {
 	// handle "include" keyword
 	if (peek_keyword(state) !== "include") return null;

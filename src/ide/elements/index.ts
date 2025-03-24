@@ -9,7 +9,7 @@ import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
 import { buttons, cmd_upload, cmd_download, cmd_export } from "./commands";
-import { configDlg, loadConfig, saveConfig, options } from "./dialogs";
+import { configDlg, loadConfig, saveConfig, parseOptions } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 import { EditorCollection } from "./collection";
@@ -177,7 +177,7 @@ export function prepare_run(run_selection: string | null = null) {
 		main: run_selection ? run_selection : getRunSelection(),
 	};
 
-	let result = Parser.parse(toParse, options);
+	let result = Parser.parse(toParse, parseOptions);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors) {

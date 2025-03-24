@@ -10,11 +10,10 @@ import { parse_use } from "./parse_use";
 import { parse_var } from "./parse_var";
 import { parse_expression, is_name } from "./parse_expression";
 import { parse_constructor } from "./parse_constructor";
-import { Options } from "../helpers/options";
-import { ParserState } from ".";
+import { ParseOptions, ParserState } from ".";
 
 // Parse a class declaration.
-export function parse_class(state: ParserState, parent, options: Options) {
+export function parse_class(state: ParserState, parent, options: ParseOptions) {
 	// handle the "class" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

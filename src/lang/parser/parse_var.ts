@@ -4,8 +4,7 @@ import { get_function } from "../helpers/getParents";
 import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
-import { Options } from "../helpers/options";
-import { ParserState } from ".";
+import { ParseOptions, ParserState } from ".";
 
 // Parse a "var" statement. Even for multiple variables it is treated as
 // a single statement. The variables are placed into the container,
@@ -13,7 +12,7 @@ import { ParserState } from ".";
 export function parse_var(
 	state: ParserState,
 	parent,
-	options: Options,
+	options: ParseOptions,
 	container: any = undefined
 ) {
 	container =

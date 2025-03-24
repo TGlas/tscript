@@ -9,7 +9,6 @@ import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { parse_include } from "./parse_include";
-import { defaultOptions, Options } from "../helpers/options";
 
 export interface ParserPosition {
 	/** filename or null */
@@ -139,6 +138,15 @@ export interface ParserState extends ParserPosition {
 	skip(this: ParserState): void;
 }
 
+export interface ParseOptions {
+	/** @default false */
+	checkstyle: boolean;
+}
+
+export const defaultParseOptions: ParseOptions = {
+	checkstyle: false,
+};
+
 export type ParseInput =
 	| { documents: Record<string, string>; main: string }
 	| string;
@@ -151,7 +159,7 @@ export interface ParseResult {
 export class Parser {
 	public static parse(
 		toParse: ParseInput,
-		options: Options = defaultOptions
+		options: ParseOptions = defaultParseOptions
 	): ParseResult {
 		// create the initial program structure
 		let program: any = {
@@ -166,7 +174,6 @@ export class Parser {
 			lines: 0, // total number of lines in the program = maximal line number
 			step: scopestep, // execute all commands within the scope
 			sim: simfalse, // simulate commands
-			options: options, // make the options available to the interpreter
 		};
 
 		const documents =

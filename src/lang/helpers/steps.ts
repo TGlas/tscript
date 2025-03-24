@@ -1,7 +1,7 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
+import { Interpreter, InterpreterOptions } from "../interpreter/interpreter";
 import { TScript } from "..";
 import { Typeid } from "./typeIds";
-import { Options } from "../helpers/options";
 import { copyconstant } from "../interpreter/interpreter_helper";
 
 // step function of all constants
@@ -73,7 +73,7 @@ export function constructorstep() {
 }
 
 // step function of function calls
-export function callstep(options: Options) {
+export function callstep(this: Interpreter) {
 	let frame = this.stack[this.stack.length - 1];
 	let pe = frame.pe[frame.pe.length - 1];
 	let ip = frame.ip[frame.ip.length - 1];
@@ -229,7 +229,7 @@ export function callstep(options: Options) {
 			if (f.value.b.hasOwnProperty("enclosed"))
 				frame.enclosed = f.value.b.enclosed;
 			this.stack.push(frame);
-			if (this.stack.length >= options.maxstacksize)
+			if (this.stack.length >= this.maxStackSize)
 				ErrorHelper.error("/logic/le-1", [], this.stack);
 		}
 		return true;

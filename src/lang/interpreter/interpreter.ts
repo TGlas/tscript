@@ -1,8 +1,12 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { RuntimeError } from "../errors/RuntimeError";
-import { Options } from "../helpers/options";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
+
+export interface InterpreterOptions {
+	/** @default 10000 */
+	maxStackSize?: number;
+}
 
 export class Interpreter {
 	public thread = false; // state of the thread
@@ -18,17 +22,22 @@ export class Interpreter {
 	public eventhandler = {}; // event handler by event type
 	public eventnames = {}; // registry of event types
 	public eventmode = false; // is the program in event handling mode?
+	public eventmodeReturnValue: any;
 	public hook: any = null; // function to be called before each step with the interpreter as this argument
-	public program: any = null; // the program to execute
-	public service: any = null; // external services, mostly for communication with the IDE
 	public timerEventEnqueued: boolean = false;
-	public options: Options;
 
-	public constructor(program, service: any) {
-		// create attributes
-		this.program = program;
-		this.service = service;
-		this.options = program.options;
+	readonly maxStackSize: number;
+
+	/**
+	 * @param program the program to execute
+	 * @param service external services, mostly for communication with the IDE
+	 */
+	constructor(
+		readonly program: any,
+		readonly service: any,
+		options: InterpreterOptions = {}
+	) {
+		this.maxStackSize = options.maxStackSize ?? 10_000;
 
 		// start the background thread
 		this.thread = true;
@@ -240,7 +249,7 @@ export class Interpreter {
 				(this.status === "running" || this.status === "waiting")
 			) {
 				// execute the current step and check whether it's done
-				if (pe.step.call(this, this.options)) {
+				if (pe.step.call(this)) {
 					// the step is done -> count it
 					this.stepcounter++;
 				}
@@ -452,7 +461,7 @@ export class Interpreter {
 		return null;
 	}
 
-	public error(path: string, args: Array<any> | undefined) {
+	public error(path: string, args?: Array<any>) {
 		ErrorHelper.error(path, args, this.stack);
 	}
 

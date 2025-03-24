@@ -1,18 +1,17 @@
-import { Options } from "../helpers/options";
 import { peek_keyword } from "./parser_helper";
 import { parse_class } from "./parse_class";
 import { parse_function } from "./parse_function";
 import { parse_namespace } from "./parse_namespace";
 import { parse_use } from "./parse_use";
 import { parse_var } from "./parse_var";
-import { ParserState } from ".";
+import { ParseOptions, ParserState } from ".";
 
 // Parse var, function, class, or namespace
 // The function return null if no declaration is found.
 export function parse_declaration(
 	state: ParserState,
 	parent,
-	options: Options
+	options: ParseOptions
 ) {
 	let kw = peek_keyword(state);
 

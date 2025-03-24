@@ -1,10 +1,9 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { simtrue } from "../helpers/sims";
-import { Options } from "../helpers/options";
-import { ParserState } from ".";
+import { ParseOptions, ParserState } from ".";
 
-export function parse_break(state: ParserState, parent, options: Options) {
+export function parse_break(state: ParserState, parent, options: ParseOptions) {
 	// handle "break" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
