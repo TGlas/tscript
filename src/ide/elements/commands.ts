@@ -9,7 +9,7 @@ import {
 	openEditorFromLocalStorage,
 } from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
-import { updateControls } from "./utils";
+import { interpreterEnded, updateControls } from "./utils";
 
 export let buttons: any = [
 	{
@@ -96,37 +96,38 @@ function cmd_reset() {
 	updateControls();
 }
 
+/**
+ * Gets the active interpreter session or creates a new one if no program is running
+ */
+function getOrRestartSession() {
+	let session = ide.interpreterSession;
+	if (!session || interpreterEnded(session.interpreter)) {
+		// (re-)start the interpreter
+		session = ide.prepareRun();
+	}
+
+	return session;
+}
+
 function cmd_run() {
-	if (isInterpreterBusy()) ide.prepare_run();
-	if (!ide.interpreter) return;
-	ide.interpreter.run();
-	ide.canvas.parentElement.focus();
+	getOrRestartSession()?.interpreter.run();
 }
 
 function cmd_interrupt() {
-	if (isInterpreterBusy()) return;
-	ide.interpreter!.interrupt();
+	const interpreter = ide.interpreterSession?.interpreter;
+	if (interpreter && !interpreterEnded(interpreter)) interpreter.interrupt();
 }
 
 function cmd_step_into() {
-	if (isInterpreterBusy()) ide.prepare_run();
-	if (!ide.interpreter) return;
-	if ((ide.interpreter as any).running) return;
-	ide.interpreter.step_into();
+	getOrRestartSession()?.interpreter.step_into();
 }
 
 function cmd_step_over() {
-	if (isInterpreterBusy()) ide.prepare_run();
-	if (!ide.interpreter) return;
-	if ((ide.interpreter as any).running) return;
-	ide.interpreter.step_over();
+	getOrRestartSession()?.interpreter.step_over();
 }
 
 function cmd_step_out() {
-	if (isInterpreterBusy()) ide.prepare_run();
-	if (!ide.interpreter) return;
-	if ((ide.interpreter as any).running) return;
-	ide.interpreter.step_out();
+	getOrRestartSession()?.interpreter.step_out();
 }
 
 export function cmd_export() {
@@ -141,7 +142,7 @@ export function cmd_export() {
 	}
 
 	const parsedFiles = new Map<string, ParseInput>();
-	const parseInput = ide.createParseInput(undefined, parsedFiles);
+	const parseInput = ide.createParseInput(parsedFiles);
 	if (!parseInput) return;
 
 	ide.clear();
@@ -387,13 +388,4 @@ export function cmd_download() {
 	});
 	link.click();
 	link.remove();
-}
-
-function isInterpreterBusy() {
-	return (
-		!ide.interpreter ||
-		(ide.interpreter.status != "running" &&
-			ide.interpreter.status != "waiting" &&
-			ide.interpreter.status != "dialog")
-	);
 }
