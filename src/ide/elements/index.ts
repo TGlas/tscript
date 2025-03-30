@@ -5,21 +5,23 @@ import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
-import { buttons, cmd_upload, cmd_download, cmd_export } from "./commands";
-import { configDlg, loadConfig, saveConfig, parseOptions } from "./dialogs";
-import { showdoc, showdocConfirm } from "./show-docs";
-import * as utils from "./utils";
 import { EditorCollection } from "./collection";
-import {
-	tab_config,
-	createEditorTab,
-	openEditorFromLocalStorage,
-} from "./editor-tabs";
+import { buttons, cmd_download, cmd_export, cmd_upload } from "./commands";
 import {
 	createCanvas,
 	createIDEInterpreter,
 	createTurtle,
 } from "./create-interpreter";
+import { configDlg, loadConfig, parseOptions, saveConfig } from "./dialogs";
+import {
+	createEditorTab,
+	openEditorFromLocalStorage,
+	tab_config,
+} from "./editor-tabs";
+import { programinfo } from "./programinfo";
+import { showdoc, showdocConfirm } from "./show-docs";
+import { stackinfo } from "./stackinfo";
+import * as utils from "./utils";
 
 export { createEditorTab };
 
@@ -33,18 +35,18 @@ export let panel_editor: any = null;
 export let editorcontainer: any = null;
 export let editortabs: any = null;
 
-export let messages: any = null;
-let messagecontainer: any = null;
+let messages!: HTMLElement;
+let messagecontainer!: HTMLElement;
+let hasErrorMessage = false;
 
 export let stacktree: tgui.TreeControl<any> | null = null;
 export let programtree: tgui.TreeControl<any> | null = null;
-export let programstate: any = null;
+let programStatusLabel!: tgui.LabelControl;
 
 let canvasContainer!: HTMLElement;
 let turtleContainer!: HTMLElement;
 
-/** current interpreter, non-null after successful parsing */
-export let interpreter: Interpreter | null = null;
+/** current interpreter session, non-null after successful parsing */
 export let interpreterSession: InterpreterSession | null = null;
 
 let main: any = null;
@@ -116,17 +118,17 @@ export function addMessage(
 					event.target.ide_ch,
 					filename!
 				);
-				if (
-					interpreter &&
-					(interpreter.status != "running" || !interpreter.background)
-				) {
-					utils.updateControls();
-				}
 				return false;
 			});
 		}
 	}
 	messagecontainer.scrollTop = messagecontainer.scrollHeight;
+
+	if (type === "error") {
+		hasErrorMessage = true;
+		updateProgramState();
+	}
+
 	return { symbol: th, content: td };
 }
 
@@ -137,9 +139,11 @@ export function addMessage(
 export function clear() {
 	interpreterSession?.destroy();
 	interpreterSession = null;
-	interpreter = null;
 
-	tgui.clearElement(messages);
+	messages.replaceChildren();
+	hasErrorMessage = false;
+
+	updateProgramState();
 }
 
 /**
@@ -200,8 +204,8 @@ export function prepareRun(): InterpreterSession | null {
 		turtleContainer,
 		canvasContainer
 	);
-	interpreter = interpreterSession.interpreter;
 
+	const interpreter = interpreterSession.interpreter;
 	for (let ed of collection.getEditors()) {
 		// set and correct breakpoints
 		let br = ed.properties().breakpoints;
@@ -217,6 +221,7 @@ export function prepareRun(): InterpreterSession | null {
 		}
 	}
 
+	updateProgramState(); // the IDE has an InterpreterSession now
 	return interpreterSession;
 }
 
@@ -262,13 +267,8 @@ class InterpreterSession {
 		) => {
 			addMessage("error", msg, filename, line, ch, href);
 		};
-		interpreter.service.statechanged = (stop: boolean) => {
-			if (stop) utils.updateControls();
-			else utils.updateStatus();
-			if (interpreter.status === "finished") {
-				let ed = collection.getActiveEditor();
-				if (ed) ed.focus();
-			}
+		interpreter.service.statechanged = () => {
+			updateProgramState();
 		};
 
 		this.#turtle = createTurtle(turtleContainer, this.#controller.signal);
@@ -284,12 +284,6 @@ class InterpreterSession {
 		interpreter.service.canvas.dom = this.#canvas;
 	}
 
-	run() {
-		// Start background execution and focus the canvas container for keyboard input
-		this.interpreter.run();
-		this.#canvas.parentElement!.focus();
-	}
-
 	destroy() {
 		this.#controller.abort();
 
@@ -297,6 +291,99 @@ class InterpreterSession {
 
 		this.#turtle.remove();
 		this.#canvas.remove();
+	}
+}
+
+type ProgramStatus =
+	| "unchecked"
+	| "running"
+	| "stepping"
+	| "waiting"
+	| "finished"
+	| "error";
+
+export const shouldLockEditors = (state = currentProgramState) =>
+	state === "running" || state === "stepping" || state === "waiting";
+
+const shouldShowSteppingInfo = (status: ProgramStatus) =>
+	status === "stepping" || status === "error";
+
+const shouldFocusCanvas = (status: ProgramStatus) =>
+	status === "running" || status === "waiting";
+
+function getProgramStatus(): ProgramStatus {
+	const interpreter = interpreterSession?.interpreter;
+	if (interpreter) {
+		const status = interpreter.status;
+		switch (status) {
+			case "running":
+				return interpreter.background ? "running" : "stepping";
+			case "dialog":
+				return "waiting";
+			default:
+				return status;
+		}
+	}
+
+	return hasErrorMessage ? "error" : "unchecked";
+}
+
+const programStatusDescription: Record<ProgramStatus, string> = {
+	unchecked: "program has not been checked",
+	running: "program is running",
+	stepping: "program is in stepping mode",
+	waiting: "program is waiting",
+	finished: "program has finished",
+	error: "an error has ocurred",
+};
+
+let currentProgramState: ProgramStatus = "unchecked";
+function updateProgramState() {
+	const previous = currentProgramState;
+	const current = (currentProgramState = getProgramStatus());
+
+	if (shouldShowSteppingInfo(current)) {
+		// update stack info and program trees, relevant while stepping through the program
+		stacktree!.update(stackinfo);
+		programtree!.update(programinfo);
+
+		// move the cursor to the position of the current program element
+		const stack = interpreterSession?.interpreter.stack;
+		if (stack && stack.length > 0) {
+			const frame = stack[stack.length - 1];
+			const pe = frame.pe[frame.pe.length - 1];
+			if (pe.where) {
+				utils.setCursorPosition(
+					pe.where.line,
+					pe.where.ch,
+					pe.where.filename
+				);
+			}
+		}
+	} else if (shouldShowSteppingInfo(previous)) {
+		// empty stack info and program trees
+		const emptyTree = () => ({ children: [], ids: [] });
+		stacktree!.update(emptyTree);
+		programtree!.update(emptyTree);
+	}
+
+	if (previous !== current) {
+		// update the program status label
+		programStatusLabel.setText(programStatusDescription[current]);
+		programStatusLabel.setClassName("ide-state-" + current);
+
+		// update whether editors are locked
+		const shouldLock = shouldLockEditors(current);
+		if (shouldLock !== shouldLockEditors(previous))
+			collection.setReadOnly(shouldLock);
+
+		if (shouldFocusCanvas(current)) {
+			// focus the canvas container for keyboard input when entering running/waiting
+			if (!shouldFocusCanvas(previous)) canvasContainer.focus();
+		} else if (current === "finished" || current === "unchecked") {
+			// finished running the program? -> focus active editor
+			collection.getActiveEditor()?.focus();
+		}
 	}
 }
 
@@ -400,8 +487,10 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "tgui tgui-control tgui-toolbar-separator",
 	});
 
-	programstate = tgui.createLabel({
+	programStatusLabel = tgui.createLabel({
 		parent: toolbar,
+		text: programStatusDescription[currentProgramState],
+		className: "ide-state-" + currentProgramState,
 		style: {
 			float: "left",
 			width: "calc(min(250px, max(20px, 50vw - 270px)))",
@@ -415,35 +504,7 @@ export function create(container: HTMLElement, options?: any) {
 			"text-align": "center",
 		},
 	});
-
-	programstate.setStateCss = function (state) {
-		let cls = `ide-state-${state}`;
-		if (this.hasOwnProperty("state_css_class"))
-			this.dom.classList.replace(this.state_css_class, cls);
-		else this.dom.classList.add(cls);
-		this.state_css_class = cls;
-		return this;
-	};
 	// TODO set tooltip text to the content text, this should apply when the statusbox is too narrow
-	programstate.unchecked = function () {
-		this.setText("program has not been checked").setStateCss("unchecked");
-	};
-	programstate.error = function () {
-		this.setText("an error has occurred").setStateCss("error");
-	};
-	programstate.running = function () {
-		this.setText("program is running").setStateCss("running");
-	};
-	programstate.waiting = function () {
-		this.setText("program is waiting").setStateCss("waiting");
-	};
-	programstate.stepping = function () {
-		this.setText("program is in stepping mode").setStateCss("stepping");
-	};
-	programstate.finished = function () {
-		this.setText("program has finished").setStateCss("finished");
-	};
-	programstate.unchecked();
 
 	tgui.createElement({
 		type: "div",

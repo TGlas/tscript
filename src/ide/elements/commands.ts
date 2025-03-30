@@ -9,7 +9,7 @@ import {
 	openEditorFromLocalStorage,
 } from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
-import { interpreterEnded, updateControls } from "./utils";
+import { interpreterEnded } from "./utils";
 
 export let buttons: any = [
 	{
@@ -93,7 +93,6 @@ export let buttons: any = [
 
 function cmd_reset() {
 	ide.clear();
-	updateControls();
 }
 
 /**
@@ -131,21 +130,9 @@ function cmd_step_out() {
 }
 
 export function cmd_export() {
-	// don't interrupt a running program
-	if (ide.interpreter) {
-		if (
-			ide.interpreter.status === "running" ||
-			ide.interpreter.status === "waiting" ||
-			ide.interpreter.status === "dialog"
-		)
-			return;
-	}
-
 	const parsedFiles = new Map<string, ParseInput>();
 	const parseInput = ide.createParseInput(parsedFiles);
 	if (!parseInput) return;
-
-	ide.clear();
 
 	// check that the code at least compiles
 	let result = parseProgram(parseInput, parseOptions);
@@ -309,7 +296,6 @@ function cmd_load() {
 		}
 
 		openEditorFromLocalStorage(name);
-		updateControls();
 	});
 }
 
@@ -362,7 +348,6 @@ export function cmd_upload() {
 					} else {
 						openEditorFromLocalStorage(filename);
 					}
-					updateControls();
 				}
 			},
 		},

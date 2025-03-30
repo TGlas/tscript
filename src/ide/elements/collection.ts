@@ -2,7 +2,6 @@ import * as ide from ".";
 import { Editor } from "../editor";
 import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
 import { saveConfig } from "./dialogs";
-import { updateStatus } from "./utils";
 
 // This class collects all editor instances of the multi-document IDE.
 // It keeps track of the currently "active" document.
@@ -89,6 +88,7 @@ export class EditorCollection {
 		let ed = new Editor({
 			language: "tscript",
 			text: text ?? "",
+			readOnly: ide.shouldLockEditors(),
 		});
 		this.editors.add(ed);
 		ed.properties().tab = tab;
@@ -98,9 +98,10 @@ export class EditorCollection {
 		ed.properties().toggleBreakpoint = (function (ed) {
 			return function (line) {
 				let toggle = true;
-				if (ide.interpreter) {
+				const interpreter = ide.interpreterSession?.interpreter;
+				if (interpreter) {
 					// ask the interpreter for the correct position of the marker
-					let result = ide.interpreter.toggleBreakpoint(
+					let result = interpreter.toggleBreakpoint(
 						line + 1,
 						ed.properties().name
 					);
@@ -156,7 +157,6 @@ export class EditorCollection {
 				ed.draw();
 			}
 			ide.clear();
-			updateStatus();
 		});
 		this.setActiveEditor(ed, save_config);
 		return ed;

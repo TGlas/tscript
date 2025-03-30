@@ -149,27 +149,37 @@ interface LabelDescription {
 	id?: string;
 	/** tooltip */
 	tooltip?: string;
+	/** CSS class */
+	className?: string;
 }
 
-export function createLabel(description: LabelDescription) {
+export interface LabelControl {
+	readonly dom: HTMLElement;
+	setText(text: string): void;
+	setClassName(className: string): void;
+}
+
+const labelClassName = "tgui tgui-control tgui-label ";
+export function createLabel(description: LabelDescription): LabelControl {
+	const { text = "", className = "", ...rest } = description;
+
 	// main DOM element with styling
-	let element = createElement({
-		...description,
+	const element = createElement({
+		...rest,
 		type: "span",
-		classname: "tgui tgui-control tgui-label",
+		classname: labelClassName + className,
 	});
+	const textNode = document.createTextNode(text);
+	element.replaceChildren(textNode);
 
 	// return the control
 	return {
 		dom: element,
-		setText: function (text) {
-			clearElement(this.dom);
-			createText(text, this.dom);
-			return this;
+		setText(text) {
+			textNode.data = text;
 		},
-		setBackground: function (color) {
-			this.dom.style.background = color;
-			return this;
+		setClassName(className) {
+			element.className = labelClassName + className;
 		},
 	};
 }

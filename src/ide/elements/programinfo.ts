@@ -1,4 +1,4 @@
-import { interpreter } from ".";
+import { interpreterSession } from ".";
 import { TScript } from "../../lang";
 import * as tgui from "./../tgui";
 import { type2css } from "./utils";
@@ -8,6 +8,7 @@ import { type2css } from "./utils";
  */
 export function programinfo(value, node_id) {
 	let ret: any = { children: [], ids: [] };
+	const interpreter = interpreterSession?.interpreter;
 	if (!interpreter) return ret;
 	if (interpreter.stack.length === 0) return ret;
 

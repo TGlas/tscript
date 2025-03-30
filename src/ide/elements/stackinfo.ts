@@ -1,4 +1,4 @@
-import { interpreter } from ".";
+import { interpreterSession } from ".";
 import { TScript } from "../../lang";
 import { Typeid } from "../../lang/helpers/typeIds";
 import * as tgui from "./../tgui";
@@ -9,6 +9,7 @@ import { setCursorPosition, type2css } from "./utils";
  */
 export function stackinfo(value, node_id) {
 	let ret: tgui.TreeNodeInfo<any> = { children: [], ids: [] };
+	const interpreter = interpreterSession?.interpreter;
 	if (!interpreter) return ret;
 
 	if (value === null) {
