@@ -16,7 +16,6 @@ import { configDlg, loadConfig, parseOptions, saveConfig } from "./dialogs";
 import { programinfo } from "./programinfo";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { stackinfo } from "./stackinfo";
-import * as utils from "./utils";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -102,18 +101,14 @@ export function addMessage(
 				"ide ide-message" +
 				(type !== "print" ? " ide-errormessage" : ""),
 			text: s,
-		}) as any;
-		if (typeof line !== "undefined") {
-			msg.ide_filename = filename;
-			msg.ide_line = line;
-			msg.ide_ch = ch;
-			msg.addEventListener("click", function (event) {
-				utils.setCursorPosition(
-					event.target.ide_line,
-					event.target.ide_ch,
-					filename!
-				);
-				return false;
+		});
+		if (filename && line != null) {
+			msg.addEventListener("click", (event) => {
+				event.preventDefault();
+				collection.openEditorFromFile(filename!, {
+					line: line - 1,
+					character: ch,
+				});
 			});
 		}
 	}
@@ -348,11 +343,10 @@ function updateProgramState() {
 			const frame = stack[stack.length - 1];
 			const pe = frame.pe[frame.pe.length - 1];
 			if (pe.where) {
-				utils.setCursorPosition(
-					pe.where.line,
-					pe.where.ch,
-					pe.where.filename
-				);
+				collection.openEditorFromFile(pe.where.filename, {
+					line: pe.where.line - 1,
+					character: pe.where.ch,
+				});
 			}
 		}
 	} else if (shouldShowSteppingInfo(previous)) {
@@ -692,11 +686,10 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_programview.content,
 		nodeclick: function (event, value, id) {
 			if (value.where) {
-				utils.setCursorPosition(
-					value.where.line,
-					value.where.ch,
-					value.where.filename
-				);
+				collection.openEditorFromFile(value.where.filename, {
+					line: value.where.line - 1,
+					character: value.where.ch,
+				});
 			}
 		},
 	});
