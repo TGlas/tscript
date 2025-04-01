@@ -1,167 +1,203 @@
 import * as ide from ".";
-import { Editor } from "../editor";
 import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
 import { saveConfig } from "./dialogs";
+import { EditorController, NavigationRequest } from "./editor-controller";
 
-// This class collects all editor instances of the multi-document IDE.
-// It keeps track of the currently "active" document.
+interface SavedEditorCollectionState {
+	open: string[];
+	active: string | null;
+}
+
+/**
+ * This class collects all editor instances of the multi-document IDE.
+ * It keeps track of the currently "active" document.
+ */
 export class EditorCollection {
-	private editors: Set<Editor> = new Set<Editor>();
-	private active: Editor | null = null;
+	readonly #editorContainer: HTMLElement;
+	readonly #tabContainer: HTMLElement;
+	readonly #runSelector: HTMLSelectElement;
 
-	public constructor() {
+	readonly #editors: EditorController[] = [];
+	#active: EditorController | null = null;
+
+	constructor(
+		editorContainer: HTMLElement,
+		tabContainer: HTMLElement,
+		runSelector: HTMLSelectElement
+	) {
+		this.#editorContainer = editorContainer;
+		this.#tabContainer = tabContainer;
+		this.#runSelector = runSelector;
+
 		subscribeOnThemeChange(() => {
 			const theme = getResolvedTheme();
-			for (const editor of this.editors) editor.setTheme(theme);
+			for (const controller of this.#editors)
+				controller.editorView.setTheme(theme);
 		});
 	}
 
-	// return the collection of all editors as a set
-	public getEditors() {
-		return this.editors;
+	/** an iterable of all currently opened editor controllers */
+	get editors(): readonly EditorController[] {
+		return this.#editors;
 	}
 
-	// find an editor by (file) name
-	public getEditor(name: string): Editor | null {
-		for (let ed of this.editors)
-			if (ed.properties().name === name) return ed;
-		return null;
+	/** find an editor controller by (file) name */
+	getEditor(name: string): EditorController | null {
+		return this.#editors.find((c) => c.filename === name) ?? null;
 	}
 
-	// obtain the currently active editor
-	public getActiveEditor(): Editor | null {
-		return this.active;
+	/** the currently active editor controller */
+	get activeEditor(): EditorController | null {
+		return this.#active;
 	}
 
-	// obtain an array containing all filenames of open editors
-	public getFilenames() {
-		let a = new Array<string>();
-		for (let ed of this.editors) a.push(ed.properties().name);
-		return a;
+	/** get state for saving */
+	getSerializedState(): SavedEditorCollectionState {
+		return {
+			open: this.#editors.map((c) => c.filename),
+			active: this.#active?.filename ?? null,
+		};
 	}
 
-	public setActiveEditor(ed: Editor | null, save_config: boolean = true) {
-		if (ed === this.active) return;
+	restoreState(state: SavedEditorCollectionState) {
+		for (const controller of this.#editors)
+			this.#removeEditor(controller, false);
 
-		let active = ide.collection.getActiveEditor();
-		if (active) active.properties().tab.classList.remove("active");
+		let active: EditorController | null = null;
+		for (const filename of state.open) {
+			const controller = this.openEditorFromFile(
+				filename,
+				undefined,
+				false
+			);
+			if (filename === state.active) active = controller;
+		}
+		if (active) this.#setActiveEditor(active);
+	}
 
-		this.active = ed;
+	#setActiveEditor(
+		controller: EditorController | null,
+		save_config: boolean = true
+	) {
+		if (controller === this.#active) return;
 
-		ide.editorcontainer.innerHTML = "";
-		if (ed) {
-			ed.properties().tab.classList.add("active");
-			ide.editorcontainer.appendChild(ed.dom());
-			ed.focus();
-			ed.updateScrollbars();
+		this.#active?.tab.classList.remove("active");
+		this.#active = controller;
+
+		if (controller) {
+			const editorView = controller.editorView;
+			controller.tab.classList.add("active");
+			this.#editorContainer.replaceChildren(editorView.dom());
+			editorView.focus();
+			editorView.updateScrollbars();
+		} else {
+			this.#editorContainer.replaceChildren();
 		}
 
-		if (ide.panel_editor) {
-			let title = ed ? ed.properties().name : null;
-			ide.panel_editor.title = title;
-			if (ed)
-				ide.panel_editor.titlebar.innerText = "Editor \u2014 " + title;
-			else ide.panel_editor.titlebar.innerText = "Editor";
-		}
+		this.#updateActiveFilename(controller?.filename ?? null);
 
 		if (save_config) saveConfig();
+	}
+
+	#updateActiveFilename(filename: string | null) {
+		if (ide.panel_editor) {
+			ide.panel_editor.title = filename;
+			ide.panel_editor.titlebar.innerText =
+				filename !== null ? "Editor \u2014 " + filename : "Editor";
+		}
 	}
 
 	// convenience function for setting the read-only state of all editors
-	public setReadOnly(readOnly: boolean) {
-		for (let e of this.editors) e.setReadOnly(readOnly);
+	setReadOnly(readOnly: boolean) {
+		for (const c of this.#editors) c.editorView.setReadOnly(readOnly);
 	}
 
-	// create a new editor instance
-	public createEditor(
-		tab: any,
-		runoption: any,
-		name: string,
-		text: string | null = null,
+	/**
+	 * Opens or focuses an existinng file
+	 *
+	 * @param filename the file to open
+	 * @param navigateTo a position to navigate to
+	 * @returns the editor controller or `null` if the file doesn't exist
+	 */
+	openEditorFromFile(
+		filename: string,
+		navigateTo?: NavigationRequest,
 		save_config: boolean = true
-	) {
-		if (this.getEditor(name))
-			throw new Error(
-				"[collection] internal error: duplicate filename '" + name + "'"
-			);
-
-		let ed = new Editor({
-			language: "tscript",
-			text: text ?? "",
-			readOnly: ide.shouldLockEditors(),
-		});
-		this.editors.add(ed);
-
-		const breakpoints = new Set<number>();
-		function toggleBreakpoint(line: number) {
-			const interpreter = ide.interpreterSession?.interpreter;
-			if (interpreter) {
-				// ask the interpreter for the correct position of the marker
-				let result = interpreter.toggleBreakpoint(
-					line + 1,
-					ed.properties().name
+	): EditorController | null {
+		let controller = this.getEditor(filename);
+		if (controller) {
+			this.#setActiveEditor(controller, save_config);
+		} else {
+			const text = localStorage.getItem("tscript.code." + filename);
+			if (text !== null) {
+				controller = this.openEditorFromData(
+					filename,
+					text,
+					save_config
 				);
-				if (result !== null) {
-					line = result.line - 1;
-					ed.scrollTo(line, 0);
-				} else return;
 			}
-
-			if (!breakpoints.delete(line)) breakpoints.add(line);
-			ed.focus();
-			ed.draw();
 		}
 
-		ed.properties().tab = tab;
-		ed.properties().runoption = runoption;
-		ed.properties().name = name;
-		ed.properties().breakpoints = breakpoints;
-		ed.properties().toggleBreakpoint = toggleBreakpoint;
+		if (navigateTo) controller?.navigate(navigateTo);
 
-		ed.events.barClick = toggleBreakpoint;
-		ed.events.barDraw = (begin, end) => {
-			let a = new Array<string | null>();
-			for (let line = begin; line < end; line++) {
-				a.push(breakpoints.has(line) ? "\u23FA" : null);
-			}
-			return a;
-		};
-		ed.events.focus = () => {
-			this.active = ed;
-		};
-		ed.events.changed = (lineChange) => {
-			if (lineChange) {
-				const { line, removed, inserted } = lineChange;
-				// shift affected breakpoints
-				// iterate over copy while modifying the original
-				for (const b of [...breakpoints]) {
-					// is the line of this breakpoint affected? -> delete
-					if (b >= line) breakpoints.delete(b);
-
-					// was the line _not_ removed? -> re-add with offset
-					if (b >= line + removed)
-						breakpoints.add(b + inserted - removed);
-				}
-				ed.draw();
-			}
-			ide.clear();
-		};
-		this.setActiveEditor(ed, save_config);
-		return ed;
+		return controller;
 	}
 
-	// close an editor, remove it from the set
-	public closeEditor(name: string, save_config: boolean = true) {
-		let ed = this.getEditor(name);
-		if (!ed) return;
+	/**
+	 * Create a new editor
+	 *
+	 * If there exists an editor for {@link filename}, it is closed.
+	 *
+	 * @returns the created {@link EditorController}
+	 */
+	openEditorFromData(
+		filename: string,
+		text: string,
+		save_config: boolean = true
+	): EditorController {
+		// close an existing Editor for this file
+		this.getEditor(filename)?.close();
 
-		ed.properties().tab.remove();
-		ed.properties().runoption.remove();
-		this.editors.delete(ed);
-		if (this.active === ed) {
-			const nextActive = this.editors.values().next().value;
-			this.setActiveEditor(nextActive ?? null, false);
-		}
-		if (save_config) saveConfig();
+		const controller = new EditorController({
+			filename,
+			text,
+			onClosed: () => {
+				this.#removeEditor(controller);
+			},
+			onActivate: () => {
+				this.#setActiveEditor(controller);
+			},
+			onBeforeFilenameChange: (newFilename) => {
+				this.getEditor(newFilename)?.close();
+				if (this.#active === controller)
+					this.#updateActiveFilename(newFilename);
+			},
+		});
+
+		if (ide.shouldLockEditors()) controller.editorView.setReadOnly(true);
+
+		this.#editors.push(controller);
+		this.#tabContainer.appendChild(controller.tab);
+		this.#runSelector.appendChild(controller.runOption);
+		this.#setActiveEditor(controller, save_config);
+
+		return controller;
+	}
+
+	#removeEditor(
+		controller: EditorController,
+		save_config: boolean = true
+	): boolean {
+		controller.tab.remove();
+		controller.runOption.remove();
+
+		const index = this.#editors.indexOf(controller);
+		if (index === -1) return false;
+
+		this.#editors.splice(index, 1);
+		const nextActive =
+			this.#editors.at(index) ?? this.#editors.at(-1) ?? null;
+		this.#setActiveEditor(nextActive, save_config);
+		return true;
 	}
 }

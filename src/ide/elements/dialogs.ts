@@ -1,7 +1,6 @@
 import { defaultParseOptions, ParseOptions } from "../../lang/parser";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
-import { tab_config } from "./editor-tabs";
 import * as ide from "./index";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
@@ -13,22 +12,15 @@ export let parseOptions: ParseOptions = defaultParseOptions;
  * called.
  */
 export function confirmFileDiscard(name: string, onConfirm: () => any) {
-	const ed = ide.collection.getEditor(name);
-	if (!ed) return;
-
-	if (ed.isDirty()) {
-		tgui.msgBox({
-			prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
-			icon: tgui.msgBoxQuestion,
-			title: name,
-			buttons: [
-				{ text: "Discard", onClick: onConfirm, isDefault: true },
-				{ text: "Cancel" },
-			],
-		});
-	} else {
-		onConfirm();
-	}
+	tgui.msgBox({
+		prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
+		icon: tgui.msgBoxQuestion,
+		title: name,
+		buttons: [
+			{ text: "Discard", onClick: onConfirm, isDefault: true },
+			{ text: "Cancel" },
+		],
+	});
 }
 
 export function confirmFileOverwrite(name: string, onConfirm: () => any) {
@@ -79,16 +71,16 @@ export function loadConfig() {
  * Save hotkeys
  */
 export function saveConfig() {
+	const editorsState = ide.collection.getSerializedState();
 	let config: any = {
 		options: parseOptions,
 		hotkeys: [],
 		theme: tgui.getThemeConfig(),
-		tabs: tab_config,
-		open: ide.collection.getFilenames(),
+		tabs: ide.tab_config,
+		open: editorsState.open,
 		main: ide.getRunSelection(),
+		active: editorsState.active,
 	};
-	let active = ide.collection.getActiveEditor();
-	if (active) config.active = active.properties().name;
 	for (let i = 0; i < buttons.length; i++) {
 		config.hotkeys.push(buttons[i].hotkey);
 	}
@@ -514,7 +506,7 @@ export function fileDlg(
 		let index = files.indexOf(filename);
 		if (index >= 0) {
 			let onDelete = () => {
-				ide.collection.closeEditor(filename);
+				ide.collection.getEditor(filename)?.close();
 				localStorage.removeItem("tscript.code." + filename);
 				files.splice(index, 1);
 				list.remove(index);

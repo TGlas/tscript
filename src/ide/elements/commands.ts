@@ -2,12 +2,12 @@ import * as ide from ".";
 import { ParseInput, parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { fileDlg, parseOptions } from "./dialogs";
 import {
-	closeEditor,
-	createEditorTabByModal,
-	openEditorFromLocalStorage,
-} from "./editor-tabs";
+	confirmFileOverwrite,
+	fileDlg,
+	parseOptions,
+	tabNameDlg,
+} from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { interpreterEnded } from "./utils";
 
@@ -276,51 +276,55 @@ export function cmd_export() {
 }
 
 function cmd_toggle_breakpoint() {
-	let ed = ide.collection.getActiveEditor();
-	if (!ed) return;
+	const controller = ide.collection.activeEditor;
+	if (!controller) return;
 
-	let line = ed.getCursorPosition().row;
-	ed.properties().toggleBreakpoint(line);
+	const line = controller.editorView.getCursorPosition().row;
+	controller.toggleBreakpoint(line);
 }
 
 function cmd_new() {
-	createEditorTabByModal();
+	tabNameDlg((name) => {
+		// Don't accept empty filenames
+		if (!name) return true; // keep dialog open
+
+		const isSavedDoc =
+			localStorage.getItem("tscript.code." + name) !== null;
+
+		if (isSavedDoc || ide.collection.getEditor(name)) {
+			confirmFileOverwrite(name, () => {
+				// replace the existing file/editor
+				ide.collection.openEditorFromData(name, "");
+			});
+		} else {
+			ide.collection.openEditorFromData(name, "");
+		}
+
+		return false;
+	});
 }
 
 function cmd_load() {
-	fileDlg("Load file", "", false, "Load", function (name) {
-		let ed = ide.collection.getEditor(name);
-		if (ed) {
-			ed.focus();
-			return;
-		}
-
-		openEditorFromLocalStorage(name);
+	fileDlg("Load file", "", false, "Load", (name) => {
+		ide.collection.openEditorFromFile(name);
 	});
 }
 
 function cmd_save() {
-	const ed = ide.collection.getActiveEditor();
-	if (!ed) return;
-	let name = ed.properties().name;
-
-	localStorage.setItem("tscript.code." + name, ed.text());
-	ed.setClean();
+	ide.collection.activeEditor?.save();
 }
 
 function cmd_save_as() {
-	const ed = ide.collection.getActiveEditor();
-	if (!ed) return;
+	const controller = ide.collection.activeEditor;
+	if (!controller) return;
 
 	fileDlg(
 		"Save file as ...",
-		ed.properties().name,
+		controller.filename,
 		true,
 		"Save",
-		function (filename) {
-			closeEditor(filename);
-			localStorage.setItem("tscript.code." + filename, ed.text());
-			openEditorFromLocalStorage(filename);
+		(filename) => {
+			controller.saveAs(filename);
 		}
 	);
 }
@@ -339,15 +343,7 @@ export function cmd_upload() {
 					let filename = file.name.split(".tscript")[0];
 					let content = await file.text();
 					if (!content) continue;
-					localStorage.setItem("tscript.code." + filename, content); // write or overwrite
-					let ed = ide.collection.getEditor(filename);
-					if (ed) {
-						ide.collection.setActiveEditor(ed);
-						ed.setText(content);
-						ed.focus();
-					} else {
-						openEditorFromLocalStorage(filename);
-					}
+					ide.collection.openEditorFromData(filename, content);
 				}
 			},
 		},
@@ -357,12 +353,12 @@ export function cmd_upload() {
 }
 
 export function cmd_download() {
-	const ed = ide.collection.getActiveEditor();
-	if (!ed) return;
-	let filename = ed.properties().name;
-	let content = ed.text();
+	const controller = ide.collection.activeEditor;
+	if (!controller) return;
+	const filename = controller.filename;
+	const content = controller.editorView.text();
 
-	let link = tgui.createElement({
+	const link = tgui.createElement({
 		type: "a",
 		parent: document.body,
 		properties: {

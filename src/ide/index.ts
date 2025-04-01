@@ -77,7 +77,8 @@ class IDEPageController implements IPageController {
 	}
 
 	checkUnsavedChanges(): boolean {
-		return true;
+		// does any open editor have unsaved changes?
+		return elements.collection.editors.some((c) => c.hasUnsavedChanges);
 	}
 }
 
@@ -85,7 +86,7 @@ async function loadScriptFromUrl(url: string): Promise<void> {
 	try {
 		const response = await fetch(url);
 		const text = await response.text();
-		elements.collection.getActiveEditor()!.setText(text);
+		elements.collection.activeEditor!.editorView.setText(text);
 	} catch (error) {
 		if ((error && typeof error === "object") || typeof error === "string")
 			alert("The program could not be loaded:\n" + error.toString());

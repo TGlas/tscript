@@ -408,9 +408,7 @@ export class Editor {
 
 	// Set the document text. Essentially, this amounts to creating a new document.
 	public setText(text: string, options: any = {}) {
-		let props = this.document.properties;
 		this.document = new Document(this.document.language, text);
-		this.document.properties = props;
 		this.docChanged();
 		this.setTarget(0);
 		if (options.hasOwnProperty("cursor"))
@@ -777,16 +775,6 @@ export class Editor {
 			this.dom_focus.setAttribute("contenteditable", "true");
 		}
 		this.draw();
-	}
-
-	// Return an object holding arbitrary extension properties,
-	// i.e., data attached to the editor/document instance. The
-	// mechanisms helps to attach data that is not the business
-	// of the core editor itself, but linked to it by the
-	// application. In the IDE, it is used for the filename, the
-	// panel ID, and for managing breakpoints.
-	public properties() {
-		return this.document.properties;
 	}
 
 	// Recalculate element sizes based on document changes. This affects

@@ -13,17 +13,10 @@ import {
 	createTurtle,
 } from "./create-interpreter";
 import { configDlg, loadConfig, parseOptions, saveConfig } from "./dialogs";
-import {
-	createEditorTab,
-	openEditorFromLocalStorage,
-	tab_config,
-} from "./editor-tabs";
 import { programinfo } from "./programinfo";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { stackinfo } from "./stackinfo";
 import * as utils from "./utils";
-
-export { createEditorTab };
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -32,8 +25,6 @@ export { createEditorTab };
 export let collection!: EditorCollection;
 export let editor_title: any = null;
 export let panel_editor: any = null;
-export let editorcontainer: any = null;
-export let editortabs: any = null;
 
 let messages!: HTMLElement;
 let messagecontainer!: HTMLElement;
@@ -54,6 +45,10 @@ let toolbar: any = null;
 let iconlist: any = null;
 let highlight: any = null;
 export let runselector: HTMLSelectElement;
+
+export let tab_config: { align: "horizontal" | "vertical" } = {
+	align: "horizontal",
+};
 
 /**
  * add a message to the message panel
@@ -159,7 +154,7 @@ export function createParseInput(
 		if (existing) return existing;
 
 		const source =
-			collection.getEditor(filename)?.text() ??
+			collection.getEditor(filename)?.editorView.text() ??
 			localStorage.getItem(`tscript.code.${filename}`);
 		if (!source) return null;
 
@@ -206,18 +201,18 @@ export function prepareRun(): InterpreterSession | null {
 	);
 
 	const interpreter = interpreterSession.interpreter;
-	for (let ed of collection.getEditors()) {
+	for (const ed of collection.editors) {
 		// set and correct breakpoints
-		let br = ed.properties().breakpoints;
+		let br = ed.breakpoints;
 		let a = new Array<number>();
 		for (let line of br) a.push(line + 1);
 
-		let result = interpreter.defineBreakpoints(a, ed.properties().name);
+		let result = interpreter.defineBreakpoints(a, ed.filename);
 		if (result !== null) {
 			for (let line of br)
-				if (!result.has(line)) ed.properties().toggleBreakpoint(line);
+				if (!result.has(line)) ed.toggleBreakpoint(line);
 			for (let line of result)
-				if (!br.has(line)) ed.properties().toggleBreakpoint(line);
+				if (!br.has(line)) ed.toggleBreakpoint(line);
 		}
 	}
 
@@ -382,7 +377,7 @@ function updateProgramState() {
 			if (!shouldFocusCanvas(previous)) canvasContainer.focus();
 		} else if (current === "finished" || current === "unchecked") {
 			// finished running the program? -> focus active editor
-			collection.getActiveEditor()?.focus();
+			collection.activeEditor?.editorView.focus();
 		}
 	}
 }
@@ -566,7 +561,7 @@ export function create(container: HTMLElement, options?: any) {
 
 		// pressing F1
 		tgui.setHotkey("F1", function () {
-			const ed = collection.getActiveEditor();
+			const ed = collection.activeEditor?.editorView;
 			if (!ed) return;
 
 			let selection = ed.selection();
@@ -595,8 +590,6 @@ export function create(container: HTMLElement, options?: any) {
 	// prepare tgui panels
 	tgui.preparePanels(area, iconlist);
 
-	collection = new EditorCollection();
-
 	panel_editor = tgui.createPanel({
 		name: "tab_editor",
 		title: "Editor",
@@ -617,7 +610,7 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_editor.content,
 		classname: "tabs-container " + tab_config.align,
 	});
-	editortabs = tgui.createElement({
+	const editortabs = tgui.createElement({
 		type: "div",
 		parent: p,
 		classname: "tabs",
@@ -635,27 +628,24 @@ export function create(container: HTMLElement, options?: any) {
 			saveConfig();
 		},
 	});
-	editorcontainer = tgui.createElement({
+	const editorcontainer = tgui.createElement({
 		type: "div",
 		parent: p,
 		classname: "editorcontainer",
 	});
 
-	if (config && config.hasOwnProperty("open")) {
-		for (let filename of config.open) {
-			openEditorFromLocalStorage(filename, false);
-		}
-	}
-	if (config && config.hasOwnProperty("active")) {
-		let ed = collection.getEditor(config.active);
-		if (ed) collection.setActiveEditor(ed, false);
-	}
+	collection = new EditorCollection(editorcontainer, editortabs, runselector);
+
+	collection.restoreState({
+		open: config?.open ?? [],
+		active: config?.active ?? null,
+	});
 	if (config && config.hasOwnProperty("main")) {
 		runselector.value = config.main;
 	}
-	if (collection.getEditors().size === 0) {
-		const ed = openEditorFromLocalStorage("Main");
-		if (!ed) createEditorTab("Main");
+	if (!collection.activeEditor) {
+		if (!collection.openEditorFromFile("Main"))
+			collection.openEditorFromData("Main", "");
 	}
 
 	let panel_messages = tgui.createPanel({
@@ -750,10 +740,7 @@ export function create(container: HTMLElement, options?: any) {
 	});
 	tutorial.init(
 		tutorial_container,
-		function () {
-			let ed = collection.getActiveEditor();
-			return ed ? ed.text() : "";
-		},
+		() => collection.activeEditor?.editorView.text() ?? "",
 		function () {
 			messages.innerHTML = "";
 		},
