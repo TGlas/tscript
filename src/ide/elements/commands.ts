@@ -9,7 +9,7 @@ import {
 	tabNameDlg,
 } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
-import { interpreterEnded } from "./utils";
+import { cleanupExternalFilename, importData, interpreterEnded } from "./utils";
 
 export let buttons: any = [
 	{
@@ -340,10 +340,9 @@ export function cmd_upload() {
 				if (!dom_file.files) return;
 				for (let i = 0; i < dom_file.files.length; i++) {
 					let file = dom_file.files[i];
-					let filename = file.name.split(".tscript")[0];
 					let content = await file.text();
-					if (!content) continue;
-					ide.collection.openEditorFromData(filename, content);
+					if (content)
+						importData(content, cleanupExternalFilename(file.name));
 				}
 			},
 		},

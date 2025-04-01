@@ -1,5 +1,6 @@
 import { doc } from "./doc";
 import * as elements from "./elements";
+import { cleanupExternalFilename, importData } from "./elements/utils";
 import {
 	initializeNavigation,
 	IPageController,
@@ -84,9 +85,10 @@ class IDEPageController implements IPageController {
 
 async function loadScriptFromUrl(url: string): Promise<void> {
 	try {
+		const parsedUrl = new URL(url);
 		const response = await fetch(url);
 		const text = await response.text();
-		elements.collection.activeEditor!.editorView.setText(text);
+		importData(text, cleanupExternalFilename(parsedUrl.pathname));
 	} catch (error) {
 		if ((error && typeof error === "object") || typeof error === "string")
 			alert("The program could not be loaded:\n" + error.toString());
