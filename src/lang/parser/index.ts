@@ -1,5 +1,6 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { create_breakpoint } from "../interpreter/interpreter_helper";
+import { ProgramRoot } from "../interpreter/program-elements";
 import { core } from "../tscript-lib/core";
 import { lib_canvas } from "../tscript-lib/lib-canvas";
 import { lib_math } from "../tscript-lib/lib-math";
@@ -42,7 +43,7 @@ type ParseErrorOrWarning = ParseError | ParseWarning;
 
 export interface ParserState extends ParserPosition {
 	/** program tree to be built during parsing */
-	program: any;
+	program: ProgramRoot;
 
 	/** current source code */
 	source: string;
@@ -153,7 +154,8 @@ export interface ParseInput {
 }
 
 export interface ParseResult {
-	program: any;
+	program: ProgramRoot | null;
+	/** non-empty if {@link program} is null */
 	errors: ParseErrorOrWarning[];
 }
 
@@ -332,22 +334,22 @@ function compilerPass(state: ParserState, passname: string) {
 }
 
 /** creates the initial program structure */
-const createEmptyProgram = (): any => ({
-	petype: "global scope", // like a main function, but with more stuff
-	children: new Array(), // children in the abstract syntax tree
+export const createEmptyProgram = (): ProgramRoot => ({
+	petype: "global scope",
+	children: [],
 	parent: null, // top of the hierarchy
-	commands: [], // sequence of commands
-	types: [], // array of all types
-	names: {}, // names of all global things
-	variables: [], // mapping of index to name
-	breakpoints: {}, // mapping of line numbers (preceded by '#') to breakpoints (some lines do not have breakpoints)
-	lines: 0, // total number of lines in the program = maximal line number
+	commands: [],
+	types: [],
+	names: {},
+	variables: [],
+	breakpoints: {},
+	lines: 0,
 	step: scopestep, // execute all commands within the scope
 	sim: simfalse, // simulate commands
 });
 
 const createParserState = (
-	program: any,
+	program: ProgramRoot,
 	errors: ParseErrorOrWarning[]
 ): ParserState => ({
 	program,

@@ -277,8 +277,7 @@ export const doc = (function () {
 	// On success, the function does nothing, otherwise is throws an error message.
 	function checkCode(code) {
 		let result = parseProgramFromString(code);
-		if (result.hasOwnProperty("errors") && result.errors.length > 0)
-			throw result.errors[0].message;
+		if (!result.program) throw result.errors[0].message;
 		let interpreter = new Interpreter(
 			result.program,
 			createDefaultServices()

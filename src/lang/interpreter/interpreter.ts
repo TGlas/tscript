@@ -2,28 +2,57 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { RuntimeError } from "../errors/RuntimeError";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
+import { ProgramRoot } from "./program-elements";
 
 export interface InterpreterOptions {
 	/** @default 10000 */
 	maxStackSize?: number;
 }
 
+export type InterpreterStatus =
+	| "running"
+	| "waiting"
+	| "dialog"
+	| "error"
+	| "finished";
+
+/**
+ * Each frame holds stacks for pe (program element), ip (instruction pointer),
+ * temporaries, and an array of variables.
+ * The pe and ip stacks are always in sync, the ip index refers to a position within the corresponding pe.
+ * The temporary stack stores all temporary values.
+ * For calls to non-static methods, the frame contains a field for the object in addition.
+ */
+export interface StackFrame {
+	pe: any[];
+	ip: number[];
+	temporaries: any[];
+	variables: any[];
+	object: any | null;
+	enclosed: any[] | null;
+}
+
 export class Interpreter {
 	public thread = false; // state of the thread
 	public stop = false; // request to stop the thread
 	public background = false; // is the thread responsible for running the program?
-	public halt: any = null; // function testing whether the thread should be halted
-	public status = ""; // program status: "running", "waiting", "dialog", "error", "finished"
+	/** function testing whether the thread should be halted */
+	public halt: ((this: Interpreter) => boolean) | null = null;
+	/** program status */
+	public status: InterpreterStatus = "running";
 	public dialogResult: any = null; // result (typed value) returned by a modal alert/confirm/prompt dialog
-	public stack: Array<any> = []; // full state of the program
+	public stack: StackFrame[] = []; // full state of the program
 	public stepcounter = 0; // number of program steps already executed
 	public waittime = 0; // time to wait before execution can continue
-	public eventqueue: any = []; // queue of events, with entries of the form {type, event}.
-	public eventhandler = {}; // event handler by event type
+	/** queue of events, with entries of the form {type, event}. */
+	public eventqueue: { type: string; event: any }[] = [];
+	/** event handler by event type */
+	public eventhandler: Record<string, any> = {};
 	public eventnames = {}; // registry of event types
 	public eventmode = false; // is the program in event handling mode?
 	public eventmodeReturnValue: any;
-	public hook: any = null; // function to be called before each step with the interpreter as this argument
+	/** function to be called before each step with the interpreter as this argument */
+	public hook: ((this: Interpreter) => void) | null = null;
 	public timerEventEnqueued: boolean = false;
 
 	readonly maxStackSize: number;
@@ -33,7 +62,7 @@ export class Interpreter {
 	 * @param service external services, mostly for communication with the IDE
 	 */
 	constructor(
-		readonly program: any,
+		readonly program: ProgramRoot,
 		readonly service: any,
 		options: InterpreterOptions = {}
 	) {
@@ -123,6 +152,8 @@ export class Interpreter {
 				ip: [0], // array(n), indices used by step functions
 				temporaries: [], // stack of intermediate "return values"
 				variables: [], // array, global variables
+				object: null,
+				enclosed: null,
 			},
 		];
 		if (this.service.startup) this.service.startup();
@@ -304,8 +335,9 @@ export class Interpreter {
 				if (this.service.message)
 					this.service.message(
 						msg,
-						null,
-						null,
+						undefined,
+						undefined,
+						undefined,
 						"#/errors/internal/ie-2"
 					);
 

@@ -127,7 +127,7 @@ export class TestRunner {
 			s.turtle.dom.width = 600;
 		}
 
-		let interpreter = new Interpreter(parsed.program, service);
+		let interpreter = new Interpreter(parsed.program!, service);
 		interpreter.eventnames["canvas.resize"] = true;
 		interpreter.eventnames["canvas.mousedown"] = true;
 		interpreter.eventnames["canvas.mouseup"] = true;

@@ -4,7 +4,7 @@ import { Typeid } from "../helpers/typeIds";
 import { Version } from "../version";
 import { simfalse, simtrue } from "../helpers/sims";
 import { tscript_core } from "./core.tscript";
-import { Interpreter } from "../interpreter/interpreter";
+import { Interpreter, StackFrame } from "../interpreter/interpreter";
 
 export const core = {
 	source: tscript_core,
@@ -552,7 +552,7 @@ export const core = {
 						let params = [state.src[state.lb], state.src[state.rb]];
 						if (comp.hasOwnProperty("enclosed"))
 							params = comp.enclosed.concat(params);
-						let newframe = {
+						let newframe: StackFrame = {
 							pe: [comp.func],
 							ip: [-1],
 							temporaries: [],
@@ -1349,7 +1349,7 @@ export const core = {
 									params = handler.enclosed.concat(params);
 
 								// create a new stack frame with the function arguments as local variables
-								let frame = {
+								let frame: StackFrame = {
 									pe: [handler.func],
 									ip: [-1],
 									temporaries: [],

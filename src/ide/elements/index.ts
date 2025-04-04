@@ -199,26 +199,21 @@ export function prepare_run(runSelection?: string) {
 	const parseInput = createParseInput(runSelection);
 	if (!parseInput) return;
 
-	let result = parseProgram(parseInput, parseOptions);
-	let program = result.program;
-	let errors = result.errors;
-	if (errors) {
-		for (let i = 0; i < errors.length; i++) {
-			let err = errors[i];
-			addMessage(
-				err.type,
-				err.type +
-					(err.filename ? " in file '" + err.filename + "'" : "") +
-					" in line " +
-					err.line +
-					": " +
-					err.message,
-				err.filename ?? undefined,
-				err.line,
-				err.ch,
-				err.type === "error" ? err.href : undefined
-			);
-		}
+	const { program, errors } = parseProgram(parseInput, parseOptions);
+	for (const err of errors) {
+		addMessage(
+			err.type,
+			err.type +
+				(err.filename ? " in file '" + err.filename + "'" : "") +
+				" in line " +
+				err.line +
+				": " +
+				err.message,
+			err.filename ?? undefined,
+			err.line,
+			err.ch,
+			err.type === "error" ? err.href : undefined
+		);
 	}
 
 	if (program) {

@@ -1,9 +1,6 @@
-import {
-	binary_operator_impl,
-	left_unary_operator_impl,
-} from "../parser/parser_helper";
-import { simfalse } from "../helpers/sims";
 import { Typeid } from "../helpers/typeIds";
+import { ParserState } from "../parser";
+import { Breakpoint } from "./program-elements";
 
 export function deepcopy(value, excludekeys) {
 	if (typeof excludekeys === "undefined") excludekeys = {};
@@ -48,26 +45,27 @@ export function copyconstant(constant) {
 
 // Create a program element of type breakpoint.
 // The breakpoint is initially inactive.
-export function create_breakpoint(parent, state) {
+export function create_breakpoint(
+	parent: Breakpoint["parent"],
+	state: ParserState
+): Breakpoint {
 	let active = false;
-	let obj = {
+	return {
 		petype: "breakpoint",
 		parent: parent,
 		line: state.line,
 		where: state.get(),
-		active: function () {
-			return active;
-		},
-		set: function () {
+		active: () => active,
+		set() {
 			active = true;
 		},
-		clear: function () {
+		clear() {
 			active = false;
 		},
-		toggle: function () {
+		toggle() {
 			active = !active;
 		},
-		step: function () {
+		step() {
 			let frame = this.stack[this.stack.length - 1];
 			if (active) {
 				this.interrupt();
@@ -79,5 +77,4 @@ export function create_breakpoint(parent, state) {
 		},
 		sim: () => active,
 	};
-	return obj;
 }

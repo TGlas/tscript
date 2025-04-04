@@ -1,10 +1,11 @@
 import { TScript } from "../lang";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
+import { ProgramRoot } from "../lang/interpreter/program-elements";
 
 // create an interpreter with specialized services for observing the
 // runtime behavior of a program
-export function createInterpreter(program, inputs, output) {
+export function createInterpreter(program: ProgramRoot, inputs, output) {
 	let interpreter = new Interpreter(program, createDefaultServices());
 
 	// current image transformation

@@ -13,8 +13,8 @@ export function run_tscript(code, maxseconds = 3.0, inputs = []) {
 	let output = new Array();
 
 	let result = parseProgramFromString(code);
-	let errors = result.errors;
-	if (errors.length > 0) {
+	if (!result.program) {
+		let errors = result.errors;
 		for (let i = 0; i < errors.length; i++) {
 			let err = errors[i];
 			output.push({

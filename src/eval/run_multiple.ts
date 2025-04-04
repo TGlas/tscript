@@ -44,8 +44,8 @@ export function run_multiple(code, inputs, maxseconds, process) {
 			else compute();
 		} else {
 			let result = parseProgramFromString(c);
-			let errors = result.errors;
-			if (errors.length > 0) {
+			if (!result.program) {
+				let errors = result.errors;
 				for (let i = 0; i < errors.length; i++) {
 					let err = errors[i];
 					output.push({
