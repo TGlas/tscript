@@ -1,6 +1,5 @@
 import * as ide from ".";
 import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
-import { saveConfig } from "./dialogs";
 import { EditorController, NavigationRequest } from "./editor-controller";
 
 interface SavedEditorCollectionState {
@@ -23,7 +22,9 @@ export class EditorCollection {
 	constructor(
 		editorContainer: HTMLElement,
 		tabContainer: HTMLElement,
-		runSelector: HTMLSelectElement
+		runSelector: HTMLSelectElement,
+		/** called after state changes (e.g. open editors, active editor) */
+		public onStateChanged: () => void
 	) {
 		this.#editorContainer = editorContainer;
 		this.#tabContainer = tabContainer;
@@ -60,25 +61,17 @@ export class EditorCollection {
 	}
 
 	restoreState(state: SavedEditorCollectionState) {
-		for (const controller of this.#editors)
-			this.#removeEditor(controller, false);
+		for (const controller of this.#editors) this.#removeEditor(controller);
 
 		let active: EditorController | null = null;
 		for (const filename of state.open) {
-			const controller = this.openEditorFromFile(
-				filename,
-				undefined,
-				false
-			);
+			const controller = this.openEditorFromFile(filename);
 			if (filename === state.active) active = controller;
 		}
 		if (active) this.#setActiveEditor(active);
 	}
 
-	#setActiveEditor(
-		controller: EditorController | null,
-		save_config: boolean = true
-	) {
+	#setActiveEditor(controller: EditorController | null) {
 		if (controller === this.#active) return;
 
 		this.#active?.tab.classList.remove("active");
@@ -96,7 +89,7 @@ export class EditorCollection {
 
 		this.#updateActiveFilename(controller?.filename ?? null);
 
-		if (save_config) saveConfig();
+		this.onStateChanged();
 	}
 
 	#updateActiveFilename(filename: string | null) {
@@ -116,20 +109,15 @@ export class EditorCollection {
 	 */
 	openEditorFromFile(
 		filename: string,
-		navigateTo?: NavigationRequest,
-		save_config: boolean = true
+		navigateTo?: NavigationRequest
 	): EditorController | null {
 		let controller = this.getEditor(filename);
 		if (controller) {
-			this.#setActiveEditor(controller, save_config);
+			this.#setActiveEditor(controller);
 		} else {
 			const text = localStorage.getItem("tscript.code." + filename);
 			if (text !== null) {
-				controller = this.openEditorFromData(
-					filename,
-					text,
-					save_config
-				);
+				controller = this.openEditorFromData(filename, text);
 			}
 		}
 
@@ -145,11 +133,7 @@ export class EditorCollection {
 	 *
 	 * @returns the created {@link EditorController}
 	 */
-	openEditorFromData(
-		filename: string,
-		text: string,
-		save_config: boolean = true
-	): EditorController {
+	openEditorFromData(filename: string, text: string): EditorController {
 		// close an existing Editor for this file
 		this.getEditor(filename)?.close();
 
@@ -177,15 +161,12 @@ export class EditorCollection {
 		this.#editors.push(controller);
 		this.#tabContainer.appendChild(controller.tab);
 		this.#runSelector.appendChild(controller.runOption);
-		this.#setActiveEditor(controller, save_config);
+		this.#setActiveEditor(controller); // calls onStateChanged
 
 		return controller;
 	}
 
-	#removeEditor(
-		controller: EditorController,
-		save_config: boolean = true
-	): boolean {
+	#removeEditor(controller: EditorController): boolean {
 		controller.tab.remove();
 		controller.runOption.remove();
 
@@ -195,7 +176,7 @@ export class EditorCollection {
 		this.#editors.splice(index, 1);
 		const nextActive =
 			this.#editors.at(index) ?? this.#editors.at(-1) ?? null;
-		this.#setActiveEditor(nextActive, save_config);
+		this.#setActiveEditor(nextActive); // calls onStateChanged
 		return true;
 	}
 }

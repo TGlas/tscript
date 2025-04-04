@@ -618,7 +618,24 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "editorcontainer",
 	});
 
-	collection = new EditorCollection(editorcontainer, editortabs, runselector);
+	let configSaveScheduled = false;
+	function scheduleEditorStateSave() {
+		// save the config after a short delay
+		// used to batch multiple changes into a single write to localStorage
+		if (!configSaveScheduled) {
+			configSaveScheduled = true;
+			setTimeout(() => {
+				configSaveScheduled = false;
+				saveConfig();
+			}, 500);
+		}
+	}
+	collection = new EditorCollection(
+		editorcontainer,
+		editortabs,
+		runselector,
+		scheduleEditorStateSave
+	);
 
 	collection.restoreState({
 		open: config?.open ?? [],
