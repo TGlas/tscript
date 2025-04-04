@@ -133,7 +133,7 @@ export function clear() {
 	messages.replaceChildren();
 	hasErrorMessage = false;
 
-	updateProgramState();
+	updateProgramState({ interpreterChanged: true });
 }
 
 /**
@@ -195,27 +195,12 @@ export function prepareRun(): InterpreterSession | null {
 		canvasContainer
 	);
 
-	const interpreter = interpreterSession.interpreter;
-	for (const ed of collection.editors) {
-		// set and correct breakpoints
-		let br = ed.breakpoints;
-		let a = new Array<number>();
-		for (let line of br) a.push(line + 1);
-
-		let result = interpreter.defineBreakpoints(a, ed.filename);
-		if (result !== null) {
-			for (let line of br)
-				if (!result.has(line)) ed.toggleBreakpoint(line);
-			for (let line of result)
-				if (!br.has(line)) ed.toggleBreakpoint(line);
-		}
-	}
-
-	updateProgramState(); // the IDE has an InterpreterSession now
+	// the IDE has an InterpreterSession now
+	updateProgramState({ interpreterChanged: true });
 	return interpreterSession;
 }
 
-class InterpreterSession {
+export class InterpreterSession {
 	readonly interpreter: Interpreter;
 
 	readonly #controller = new AbortController();
@@ -328,7 +313,7 @@ const programStatusDescription: Record<ProgramStatus, string> = {
 };
 
 let currentProgramState: ProgramStatus = "unchecked";
-function updateProgramState() {
+function updateProgramState(options?: { interpreterChanged: boolean }) {
 	const previous = currentProgramState;
 	const current = (currentProgramState = getProgramStatus());
 
@@ -356,15 +341,20 @@ function updateProgramState() {
 		programtree!.update(emptyTree);
 	}
 
+	// if editors should be locked, tell them about the current interpreter
+	const lockEditors = shouldLockEditors(current);
+	if (
+		options?.interpreterChanged ||
+		lockEditors !== shouldLockEditors(previous)
+	) {
+		const session = lockEditors ? interpreterSession : null;
+		for (const e of collection.editors) e.updateInterpreter(session);
+	}
+
 	if (previous !== current) {
 		// update the program status label
 		programStatusLabel.setText(programStatusDescription[current]);
 		programStatusLabel.setClassName("ide-state-" + current);
-
-		// update whether editors are locked
-		const shouldLock = shouldLockEditors(current);
-		if (shouldLock !== shouldLockEditors(previous))
-			collection.setReadOnly(shouldLock);
 
 		if (shouldFocusCanvas(current)) {
 			// focus the canvas container for keyboard input when entering running/waiting

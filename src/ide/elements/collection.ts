@@ -107,11 +107,6 @@ export class EditorCollection {
 		}
 	}
 
-	// convenience function for setting the read-only state of all editors
-	setReadOnly(readOnly: boolean) {
-		for (const c of this.#editors) c.editorView.setReadOnly(readOnly);
-	}
-
 	/**
 	 * Opens or focuses an existinng file
 	 *
@@ -174,7 +169,10 @@ export class EditorCollection {
 			},
 		});
 
-		if (ide.shouldLockEditors()) controller.editorView.setReadOnly(true);
+		// optionally lock the new editor
+		const session = ide.interpreterSession;
+		if (session && ide.shouldLockEditors())
+			controller.updateInterpreter(session);
 
 		this.#editors.push(controller);
 		this.#tabContainer.appendChild(controller.tab);

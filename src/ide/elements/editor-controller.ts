@@ -158,6 +158,25 @@ export class EditorController {
 		this.editorView.draw();
 	}
 
+	updateInterpreter(session: ide.InterpreterSession | null) {
+		if (!session) {
+			this.editorView.setReadOnly(false);
+			return;
+		}
+
+		this.editorView.setReadOnly(true);
+		const result = session.interpreter.defineBreakpoints(
+			// convert to one-based line indices
+			Array.from(this.#breakpoints, (line) => line + 1),
+			this.#filename
+		);
+		if (result) {
+			this.#breakpoints.clear();
+			for (const line of result) this.#breakpoints.add(line - 1);
+			this.editorView.draw();
+		}
+	}
+
 	saveAs(filename: string) {
 		this.#onBeforeFilenameChange(filename);
 
