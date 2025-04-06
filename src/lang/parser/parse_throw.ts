@@ -2,8 +2,9 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
 import { TScript } from "..";
 import { parse_expression } from "./parse_expression";
+import { ParserState } from ".";
 
-export function parse_throw(state, parent, options) {
+export function parse_throw(state: ParserState, parent, options) {
 	// handle "throw" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

@@ -7,10 +7,14 @@ import { constantstep, constructorstep, callstep } from "../helpers/steps";
 import { simfalse, callsim } from "../helpers/sims";
 import { parse_expression } from "./parse_expression";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
-import { Options } from "../helpers/options";
+import { ParseOptions, ParserState } from ".";
 
 // Parse a constructor declaration.
-export function parse_constructor(state, parent, options: Options) {
+export function parse_constructor(
+	state: ParserState,
+	parent,
+	options: ParseOptions
+) {
 	// check that the parent is indeed a type
 	ErrorHelper.assert(
 		parent.petype === "type",
@@ -175,14 +179,14 @@ export function parse_constructor(state, parent, options: Options) {
 	}
 
 	// replace the function body with built-in functionality
-	if (func.commands.length === 0) {
+	if (func.commands.length === 0 && state.impl) {
 		let fullname = new Array();
 		let p = func;
 		while (p.parent) {
 			fullname.unshift(p.name);
 			p = p.parent;
 		}
-		let d = state.impl;
+		let d: any = state.impl;
 		for (let i = 0; i < fullname.length; i++) {
 			if (d.hasOwnProperty(fullname[i])) d = d[fullname[i]];
 			else {

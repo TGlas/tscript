@@ -1,9 +1,8 @@
 import { documentationData } from "../doc";
 import { ErrorHelper } from "../lang/errors/ErrorHelper";
-import { defaultOptions } from "../lang/helpers/options";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
-import { Parser } from "../lang/parser";
+import { defaultParseOptions, parseProgramFromString } from "../lang/parser";
 import { Lexer } from "../lang/parser/lexer";
 import { Version } from "../lang/version";
 import { navigate } from "./navigation";
@@ -183,7 +182,7 @@ export const doc = (function () {
 				return { type: "comment" };
 			}
 		} else {
-			let ret = Lexer.get_token(state, defaultOptions, true);
+			let ret = Lexer.get_token(state, defaultParseOptions, true);
 			state.advance(ret.code.length);
 			return ret;
 		}
@@ -277,9 +276,8 @@ export const doc = (function () {
 	// Check code for correctness by parsing and running it.
 	// On success, the function does nothing, otherwise is throws an error message.
 	function checkCode(code) {
-		let result = Parser.parse(code);
-		if (result.hasOwnProperty("errors") && result.errors.length > 0)
-			throw result.errors[0].message;
+		let result = parseProgramFromString(code);
+		if (!result.program) throw result.errors[0].message;
 		let interpreter = new Interpreter(
 			result.program,
 			createDefaultServices()

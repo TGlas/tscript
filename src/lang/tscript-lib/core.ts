@@ -4,6 +4,7 @@ import { Typeid } from "../helpers/typeIds";
 import { Version } from "../version";
 import { simfalse, simtrue } from "../helpers/sims";
 import { tscript_core } from "./core.tscript";
+import { Interpreter, StackFrame } from "../interpreter/interpreter";
 
 export const core = {
 	source: tscript_core,
@@ -479,7 +480,7 @@ export const core = {
 				};
 			},
 			sort: {
-				step: function () {
+				step(this: Interpreter) {
 					// iterative merge sort
 					let frame = this.stack[this.stack.length - 1];
 					let pe = frame.pe[frame.pe.length - 1];
@@ -551,7 +552,7 @@ export const core = {
 						let params = [state.src[state.lb], state.src[state.rb]];
 						if (comp.hasOwnProperty("enclosed"))
 							params = comp.enclosed.concat(params);
-						let newframe = {
+						let newframe: StackFrame = {
 							pe: [comp.func],
 							ip: [-1],
 							temporaries: [],
@@ -564,7 +565,7 @@ export const core = {
 						if (comp.hasOwnProperty("enclosed"))
 							newframe.enclosed = comp.enclosed;
 						this.stack.push(newframe);
-						if (this.stack.length >= this.options.maxstacksize)
+						if (this.stack.length >= this.maxStackSize)
 							this.error("/logic/le-1");
 						return false;
 					} else if (ip === 2) {
@@ -1306,7 +1307,7 @@ export const core = {
 				this.eventmode = true;
 				this.stack[this.stack.length - 1].pe.push({
 					// this cumbersome inner command is necessary since function.step is expected to always return false
-					step: function () {
+					step(this: Interpreter) {
 						let frame = this.stack[this.stack.length - 1];
 						if (!this.eventmode) {
 							// return from event mode
@@ -1348,7 +1349,7 @@ export const core = {
 									params = handler.enclosed.concat(params);
 
 								// create a new stack frame with the function arguments as local variables
-								let frame = {
+								let frame: StackFrame = {
 									pe: [handler.func],
 									ip: [-1],
 									temporaries: [],
@@ -1361,10 +1362,7 @@ export const core = {
 								if (handler.hasOwnProperty("enclosed"))
 									frame.enclosed = handler.enclosed;
 								this.stack.push(frame);
-								if (
-									this.stack.length >=
-									this.options.maxstacksize
-								)
+								if (this.stack.length >= this.maxStackSize)
 									this.error("/logic/le-1");
 							}
 						}
@@ -1377,7 +1375,7 @@ export const core = {
 			},
 			sim: simfalse,
 		},
-		quitEventMode: function (result) {
+		quitEventMode(this: Interpreter, result: any) {
 			if (!this.eventmode) this.error("/logic/le-3");
 			this.eventmode = false;
 			this.eventmodeReturnValue = result;

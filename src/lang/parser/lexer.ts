@@ -5,7 +5,30 @@
 // input stream. It handles composite operators properly.
 //
 
-import { Options } from "../helpers/options";
+import { ParseOptions, ParserPosition, ParserState } from ".";
+
+interface LexerTokenObj<T extends string, V> {
+	type: T;
+	value: V;
+	code: string;
+	line: number;
+}
+
+export type Keyword = keyof typeof Lexer.keywords;
+
+export function isKeyword(str: string): str is Keyword {
+	return Object.hasOwn(Lexer.keywords, str);
+}
+
+export type LexerToken =
+	| LexerTokenObj<"end-of-file", "">
+	| LexerTokenObj<"keyword", Keyword>
+	| LexerTokenObj<"identifier", string>
+	| LexerTokenObj<"real" | "integer", number>
+	| LexerTokenObj<"string", string>
+	| LexerTokenObj<"operator", string>
+	| LexerTokenObj<"grouping", string>
+	| LexerTokenObj<"delimiter", string>;
 
 export class Lexer {
 	public static keywords = {
@@ -68,10 +91,10 @@ export class Lexer {
 	// since string tokens can take on any value. Therefore a token must
 	// always be tested for its type first, and then for a certain value.
 	public static get_token(
-		state,
-		options: Options,
+		state: ParserState,
+		options: ParseOptions,
 		peek: boolean | undefined = undefined
-	) {
+	): LexerToken {
 		peek = typeof peek !== "undefined" ? peek : false;
 		let where = peek ? state.get() : false;
 		state.skip();
@@ -81,7 +104,7 @@ export class Lexer {
 			return { type: "end-of-file", value: "", code: "", line: line };
 
 		let indent = state.indentation();
-		let tok: any = null;
+		let tok: LexerToken;
 
 		let c = state.current();
 		if ((c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || c === "_") {
@@ -100,21 +123,14 @@ export class Lexer {
 				else break;
 			}
 			let value = state.source.substring(start, state.pos);
-			if (where) state.set(where);
-			else state.skip();
-			tok = {
-				type: Lexer.keywords.hasOwnProperty(value)
-					? "keyword"
-					: "identifier",
-				value: value,
-				code: value,
-				line: line,
-			};
+			tok = isKeyword(value)
+				? { type: "keyword", value, code: value, line }
+				: { type: "identifier", value, code: value, line };
 		} else if (c >= "0" && c <= "9") {
 			// parse a number, integer or float
 			let start = state.pos;
 			let digits = "0123456789";
-			let type = "integer";
+			let type: "real" | "integer" = "integer";
 			while (!state.eof() && digits.indexOf(state.current()) >= 0)
 				state.advance();
 			if (!state.eof()) {
@@ -153,8 +169,6 @@ export class Lexer {
 			}
 			let value = state.source.substring(start, state.pos);
 			let n = parseFloat(value);
-			if (where) state.set(where);
-			else state.skip();
 			tok = { type: type, value: n, code: value, line: line };
 		} else if (c === '"') {
 			// parse string token
@@ -200,14 +214,13 @@ export class Lexer {
 					state.advance();
 				}
 			}
-			if (where) state.set(where);
-			else state.skip();
 			tok = { type: "string", value: value, code: code, line: line };
 		} else {
 			// all the rest, including operators
 			state.advance();
+			let op: string | undefined;
 			if (Lexer.operators.indexOf(c) >= 0) {
-				let op = c;
+				op = c;
 				if (state.current() === "/" && c === "/") {
 					state.advance();
 					op += "/";
@@ -216,22 +229,21 @@ export class Lexer {
 					state.advance();
 					op += "=";
 				}
-				if (op !== "!") {
-					if (where) state.set(where);
-					else state.skip();
-					tok = { type: "operator", value: op, code: op, line: line };
-				}
 			}
-			if (tok === null) {
-				let type: any = null;
+
+			if (op && op !== "!") {
+				tok = { type: "operator", value: op, code: op, line: line };
+			} else {
+				let type: "grouping" | "delimiter";
 				if (Lexer.groupings.indexOf(c) >= 0) type = "grouping";
 				else if (Lexer.delimiters.indexOf(c) >= 0) type = "delimiter";
 				else state.error("/syntax/se-5", [c]);
-				if (where) state.set(where);
-				else state.skip();
 				tok = { type: type, value: c, code: c, line: line };
 			}
 		}
+
+		if (where) state.set(where);
+		else state.skip();
 
 		if (options.checkstyle && !state.builtin()) {
 			// check for indentation problems
@@ -259,5 +271,5 @@ export class Lexer {
 		return tok;
 	}
 
-	public static before_token = {}; // state stored by get_token that can be restored with state.set()
+	public static before_token: ParserPosition; // state stored by get_token that can be restored with state.set()
 }

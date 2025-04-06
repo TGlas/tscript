@@ -1,17 +1,21 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { copyconstant } from "../interpreter/interpreter_helper";
 import { get_type } from "../helpers/getParents";
 import { TScript } from "..";
 import { simfalse, callsim } from "../helpers/sims";
 import { callstep } from "../helpers/steps";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
-import { Options } from "../helpers/options";
+import { ParseOptions, ParserState } from ".";
 
 // Parse the argument list of a function call.
 // The expression to the left of the parenthesis is provided as #base.
-export function parse_call(state, parent, base, options: Options) {
+export function parse_call(
+	state: ParserState,
+	parent,
+	base,
+	options: ParseOptions
+) {
 	// parse the opening parenthesis, which is assumed to be already detected
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

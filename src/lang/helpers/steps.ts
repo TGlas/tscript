@@ -1,21 +1,21 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { TScript } from "..";
 import { Typeid } from "./typeIds";
-import { Options } from "../helpers/options";
 import { copyconstant } from "../interpreter/interpreter_helper";
+import { StepFn } from "../interpreter/program-elements";
 
-// step function of all constants
-export function constantstep() {
+/** step function of all constants */
+export const constantstep: StepFn = function () {
 	let frame = this.stack[this.stack.length - 1];
 	let pe = frame.pe[frame.pe.length - 1];
 	frame.temporaries.push(copyconstant.call(this, pe.typedvalue));
 	frame.pe.pop();
 	frame.ip.pop();
 	return false;
-}
+};
 
-// step function of most scopes, including global scope and functions
-export function scopestep() {
+/** step function of most scopes, including global scope and functions */
+export const scopestep: StepFn = function () {
 	let frame = this.stack[this.stack.length - 1];
 	let pe = frame.pe[frame.pe.length - 1];
 	let ip = frame.ip[frame.ip.length - 1];
@@ -42,10 +42,10 @@ export function scopestep() {
 			return false;
 		} else return false;
 	}
-}
+};
 
-// step function of constructors
-export function constructorstep() {
+/** step function of constructors */
+export const constructorstep: StepFn = function () {
 	let frame = this.stack[this.stack.length - 1];
 	let pe = frame.pe[frame.pe.length - 1];
 	let ip = frame.ip[frame.ip.length - 1];
@@ -70,10 +70,10 @@ export function constructorstep() {
 		this.stack.pop();
 		return false;
 	}
-}
+};
 
-// step function of function calls
-export function callstep(options: Options) {
+/** step function of function calls */
+export const callstep: StepFn = function () {
 	let frame = this.stack[this.stack.length - 1];
 	let pe = frame.pe[frame.pe.length - 1];
 	let ip = frame.ip[frame.ip.length - 1];
@@ -229,7 +229,7 @@ export function callstep(options: Options) {
 			if (f.value.b.hasOwnProperty("enclosed"))
 				frame.enclosed = f.value.b.enclosed;
 			this.stack.push(frame);
-			if (this.stack.length >= options.maxstacksize)
+			if (this.stack.length >= this.maxStackSize)
 				ErrorHelper.error("/logic/le-1", [], this.stack);
 		}
 		return true;
@@ -238,4 +238,4 @@ export function callstep(options: Options) {
 		frame.ip.pop();
 		return false;
 	}
-}
+};

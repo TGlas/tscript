@@ -1,12 +1,16 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { Options } from "../helpers/options";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
 import { parse_statement } from "./parse_statement";
+import { ParseOptions, ParserState } from ".";
 
-export function parse_dowhile(state, parent, options: Options) {
+export function parse_dowhile(
+	state: ParserState,
+	parent,
+	options: ParseOptions
+) {
 	// handle "do" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

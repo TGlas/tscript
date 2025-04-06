@@ -1,14 +1,14 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { TScript } from "..";
 import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_expression } from "./parse_expression";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
+import { ParserState } from ".";
 
 // Parse a function declaration.
 export function parse_function(
-	state,
+	state: ParserState,
 	parent,
 	options,
 	petype: any = undefined
@@ -155,14 +155,14 @@ export function parse_function(
 	}
 
 	// replace the function body with built-in functionality
-	if (func.commands.length === 0) {
+	if (func.commands.length === 0 && state.impl) {
 		let fullname = new Array();
 		let p = func;
 		while (p.parent) {
 			fullname.unshift(p.name);
 			p = p.parent;
 		}
-		let d = state.impl;
+		let d: any = state.impl;
 		for (let i = 0; i < fullname.length; i++) {
 			if (d.hasOwnProperty(fullname[i])) d = d[fullname[i]];
 			else {

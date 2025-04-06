@@ -1,13 +1,11 @@
 import { Typeid } from "../lang/helpers/typeIds";
-import { TScript } from "../lang";
-import { Parser } from "../lang/parser";
 import { createDefaultServices } from "../lang/interpreter/defaultService";
 import { Interpreter } from "../lang/interpreter/interpreter";
-import { escapeHtmlChars } from "../escape";
+import { ProgramRoot } from "../lang/interpreter/program-elements";
 import { reserved_node_names } from "./reserved_node_names";
 
 // static code analysis, try to decide whether a program contains a recursive function or not
-function isRecursiveStatic(program) {
+function isRecursiveStatic(program: ProgramRoot) {
 	if (!program) return false;
 
 	function isObject(value) {
@@ -51,7 +49,11 @@ function isRecursiveStatic(program) {
 }
 
 // dynamic behavior analysis, try to decide whether a program contains a recursive function or not
-function isRecursiveDynamic(program, maxseconds = 3.0, inputs = []) {
+function isRecursiveDynamic(
+	program: ProgramRoot,
+	maxseconds = 3.0,
+	inputs = []
+) {
 	if (!program) return false;
 	inputs = inputs.slice();
 
@@ -139,7 +141,7 @@ function isRecursiveDynamic(program, maxseconds = 3.0, inputs = []) {
 // recursion is found then the program is executed -- hence make sure to
 // include test code that actually invokes the recursion -- and the
 // runtime behavior is analyzed.
-export function isRecursive(program) {
+export function isRecursive(program: ProgramRoot) {
 	if (isRecursiveStatic(program)) return true;
 	else return isRecursiveDynamic(program);
 }

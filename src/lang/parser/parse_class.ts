@@ -1,5 +1,5 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
-import { Lexer } from "./lexer";
+import { Keyword, Lexer } from "./lexer";
 import { get_program } from "../helpers/getParents";
 import { constantstep } from "../helpers/steps";
 import { Typeid } from "../helpers/typeIds";
@@ -10,10 +10,10 @@ import { parse_use } from "./parse_use";
 import { parse_var } from "./parse_var";
 import { parse_expression, is_name } from "./parse_expression";
 import { parse_constructor } from "./parse_constructor";
-import { Options } from "../helpers/options";
+import { ParseOptions, ParserState } from ".";
 
 // Parse a class declaration.
-export function parse_class(state, parent, options: Options) {
+export function parse_class(state: ParserState, parent, options: ParseOptions) {
 	// handle the "class" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
@@ -194,7 +194,7 @@ export function parse_class(state, parent, options: Options) {
 	state.indent.push(-1 - token.line);
 
 	// parse the class body
-	let access = null;
+	let access: Keyword | null = null;
 	while (true) {
 		// check for end-of-class-body
 		token = Lexer.get_token(state, options, true);

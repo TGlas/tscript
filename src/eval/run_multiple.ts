@@ -1,5 +1,4 @@
-import { Parser } from "../lang/parser";
-import { Interpreter } from "../lang/interpreter/interpreter";
+import { parseProgramFromString } from "../lang/parser";
 import { isRecursive } from "./isRecursive";
 import { hasStructure } from "./hasStructure";
 import { createInterpreter } from "./createInterpreter";
@@ -32,16 +31,21 @@ export function run_multiple(code, inputs, maxseconds, process) {
 					"\nreturn null; };\n"
 			);
 			all.push(
-				testfunction(tsc, Parser.parse, hasStructure, isRecursive)
+				testfunction(
+					tsc,
+					parseProgramFromString,
+					hasStructure,
+					isRecursive
+				)
 			);
 			output = new Array();
 			index++;
 			if (index === code.length) process(all);
 			else compute();
 		} else {
-			let result = Parser.parse(c);
-			let errors = result.errors;
-			if (errors.length > 0) {
+			let result = parseProgramFromString(c);
+			if (!result.program) {
+				let errors = result.errors;
 				for (let i = 0; i < errors.length; i++) {
 					let err = errors[i];
 					output.push({

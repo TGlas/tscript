@@ -2,7 +2,7 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { Typeid } from "../helpers/typeIds";
 import { createDefaultServices } from "../interpreter/defaultService";
 import { Interpreter } from "../interpreter/interpreter";
-import { Parser } from "../parser";
+import { parseProgramFromString, ParseResult } from "../parser";
 import { TScript } from "..";
 import { TscriptTest } from "./tests";
 
@@ -56,9 +56,9 @@ export class TestRunner {
 		let result = new Array();
 
 		// parse the program
-		let parsed;
+		let parsed: ParseResult;
 		try {
-			parsed = Parser.parse(test.code);
+			parsed = parseProgramFromString(test.code);
 			if (test.parseOnly) {
 				cb.suc(test);
 				return;
@@ -127,7 +127,7 @@ export class TestRunner {
 			s.turtle.dom.width = 600;
 		}
 
-		let interpreter = new Interpreter(parsed.program, service);
+		let interpreter = new Interpreter(parsed.program!, service);
 		interpreter.eventnames["canvas.resize"] = true;
 		interpreter.eventnames["canvas.mousedown"] = true;
 		interpreter.eventnames["canvas.mouseup"] = true;
@@ -223,14 +223,15 @@ export class TestRunner {
 	// returns true if the program had parse errors
 	private static checkParseErrorsMatch(
 		test: TscriptTest,
-		parsed: any,
+		parsed: ParseResult,
 		cb: Callback
 	): boolean {
 		if (parsed.errors !== null && parsed.errors.length > 0) {
 			let errors = new Array();
 			for (let i = 0; i < parsed.errors.length; i++) {
 				let err = parsed.errors[i];
-				errors.push({ type: "error", href: err.href });
+				if (err.type === "error")
+					errors.push({ type: "error", href: err.href });
 			}
 			errors.push("parsing failed");
 			TestRunner.check(test, errors, cb);

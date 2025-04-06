@@ -2,7 +2,7 @@ import * as ide from ".";
 import { openEditorFromLocalStorage } from "./editor-tabs";
 import { programinfo } from "./programinfo";
 import { stackinfo } from "./stackinfo";
-import { Editor } from "../editor";
+import { Interpreter } from "../../lang/interpreter/interpreter";
 
 export const type2css = [
 	"ide-keyword",
@@ -103,18 +103,5 @@ export function setCursorPosition(line: number, ch: number, name: string) {
 	ed.scrollIntoView();
 }
 
-//export function makeMarker() {
-//	let marker = document.createElement("span");
-//	marker.style.color = "#a00";
-//	marker.innerHTML = "\u25CF";
-//	return marker;
-//}
-//
-export function relpos(element, x, y) {
-	while (element) {
-		x -= element.offsetLeft;
-		y -= element.offsetTop;
-		element = element.offsetParent;
-	}
-	return { x: x, y: y };
-}
+export const interpreterEnded = (interpreter: Interpreter) =>
+	interpreter.status === "finished" || interpreter.status === "error";

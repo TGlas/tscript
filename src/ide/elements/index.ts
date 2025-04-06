@@ -1,15 +1,12 @@
-import { TScript } from "../../lang";
-import { get_function } from "../../lang/helpers/getParents";
-import { Typeid } from "../../lang/helpers/typeIds";
-import { createDefaultServices } from "../../lang/interpreter/defaultService";
 import { Interpreter } from "../../lang/interpreter/interpreter";
-import { Parser } from "../../lang/parser";
+import { ProgramRoot } from "../../lang/interpreter/program-elements";
+import { ParseInput, parseProgram } from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
 import { buttons, cmd_upload, cmd_download, cmd_export } from "./commands";
-import { configDlg, loadConfig, saveConfig, options } from "./dialogs";
+import { configDlg, loadConfig, saveConfig, parseOptions } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import * as utils from "./utils";
 import { EditorCollection } from "./collection";
@@ -18,6 +15,11 @@ import {
 	createEditorTab,
 	openEditorFromLocalStorage,
 } from "./editor-tabs";
+import {
+	createCanvas,
+	createIDEInterpreter,
+	createTurtle,
+} from "./create-interpreter";
 
 export { createEditorTab };
 
@@ -26,11 +28,7 @@ export { createEditorTab };
 //
 
 export let collection!: EditorCollection;
-export let turtle: any = null;
-export let canvas: any = null;
 export let editor_title: any = null;
-export let createTypedEvent: any = null;
-
 export let panel_editor: any = null;
 export let editorcontainer: any = null;
 export let editortabs: any = null;
@@ -42,20 +40,18 @@ export let stacktree: any = null;
 export let programtree: any = null;
 export let programstate: any = null;
 
+let canvasContainer!: HTMLElement;
+let turtleContainer!: HTMLElement;
+
 /** current interpreter, non-null after successful parsing */
 export let interpreter: Interpreter | null = null;
+export let interpreterSession: InterpreterSession | null = null;
 
 let main: any = null;
 let toolbar: any = null;
 let iconlist: any = null;
 let highlight: any = null;
 export let runselector: HTMLSelectElement;
-
-let standalone: boolean = false;
-
-export function setStandalone(_standalone: boolean) {
-	standalone = _standalone;
-}
 
 /**
  * add a message to the message panel
@@ -139,72 +135,110 @@ export function addMessage(
  * put the IDE into "not yet checked" mode.
  */
 export function clear() {
-	if (interpreter) {
-		interpreter.stopthread();
-		//interpreter.service.turtle.reset.call(interpreter, 0, 0, 0, true);
-	}
+	interpreterSession?.destroy();
+	interpreterSession = null;
 	interpreter = null;
 
 	tgui.clearElement(messages);
+}
 
-	let turtle_ctx = turtle.getContext("2d");
-	turtle_ctx.setTransform(1, 0, 0, 1, 0, 0);
-	turtle_ctx.clearRect(0, 0, turtle.width, turtle.height);
+/**
+ * Create ParseInput from the current editors
+ *
+ * @returns a ParseInput object or `null` if no editors are open
+ */
+export function createParseInput(
+	files = new Map<string, ParseInput>()
+): ParseInput | null {
+	function getFile(filename: string): ParseInput | null {
+		const existing = files.get(filename);
+		if (existing) return existing;
 
-	let canvas_ctx = canvas.getContext("2d");
-	canvas_ctx.setTransform(1, 0, 0, 1, 0, 0);
-	canvas_ctx.clearRect(0, 0, canvas.width, canvas.height);
-	canvas_ctx.lineWidth = 1;
-	canvas_ctx.fillStyle = "#000";
-	canvas_ctx.strokeStyle = "#000";
-	canvas_ctx.font = "16px Helvetica";
-	canvas_ctx.textAlign = "left";
-	canvas_ctx.textBaseline = "top";
+		const source =
+			collection.getEditor(filename)?.text() ??
+			localStorage.getItem(`tscript.code.${filename}`);
+		if (!source) return null;
+
+		const file: ParseInput = { filename, source, resolveInclude: getFile };
+		files.set(filename, file);
+		return file;
+	}
+
+	return getFile(getRunSelection());
 }
 
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
  */
-export function prepare_run(run_selection: string | null = null) {
+export function prepareRun(): InterpreterSession | null {
 	clear();
 
-	let ed = collection.getActiveEditor();
-	if (!ed) return;
+	const parseInput = createParseInput();
+	if (!parseInput) return null;
 
-	const toParse = {
-		documents: collection.getValues(),
-		main: run_selection ? run_selection : getRunSelection(),
-	};
+	const { program, errors } = parseProgram(parseInput, parseOptions);
+	for (const err of errors) {
+		addMessage(
+			err.type,
+			err.type +
+				(err.filename ? " in file '" + err.filename + "'" : "") +
+				" in line " +
+				err.line +
+				": " +
+				err.message,
+			err.filename ?? undefined,
+			err.line,
+			err.ch,
+			err.type === "error" ? err.href : undefined
+		);
+	}
+	if (!program) return null;
 
-	let result = Parser.parse(toParse, options);
-	let program = result.program;
-	let errors = result.errors;
-	if (errors) {
-		for (let i = 0; i < errors.length; i++) {
-			let err = errors[i];
-			addMessage(
-				err.type,
-				err.type +
-					(err.filename ? " in file '" + err.filename + "'" : "") +
-					" in line " +
-					err.line +
-					": " +
-					err.message,
-				err.filename,
-				err.line,
-				err.ch,
-				err.href
-			);
+	interpreterSession = new InterpreterSession(
+		program,
+		turtleContainer,
+		canvasContainer
+	);
+	interpreter = interpreterSession.interpreter;
+
+	for (let ed of collection.getEditors()) {
+		// set and correct breakpoints
+		let br = ed.properties().breakpoints;
+		let a = new Array<number>();
+		for (let line of br) a.push(line + 1);
+
+		let result = interpreter.defineBreakpoints(a, ed.properties().name);
+		if (result !== null) {
+			for (let line of br)
+				if (!result.has(line)) ed.properties().toggleBreakpoint(line);
+			for (let line of result)
+				if (!br.has(line)) ed.properties().toggleBreakpoint(line);
 		}
 	}
 
-	if (program) {
-		interpreter = new Interpreter(program, createDefaultServices());
-		interpreter.service.documentation_mode = false;
-		interpreter.service.print = function (msg) {
+	return interpreterSession;
+}
+
+class InterpreterSession {
+	readonly interpreter: Interpreter;
+
+	readonly #controller = new AbortController();
+	readonly #canvas: HTMLCanvasElement;
+	readonly #turtle: HTMLCanvasElement;
+
+	constructor(
+		program: ProgramRoot,
+		turtleContainer: HTMLElement,
+		canvasContainer: HTMLElement
+	) {
+		const interpreter = createIDEInterpreter(program);
+		this.interpreter = interpreter;
+
+		// add IDE-specific properties
+		interpreter.service.print = (msg: string) => {
 			if (msg.length > 1000) {
-				let m = addMessage(
+				const m = addMessage(
 					"print",
 					"[truncated long message; click the symbol to copy the full message to the clipboard]\n" +
 						msg.substr(0, 1000) +
@@ -213,164 +247,56 @@ export function prepare_run(run_selection: string | null = null) {
 				m.content.classList.add("ide-truncation");
 				m.symbol.innerHTML = "&#x1f4cb;";
 				m.symbol.style.cursor = "copy";
-				m.symbol.addEventListener(
-					"click",
-					(function (full) {
-						return function (event) {
-							toClipboard(full);
-						};
-					})(msg)
-				);
+				m.symbol.addEventListener("click", () => {
+					toClipboard(msg);
+				});
 			} else addMessage("print", msg);
-			interpreter!.flush();
+			interpreter.flush();
 		};
-		interpreter.service.alert = function (msg) {
-			return new Promise((resolve, reject) => {
-				let dlg = tgui.msgBox({
-					title: "",
-					prompt: msg,
-					buttons: [{ text: "Okay", isDefault: true }],
-					enterConfirms: true,
-					onClose: () => {
-						resolve(null);
-						return false;
-					},
-				});
-			});
-		};
-		interpreter.service.confirm = function (msg) {
-			return new Promise((resolve, reject) => {
-				let value = false;
-				let dlg = tgui.msgBox({
-					title: "Question",
-					prompt: msg,
-					icon: tgui.msgBoxQuestion,
-					buttons: [
-						{
-							text: "Yes",
-							isDefault: true,
-							onClick: () => {
-								value = true;
-								return false;
-							},
-						},
-						{
-							text: "No",
-							isDefault: false,
-							onClick: () => {
-								value = false;
-								return false;
-							},
-						},
-					],
-					enterConfirms: true,
-					onClose: () => {
-						resolve(value);
-						return false;
-					},
-				});
-			});
-		};
-		interpreter.service.prompt = function (msg) {
-			return new Promise((resolve, reject) => {
-				let input = tgui.createElement({
-					type: "input",
-					classname: "ide-prompt-input",
-					properties: { type: "text" },
-				});
-				let value: string | null = null;
-				let dlg = tgui.createModal({
-					title: "Input",
-					scalesize: [0.2, 0.15],
-					minsize: [400, 250],
-					buttons: [
-						{
-							text: "Okay",
-							isDefault: true,
-							onClick: () => {
-								value = input.value;
-								return false;
-							},
-						},
-						{
-							text: "Cancel",
-							isDefault: false,
-							onClick: () => {
-								return false;
-							},
-						},
-					],
-					enterConfirms: true,
-					onClose: () => {
-						resolve(value);
-						return false;
-					},
-				});
-				tgui.createElement({
-					type: "p",
-					parent: dlg.content,
-					text: msg,
-					style: {
-						"white-space": "pre-wrap", // do linebreaks
-					},
-				});
-				dlg.content.appendChild(input);
-				tgui.startModal(dlg);
-				input.focus();
-			});
-		};
-		interpreter.service.message = function (msg, filename, line, ch, href) {
-			if (typeof filename === "undefined") filename = null;
-			if (typeof line === "undefined") line = null;
-			if (typeof ch === "undefined") ch = null;
-			if (typeof href === "undefined") href = "";
+		interpreter.service.message = (
+			msg: string,
+			filename?: string,
+			line?: number,
+			ch?: number,
+			href?: string
+		) => {
 			addMessage("error", msg, filename, line, ch, href);
 		};
-		interpreter.service.statechanged = function (stop) {
+		interpreter.service.statechanged = (stop: boolean) => {
 			if (stop) utils.updateControls();
 			else utils.updateStatus();
-			if (interpreter!.status === "finished") {
+			if (interpreter.status === "finished") {
 				let ed = collection.getActiveEditor();
 				if (ed) ed.focus();
 			}
 		};
-		interpreter.service.breakpoint = function () {
-			utils.updateControls();
-		};
-		interpreter.service.turtle.dom = turtle;
-		interpreter.service.canvas.dom = canvas;
-		interpreter.eventnames["canvas.resize"] = true;
-		interpreter.eventnames["canvas.mousedown"] = true;
-		interpreter.eventnames["canvas.mouseup"] = true;
-		interpreter.eventnames["canvas.mousemove"] = true;
-		interpreter.eventnames["canvas.mouseout"] = true;
-		interpreter.eventnames["canvas.keydown"] = true;
-		interpreter.eventnames["canvas.keyup"] = true;
-		interpreter.eventnames["timer"] = true;
-		interpreter.reset();
 
-		let breakpointsMoved = false;
-		for (let ed of collection.getEditors()) {
-			// set and correct breakpoints
-			let br = ed.properties().breakpoints;
-			let a = new Array<number>();
-			for (let line of br) a.push(line + 1);
+		this.#turtle = createTurtle(turtleContainer, this.#controller.signal);
+		turtleContainer.replaceChildren(this.#turtle);
+		interpreter.service.turtle.dom = this.#turtle;
 
-			let result = interpreter.defineBreakpoints(a, ed.properties().name);
-			if (result !== null) {
-				for (let line of br)
-					if (!result.has(line))
-						ed.properties().toggleBreakpoint(line);
-				for (let line of result)
-					if (!br.has(line)) ed.properties().toggleBreakpoint(line);
-				breakpointsMoved = true;
-			}
-		}
+		this.#canvas = createCanvas(
+			interpreter,
+			canvasContainer,
+			this.#controller.signal
+		);
+		canvasContainer.replaceChildren(this.#canvas);
+		interpreter.service.canvas.dom = this.#canvas;
+	}
 
-		//		if (breakpointsMoved)
-		//		{
-		//			alert("Note: breakpoints were moved to valid locations");   // TODO: proper modal dialog!!!
-		//		}
+	run() {
+		// Start background execution and focus the canvas container for keyboard input
+		this.interpreter.run();
+		this.#canvas.parentElement!.focus();
+	}
+
+	destroy() {
+		this.#controller.abort();
+
+		this.interpreter.stopthread();
+
+		this.#turtle.remove();
+		this.#canvas.remove();
 	}
 }
 
@@ -379,8 +305,6 @@ export function create(container: HTMLElement, options?: any) {
 
 	if (!options)
 		options = { "export-button": true, "documentation-button": true };
-
-	let standalone = options.standalone;
 
 	tgui.releaseAllHotkeys();
 
@@ -656,23 +580,21 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "editorcontainer",
 	});
 
-	if (!standalone) {
-		if (config && config.hasOwnProperty("open")) {
-			for (let filename of config.open) {
-				openEditorFromLocalStorage(filename, false);
-			}
+	if (config && config.hasOwnProperty("open")) {
+		for (let filename of config.open) {
+			openEditorFromLocalStorage(filename, false);
 		}
-		if (config && config.hasOwnProperty("active")) {
-			let ed = collection.getEditor(config.active);
-			if (ed) collection.setActiveEditor(ed, false);
-		}
-		if (config && config.hasOwnProperty("main")) {
-			runselector.value = config.main;
-		}
-		if (collection.getEditors().size === 0) {
-			const ed = openEditorFromLocalStorage("Main");
-			if (!ed) createEditorTab("Main");
-		}
+	}
+	if (config && config.hasOwnProperty("active")) {
+		let ed = collection.getEditor(config.active);
+		if (ed) collection.setActiveEditor(ed, false);
+	}
+	if (config && config.hasOwnProperty("main")) {
+		runselector.value = config.main;
+	}
+	if (collection.getEditors().size === 0) {
+		const ed = openEditorFromLocalStorage("Main");
+		if (!ed) createEditorTab("Main");
 	}
 
 	let panel_messages = tgui.createPanel({
@@ -735,59 +657,9 @@ export function create(container: HTMLElement, options?: any) {
 		fallbackState: "float",
 		icon: icons.turtle,
 	});
-	turtle = tgui.createElement({
-		type: "canvas",
-		parent: panel_turtle.content,
-		properties: { width: "600", height: "600" },
-		classname: "ide ide-turtle",
-	});
-	turtle.addEventListener("contextmenu", function (event) {
-		event.preventDefault();
-		return false;
-	});
-
-	// ensure that the turtle area remains square and centered
-	let makeSquare = function () {
-		let w = turtle.parentElement.offsetWidth;
-		let h = turtle.parentElement.offsetHeight;
-		let size = Math.min(w, h);
-		turtle.style.width = size + "px";
-		turtle.style.height = size + "px";
-		turtle.style.marginLeft =
-			(w > size ? Math.floor((w - size) / 2) : 0) + "px";
-		turtle.style.marginTop =
-			(h > size ? Math.floor((h - size) / 2) : 0) + "px";
-	};
-	panel_turtle.onArrange = makeSquare;
-	panel_turtle.onResize = makeSquare;
-
-	createTypedEvent = function (displayname, dict) {
-		if (!interpreter) throw new Error("[createTypedEvent] internal error");
-		let p = interpreter.program;
-		for (let idx = 10; idx < p.types.length; idx++) {
-			let t = p.types[idx];
-			if (t.displayname === displayname) {
-				// create the object without calling the constructor, considering default values, etc
-				let obj: any = { type: t, value: { a: [] } };
-				let n = {
-					type: p.types[Typeid.typeid_null],
-					value: { b: null },
-				};
-				for (let i = 0; i < t.objectsize; i++) obj.value.a.push(n);
-
-				// fill its attributes
-				for (let key in t.members) {
-					if (!dict.hasOwnProperty(key)) continue;
-					obj.value.a[t.members[key].id] = TScript.json2typed.call(
-						interpreter,
-						dict[key]
-					);
-				}
-				return obj;
-			}
-		}
-		throw new Error("[createTypedEvent] unknown type " + displayname);
-	};
+	turtleContainer = panel_turtle.content;
+	turtleContainer.style.alignContent = "center";
+	turtleContainer.style.textAlign = "center";
 
 	// prepare canvas output panel
 	let panel_canvas = tgui.createPanel({
@@ -795,170 +667,11 @@ export function create(container: HTMLElement, options?: any) {
 		title: "Canvas",
 		state: "icon",
 		fallbackState: "right",
-		onResize: function (w, h) {
-			if (!standalone && canvas) {
-				canvas.width = w;
-				canvas.height = h;
-			}
-			if (interpreter) {
-				let e: any = { width: w, height: h };
-				e = createTypedEvent("canvas.ResizeEvent", e);
-				interpreter.enqueueEvent("canvas.resize", e);
-			}
-		},
 		icon: icons.canvas,
-	});
-	canvas = tgui.createElement({
-		type: "canvas",
-		parent: panel_canvas.content,
-		properties: {
-			width: panel_canvas.content.clientWidth.toString(),
-			height: panel_canvas.content.clientHeight.toString(),
-		},
-		classname: "ide ide-canvas",
-	});
-	canvas.addEventListener("contextmenu", function (event) {
-		event.preventDefault();
-		return false;
 	});
 	panel_canvas.content.tabIndex = -1;
 	panel_canvas.size = [0, 0];
-	//	module.canvas.font_size = 16;
-	function buttonName(button) {
-		if (button === 0) return "left";
-		else if (button === 1) return "middle";
-		else return "right";
-	}
-	function buttonNames(buttons) {
-		let ret = new Array();
-		if (buttons & 1) ret.push("left");
-		if (buttons & 4) ret.push("middle");
-		if (buttons & 2) ret.push("right");
-		return ret;
-	}
-	let ctx = canvas.getContext("2d");
-	ctx.lineWidth = 1;
-	ctx.fillStyle = "#000";
-	ctx.strokeStyle = "#000";
-	ctx.font = "16px Helvetica";
-	ctx.textAlign = "left";
-	ctx.textBaseline = "top";
-	canvas.addEventListener("mousedown", function (event) {
-		if (
-			!interpreter ||
-			!interpreter.background ||
-			(interpreter.status != "running" &&
-				interpreter.status != "waiting" &&
-				interpreter.status != "dialog")
-		)
-			return;
-		let e: any = {
-			button: buttonName(event.button),
-			buttons: buttonNames(event.buttons),
-			shift: event.shiftKey,
-			control: event.ctrlKey,
-			alt: event.altKey,
-			meta: event.metaKey,
-		};
-		e = Object.assign(e, utils.relpos(canvas, event.pageX, event.pageY));
-		e = createTypedEvent("canvas.MouseButtonEvent", e);
-		interpreter.enqueueEvent("canvas.mousedown", e);
-	});
-	canvas.addEventListener("mouseup", function (event) {
-		if (
-			!interpreter ||
-			!interpreter.background ||
-			(interpreter.status != "running" &&
-				interpreter.status != "waiting" &&
-				interpreter.status != "dialog")
-		)
-			return;
-		let e: any = {
-			button: buttonName(event.button),
-			buttons: buttonNames(event.buttons),
-			shift: event.shiftKey,
-			control: event.ctrlKey,
-			alt: event.altKey,
-			meta: event.metaKey,
-		};
-		e = Object.assign(e, utils.relpos(canvas, event.pageX, event.pageY));
-		e = createTypedEvent("canvas.MouseButtonEvent", e);
-		interpreter.enqueueEvent("canvas.mouseup", e);
-	});
-	canvas.addEventListener("mousemove", function (event) {
-		if (
-			!interpreter ||
-			!interpreter.background ||
-			(interpreter.status != "running" &&
-				interpreter.status != "waiting" &&
-				interpreter.status != "dialog")
-		)
-			return;
-		let e: any = {
-			button: 0,
-			buttons: buttonNames(event.buttons),
-			shift: event.shiftKey,
-			control: event.ctrlKey,
-			alt: event.altKey,
-			meta: event.metaKey,
-		};
-		e = Object.assign(e, utils.relpos(canvas, event.pageX, event.pageY));
-		e = createTypedEvent("canvas.MouseMoveEvent", e);
-		interpreter.enqueueEvent("canvas.mousemove", e);
-	});
-	canvas.addEventListener("mouseout", function (event) {
-		if (
-			!interpreter ||
-			!interpreter.background ||
-			(interpreter.status != "running" &&
-				interpreter.status != "waiting" &&
-				interpreter.status != "dialog")
-		)
-			return;
-		let e = {
-			type: interpreter.program.types[Typeid.typeid_null],
-			value: { b: null },
-		};
-		interpreter.enqueueEvent("canvas.mouseout", e);
-	});
-	panel_canvas.content.addEventListener("keydown", function (event) {
-		if (
-			!interpreter ||
-			!interpreter.background ||
-			(interpreter.status != "running" &&
-				interpreter.status != "waiting" &&
-				interpreter.status != "dialog")
-		)
-			return;
-		let e: any = {
-			key: event.key,
-			shift: event.shiftKey,
-			control: event.ctrlKey,
-			alt: event.altKey,
-			meta: event.metaKey,
-		};
-		e = createTypedEvent("canvas.KeyboardEvent", e);
-		interpreter.enqueueEvent("canvas.keydown", e);
-	});
-	panel_canvas.content.addEventListener("keyup", function (event) {
-		if (
-			!interpreter ||
-			!interpreter.background ||
-			(interpreter.status != "running" &&
-				interpreter.status != "waiting" &&
-				interpreter.status != "dialog")
-		)
-			return;
-		let e: any = {
-			key: event.key,
-			shift: event.shiftKey,
-			control: event.ctrlKey,
-			alt: event.altKey,
-			meta: event.metaKey,
-		};
-		e = createTypedEvent("canvas.KeyboardEvent", e);
-		interpreter.enqueueEvent("canvas.keyup", e);
-	});
+	canvasContainer = panel_canvas.content;
 
 	let panel_tutorial = tgui.createPanel({
 		name: "tutorial",

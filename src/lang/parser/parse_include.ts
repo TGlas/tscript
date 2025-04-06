@@ -1,10 +1,21 @@
+import { ParseOptions, ParserPosition, ParserState } from ".";
 import { ErrorHelper } from "../errors/ErrorHelper";
-import { Options } from "../helpers/options";
 import { Lexer } from "./lexer";
 import { peek_keyword } from "./parser_helper";
 
-// return the included string in case of an include statement and null otherwise
-export function parse_include(state, parent, options: Options) {
+interface IncludeResult {
+	/** the included filename, as specified in the include statement */
+	filename: string;
+	/** the position after the filename string, where any errors should be placed */
+	position: ParserPosition;
+}
+
+// return the included filename in case of an include statement and null otherwise
+export function parse_include(
+	state: ParserState,
+	parent,
+	options: ParseOptions
+): IncludeResult | null {
 	// handle "include" keyword
 	if (peek_keyword(state) !== "include") return null;
 	let token = Lexer.get_token(state, options);
@@ -14,13 +25,12 @@ export function parse_include(state, parent, options: Options) {
 	);
 
 	// parse the filename
-	let where = state.get();
 	token = Lexer.get_token(state, options);
 	if (token.type !== "string") {
 		state.set(Lexer.before_token);
 		state.error("/syntax/se-91");
 	}
-	let fn = token.value;
+	const filename = token.value;
 
 	// parse the final semicolon
 	token = Lexer.get_token(state, options);
@@ -29,17 +39,5 @@ export function parse_include(state, parent, options: Options) {
 		state.error("/syntax/se-92");
 	}
 
-	// handle multiple includes
-	if (state.includes.has(fn)) return { filename: fn, source: "" };
-	state.includes.add(fn);
-
-	// load the file either form the open documents or local storage
-	let content =
-		state.documents[fn] ?? localStorage.getItem(`tscript.code.${fn}`);
-	if (content == undefined) {
-		state.set(Lexer.before_token);
-		state.error("/argument-mismatch/am-48", [fn]);
-	}
-
-	return { filename: fn, source: content };
+	return { filename, position: Lexer.before_token };
 }

@@ -15,9 +15,10 @@ import { Typeid } from "../helpers/typeIds";
 import { parse_call } from "./parse_call";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { resolve_name } from "./parse_fn";
+import { ParserState } from ".";
 
 export function parse_expression(
-	state,
+	state: ParserState,
 	parent,
 	options,
 	lhs: boolean = false,
@@ -96,7 +97,7 @@ export function parse_expression(
 			ex.sim = simfalse;
 		} else if (token.type === "integer") {
 			// constant
-			let v = parseFloat(token.value);
+			let v = token.value;
 			if (v > 2147483647) {
 				state.set(Lexer.before_token);
 				state.error("/syntax/se-23");
@@ -111,7 +112,7 @@ export function parse_expression(
 			ex.sim = simfalse;
 		} else if (token.type === "real") {
 			// constant
-			let v = parseFloat(token.value);
+			let v = token.value;
 			ex.petype = "constant";
 			ex.typedvalue = {
 				type: get_program(parent).types[Typeid.typeid_real],

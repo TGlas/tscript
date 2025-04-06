@@ -1,15 +1,15 @@
 import * as ide from ".";
-import { Parser } from "../../lang/parser";
+import { ParseInput, parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { fileDlg, options } from "./dialogs";
+import { fileDlg, parseOptions } from "./dialogs";
 import {
 	closeEditor,
 	createEditorTabByModal,
 	openEditorFromLocalStorage,
 } from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
-import { updateControls } from "./utils";
+import { interpreterEnded, updateControls } from "./utils";
 
 export let buttons: any = [
 	{
@@ -96,37 +96,38 @@ function cmd_reset() {
 	updateControls();
 }
 
+/**
+ * Gets the active interpreter session or creates a new one if no program is running
+ */
+function getOrRestartSession() {
+	let session = ide.interpreterSession;
+	if (!session || interpreterEnded(session.interpreter)) {
+		// (re-)start the interpreter
+		session = ide.prepareRun();
+	}
+
+	return session;
+}
+
 function cmd_run() {
-	if (isInterpreterBusy()) ide.prepare_run();
-	if (!ide.interpreter) return;
-	ide.interpreter.run();
-	ide.canvas.parentElement.focus();
+	getOrRestartSession()?.interpreter.run();
 }
 
 function cmd_interrupt() {
-	if (isInterpreterBusy()) return;
-	ide.interpreter!.interrupt();
+	const interpreter = ide.interpreterSession?.interpreter;
+	if (interpreter && !interpreterEnded(interpreter)) interpreter.interrupt();
 }
 
 function cmd_step_into() {
-	if (isInterpreterBusy()) ide.prepare_run();
-	if (!ide.interpreter) return;
-	if ((ide.interpreter as any).running) return;
-	ide.interpreter.step_into();
+	getOrRestartSession()?.interpreter.step_into();
 }
 
 function cmd_step_over() {
-	if (isInterpreterBusy()) ide.prepare_run();
-	if (!ide.interpreter) return;
-	if ((ide.interpreter as any).running) return;
-	ide.interpreter.step_over();
+	getOrRestartSession()?.interpreter.step_over();
 }
 
 function cmd_step_out() {
-	if (isInterpreterBusy()) ide.prepare_run();
-	if (!ide.interpreter) return;
-	if ((ide.interpreter as any).running) return;
-	ide.interpreter.step_out();
+	getOrRestartSession()?.interpreter.step_out();
 }
 
 export function cmd_export() {
@@ -140,17 +141,14 @@ export function cmd_export() {
 			return;
 	}
 
-	if (!ide.collection.getActiveEditor()) return;
+	const parsedFiles = new Map<string, ParseInput>();
+	const parseInput = ide.createParseInput(parsedFiles);
+	if (!parseInput) return;
 
 	ide.clear();
 
-	const toParse = {
-		documents: ide.collection.getValues(),
-		main: ide.getRunSelection(),
-	};
-
 	// check that the code at least compiles
-	let result = Parser.parse(toParse, options);
+	let result = parseProgram(parseInput, parseOptions);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {
@@ -164,10 +162,10 @@ export function cmd_export() {
 					err.line +
 					": " +
 					err.message,
-				err.filename,
+				err.filename ?? undefined,
 				err.line,
 				err.ch,
-				err.href
+				err.type === "error" ? err.href : undefined
 			);
 		}
 		return;
@@ -178,7 +176,7 @@ export function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = ide.getRunSelection();
+	let title = parseInput.filename;
 	let fn = "tscript-export";
 	if (
 		!fn.endsWith("html") &&
@@ -224,7 +222,12 @@ export function cmd_export() {
 	tgui.startModal(dlg);
 
 	// escape the TScript source code; prepare it to reside inside an html document
-	let source = JSON.stringify(toParse);
+	let source = JSON.stringify({
+		documents: Object.fromEntries(
+			Array.from(parsedFiles.values(), (f) => [f.filename, f.source])
+		),
+		main: parseInput.filename,
+	});
 
 	// obtain the page itself as a string
 	{
@@ -385,13 +388,4 @@ export function cmd_download() {
 	});
 	link.click();
 	link.remove();
-}
-
-function isInterpreterBusy() {
-	return (
-		!ide.interpreter ||
-		(ide.interpreter.status != "running" &&
-			ide.interpreter.status != "waiting" &&
-			ide.interpreter.status != "dialog")
-	);
 }

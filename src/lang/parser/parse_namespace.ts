@@ -1,12 +1,12 @@
 import { ErrorHelper } from "../errors/ErrorHelper";
 import { Lexer } from "./lexer";
-import { TScript } from "..";
 import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
+import { ParserState } from ".";
 
 // Parse a namespace declaration.
-export function parse_namespace(state, parent, options) {
+export function parse_namespace(state: ParserState, parent, options) {
 	// handle "namespace" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);

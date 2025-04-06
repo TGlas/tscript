@@ -3,8 +3,9 @@ import { Lexer } from "./lexer";
 import { get_function } from "../helpers/getParents";
 import { Typeid } from "../helpers/typeIds";
 import { parse_expression } from "./parse_expression";
+import { ParserState } from ".";
 
-export function parse_return(state, parent, options) {
+export function parse_return(state: ParserState, parent, options) {
 	// handle "return" keyword
 	let where = state.get();
 	let token = Lexer.get_token(state, options);
