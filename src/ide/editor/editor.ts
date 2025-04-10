@@ -153,6 +153,7 @@ export class Editor {
 		this.dom_content.style.height = "100%";
 		this.dom_content.style.width = "100%";
 		this.dom_content.style.flexGrow = "1";
+		this.dom_content.style.cursor = "text";
 		this.dom_container.appendChild(this.dom_content);
 
 		this.dom_display = document.createElement("canvas");
