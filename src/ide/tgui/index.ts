@@ -289,7 +289,20 @@ export function createButton(description: ButtonDescription) {
 	return { dom: element };
 }
 
-interface TreeDescription {
+export interface TreeNodeInfo<NodeDataT> {
+	/** Some user data associated with/identifying the child nodes */
+	children: NodeDataT[];
+	/** IDs corresponding to the children at the same index */
+	ids: string[];
+	/** whether the node should be opened */
+	opened?: boolean;
+	/** The element to be displayed */
+	element?: HTMLElement;
+	/** scrolls such that this element becomes visible */
+	visible?: boolean;
+}
+
+export interface TreeDescription<NodeDataT> {
 	/** dictionary of CSS styles */
 	style?: Record<string, string>;
 	/** DOM object containing the control */
@@ -298,13 +311,22 @@ interface TreeDescription {
 	id?: string;
 	/** tooltip */
 	tooltip?: string;
-	/** function describing the tree content */
-	info?: (value: any, node_id: string) => any;
+	/**
+	 * function describing the tree content
+	 * @param value The user data of the child that was returned by a previous
+	 *	call to this function (as `TreeNodeInfo.children`). `null` for the root.
+	 * @param node_id The node id that was returned in `TreeNodeInfo.ids`. `""`
+	 *	for the root.
+	 */
+	info?: (
+		value: NodeDataT | null,
+		node_id: string
+	) => TreeNodeInfo<NodeDataT>;
 	/** event handler, taking an "event" argument */
 	nodeclick?: (event: MouseEvent, value: any, id: any) => any;
 }
 
-interface TreeControl extends TreeDescription {
+export interface TreeControl<NodeDataT> extends TreeDescription<NodeDataT> {
 	/** DOM element representing the value */
 	element: HTMLElement;
 	/** boolean indicating whether the tree node should be opened or closed by default */
@@ -323,7 +345,9 @@ interface TreeControl extends TreeDescription {
  * On calling `control.update(info)` the tree is rebuilt from scratch.
  * The function `control.value(element)` returns the value identifying a given tree element.
  */
-export function createTreeControl(description: TreeDescription): TreeControl {
+export function createTreeControl<NodeDataT = any>(
+	description: TreeDescription<NodeDataT>
+): TreeControl<NodeDataT> {
 	// control with styling
 	let element = createElement({
 		...description,
