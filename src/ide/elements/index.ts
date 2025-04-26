@@ -20,6 +20,8 @@ import {
 	createIDEInterpreter,
 	createTurtle,
 } from "./create-interpreter";
+import { FileTree } from "./file-tree";
+import { projectsFSP } from "../projects-fs";
 
 export { createEditorTab };
 
@@ -699,6 +701,11 @@ export async function create(container: HTMLElement, options?: any) {
 			addMessage("error", error);
 		}
 	);
+
+	let ft = new FileTree();
+	await ft.init();
+	// for testing
+	await ft.addSampleContent();
 
 	tgui.arrangePanels();
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
