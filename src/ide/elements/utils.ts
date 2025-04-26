@@ -60,7 +60,7 @@ export function updateStatus() {
 /**
  * update the controls to reflect the interpreter state
  */
-export function updateControls() {
+export async function updateControls() {
 	// move the cursor in the source code
 	if (ide.interpreter) {
 		if (ide.interpreter.stack.length > 0) {
@@ -81,10 +81,10 @@ export function updateControls() {
 	}
 
 	// show the current stack state
-	ide.stacktree.update(stackinfo);
+	await ide.stacktree.update(stackinfo);
 
 	// show the current program tree
-	ide.programtree.update(programinfo);
+	await ide.programtree.update(programinfo);
 
 	updateStatus();
 }

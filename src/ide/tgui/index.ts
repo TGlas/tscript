@@ -321,7 +321,7 @@ export interface TreeDescription<NodeDataT> {
 	info?: (
 		value: NodeDataT | null,
 		node_id: string
-	) => TreeNodeInfo<NodeDataT>;
+	) => Promise<TreeNodeInfo<NodeDataT>> | TreeNodeInfo<NodeDataT>;
 	/** event handler, taking an "event" argument */
 	nodeclick?: (event: MouseEvent, value: any, id: any) => any;
 }
@@ -345,9 +345,9 @@ export interface TreeControl<NodeDataT> extends TreeDescription<NodeDataT> {
  * On calling `control.update(info)` the tree is rebuilt from scratch.
  * The function `control.value(element)` returns the value identifying a given tree element.
  */
-export function createTreeControl<NodeDataT = any>(
+export async function createTreeControl<NodeDataT = any>(
 	description: TreeDescription<NodeDataT>
-): TreeControl<NodeDataT> {
+): Promise<TreeControl<NodeDataT>> {
 	// control with styling
 	let element = createElement({
 		...description,
@@ -404,11 +404,11 @@ export function createTreeControl<NodeDataT = any>(
 	// As part of createInternalTree, this function creates the actual
 	// child nodes. It is called when the node is opened for the first
 	// time, or if the node is created in the opened state.
-	function createChildNodes(state, result) {
+	async function createChildNodes(state, result) {
 		for (let i = 0; i < result.children.length; i++) {
 			let child = result.children[i];
 			let child_id = result.ids[i];
-			let substate = createInternalTree.call(this, child, child_id);
+			let substate = await createInternalTree.call(this, child, child_id);
 			state.children.push(substate);
 			if (state.value === null) {
 				state.main.appendChild(substate.main);
@@ -437,8 +437,14 @@ export function createTreeControl<NodeDataT = any>(
 
 	// Recursively create a new state and DOM tree.
 	// The function assumes that #this is the control.
-	function createInternalTree(value, id) {
-		let result = this.info(value, id);
+	async function createInternalTree(value, id) {
+		const resultPromise = await this.info(value, id);
+		let result;
+		if (resultPromise instanceof Promise) {
+			result = await resultPromise;
+		} else {
+			result = resultPromise;
+		}
 
 		// create a new state
 		let state = {
@@ -505,7 +511,7 @@ export function createTreeControl<NodeDataT = any>(
 			// make the toggle button clickable
 			if (result.children.length > 0) {
 				td1.style.cursor = "pointer";
-				td1.addEventListener("click", function (event) {
+				td1.addEventListener("click", async function (event) {
 					let element = this.parentNode!.children[1].children[0];
 					let state = control.element2state[element.id];
 					if (state.open) {
@@ -515,8 +521,11 @@ export function createTreeControl<NodeDataT = any>(
 					} else {
 						// expand the tree
 						if (!state.expanded) {
-							let result = control.info(state.value, state.id);
-							createChildNodes.call(control, state, result);
+							let result = await control.info(
+								state.value,
+								state.id
+							);
+							await createChildNodes.call(control, state, result);
 							updateLookup.call(control, state);
 						}
 
@@ -550,7 +559,7 @@ export function createTreeControl<NodeDataT = any>(
 
 		// process the children and recurse
 		if (state.open) {
-			createChildNodes.call(this, state, result);
+			await createChildNodes.call(this, state, result);
 			state.expanded = true;
 		}
 
@@ -559,7 +568,7 @@ export function createTreeControl<NodeDataT = any>(
 
 	// Update the tree to represent new data, i.e., replace the stored
 	// info function and apply the new function to obtain the tree.
-	control.update = function (info) {
+	control.update = async function (info) {
 		// store the new info object for later use
 		this.info = info;
 		this.visible = null;
@@ -569,7 +578,7 @@ export function createTreeControl<NodeDataT = any>(
 		clearElement(this.dom);
 
 		// update the state and the DOM based on info
-		this.state = createInternalTree.call(this, null, "");
+		this.state = await createInternalTree.call(this, null, "");
 
 		// prepare reverse lookup
 		this.element2state = {};
@@ -603,7 +612,7 @@ export function createTreeControl<NodeDataT = any>(
 	};
 
 	// initialize the control
-	if (control.info) control.update.call(control, control.info);
+	if (control.info) await control.update.call(control, control.info);
 
 	return control;
 }
