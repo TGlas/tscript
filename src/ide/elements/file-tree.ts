@@ -14,7 +14,9 @@ type FileTreeNode = {
 	type: "dir" | "file";
 };
 
-async function fileTreeNodeCreateHTML(node: FileTreeNode): Promise<HTMLElement> {
+async function fileTreeNodeCreateHTML(
+	node: FileTreeNode
+): Promise<HTMLElement> {
 	const newElement = tgui.createElement({
 		type: "span",
 		text: node.basename + (node.type === "dir" ? "/" : ""),
@@ -24,9 +26,11 @@ async function fileTreeNodeCreateHTML(node: FileTreeNode): Promise<HTMLElement> 
 		if (node.type === "file") {
 			try {
 				// TODO: get root dir instead of /tmp hardcoded, pass as to fileTreeNodeCreateHTML as param?
-				const absPath = simplifyPath(`/tmp${node.parent?.path}/${node.basename}`);
+				const absPath = simplifyPath(
+					`/tmp${node.parent?.path}/${node.basename}`
+				);
 				// TODO: same file name in other projects/dirs?
-				// TODO: if file is open already, focus this editor instead of creating new one 
+				// TODO: if file is open already, focus this editor instead of creating new one
 				const fileContent = await readFileContent(absPath);
 				createEditorTab(node.basename, fileContent.toString());
 			} catch (error) {
@@ -40,13 +44,15 @@ async function fileTreeNodeCreateHTML(node: FileTreeNode): Promise<HTMLElement> 
 
 async function readFileContent(filePath: string): Promise<string> {
 	try {
-	  const fileContent = await projectsFSP.readFile(filePath, { encoding: "utf8" });
-	  return fileContent.toString();
+		const fileContent = await projectsFSP.readFile(filePath, {
+			encoding: "utf8",
+		});
+		return fileContent.toString();
 	} catch (error) {
-	  console.error("Error reading file:", error);
-	  return "";
+		console.error("Error reading file:", error);
+		return "";
 	}
-  }
+}
 
 function simplifyPath(path: string): string {
 	return path.replaceAll(/\/+/g, "/");
