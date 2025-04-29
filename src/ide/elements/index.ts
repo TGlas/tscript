@@ -20,6 +20,8 @@ import {
 	createIDEInterpreter,
 	createTurtle,
 } from "./create-interpreter";
+import { FileTree } from "./file-tree";
+import { projectsFSP } from "../projects-fs";
 
 export { createEditorTab };
 
@@ -36,8 +38,8 @@ export let editortabs: any = null;
 export let messages: any = null;
 let messagecontainer: any = null;
 
-export let stacktree: any = null;
-export let programtree: any = null;
+export let stacktree: tgui.TreeControl<any> | null = null;
+export let programtree: tgui.TreeControl<any> | null = null;
 export let programstate: any = null;
 
 let canvasContainer!: HTMLElement;
@@ -110,7 +112,7 @@ export function addMessage(
 			msg.ide_filename = filename;
 			msg.ide_line = line;
 			msg.ide_ch = ch;
-			msg.addEventListener("click", function (event) {
+			msg.addEventListener("click", async function (event) {
 				utils.setCursorPosition(
 					event.target.ide_line,
 					event.target.ide_ch,
@@ -120,7 +122,7 @@ export function addMessage(
 					interpreter &&
 					(interpreter.status != "running" || !interpreter.background)
 				) {
-					utils.updateControls();
+					await utils.updateControls();
 				}
 				return false;
 			});
@@ -262,8 +264,8 @@ class InterpreterSession {
 		) => {
 			addMessage("error", msg, filename, line, ch, href);
 		};
-		interpreter.service.statechanged = (stop: boolean) => {
-			if (stop) utils.updateControls();
+		interpreter.service.statechanged = async (stop: boolean) => {
+			if (stop) await utils.updateControls();
 			else utils.updateStatus();
 			if (interpreter.status === "finished") {
 				let ed = collection.getActiveEditor();
@@ -300,7 +302,7 @@ class InterpreterSession {
 	}
 }
 
-export function create(container: HTMLElement, options?: any) {
+export async function create(container: HTMLElement, options?: any) {
 	let config = loadConfig();
 
 	if (!options)
@@ -624,7 +626,7 @@ export function create(container: HTMLElement, options?: any) {
 		fallbackState: "right",
 		icon: icons.stackView,
 	});
-	stacktree = tgui.createTreeControl({
+	stacktree = new tgui.TreeControl<any>({
 		parent: panel_stackview.content,
 	});
 
@@ -636,7 +638,8 @@ export function create(container: HTMLElement, options?: any) {
 		fallbackState: "right",
 		icon: icons.programView,
 	});
-	programtree = tgui.createTreeControl({
+
+	programtree = new tgui.TreeControl<any>({
 		parent: panel_programview.content,
 		nodeclick: function (event, value, id) {
 			if (value.where) {
@@ -699,6 +702,11 @@ export function create(container: HTMLElement, options?: any) {
 			addMessage("error", error);
 		}
 	);
+
+	let ft = new FileTree();
+	await ft.init();
+	// for testing
+	await ft.addSampleContent();
 
 	tgui.arrangePanels();
 	window["TScriptIDE"] = { tgui: tgui, ide: module };

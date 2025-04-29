@@ -126,3 +126,14 @@
 .dark-theme .tabs div.file span.close:hover {
 	color: #f44;
 }
+
+.dark-theme hr.file-tree {
+	color: #999;
+	background-color: #999;
+}
+
+/* increase specifity to override .tgui-tree-element:hover */
+.dark-theme
+	.file-tree-selected.file-tree-selected.file-tree-selected.file-tree-selected {
+	background-color: #44a;
+}
