@@ -363,6 +363,14 @@ interface TreeControlState<NodeDataT> {
 	id: "";
 }
 
+export type NodeEventHandler<
+	NodeDataT,
+	E extends keyof HTMLElementEventMap
+> = Exclude<
+	Exclude<TreeDescription<NodeDataT>["nodeEventHandlers"], undefined>,
+	undefined
+>[E];
+
 export class TreeControl<NodeDataT> {
 	readonly description: Readonly<Omit<TreeDescription<NodeDataT>, "info">>;
 	private readonly dom: HTMLElement;

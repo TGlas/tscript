@@ -1,7 +1,7 @@
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { type Panel } from "../tgui/panels";
-import { projectsFS, projectsFSP, rmdirRecursive } from "../projects-fs";
+import { projectsFSP, rmdirRecursive } from "../projects-fs";
 import { createEditorTab } from "./editor-tabs";
 
 type FileTreeNode = {
@@ -30,45 +30,47 @@ function simplifyPath(path: string): string {
 }
 
 export class FileTree {
-	_panel: Panel;
-	_treeControl: tgui.TreeControl<FileTreeNode>;
-	_dir: string | null = null;
+	private panel: Panel;
+	private treeControl: tgui.TreeControl<FileTreeNode>;
+	/** The current root directory */
+	private dir: string | null = null;
 
 	constructor() {
-		this._panel = tgui.createPanel({
+		this.panel = tgui.createPanel({
 			name: "file_tree",
 			title: "Files",
 			state: "icon",
 			fallbackState: "left",
 			icon: icons.editor, // TODO add own icon
 		});
-		this._treeControl = new tgui.TreeControl({
-			parent: this._panel.content,
+		this.treeControl = new tgui.TreeControl({
+			parent: this.panel.content,
 			info: this._info.bind(this),
 			cursorStyle: "pointer",
 			nodeEventHandlers: {
 				dblclick: this.onNodeDblClick.bind(this),
+				contextmenu: this.onNodeContextMenu.bind(this),
 			},
 		});
 	}
 
 	async init() {
-		this._treeControl.update();
+		this.treeControl.update();
 	}
 
 	async changeRootDir(dir: string | null) {
-		this._dir = dir;
-		await this._treeControl.update();
+		this.dir = dir;
+		await this.treeControl.update();
 	}
 
 	/**
 	 * Callback for TreeControl.info
 	 */
-	_info: Exclude<(typeof this._treeControl)["info"], undefined> = async (
+	_info: Exclude<(typeof this.treeControl)["info"], undefined> = async (
 		value,
 		_node_id
 	) => {
-		if (this._dir === null) {
+		if (this.dir === null) {
 			return {
 				children: [],
 				ids: [],
@@ -89,7 +91,7 @@ export class FileTree {
 		const children: FileTreeNode[] = [];
 		const ids: string[] = [];
 		if (value.type === "dir") {
-			const absPath = simplifyPath(`${this._dir}/${value.path}`);
+			const absPath = simplifyPath(`${this.dir}/${value.path}`);
 			const dir = await projectsFSP.readdir(absPath);
 			for (const entry of dir) {
 				const absEntry = simplifyPath(`${absPath}/${entry}`);
@@ -134,16 +136,13 @@ export class FileTree {
 		await this.changeRootDir("/tmp");
 	}
 
-	private readonly onNodeDblClick: Exclude<
-		Exclude<
-			tgui.TreeDescription<FileTreeNode>["nodeEventHandlers"],
-			undefined
-		>["dblclick"],
-		undefined
+	private readonly onNodeDblClick: tgui.NodeEventHandler<
+		FileTreeNode,
+		"dblclick"
 	> = async (_event, value, _id) => {
 		if (value.type === "file") {
 			try {
-				const absPath = simplifyPath(`${this._dir}/${value.path}`);
+				const absPath = simplifyPath(`${this.dir}/${value.path}`);
 				// TODO: same file name in other projects/dirs?
 				// TODO: if file is open already, focus this editor instead of creating new one
 				const fileContent = await readFileContent(absPath);
