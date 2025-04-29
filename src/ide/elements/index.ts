@@ -38,8 +38,8 @@ export let editortabs: any = null;
 export let messages: any = null;
 let messagecontainer: any = null;
 
-export let stacktree: any = null;
-export let programtree: any = null;
+export let stacktree: tgui.TreeControl<any> | null = null;
+export let programtree: tgui.TreeControl<any> | null = null;
 export let programstate: any = null;
 
 let canvasContainer!: HTMLElement;
@@ -626,7 +626,7 @@ export async function create(container: HTMLElement, options?: any) {
 		fallbackState: "right",
 		icon: icons.stackView,
 	});
-	stacktree = await tgui.createTreeControl({
+	stacktree = new tgui.TreeControl<any>({
 		parent: panel_stackview.content,
 	});
 
@@ -638,7 +638,8 @@ export async function create(container: HTMLElement, options?: any) {
 		fallbackState: "right",
 		icon: icons.programView,
 	});
-	programtree = await tgui.createTreeControl({
+
+	programtree = new tgui.TreeControl<any>({
 		parent: panel_programview.content,
 		nodeclick: function (event, value, id) {
 			if (value.where) {

@@ -323,92 +323,87 @@ export interface TreeDescription<NodeDataT> {
 		node_id: string
 	) => Promise<TreeNodeInfo<NodeDataT>> | TreeNodeInfo<NodeDataT>;
 	/** event handler, taking an "event" argument */
-	nodeclick?: (event: MouseEvent, value: any, id: any) => any;
+	nodeclick?: (event: MouseEvent, value: NodeDataT, id: string) => any;
 }
 
-export interface TreeControl<NodeDataT> extends TreeDescription<NodeDataT> {
-	/** DOM element representing the value */
-	element: HTMLElement;
-	/** boolean indicating whether the tree node should be opened or closed by default */
-	opened: boolean;
-	/** array of child values */
-	children: HTMLElement[];
-	/** array of unique string IDs of the child nodes */
-	ids: string[];
-	/** if true then scroll to make this element visible */
-	visible?: boolean;
-}
+type TreeControlState = Record<string, any> & { __TreeControlState: undefined };
 
-/**
- * Create a new tree control.
- * The tree content is determined by the function description.info.
- * On calling `control.update(info)` the tree is rebuilt from scratch.
- * The function `control.value(element)` returns the value identifying a given tree element.
- */
-export async function createTreeControl<NodeDataT = any>(
-	description: TreeDescription<NodeDataT>
-): Promise<TreeControl<NodeDataT>> {
-	// control with styling
-	let element = createElement({
-		...description,
-		type: "div",
-		classname: "tgui tgui-control tgui-tree",
-	});
+export class TreeControl<NodeDataT> {
+	readonly description: Readonly<Omit<TreeDescription<NodeDataT>, "info">>;
+	private readonly dom: HTMLElement;
+	private root: TreeControlState;
+	private numberOfNodes: number;
+	/** Map from state.element.id to state */
+	private element2state: Record<string, TreeControlState>;
+	/** Map from state.id to state */
+	private id2state: Record<string, TreeControlState>;
+	// preserved across updates
+	private readonly id2open: Record<string, boolean>;
+	private info: TreeDescription<NodeDataT>["info"];
+	/** Index of the row a node in the tree that is supposed to be visible. */
+	private visible: number | null;
 
-	// create the root state, serving as a dummy holding the tree's top-level nodes
-	// state object layout:
-	// .value: JS value represented by the tree node, or null for the root node
-	// .id: unique string ID of the node
-	// .open: boolean indicating whether the node is "opened" or "closed", relevant only if .children.length > 0
-	// .expanded: boolean indicating whether the node's children have already been created
-	// .main: main DOM element, a table, can be null for the root node
-	// .childrows: array of table rows of the child elements
-	// .toggle: DOM element for toggling open/close
-	// .element: DOM element for the value
-	// .children: array of sub-states
-	let state = {
-		value: null,
-		id: "",
-		open: true,
-		expanded: false,
-		main: element,
-		childrows: [],
-		toggle: null,
-		element: null,
-		children: [],
-	};
+	constructor(description: Readonly<TreeDescription<NodeDataT>>) {
+		// control with styling
+		let element = createElement({
+			...description,
+			type: "div",
+			classname: "tgui tgui-control tgui-tree",
+		});
 
-	// create the control object
-	let control: any = {
-		dom: element,
-		info: description.info ? description.info : null,
-		update: null,
-		value: null,
-		state: state,
-		visible: null,
-		numberOfNodes: 0,
-		nodeclick: description.nodeclick ? description.nodeclick : null,
-		element2state: {},
-		id2state: {},
-		id2open: {}, // preserved across updates
-	};
+		// create the root state, serving as a dummy holding the tree's top-level nodes
+		// state object layout:
+		// .value: JS value represented by the tree node, or null for the root node
+		// .id: unique string ID of the node
+		// .open: boolean indicating whether the node is "opened" or "closed", relevant only if .children.length > 0
+		// .expanded: boolean indicating whether the node's children have already been created
+		// .main: main DOM element, a table, can be null for the root node
+		// .childrows: array of table rows of the child elements
+		// .toggle: DOM element for toggling open/close
+		// .element: DOM element for the value
+		// .children: array of sub-states
+		let state = {
+			value: null,
+			id: "",
+			open: true,
+			expanded: false,
+			main: element,
+			childrows: [],
+			toggle: null,
+			element: null,
+			children: [],
+		};
+
+		this.description = description;
+		this.dom = element;
+		this.root = state as unknown as TreeControlState;
+		this.numberOfNodes = 0;
+		this.element2state = {};
+		this.id2state = {};
+		this.id2open = {};
+		this.info = description.info;
+		this.visible = null;
+	}
 
 	// recursively add elements to the reverse lookup
-	function updateLookup(state) {
+	updateLookup(state: TreeControlState) {
 		if (state.element) this.element2state[state.element.id] = state;
 		if (state.id) this.id2state[state.id] = state;
 		for (let i = 0; i < state.children.length; i++)
-			updateLookup.call(this, state.children[i]);
+			this.updateLookup(state.children[i]);
 	}
 
 	// As part of createInternalTree, this function creates the actual
 	// child nodes. It is called when the node is opened for the first
 	// time, or if the node is created in the opened state.
-	async function createChildNodes(state, result) {
+	async createChildNodes(
+		state: TreeControlState,
+		result: TreeNodeInfo<NodeDataT>
+	) {
 		for (let i = 0; i < result.children.length; i++) {
 			let child = result.children[i];
 			let child_id = result.ids[i];
-			let substate = await createInternalTree.call(this, child, child_id);
+			let substate = await this.createInternalTree(child, child_id);
 			state.children.push(substate);
 			if (state.value === null) {
 				state.main.appendChild(substate.main);
@@ -436,10 +431,10 @@ export async function createTreeControl<NodeDataT = any>(
 	}
 
 	// Recursively create a new state and DOM tree.
-	// The function assumes that #this is the control.
-	async function createInternalTree(value, id) {
-		const resultPromise = await this.info(value, id);
-		let result;
+	async createInternalTree(value: NodeDataT | null, id: string) {
+		console.assert(this.info);
+		const resultPromise = await this.info!(value, id);
+		let result: TreeNodeInfo<NodeDataT>;
 		if (resultPromise instanceof Promise) {
 			result = await resultPromise;
 		} else {
@@ -447,7 +442,7 @@ export async function createTreeControl<NodeDataT = any>(
 		}
 
 		// create a new state
-		let state = {
+		const state = {
 			value: value,
 			id: id,
 			open:
@@ -474,7 +469,7 @@ export async function createTreeControl<NodeDataT = any>(
 					  }),
 			element: value === null ? null : result.element,
 			children: [],
-		};
+		} as unknown as TreeControlState;
 
 		if (value !== null) {
 			// create a table cell for the element
@@ -494,10 +489,11 @@ export async function createTreeControl<NodeDataT = any>(
 				classname: "tgui tgui-tree-cell-content",
 			});
 			td1.appendChild(state.toggle!);
-			td2.appendChild(state.element);
+			console.assert(state.element);
+			td2.appendChild(state.element!);
 
-			state.element.id = "tgui.id." + (Math.random() + 1); // TODO: bad code
-			state.element.className = "tgui tgui-tree-element";
+			state.element!.id = "tgui.id." + (Math.random() + 1); // TODO: bad code
+			state.element!.className = "tgui tgui-tree-element";
 
 			// initialize the toggle button
 			let s =
@@ -511,9 +507,9 @@ export async function createTreeControl<NodeDataT = any>(
 			// make the toggle button clickable
 			if (result.children.length > 0) {
 				td1.style.cursor = "pointer";
-				td1.addEventListener("click", async function (event) {
-					let element = this.parentNode!.children[1].children[0];
-					let state = control.element2state[element.id];
+				td1.addEventListener("click", async (_event: MouseEvent) => {
+					let element = td1.parentNode!.children[1].children[0];
+					let state = this.element2state[element.id];
 					if (state.open) {
 						// close the node, i.e., add the tgui-hidden class to all child rows
 						for (let i = 0; i < state.childrows.length; i++)
@@ -521,12 +517,12 @@ export async function createTreeControl<NodeDataT = any>(
 					} else {
 						// expand the tree
 						if (!state.expanded) {
-							let result = await control.info(
+							let result = await this.info!(
 								state.value,
 								state.id
 							);
-							await createChildNodes.call(control, state, result);
-							updateLookup.call(control, state);
+							await this.createChildNodes(state, result);
+							this.updateLookup(state);
 						}
 
 						// open the node, i.e., remove the tgui-hidden class from all child rows
@@ -534,19 +530,19 @@ export async function createTreeControl<NodeDataT = any>(
 							state.childrows[i].className = "tgui";
 					}
 					state.open = !state.open;
-					control.id2open[state.id] = state.open;
+					this.id2open[state.id] = state.open;
 					let s = state.open ? "\u25be" : "\u25b8";
 					state.toggle.innerHTML = s;
 				});
 			}
 
 			// make the element clickable
-			if (this.nodeclick) {
+			if (this.description.nodeclick) {
 				td2.style.cursor = "pointer";
-				td2.addEventListener("click", function (event) {
-					let element = this.children[0];
-					let state = control.element2state[element.id];
-					control.nodeclick(event, state.value, state.id);
+				td2.addEventListener("click", (event: MouseEvent) => {
+					let element = td2.children[0];
+					let state = this.element2state[element.id];
+					this.description.nodeclick!(event, state.value, state.id);
 				});
 			}
 		}
@@ -559,18 +555,24 @@ export async function createTreeControl<NodeDataT = any>(
 
 		// process the children and recurse
 		if (state.open) {
-			await createChildNodes.call(this, state, result);
+			await this.createChildNodes(state, result);
 			state.expanded = true;
 		}
 
 		return state;
 	}
 
-	// Update the tree to represent new data, i.e., replace the stored
-	// info function and apply the new function to obtain the tree.
-	control.update = async function (info) {
+	/**
+	 * Update the tree to represent new data, i.e., replace the stored
+	 * info function and apply the new function to obtain the tree. If no info
+	 * is provided, then it rust (re-) renders.
+	 */
+	async update(info?: TreeDescription<NodeDataT>["info"]) {
 		// store the new info object for later use
-		this.info = info;
+		if (info) {
+			this.info = info;
+		}
+		console.assert(this.info);
 		this.visible = null;
 		this.numberOfNodes = 0;
 
@@ -578,41 +580,50 @@ export async function createTreeControl<NodeDataT = any>(
 		clearElement(this.dom);
 
 		// update the state and the DOM based on info
-		this.state = await createInternalTree.call(this, null, "");
+		this.root = await this.createInternalTree(null, "");
 
 		// prepare reverse lookup
 		this.element2state = {};
 		this.id2state = {};
-		updateLookup.call(this, this.state);
+		this.updateLookup(this.root);
 
 		// scroll a specific element into view
 		if (this.visible !== null) {
-			window.setTimeout(function () {
-				let h = control.dom.clientHeight;
-				let y =
-					(control.dom.scrollHeight * control.visible) /
-					control.numberOfNodes;
-				if (
-					y < control.dom.scrollTop + 0.1 * h ||
-					y >= control.dom.scrollTop + 0.9 * h
-				) {
-					y -= 0.666 * h;
-					if (y < 0) y = 0;
-					control.dom.scrollTop = y;
-				}
-			}, 0);
+			await Promise.resolve();
+			let h = this.dom.clientHeight;
+			let y = (this.dom.scrollHeight * this.visible) / this.numberOfNodes;
+			if (
+				y < this.dom.scrollTop + 0.1 * h ||
+				y >= this.dom.scrollTop + 0.9 * h
+			) {
+				y -= 0.666 * h;
+				if (y < 0) y = 0;
+				this.dom.scrollTop = y;
+			}
 		}
-	};
+	}
 
 	// obtain the value corresponding to a DOM element
-	control.value = function (element) {
+	value(element: HTMLElement) {
 		if (!this.element2state.hasOwnProperty(element.id))
 			throw "[tgui TreeControl.get] unknown element";
 		return this.element2state[element.id].value;
-	};
+	}
+}
+
+/**
+ * Create a new tree control.
+ * The tree content is determined by the function description.info.
+ * On calling `control.update(info)` the tree is rebuilt from scratch.
+ * The function `control.value(element)` returns the value identifying a given tree element.
+ */
+export async function createTreeControl<NodeDataT = any>(
+	description: TreeDescription<NodeDataT>
+): Promise<TreeControl<NodeDataT>> {
+	const control = new TreeControl(description);
 
 	// initialize the control
-	if (control.info) await control.update.call(control, control.info);
+	if (description.info) await control.update();
 
 	return control;
 }

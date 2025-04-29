@@ -8,7 +8,7 @@ import { setCursorPosition, type2css } from "./utils";
  *  This function defines the stack trace tree.
  */
 export function stackinfo(value, node_id) {
-	let ret: any = { children: [], ids: [] };
+	let ret: tgui.TreeNodeInfo<any> = { children: [], ids: [] };
 	if (!interpreter) return ret;
 
 	if (value === null) {

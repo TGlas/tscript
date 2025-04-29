@@ -1,5 +1,4 @@
 import { icons } from "../icons";
-import { type TreeControl } from "../tgui";
 import * as tgui from "../tgui";
 import { type Panel } from "../tgui/panels";
 import { projectsFS, projectsFSP, rmdirRecursive } from "../projects-fs";
@@ -60,7 +59,7 @@ function simplifyPath(path: string): string {
 
 export class FileTree {
 	_panel: Panel;
-	_treeControl: TreeControl<FileTreeNode>;
+	_treeControl: tgui.TreeControl<FileTreeNode>;
 	_dir: string | null = null;
 
 	constructor() {
@@ -75,16 +74,16 @@ export class FileTree {
 	}
 
 	async init() {
-		this._treeControl = await tgui.createTreeControl({
+		this._treeControl = new tgui.TreeControl({
 			parent: this._panel.content,
 			info: this._info.bind(this),
 		});
-		(this._treeControl as any).update(this._treeControl.info);
+		this._treeControl.update();
 	}
 
 	async changeRootDir(dir: string | null) {
 		this._dir = dir;
-		await (this._treeControl as any).update(this._treeControl.info);
+		await this._treeControl.update();
 	}
 
 	/**
