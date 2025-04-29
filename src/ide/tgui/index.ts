@@ -323,7 +323,24 @@ export interface TreeDescription<NodeDataT> {
 		node_id: string
 	) => Promise<TreeNodeInfo<NodeDataT>> | TreeNodeInfo<NodeDataT>;
 	/** event handler, taking an "event" argument */
-	nodeclick?: (event: MouseEvent, value: NodeDataT, id: string) => any;
+	nodeclick?: (
+		event: MouseEvent,
+		value: NodeDataT,
+		id: string
+	) => void | Promise<void>;
+	/** event handlers for events on nodes */
+	nodeEventHandlers?: {
+		[key in keyof HTMLElementEventMap]?: (
+			event: HTMLElementEventMap[key],
+			value: NodeDataT,
+			id: string
+		) => void | Promise<void>;
+	};
+	/**
+	 * Css style for .cursor. Assumed to be "pointer" if nodeclick is defined,
+	 * unless cursorStyle is set to something different.
+	 */
+	cursorStyle?: string;
 }
 
 interface TreeControlState<NodeDataT> {
@@ -544,14 +561,39 @@ export class TreeControl<NodeDataT> {
 				});
 			}
 
+			const eventHandlerWrapper = <T extends Event>(
+				innerHandler: (
+					event: T,
+					value: NodeDataT,
+					id: string
+				) => void | Promise<void>
+			) => {
+				return async (event: T) => {
+					let element = td2.children[0];
+					let state = this.element2state[element.id];
+					await innerHandler(event, state.value!, state.id);
+				};
+			};
 			// make the element clickable
 			if (this.description.nodeclick) {
 				td2.style.cursor = "pointer";
-				td2.addEventListener("click", (event: MouseEvent) => {
-					let element = td2.children[0];
-					let state = this.element2state[element.id];
-					this.description.nodeclick!(event, state.value!, state.id);
-				});
+				td2.addEventListener(
+					"click",
+					eventHandlerWrapper(this.description.nodeclick!)
+				);
+			}
+			if (this.description.nodeEventHandlers) {
+				for (const eventName in this.description.nodeEventHandlers) {
+					td2.addEventListener(
+						eventName,
+						eventHandlerWrapper<any>(
+							this.description.nodeEventHandlers[eventName]
+						)
+					);
+				}
+			}
+			if (this.description.cursorStyle) {
+				td2.style.cursor = this.description.cursorStyle;
 			}
 		}
 
