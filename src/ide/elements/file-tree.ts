@@ -239,6 +239,7 @@ export class FileTree {
 					await projectsFSP.unlink(abs);
 					break;
 			}
+			this.selectNode(null);
 			this.treeControl.update();
 		};
 		const dlg = tgui.createModal({
