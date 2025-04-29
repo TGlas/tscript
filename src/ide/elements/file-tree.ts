@@ -2,7 +2,8 @@ import { icons } from "../icons";
 import { type TreeControl } from "../tgui";
 import * as tgui from "../tgui";
 import { type Panel } from "../tgui/panels";
-import { projectsFSP, rmdirRecursive } from "../projects-fs";
+import { projectsFS, projectsFSP, rmdirRecursive } from "../projects-fs";
+import { createEditorTab } from "./editor-tabs";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -13,12 +14,39 @@ type FileTreeNode = {
 	type: "dir" | "file";
 };
 
-function fileTreeNodeCreateHTML(node: FileTreeNode): HTMLElement {
-	return tgui.createElement({
+async function fileTreeNodeCreateHTML(node: FileTreeNode): Promise<HTMLElement> {
+	const newElement = tgui.createElement({
 		type: "span",
 		text: node.basename + (node.type === "dir" ? "/" : ""),
 	});
+
+	newElement.addEventListener("dblclick", async () => {
+		if (node.type === "file") {
+			try {
+				// TODO: get root dir instead of /tmp hardcoded, pass as to fileTreeNodeCreateHTML as param?
+				const absPath = simplifyPath(`/tmp${node.parent?.path}/${node.basename}`);
+				// TODO: same file name in other projects/dirs?
+				// TODO: if file is open already, focus this editor instead of creating new one 
+				const fileContent = await readFileContent(absPath);
+				createEditorTab(node.basename, fileContent.toString());
+			} catch (error) {
+				console.error("Failed to read file:", error);
+			}
+		}
+	});
+
+	return newElement;
 }
+
+async function readFileContent(filePath: string): Promise<string> {
+	try {
+	  const fileContent = await projectsFSP.readFile(filePath, { encoding: "utf8" });
+	  return fileContent.toString();
+	} catch (error) {
+	  console.error("Error reading file:", error);
+	  return "";
+	}
+  }
 
 function simplifyPath(path: string): string {
 	return path.replaceAll(/\/+/g, "/");
@@ -97,7 +125,7 @@ export class FileTree {
 			}
 		}
 		return {
-			element: fileTreeNodeCreateHTML(value),
+			element: await fileTreeNodeCreateHTML(value),
 			children,
 			ids,
 			// open all directories in root directory
