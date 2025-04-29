@@ -19,7 +19,7 @@ export const doc = (function () {
 	// define the central documentation data object, to be extended in other files
 	let module: any = documentationData;
 	let docpath = "";
-	let doctree: any = null;
+	let doctree: tgui.TreeControl<any> | null = null;
 
 	// load theme from localStorage or use the theme of the operating system
 	function loadTheme() {
@@ -34,7 +34,7 @@ export const doc = (function () {
 	}
 
 	function docinfo(value, node_id) {
-		let ret: any = { children: [], ids: [] };
+		let ret: tgui.TreeNodeInfo<any> = { children: [], ids: [] };
 
 		if (value === null) {
 			ret.children.push(doc);
@@ -712,7 +712,7 @@ export const doc = (function () {
 			module.dom_content.innerHTML = html;
 			module.dom_content.scrollTop = 0;
 			docpath = "";
-			await doctree.update(docinfo);
+			await doctree!.update(docinfo);
 		} else {
 			try {
 				let data = getnode(path);
@@ -775,7 +775,7 @@ export const doc = (function () {
 				module.dom_content.innerHTML = prepare(html);
 				module.dom_content.scrollTop = 0;
 				docpath = path;
-				await doctree.update(docinfo);
+				await doctree!.update(docinfo);
 
 				let pres = document.getElementsByTagName("pre");
 				for (let i = 0; i < pres.length; i++) {
@@ -930,7 +930,7 @@ export const doc = (function () {
 		}
 
 		// prepare the tree control
-		doctree = await tgui.createTreeControl({
+		doctree = new tgui.TreeControl({
 			parent: module.dom_tree,
 			info: docinfo,
 			nodeclick: async function (event, value, id) {
@@ -938,6 +938,7 @@ export const doc = (function () {
 				else navigate("?doc=" + id);
 			},
 		});
+		await doctree.update();
 
 		// make the search field functional
 		searchengine.clear();

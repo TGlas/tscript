@@ -81,10 +81,10 @@ export async function updateControls() {
 	}
 
 	// show the current stack state
-	await ide.stacktree.update(stackinfo);
+	await ide.stacktree!.update(stackinfo);
 
 	// show the current program tree
-	await ide.programtree.update(programinfo);
+	await ide.programtree!.update(programinfo);
 
 	updateStatus();
 }
