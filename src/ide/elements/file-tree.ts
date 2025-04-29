@@ -13,34 +13,6 @@ type FileTreeNode = {
 	type: "dir" | "file";
 };
 
-async function fileTreeNodeCreateHTML(
-	node: FileTreeNode
-): Promise<HTMLElement> {
-	const newElement = tgui.createElement({
-		type: "span",
-		text: node.basename + (node.type === "dir" ? "/" : ""),
-	});
-
-	newElement.addEventListener("dblclick", async () => {
-		if (node.type === "file") {
-			try {
-				// TODO: get root dir instead of /tmp hardcoded, pass as to fileTreeNodeCreateHTML as param?
-				const absPath = simplifyPath(
-					`/tmp${node.parent?.path}/${node.basename}`
-				);
-				// TODO: same file name in other projects/dirs?
-				// TODO: if file is open already, focus this editor instead of creating new one
-				const fileContent = await readFileContent(absPath);
-				createEditorTab(node.basename, fileContent.toString());
-			} catch (error) {
-				console.error("Failed to read file:", error);
-			}
-		}
-	});
-
-	return newElement;
-}
-
 async function readFileContent(filePath: string): Promise<string> {
 	try {
 		const fileContent = await projectsFSP.readFile(filePath, {
@@ -70,14 +42,17 @@ export class FileTree {
 			fallbackState: "left",
 			icon: icons.editor, // TODO add own icon
 		});
-		this._treeControl = undefined as unknown as typeof this._treeControl;
-	}
-
-	async init() {
 		this._treeControl = new tgui.TreeControl({
 			parent: this._panel.content,
 			info: this._info.bind(this),
+			cursorStyle: "pointer",
+			nodeEventHandlers: {
+				dblclick: this.onNodeDblClick.bind(this),
+			},
 		});
+	}
+
+	async init() {
 		this._treeControl.update();
 	}
 
@@ -130,7 +105,10 @@ export class FileTree {
 			}
 		}
 		return {
-			element: await fileTreeNodeCreateHTML(value),
+			element: tgui.createElement({
+				type: "span",
+				text: value.basename + (value.type === "dir" ? "/" : ""),
+			}),
 			children,
 			ids,
 			// open all directories in root directory
@@ -155,4 +133,24 @@ export class FileTree {
 		await projectsFSP.writeFile("/tmp/sub/ssub/sfile", "Hello sfile");
 		await this.changeRootDir("/tmp");
 	}
+
+	private readonly onNodeDblClick: Exclude<
+		Exclude<
+			tgui.TreeDescription<FileTreeNode>["nodeEventHandlers"],
+			undefined
+		>["dblclick"],
+		undefined
+	> = async (_event, value, _id) => {
+		if (value.type === "file") {
+			try {
+				const absPath = simplifyPath(`${this._dir}/${value.path}`);
+				// TODO: same file name in other projects/dirs?
+				// TODO: if file is open already, focus this editor instead of creating new one
+				const fileContent = await readFileContent(absPath);
+				createEditorTab(value.basename, fileContent.toString());
+			} catch (error) {
+				console.error("Failed to read file:", error);
+			}
+		}
+	};
 }
