@@ -367,9 +367,9 @@ export type NodeEventHandler<
 	NodeDataT,
 	E extends keyof HTMLElementEventMap
 > = Exclude<
-	Exclude<TreeDescription<NodeDataT>["nodeEventHandlers"], undefined>,
+	Exclude<TreeDescription<NodeDataT>["nodeEventHandlers"], undefined>[E],
 	undefined
->[E];
+>;
 
 export class TreeControl<NodeDataT> {
 	readonly description: Readonly<Omit<TreeDescription<NodeDataT>, "info">>;

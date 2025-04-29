@@ -49,7 +49,6 @@ export class FileTree {
 			cursorStyle: "pointer",
 			nodeEventHandlers: {
 				dblclick: this.onNodeDblClick.bind(this),
-				contextmenu: this.onNodeContextMenu.bind(this),
 			},
 		});
 	}
