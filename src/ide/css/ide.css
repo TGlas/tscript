@@ -354,3 +354,14 @@ button {
 	height: 100%;
 	flex-grow: 1;
 }
+
+hr.file-tree {
+	margin: 2px 0px;
+	color: #333;
+	background-color: #333;
+}
+
+/* increase specifity to override .tgui-tree-element:hover */
+.file-tree-selected.file-tree-selected.file-tree-selected.file-tree-selected {
+	background-color: #abf;
+}
