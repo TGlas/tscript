@@ -3,6 +3,7 @@ import * as tgui from "../tgui";
 import { type Panel } from "../tgui/panels";
 import { projectsFSP, rmdirRecursive } from "../projects-fs";
 import { createEditorTab } from "./editor-tabs";
+import { collection } from "./index";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -205,7 +206,12 @@ export class FileTree {
 			try {
 				const absPath = simplifyPath(`${this.dir}/${value.path}`);
 				// TODO: same file name in other projects/dirs?
-				// TODO: if file is open already, focus this editor instead of creating new one
+				const existingEditor = collection.getEditor(value.basename);
+				if (existingEditor) {
+					collection.setActiveEditor(existingEditor);
+					existingEditor.focus();
+					return;
+				}
 				const fileContent = await readFileContent(absPath);
 				createEditorTab(value.basename, fileContent.toString());
 			} catch (error) {
