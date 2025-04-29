@@ -50,7 +50,6 @@ export class FileTree {
 	/** The current root directory */
 	private dir: string | null = null;
 	private selectedNode: FileTreeNode | null = null;
-	private path2Html: Record<string, HTMLElement> = {};
 
 	constructor() {
 		this.panel = tgui.createPanel({
@@ -98,7 +97,6 @@ export class FileTree {
 
 	async changeRootDir(dir: string | null) {
 		await this.selectNode(null);
-		this.path2Html = {};
 		this.dir = dir;
 		await this.treeControl.update();
 	}
