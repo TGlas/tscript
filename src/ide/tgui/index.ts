@@ -326,17 +326,35 @@ export interface TreeDescription<NodeDataT> {
 	nodeclick?: (event: MouseEvent, value: NodeDataT, id: string) => any;
 }
 
-type TreeControlState = Record<string, any> & { __TreeControlState: undefined };
+interface TreeControlState<NodeDataT> {
+	// .value: JS value represented by the tree node, or null for the root node
+	value: null | NodeDataT;
+	// .open: boolean indicating whether the node is "opened" or "closed", relevant only if .children.length > 0
+	open: boolean;
+	// .expanded: boolean indicating whether the node's children have already been created
+	expanded: boolean;
+	// .main: main DOM element, a table, can be null for the root node
+	main: HTMLElement | null;
+	// .childrows: array of table rows of the child elements
+	childrows: HTMLTableRowElement[];
+	// .toggle: DOM element for toggling open/close
+	toggle: HTMLElement | null;
+	// .element: DOM element for the value
+	element: HTMLElement | null;
+	// .children: array of sub-states
+	children: TreeControlState<NodeDataT>[];
+	id: "";
+}
 
 export class TreeControl<NodeDataT> {
 	readonly description: Readonly<Omit<TreeDescription<NodeDataT>, "info">>;
 	private readonly dom: HTMLElement;
-	private root: TreeControlState;
+	private root: TreeControlState<NodeDataT>;
 	private numberOfNodes: number;
 	/** Map from state.element.id to state */
-	private element2state: Record<string, TreeControlState>;
+	private element2state: Record<string, TreeControlState<NodeDataT>>;
 	/** Map from state.id to state */
-	private id2state: Record<string, TreeControlState>;
+	private id2state: Record<string, TreeControlState<NodeDataT>>;
 	// preserved across updates
 	private readonly id2open: Record<string, boolean>;
 	private info: TreeDescription<NodeDataT>["info"];
@@ -352,17 +370,7 @@ export class TreeControl<NodeDataT> {
 		});
 
 		// create the root state, serving as a dummy holding the tree's top-level nodes
-		// state object layout:
-		// .value: JS value represented by the tree node, or null for the root node
-		// .id: unique string ID of the node
-		// .open: boolean indicating whether the node is "opened" or "closed", relevant only if .children.length > 0
-		// .expanded: boolean indicating whether the node's children have already been created
-		// .main: main DOM element, a table, can be null for the root node
-		// .childrows: array of table rows of the child elements
-		// .toggle: DOM element for toggling open/close
-		// .element: DOM element for the value
-		// .children: array of sub-states
-		let state = {
+		let state: TreeControlState<NodeDataT> = {
 			value: null,
 			id: "",
 			open: true,
@@ -376,7 +384,7 @@ export class TreeControl<NodeDataT> {
 
 		this.description = description;
 		this.dom = element;
-		this.root = state as unknown as TreeControlState;
+		this.root = state as unknown as TreeControlState<NodeDataT>;
 		this.numberOfNodes = 0;
 		this.element2state = {};
 		this.id2state = {};
@@ -386,7 +394,7 @@ export class TreeControl<NodeDataT> {
 	}
 
 	// recursively add elements to the reverse lookup
-	updateLookup(state: TreeControlState) {
+	updateLookup(state: TreeControlState<NodeDataT>) {
 		if (state.element) this.element2state[state.element.id] = state;
 		if (state.id) this.id2state[state.id] = state;
 		for (let i = 0; i < state.children.length; i++)
@@ -397,7 +405,7 @@ export class TreeControl<NodeDataT> {
 	// child nodes. It is called when the node is opened for the first
 	// time, or if the node is created in the opened state.
 	async createChildNodes(
-		state: TreeControlState,
+		state: TreeControlState<NodeDataT>,
 		result: TreeNodeInfo<NodeDataT>
 	) {
 		for (let i = 0; i < result.children.length; i++) {
@@ -406,11 +414,11 @@ export class TreeControl<NodeDataT> {
 			let substate = await this.createInternalTree(child, child_id);
 			state.children.push(substate);
 			if (state.value === null) {
-				state.main.appendChild(substate.main);
+				state.main!.appendChild(substate.main!);
 			} else {
 				let tr = createElement({
 					type: "tr",
-					parent: state.main,
+					parent: state.main ?? undefined,
 					classname: "tgui",
 				});
 				let td1 = createElement({
@@ -423,7 +431,7 @@ export class TreeControl<NodeDataT> {
 					parent: tr,
 					classname: "tgui tgui-tree-cell-content",
 				});
-				td2.appendChild(substate.main);
+				td2.appendChild(substate.main!);
 				state.childrows.push(tr);
 			}
 		}
@@ -469,13 +477,13 @@ export class TreeControl<NodeDataT> {
 					  }),
 			element: value === null ? null : result.element,
 			children: [],
-		} as unknown as TreeControlState;
+		} as unknown as TreeControlState<NodeDataT>;
 
 		if (value !== null) {
 			// create a table cell for the element
 			let tr = createElement({
 				type: "tr",
-				parent: state.main,
+				parent: state.main ?? undefined,
 				classname: "tgui",
 			});
 			let td1 = createElement({
@@ -532,7 +540,7 @@ export class TreeControl<NodeDataT> {
 					state.open = !state.open;
 					this.id2open[state.id] = state.open;
 					let s = state.open ? "\u25be" : "\u25b8";
-					state.toggle.innerHTML = s;
+					state.toggle!.innerHTML = s;
 				});
 			}
 
@@ -542,7 +550,7 @@ export class TreeControl<NodeDataT> {
 				td2.addEventListener("click", (event: MouseEvent) => {
 					let element = td2.children[0];
 					let state = this.element2state[element.id];
-					this.description.nodeclick!(event, state.value, state.id);
+					this.description.nodeclick!(event, state.value!, state.id);
 				});
 			}
 		}
