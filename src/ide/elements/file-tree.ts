@@ -6,6 +6,7 @@ import { createEditorTab } from "./editor-tabs";
 import { collection } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
 import { msgBox } from "../tgui";
+import Path from "@isomorphic-git/lightning-fs/src/path";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -57,6 +58,7 @@ export class FileTree {
 	 * `TreeNodeInfo`
 	 */
 	private path2NodeInfo: Record<string, tgui.TreeNodeInfo<FileTreeNode>>;
+	private path2FileTreeNode: Record<string, FileTreeNode>;
 
 	constructor() {
 		this.panel = tgui.createPanel({
@@ -102,6 +104,7 @@ export class FileTree {
 			},
 		});
 		this.path2NodeInfo = {};
+		this.path2FileTreeNode = {};
 	}
 
 	async init() {
@@ -115,6 +118,7 @@ export class FileTree {
 
 	async refresh() {
 		this.path2NodeInfo = {};
+		this.path2FileTreeNode = {};
 		await this.treeControl.update();
 		if (
 			this.selectedPath &&
@@ -139,15 +143,14 @@ export class FileTree {
 		}
 		if (value === null) {
 			// skip to root directory
-			return await this.info(
-				{
-					type: "dir",
-					basename: "",
-					path: "/",
-					parent: null,
-				},
-				"/"
-			);
+			const rootFTNode = {
+				type: "dir",
+				basename: "",
+				path: "/",
+				parent: null,
+			} as const;
+			this.path2FileTreeNode[rootFTNode.path] = rootFTNode;
+			return await this.info(rootFTNode, rootFTNode.path);
 		}
 		let info = this.pathToNodeInfo(value.path);
 		if (info !== null) {
@@ -162,12 +165,14 @@ export class FileTree {
 				const absEntry = simplifyPath(`${absPath}/${entry}`);
 				const projRelEntry = simplifyPath(`${value.path}/${entry}`);
 				const stat = await projectsFSP.stat(absEntry);
-				children.push({
+				const ftn = {
 					type: stat.type,
 					path: projRelEntry,
 					basename: entry,
 					parent: value,
-				});
+				};
+				this.path2FileTreeNode[ftn.path] = ftn;
+				children.push(ftn);
 				ids.push(absEntry);
 			}
 		}
@@ -207,6 +212,10 @@ export class FileTree {
 		path: string
 	): tgui.TreeNodeInfo<FileTreeNode> | null {
 		return this.path2NodeInfo[path] ?? null;
+	}
+
+	private pathToFileTreeNode(path: string): FileTreeNode | null {
+		return this.path2FileTreeNode[path] ?? null;
 	}
 
 	private async selectPath(path: string | null) {
@@ -266,7 +275,7 @@ export class FileTree {
 			if (this.selectedPath === null) {
 				return false;
 			}
-			switch ((await projectsFSP.stat(abs)).type) {
+			switch (this.pathToFileTreeNode(this.selectedPath)!.type) {
 				case "dir":
 					await rmdirRecursive(abs);
 					break;
@@ -284,11 +293,34 @@ export class FileTree {
 
 	private async handleCreate() {
 		tabNameDlg(async (filename) => {
-			const abs = this.toAbs(filename);
+			if (filename.includes("/")) {
+				msgBox({
+					title: "Invalid file name",
+					prompt: `File names may not contain "/"`,
+				});
+				return true;
+			}
+			/* set to "/" if nothing selected, dirname if file selected, path if
+			 * directory selected
+			 */
+			let basePath = "/";
+			if (this.selectedPath !== null) {
+				const selectedNode = this.pathToFileTreeNode(
+					this.selectedPath
+				)!;
+
+				basePath =
+					selectedNode.type === "file"
+						? Path.dirname(this.selectedPath)
+						: this.selectedPath;
+			}
+
+			const projAbs = Path.join(basePath, filename);
+			const abs = this.toAbs(projAbs);
 			if (await pathExists(abs)) {
 				msgBox({
 					title: "File or directory exists already",
-					prompt: `File or directory "${filename}" exists already`,
+					prompt: `File or directory "${projAbs}" exists already`,
 				});
 				return true;
 			}
