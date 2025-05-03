@@ -330,7 +330,7 @@ interface TreeControlState<NodeDataT> {
 	/**
 	 * JS value represented by the tree node, or null for the root node
 	 */
-	value: null | NodeDataT;
+	value: NodeDataT | null;
 	/**
 	 * boolean indicating whether the node is "opened" or "closed",
 	 * relevant only if .children.length > 0
@@ -351,7 +351,7 @@ interface TreeControlState<NodeDataT> {
 	element: HTMLElement | null;
 	/** .children: array of sub-states */
 	children: TreeControlState<NodeDataT>[];
-	id: "";
+	id: string;
 }
 
 export class TreeControl<NodeDataT> {
@@ -508,7 +508,7 @@ export class TreeControl<NodeDataT> {
 		}
 
 		// create a new state
-		const state = {
+		const state: TreeControlState<NodeDataT> = {
 			value: value,
 			id: id,
 			open:
@@ -516,7 +516,7 @@ export class TreeControl<NodeDataT> {
 					? true
 					: this.id2open.hasOwnProperty(id)
 					? this.id2open[id]
-					: result.opened,
+					: !!result.opened,
 			expanded: false,
 			main:
 				value === null
@@ -533,9 +533,9 @@ export class TreeControl<NodeDataT> {
 							type: "div",
 							classname: "tgui tgui-tree-toggle",
 					  }),
-			element: value === null ? null : result.element,
+			element: value === null ? null : result.element ?? null,
 			children: [],
-		} as unknown as TreeControlState<NodeDataT>;
+		};
 
 		if (value !== null) {
 			// create a table cell for the element
