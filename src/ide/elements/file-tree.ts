@@ -44,6 +44,11 @@ function simplifyPath(path: string): string {
 	return path.replaceAll(/\/+/g, "/");
 }
 
+type FileTreeControlInfo = Exclude<
+	tgui.TreeControl<FileTreeNode>["info"],
+	undefined
+>;
+
 export class FileTree {
 	private panel: Panel;
 	private treeControl: tgui.TreeControl<FileTreeNode>;
@@ -82,7 +87,7 @@ export class FileTree {
 
 		this.treeControl = new tgui.TreeControl({
 			parent: this.panel.content,
-			info: this._info.bind(this),
+			info: this.info.bind(this),
 			cursorStyle: "pointer",
 			nodeEventHandlers: {
 				dblclick: this.onNodeDblClick.bind(this),
@@ -104,7 +109,7 @@ export class FileTree {
 	/**
 	 * Callback for TreeControl.info
 	 */
-	_info: Exclude<(typeof this.treeControl)["info"], undefined> = async (
+	private readonly info: FileTreeControlInfo = async (
 		value,
 		_node_id
 	): Promise<tgui.TreeNodeInfo<FileTreeNode>> => {
@@ -116,7 +121,7 @@ export class FileTree {
 		}
 		if (value === null) {
 			// skip to root directory
-			return await this._info(
+			return await this.info(
 				{
 					type: "dir",
 					basename: "",
@@ -222,7 +227,7 @@ export class FileTree {
 			this.selectNode(value);
 		};
 
-	async handleDelete() {
+	private async handleDelete() {
 		if (this.selectedNode === null) {
 			return;
 		}
