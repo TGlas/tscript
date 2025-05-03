@@ -344,23 +344,31 @@ export interface TreeDescription<NodeDataT> {
 }
 
 interface TreeControlState<NodeDataT> {
-	// .value: JS value represented by the tree node, or null for the root node
-	value: null | NodeDataT;
-	// .open: boolean indicating whether the node is "opened" or "closed", relevant only if .children.length > 0
+	/**
+	 * JS value represented by the tree node, or null for the root node
+	 */
+	value: NodeDataT | null;
+	/**
+	 * boolean indicating whether the node is "opened" or "closed",
+	 * relevant only if .children.length > 0
+	 */
 	open: boolean;
-	// .expanded: boolean indicating whether the node's children have already been created
+	/**
+	 * boolean indicating whether the node's children have already
+	 * been created
+	 */
 	expanded: boolean;
-	// .main: main DOM element, a table, can be null for the root node
+	/** main DOM element, a table, can be null for the root node */
 	main: HTMLElement | null;
-	// .childrows: array of table rows of the child elements
+	/** array of table rows of the child elements */
 	childrows: HTMLTableRowElement[];
-	// .toggle: DOM element for toggling open/close
+	/** DOM element for toggling open/close */
 	toggle: HTMLElement | null;
-	// .element: DOM element for the value
+	/** DOM element for the value */
 	element: HTMLElement | null;
-	// .children: array of sub-states
+	/** .children: array of sub-states */
 	children: TreeControlState<NodeDataT>[];
-	id: "";
+	id: string;
 }
 
 export type NodeEventHandler<
@@ -409,7 +417,7 @@ export class TreeControl<NodeDataT> {
 
 		this.description = description;
 		this.dom = element;
-		this.root = state as unknown as TreeControlState<NodeDataT>;
+		this.root = state;
 		this.numberOfNodes = 0;
 		this.element2state = {};
 		this.id2state = {};
@@ -418,18 +426,68 @@ export class TreeControl<NodeDataT> {
 		this.visible = null;
 	}
 
-	// recursively add elements to the reverse lookup
-	updateLookup(state: TreeControlState<NodeDataT>) {
+	/**
+	 * Update the tree to represent new data, i.e., replace the stored
+	 * info function and apply the new function to obtain the tree. If no info
+	 * is provided, then it just (re-) renders.
+	 */
+	async update(info?: TreeDescription<NodeDataT>["info"]) {
+		// store the new info object for later use
+		if (info) {
+			this.info = info;
+		}
+		console.assert(this.info);
+		this.visible = null;
+		this.numberOfNodes = 0;
+
+		// clear the root DOM element
+		clearElement(this.dom);
+
+		// update the state and the DOM based on info
+		this.root = await this.createInternalTree(null, "");
+
+		// prepare reverse lookup
+		this.element2state = {};
+		this.id2state = {};
+		this.updateLookup(this.root);
+
+		// scroll a specific element into view
+		if (this.visible !== null) {
+			await Promise.resolve();
+			let h = this.dom.clientHeight;
+			let y = (this.dom.scrollHeight * this.visible) / this.numberOfNodes;
+			if (
+				y < this.dom.scrollTop + 0.1 * h ||
+				y >= this.dom.scrollTop + 0.9 * h
+			) {
+				y -= 0.666 * h;
+				if (y < 0) y = 0;
+				this.dom.scrollTop = y;
+			}
+		}
+	}
+
+	/** obtain the value corresponding to a DOM element */
+	value(element: HTMLElement) {
+		if (!this.element2state.hasOwnProperty(element.id))
+			throw "[tgui TreeControl.get] unknown element";
+		return this.element2state[element.id].value;
+	}
+
+	/** recursively add elements to the reverse lookup */
+	private updateLookup(state: TreeControlState<NodeDataT>) {
 		if (state.element) this.element2state[state.element.id] = state;
 		if (state.id) this.id2state[state.id] = state;
 		for (let i = 0; i < state.children.length; i++)
 			this.updateLookup(state.children[i]);
 	}
 
-	// As part of createInternalTree, this function creates the actual
-	// child nodes. It is called when the node is opened for the first
-	// time, or if the node is created in the opened state.
-	async createChildNodes(
+	/**
+	 * As part of createInternalTree, this function creates the actual
+	 * child nodes. It is called when the node is opened for the first
+	 * time, or if the node is created in the opened state.
+	 */
+	private async createChildNodes(
 		state: TreeControlState<NodeDataT>,
 		result: TreeNodeInfo<NodeDataT>
 	) {
@@ -463,8 +521,8 @@ export class TreeControl<NodeDataT> {
 		state.expanded = true;
 	}
 
-	// Recursively create a new state and DOM tree.
-	async createInternalTree(value: NodeDataT | null, id: string) {
+	/** Recursively create a new state and DOM tree. */
+	private async createInternalTree(value: NodeDataT | null, id: string) {
 		console.assert(this.info);
 		const resultPromise = await this.info!(value, id);
 		let result: TreeNodeInfo<NodeDataT>;
@@ -475,7 +533,7 @@ export class TreeControl<NodeDataT> {
 		}
 
 		// create a new state
-		const state = {
+		const state: TreeControlState<NodeDataT> = {
 			value: value,
 			id: id,
 			open:
@@ -483,7 +541,7 @@ export class TreeControl<NodeDataT> {
 					? true
 					: this.id2open.hasOwnProperty(id)
 					? this.id2open[id]
-					: result.opened,
+					: !!result.opened,
 			expanded: false,
 			main:
 				value === null
@@ -500,9 +558,9 @@ export class TreeControl<NodeDataT> {
 							type: "div",
 							classname: "tgui tgui-tree-toggle",
 					  }),
-			element: value === null ? null : result.element,
+			element: value === null ? null : result.element ?? null,
 			children: [],
-		} as unknown as TreeControlState<NodeDataT>;
+		};
 
 		if (value !== null) {
 			// create a table cell for the element
@@ -618,54 +676,6 @@ export class TreeControl<NodeDataT> {
 		}
 
 		return state;
-	}
-
-	/**
-	 * Update the tree to represent new data, i.e., replace the stored
-	 * info function and apply the new function to obtain the tree. If no info
-	 * is provided, then it rust (re-) renders.
-	 */
-	async update(info?: TreeDescription<NodeDataT>["info"]) {
-		// store the new info object for later use
-		if (info) {
-			this.info = info;
-		}
-		console.assert(this.info);
-		this.visible = null;
-		this.numberOfNodes = 0;
-
-		// clear the root DOM element
-		clearElement(this.dom);
-
-		// update the state and the DOM based on info
-		this.root = await this.createInternalTree(null, "");
-
-		// prepare reverse lookup
-		this.element2state = {};
-		this.id2state = {};
-		this.updateLookup(this.root);
-
-		// scroll a specific element into view
-		if (this.visible !== null) {
-			await Promise.resolve();
-			let h = this.dom.clientHeight;
-			let y = (this.dom.scrollHeight * this.visible) / this.numberOfNodes;
-			if (
-				y < this.dom.scrollTop + 0.1 * h ||
-				y >= this.dom.scrollTop + 0.9 * h
-			) {
-				y -= 0.666 * h;
-				if (y < 0) y = 0;
-				this.dom.scrollTop = y;
-			}
-		}
-	}
-
-	// obtain the value corresponding to a DOM element
-	value(element: HTMLElement) {
-		if (!this.element2state.hasOwnProperty(element.id))
-			throw "[tgui TreeControl.get] unknown element";
-		return this.element2state[element.id].value;
 	}
 }
 
