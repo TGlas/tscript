@@ -1,10 +1,11 @@
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { type Panel } from "../tgui/panels";
-import { projectsFSP, rmdirRecursive } from "../projects-fs";
+import { pathExists, projectsFSP, rmdirRecursive } from "../projects-fs";
 import { createEditorTab } from "./editor-tabs";
 import { collection } from "./index";
-import { deleteFileDlg } from "./dialogs";
+import { deleteFileDlg, tabNameDlg } from "./dialogs";
+import { msgBox } from "../tgui";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -79,6 +80,11 @@ export class FileTree {
 			type: "hr",
 			classname: "file-tree",
 			parent: this.panel.content,
+		});
+		tgui.createButton({
+			click: this.handleCreate.bind(this),
+			parent: topBar,
+			text: "New",
 		});
 		tgui.createButton({
 			click: this.handleDelete.bind(this),
@@ -223,10 +229,16 @@ export class FileTree {
 			}
 		}
 	};
+
 	private readonly onNodeClick: tgui.NodeEventHandler<FileTreeNode, "click"> =
 		(_event, value, _id) => {
 			this.selectNode(value);
 		};
+
+	private toAbs(path: string): string {
+		if (this.dir === null) throw "root directory is not set";
+		return simplifyPath(this.dir! + "/" + path);
+	}
 
 	private async handleDelete() {
 		if (this.selectedNode === null) {
@@ -251,5 +263,22 @@ export class FileTree {
 			return false;
 		};
 		deleteFileDlg(formatPath(this.selectedNode), onDlgConfirm);
+	}
+
+	private async handleCreate() {
+		tabNameDlg(async (filename) => {
+			const abs = this.toAbs(filename);
+			if (await pathExists(abs)) {
+				msgBox({
+					title: "File or directory exists already",
+					prompt: `File or directory "${filename}" exists already`,
+				});
+				return true;
+			}
+
+			await projectsFSP.writeFile(abs, "");
+			await this.treeControl.update();
+			return false;
+		}, "New file");
 	}
 }

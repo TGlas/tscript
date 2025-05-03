@@ -547,7 +547,8 @@ export function deleteFileDlg(
  * @param onOkay See `ModalButton.onClick` for meaning of return value
  */
 export function tabNameDlg(
-	onOkay: (filename: string) => boolean | Promise<boolean> | void
+	onOkay: (filename: string) => boolean | Promise<boolean> | void,
+	title: string = "New tab"
 ) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
@@ -556,7 +557,7 @@ export function tabNameDlg(
 
 	// create dialog and its controls
 	let modal = tgui.createModal({
-		title: "New tab",
+		title,
 		scalesize: [0, 0],
 		minsize: [330, 120],
 		buttons: [

@@ -15,3 +15,15 @@ export async function rmdirRecursive(path: string) {
 	}
 	await projectsFSP.rmdir(path);
 }
+
+export async function pathExists(path: string): Promise<boolean> {
+	try {
+		await projectsFSP.lstat(path);
+	} catch (e) {
+		if ((e as any).code === "ENOENT") {
+			return false;
+		}
+		throw e;
+	}
+	return true;
+}
