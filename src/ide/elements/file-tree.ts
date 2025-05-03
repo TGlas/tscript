@@ -156,8 +156,7 @@ export class FileTree {
 		if (info !== null) {
 			return info;
 		}
-		const children: FileTreeNode[] = [];
-		const ids: string[] = [];
+		const children: [FileTreeNode, string][] = [];
 		if (value.type === "dir") {
 			const absPath = simplifyPath(`${this.dir}/${value.path}`);
 			const dir = await projectsFSP.readdir(absPath);
@@ -172,17 +171,24 @@ export class FileTree {
 					parent: value,
 				};
 				this.path2FileTreeNode[ftn.path] = ftn;
-				children.push(ftn);
-				ids.push(absEntry);
+				children.push([ftn, absEntry]);
 			}
 		}
+		const strcmp = (s: string, t: string) => (s < t ? -1 : s == t ? 0 : 1);
+		children.sort(([ftn1], [ftn2]) => {
+			if (ftn1.type === "dir") {
+				return ftn2.type === "dir" ? strcmp(ftn1.path, ftn2.path) : -1;
+			} else {
+				return ftn2.type === "dir" ? 1 : strcmp(ftn1.path, ftn2.path);
+			}
+		});
 		info = {
 			element: tgui.createElement({
 				type: "span",
 				text: formatPath(value, true),
 			}),
-			children,
-			ids,
+			children: children.map(([ftn]) => ftn),
+			ids: children.map(([_, id]) => id),
 			// open all directories in root directory
 			opened: value.parent !== null && value.parent.parent === null,
 		};
