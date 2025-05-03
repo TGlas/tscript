@@ -510,7 +510,7 @@ export function fileDlg(
 	(allowNewFilename ? (name as any) : list).focus();
 	return dlg;
 
-	function deleteFile(filename) {
+	function deleteFile(filename: string) {
 		let index = files.indexOf(filename);
 		if (index >= 0) {
 			let onDelete = () => {
@@ -520,17 +520,21 @@ export function fileDlg(
 				list.remove(index);
 			};
 
-			tgui.msgBox({
-				title: "Delete file",
-				icon: tgui.msgBoxExclamation,
-				prompt: 'Delete file "' + filename + '"\nAre you sure?',
-				buttons: [
-					{ text: "Delete", isDefault: true, onClick: onDelete },
-					{ text: "Cancel" },
-				],
-			});
+			deleteFileDlg(filename, onDelete);
 		}
 	}
+}
+
+export function deleteFileDlg(filename: string, onDelete: () => void): void {
+	tgui.msgBox({
+		title: "Delete file",
+		icon: tgui.msgBoxExclamation,
+		prompt: 'Delete file "' + filename + '"\nAre you sure?',
+		buttons: [
+			{ text: "Delete", isDefault: true, onClick: onDelete },
+			{ text: "Cancel" },
+		],
+	});
 }
 
 export function tabNameDlg(onOkay: (filename: string) => boolean) {

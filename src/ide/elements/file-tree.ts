@@ -4,6 +4,7 @@ import { type Panel } from "../tgui/panels";
 import { projectsFSP, rmdirRecursive } from "../projects-fs";
 import { createEditorTab } from "./editor-tabs";
 import { collection } from "./index";
+import { deleteFileDlg } from "./dialogs";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -247,33 +248,6 @@ export class FileTree {
 			this.selectNode(null);
 			this.treeControl.update();
 		};
-		const dlg = tgui.createModal({
-			minsize: [300, 125],
-			scalesize: [0, 0],
-			title: "Confirm deletion",
-			enterConfirms: true,
-			buttons: [
-				{
-					text: "Delete",
-					isDefault: true,
-					onClick: onDlgConfirm,
-				},
-				{
-					text: "Cancel",
-				},
-			],
-		});
-		tgui.createElement({
-			type: "div",
-			parent: dlg.content,
-			html: `Delete&nbsp;<span style="font-family: monospace">${formatPath(
-				this.selectedNode
-			)}</span>?`,
-			style: {
-				margin: "5px",
-				"overflow-wrap": "anywhere",
-			},
-		});
-		tgui.startModal(dlg);
+		deleteFileDlg(formatPath(this.selectedNode), onDlgConfirm);
 	}
 }
