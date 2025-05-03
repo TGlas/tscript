@@ -47,6 +47,24 @@ type FileTreeControlInfo = Exclude<
 	undefined
 >;
 
+function checkValidBasename(basename: string): boolean {
+	return !basename.includes("/");
+}
+
+function informInvalidBasename(_basename: string) {
+	msgBox({
+		title: "Invalid file name",
+		prompt: `File names may not contain "/"`,
+	});
+}
+
+function informNodeAlreadyExists(path: string) {
+	msgBox({
+		title: "File or directory exists already",
+		prompt: `File or directory "${path}" exists already`,
+	});
+}
+
 export class FileTree {
 	private panel: Panel;
 	private treeControl: tgui.TreeControl<FileTreeNode>;
@@ -87,6 +105,11 @@ export class FileTree {
 			click: this.handleCreate.bind(this),
 			parent: topBar,
 			text: "New",
+		});
+		tgui.createButton({
+			click: this.handleRename.bind(this),
+			parent: topBar,
+			text: "Rename",
 		});
 		tgui.createButton({
 			click: this.handleDelete.bind(this),
@@ -301,12 +324,9 @@ export class FileTree {
 	}
 
 	private async handleCreate() {
-		tabNameDlg(async (filename) => {
-			if (filename.includes("/")) {
-				msgBox({
-					title: "Invalid file name",
-					prompt: `File names may not contain "/"`,
-				});
+		tabNameDlg(async (filename: string) => {
+			if (!checkValidBasename(filename)) {
+				informInvalidBasename(filename);
 				return true;
 			}
 			/* set to "/" if nothing selected, dirname if file selected, path if
@@ -327,10 +347,7 @@ export class FileTree {
 			const projAbs = Path.join(basePath, filename);
 			const abs = this.toAbs(projAbs);
 			if (await pathExists(abs)) {
-				msgBox({
-					title: "File or directory exists already",
-					prompt: `File or directory "${projAbs}" exists already`,
-				});
+				informNodeAlreadyExists(projAbs);
 				return true;
 			}
 
@@ -338,5 +355,37 @@ export class FileTree {
 			await this.refresh();
 			return false;
 		}, "New file");
+	}
+
+	private async handleRename() {
+		if (this.selectedPath === null) {
+			return;
+		}
+		tabNameDlg(
+			async (filename: string) => {
+				if (this.selectedPath === null) {
+					return false;
+				}
+				if (!checkValidBasename(filename)) {
+					informInvalidBasename(filename);
+					return true;
+				}
+				const newProjPath = Path.join(
+					Path.dirname(this.selectedPath),
+					filename
+				);
+				const newAbs = this.toAbs(newProjPath);
+				if (await pathExists(newAbs)) {
+					informNodeAlreadyExists(newProjPath);
+					return true;
+				}
+				await projectsFSP.rename(this.toAbs(this.selectedPath), newAbs);
+				this.selectPath(newProjPath);
+				await this.refresh();
+				return false;
+			},
+			"Rename into...",
+			this.pathToFileTreeNode(this.selectedPath)!.basename
+		);
 	}
 }
