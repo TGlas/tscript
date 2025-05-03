@@ -55,10 +55,10 @@ interface ModalButton {
 	text: string;
 	/** The handler, that is called, when the button has
 	 * been clicked, default: a no-op function
-	 * @return a true value to keep the dialog open
-	 * return a false value/nothing to close the dialog
+	 * @return a true value to keep the dialog open, return a false value/nothing
+	 * to close the dialog. If wrapped in a Promise, it will be awaited.
 	 */
-	onClick?: (event: MouseEvent) => any;
+	onClick?: (event: MouseEvent) => boolean | Promise<boolean> | void;
 	/** flag if the button is the default button of the dialog, default: false */
 	isDefault?: boolean;
 }

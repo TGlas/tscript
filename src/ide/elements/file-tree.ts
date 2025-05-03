@@ -235,7 +235,7 @@ export class FileTree {
 		const abs = `${this.dir}/${this.selectedNode.path}`;
 		const onDlgConfirm = async () => {
 			if (this.selectedNode === null) {
-				return;
+				return false;
 			}
 			switch (this.selectedNode.type) {
 				case "dir":
@@ -247,6 +247,8 @@ export class FileTree {
 			}
 			this.selectNode(null);
 			this.treeControl.update();
+
+			return false;
 		};
 		deleteFileDlg(formatPath(this.selectedNode), onDlgConfirm);
 	}

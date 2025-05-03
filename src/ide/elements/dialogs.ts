@@ -525,7 +525,13 @@ export function fileDlg(
 	}
 }
 
-export function deleteFileDlg(filename: string, onDelete: () => void): void {
+/**
+ * @param onDelete See `ModalButton.onClick` for meaning of return value
+ */
+export function deleteFileDlg(
+	filename: string,
+	onDelete: () => boolean | Promise<boolean> | void
+): void {
 	tgui.msgBox({
 		title: "Delete file",
 		icon: tgui.msgBoxExclamation,
@@ -537,7 +543,12 @@ export function deleteFileDlg(filename: string, onDelete: () => void): void {
 	});
 }
 
-export function tabNameDlg(onOkay: (filename: string) => boolean) {
+/**
+ * @param onOkay See `ModalButton.onClick` for meaning of return value
+ */
+export function tabNameDlg(
+	onOkay: (filename: string) => boolean | Promise<boolean> | void
+) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
 		return onOkay(name.value);
