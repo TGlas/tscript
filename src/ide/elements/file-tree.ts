@@ -125,6 +125,9 @@ export class FileTree {
 			this.pathToNodeInfo(this.selectedPath) === null
 		) {
 			this.selectPath(null);
+		} else {
+			// add the css class
+			this.selectPath(this.selectedPath);
 		}
 	}
 
