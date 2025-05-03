@@ -14,11 +14,6 @@ type FileTreeNode = {
 	basename: string;
 	parent: FileTreeNode | null;
 	type: "dir" | "file";
-	/**
-	 * Reference to the corresponding TreeNodeInfo of the file tree. undefined
-	 * if this node has not yet been rendered.
-	 */
-	treeNodeInfo: tgui.TreeNodeInfo<FileTreeNode> | undefined;
 };
 
 /**
@@ -56,7 +51,12 @@ export class FileTree {
 	private treeControl: tgui.TreeControl<FileTreeNode>;
 	/** The current root directory */
 	private dir: string | null = null;
-	private selectedNode: FileTreeNode | null = null;
+	private selectedPath: string | null = null;
+	/**
+	 * Map from a project-absolute path to the corresponding
+	 * `TreeNodeInfo`
+	 */
+	private path2NodeInfo: Record<string, tgui.TreeNodeInfo<FileTreeNode>>;
 
 	constructor() {
 		this.panel = tgui.createPanel({
@@ -101,16 +101,27 @@ export class FileTree {
 				click: this.onNodeClick.bind(this),
 			},
 		});
+		this.path2NodeInfo = {};
 	}
 
 	async init() {
-		this.treeControl.update();
+		await this.refresh();
 	}
 
 	async changeRootDir(dir: string | null) {
-		await this.selectNode(null);
 		this.dir = dir;
+		await this.refresh();
+	}
+
+	async refresh() {
+		this.path2NodeInfo = {};
 		await this.treeControl.update();
+		if (
+			this.selectedPath &&
+			this.pathToNodeInfo(this.selectedPath) === null
+		) {
+			this.selectPath(null);
+		}
 	}
 
 	/**
@@ -134,13 +145,13 @@ export class FileTree {
 					basename: "",
 					path: "/",
 					parent: null,
-					treeNodeInfo: undefined,
 				},
 				"/"
 			);
 		}
-		if (value.treeNodeInfo) {
-			return value.treeNodeInfo;
+		let info = this.pathToNodeInfo(value.path);
+		if (info !== null) {
+			return info;
 		}
 		const children: FileTreeNode[] = [];
 		const ids: string[] = [];
@@ -156,12 +167,11 @@ export class FileTree {
 					path: projRelEntry,
 					basename: entry,
 					parent: value,
-					treeNodeInfo: undefined,
 				});
 				ids.push(absEntry);
 			}
 		}
-		value.treeNodeInfo = {
+		info = {
 			element: tgui.createElement({
 				type: "span",
 				text: formatPath(value, true),
@@ -171,7 +181,8 @@ export class FileTree {
 			// open all directories in root directory
 			opened: value.parent !== null && value.parent.parent === null,
 		};
-		return value.treeNodeInfo;
+		this.path2NodeInfo[value.path] = info;
+		return info;
 	};
 
 	async addSampleContent() {
@@ -192,16 +203,22 @@ export class FileTree {
 		await this.changeRootDir("/tmp");
 	}
 
-	private async selectNode(node: FileTreeNode | null) {
-		if (this.selectedNode) {
-			this.selectedNode.treeNodeInfo!.element!.classList.remove(
+	private pathToNodeInfo(
+		path: string
+	): tgui.TreeNodeInfo<FileTreeNode> | null {
+		return this.path2NodeInfo[path] ?? null;
+	}
+
+	private async selectPath(path: string | null) {
+		if (this.selectedPath) {
+			this.pathToNodeInfo(this.selectedPath)!.element!.classList.remove(
 				"file-tree-selected"
 			);
 		}
 		await Promise.resolve();
-		this.selectedNode = node;
-		if (this.selectedNode) {
-			this.selectedNode.treeNodeInfo!.element!.classList.add(
+		this.selectedPath = path;
+		if (this.selectedPath) {
+			this.pathToNodeInfo(this.selectedPath)!.element!.classList.add(
 				"file-tree-selected"
 			);
 		}
@@ -211,7 +228,7 @@ export class FileTree {
 		FileTreeNode,
 		"dblclick"
 	> = async (_event, value, _id) => {
-		this.selectNode(value);
+		this.selectPath(value.path);
 		if (value.type === "file") {
 			try {
 				const absPath = simplifyPath(`${this.dir}/${value.path}`);
@@ -232,7 +249,7 @@ export class FileTree {
 
 	private readonly onNodeClick: tgui.NodeEventHandler<FileTreeNode, "click"> =
 		(_event, value, _id) => {
-			this.selectNode(value);
+			this.selectPath(value.path);
 		};
 
 	private toAbs(path: string): string {
@@ -241,15 +258,15 @@ export class FileTree {
 	}
 
 	private async handleDelete() {
-		if (this.selectedNode === null) {
+		if (this.selectedPath === null) {
 			return;
 		}
-		const abs = `${this.dir}/${this.selectedNode.path}`;
+		const abs = this.toAbs(this.selectedPath);
 		const onDlgConfirm = async () => {
-			if (this.selectedNode === null) {
+			if (this.selectedPath === null) {
 				return false;
 			}
-			switch (this.selectedNode.type) {
+			switch ((await projectsFSP.stat(abs)).type) {
 				case "dir":
 					await rmdirRecursive(abs);
 					break;
@@ -257,12 +274,12 @@ export class FileTree {
 					await projectsFSP.unlink(abs);
 					break;
 			}
-			this.selectNode(null);
-			this.treeControl.update();
+			this.selectPath(null);
+			await this.refresh();
 
 			return false;
 		};
-		deleteFileDlg(formatPath(this.selectedNode), onDlgConfirm);
+		deleteFileDlg(abs, onDlgConfirm);
 	}
 
 	private async handleCreate() {
@@ -277,7 +294,7 @@ export class FileTree {
 			}
 
 			await projectsFSP.writeFile(abs, "");
-			await this.treeControl.update();
+			await this.refresh();
 			return false;
 		}, "New file");
 	}
