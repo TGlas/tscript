@@ -394,7 +394,7 @@ export class TreeControl<NodeDataT> {
 	}
 
 	// recursively add elements to the reverse lookup
-	updateLookup(state: TreeControlState<NodeDataT>) {
+	private updateLookup(state: TreeControlState<NodeDataT>) {
 		if (state.element) this.element2state[state.element.id] = state;
 		if (state.id) this.id2state[state.id] = state;
 		for (let i = 0; i < state.children.length; i++)
@@ -404,7 +404,7 @@ export class TreeControl<NodeDataT> {
 	// As part of createInternalTree, this function creates the actual
 	// child nodes. It is called when the node is opened for the first
 	// time, or if the node is created in the opened state.
-	async createChildNodes(
+	private async createChildNodes(
 		state: TreeControlState<NodeDataT>,
 		result: TreeNodeInfo<NodeDataT>
 	) {
@@ -439,7 +439,7 @@ export class TreeControl<NodeDataT> {
 	}
 
 	// Recursively create a new state and DOM tree.
-	async createInternalTree(value: NodeDataT | null, id: string) {
+	private async createInternalTree(value: NodeDataT | null, id: string) {
 		console.assert(this.info);
 		const resultPromise = await this.info!(value, id);
 		let result: TreeNodeInfo<NodeDataT>;
@@ -573,7 +573,7 @@ export class TreeControl<NodeDataT> {
 	/**
 	 * Update the tree to represent new data, i.e., replace the stored
 	 * info function and apply the new function to obtain the tree. If no info
-	 * is provided, then it rust (re-) renders.
+	 * is provided, then it just (re-) renders.
 	 */
 	async update(info?: TreeDescription<NodeDataT>["info"]) {
 		// store the new info object for later use
