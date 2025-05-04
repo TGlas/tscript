@@ -117,8 +117,18 @@ export class FileTree {
 			text: "Delete",
 		});
 
-		this.treeControl = new tgui.TreeControl({
+		const treeContainer = tgui.createElement({
+			type: "div",
+			style: {
+				overflowY: "hidden",
+				overflowX: "hidden",
+				height: "calc(100% - 30px)",
+			},
 			parent: this.panel.content,
+		});
+
+		this.treeControl = new tgui.TreeControl({
+			parent: treeContainer,
 			info: this.info.bind(this),
 			cursorStyle: "pointer",
 			nodeEventHandlers: {
