@@ -362,7 +362,7 @@ export function fileDlg(
 	filename: string,
 	allowNewFilename: boolean,
 	confirmText: string,
-	onOkay: (filename: string) => any
+	onOkay: (filename: string) => any | Promise<any>
 ) {
 	// 10px horizontal spacing
 	//  7px vertical spacing
@@ -374,11 +374,11 @@ export function fileDlg(
 	files.sort();
 
 	// return true on failure, that is when the dialog should be kept open
-	let onFileConfirmation = function () {
+	let onFileConfirmation = async function () {
 		let fn = name.value;
 		if (fn != "") {
 			if (allowNewFilename || files.indexOf(fn) >= 0) {
-				onOkay(fn);
+				await onOkay(fn);
 				return false; // close dialog
 			}
 		}
