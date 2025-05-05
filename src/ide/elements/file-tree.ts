@@ -1,7 +1,15 @@
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { type Panel } from "../tgui/panels";
-import { pathExists, projectsFSP, rmdirRecursive } from "../projects-fs";
+import {
+	addListenerOnChangeProject,
+	deleteProject,
+	pathExists,
+	ProjectNotFoundError,
+	projectsFSP,
+	rmdirRecursive,
+	tryCreateProject,
+} from "../projects-fs";
 import { createEditorTab } from "./editor-tabs";
 import { collection } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
@@ -138,6 +146,13 @@ export class FileTree {
 		});
 		this.path2NodeInfo = {};
 		this.path2FileTreeNode = {};
+		addListenerOnChangeProject((newProjectName) =>
+			this.changeRootDir(
+				newProjectName === undefined
+					? null
+					: Path.join("/", newProjectName)
+			)
+		);
 	}
 
 	async init() {
@@ -234,12 +249,13 @@ export class FileTree {
 
 	async addSampleContent() {
 		try {
-			await rmdirRecursive("/tmp");
+			await deleteProject("tmp");
 		} catch (e) {
-			if ((e as any).code !== "ENOENT") throw e;
+			if (!(e instanceof ProjectNotFoundError)) throw e;
 		}
 
-		await projectsFSP.mkdir("/tmp");
+		if (!(await tryCreateProject("tmp")))
+			throw "Sample project should not exist right now";
 		await projectsFSP.writeFile("/tmp/root", "Hello");
 		await projectsFSP.mkdir("/tmp/sub");
 		await projectsFSP.writeFile("/tmp/sub/file", "Hello file");
@@ -247,7 +263,6 @@ export class FileTree {
 		await projectsFSP.writeFile("/tmp/sub2/file2", "Hello file2");
 		await projectsFSP.mkdir("/tmp/sub/ssub");
 		await projectsFSP.writeFile("/tmp/sub/ssub/sfile", "Hello sfile");
-		await this.changeRootDir("/tmp");
 	}
 
 	private pathToNodeInfo(

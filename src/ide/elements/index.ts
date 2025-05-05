@@ -21,7 +21,7 @@ import {
 	createTurtle,
 } from "./create-interpreter";
 import { FileTree } from "./file-tree";
-import { projectsFSP } from "../projects-fs";
+import { projectsFSP, setCurrentProject } from "../projects-fs";
 
 export { createEditorTab };
 
@@ -707,6 +707,7 @@ export async function create(container: HTMLElement, options?: any) {
 	await ft.init();
 	// for testing
 	await ft.addSampleContent();
+	setCurrentProject("tmp");
 
 	tgui.arrangePanels();
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
