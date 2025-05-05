@@ -356,7 +356,7 @@ export class FileTree {
 
 			return false;
 		};
-		deleteFileDlg(abs, onDlgConfirm);
+		deleteFileDlg(this.selectedPath, onDlgConfirm);
 	}
 
 	private async handleCreate() {
