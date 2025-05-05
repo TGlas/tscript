@@ -9,6 +9,7 @@ import {
 	addListenerOnChangeProject,
 	deleteProject,
 	getCurrentProject,
+	getProjectPath,
 	OnChangeProjectListener,
 	pathExists,
 	ProjectNotFoundError,
@@ -49,7 +50,7 @@ describe("Project managment", () => {
 		expect(res).equals(true);
 		const res2 = await tryCreateProject(name);
 		expect(res2).equals(false);
-		expect(await pathExists(Path.join("/", name))).equals(true);
+		expect(await pathExists(getProjectPath(name))).equals(true);
 	});
 
 	it("deletes projects", async () => {
@@ -57,7 +58,7 @@ describe("Project managment", () => {
 		const res = await tryCreateProject(name);
 		expect(res).equals(true);
 		await deleteProject(name);
-		expect(await pathExists(Path.join("/", name))).equals(false);
+		expect(await pathExists(getProjectPath(name))).equals(false);
 	});
 
 	it("renames projects", async () => {

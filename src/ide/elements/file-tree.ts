@@ -4,6 +4,7 @@ import { type Panel } from "../tgui/panels";
 import {
 	addListenerOnChangeProject,
 	deleteProject,
+	getProjectPath,
 	pathExists,
 	ProjectNotFoundError,
 	projectsFSP,
@@ -150,7 +151,7 @@ export class FileTree {
 			this.changeRootDir(
 				newProjectName === undefined
 					? null
-					: Path.join("/", newProjectName)
+					: getProjectPath(newProjectName)
 			)
 		);
 	}
@@ -254,15 +255,25 @@ export class FileTree {
 			if (!(e instanceof ProjectNotFoundError)) throw e;
 		}
 
+		const projName = getProjectPath("tmp");
 		if (!(await tryCreateProject("tmp")))
 			throw "Sample project should not exist right now";
-		await projectsFSP.writeFile("/tmp/root", "Hello");
-		await projectsFSP.mkdir("/tmp/sub");
-		await projectsFSP.writeFile("/tmp/sub/file", "Hello file");
-		await projectsFSP.mkdir("/tmp/sub2");
-		await projectsFSP.writeFile("/tmp/sub2/file2", "Hello file2");
-		await projectsFSP.mkdir("/tmp/sub/ssub");
-		await projectsFSP.writeFile("/tmp/sub/ssub/sfile", "Hello sfile");
+		await projectsFSP.writeFile(Path.join(projName, "root"), "Hello");
+		await projectsFSP.mkdir(Path.join(projName, "sub"));
+		await projectsFSP.writeFile(
+			Path.join(projName, "sub/file"),
+			"Hello file"
+		);
+		await projectsFSP.mkdir(Path.join(projName, "sub2"));
+		await projectsFSP.writeFile(
+			Path.join(projName, "sub2/file2"),
+			"Hello file2"
+		);
+		await projectsFSP.mkdir(Path.join(projName, "sub/ssub"));
+		await projectsFSP.writeFile(
+			Path.join(projName, "sub/ssub/sfile"),
+			"Hello sfile"
+		);
 	}
 
 	private pathToNodeInfo(

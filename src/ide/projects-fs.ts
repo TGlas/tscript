@@ -55,7 +55,7 @@ export async function setCurrentProject(
 	}
 	if (
 		projectName !== undefined &&
-		!(await pathExists(Path.join("/", projectName)))
+		!(await pathExists(getProjectPath(projectName)))
 	) {
 		throw new ProjectNotFoundError(projectName);
 	}
@@ -75,7 +75,7 @@ export async function tryCreateProject(projectName: string): Promise<boolean> {
 		throw 'Project names cannot include "/"';
 	}
 	try {
-		await projectsFSP.mkdir(Path.join("/", projectName));
+		await projectsFSP.mkdir(getProjectPath(projectName));
 		return true;
 	} catch (e) {
 		if ((e as any).code === "EEXIST") {
@@ -101,7 +101,7 @@ export async function deleteProject(projectName: string): Promise<void> {
 		await setCurrentProject(undefined);
 	}
 	try {
-		await rmdirRecursive(Path.join("/", projectName));
+		await rmdirRecursive(getProjectPath(projectName));
 	} catch (e) {
 		if ((e as any).code === "ENOENT") {
 			throw new ProjectNotFoundError(projectName);
@@ -125,13 +125,13 @@ export async function tryRenameProject(
 	if (oldProjectName === newProjectName) {
 		return true;
 	}
-	if (await pathExists(Path.join("/", newProjectName))) {
+	if (await pathExists(getProjectPath(newProjectName))) {
 		return false;
 	}
 	try {
 		await projectsFSP.rename(
-			Path.join("/", oldProjectName),
-			Path.join("/", newProjectName)
+			getProjectPath(oldProjectName),
+			getProjectPath(newProjectName)
 		);
 	} catch (e) {
 		const code = (e as any).code;
@@ -165,4 +165,8 @@ export function removeListenerOnChangeProject(
 	listener: OnChangeProjectListener
 ) {
 	projectChangeListeners.delete(listener);
+}
+
+export function getProjectPath(projectName: string): string {
+	return Path.join("/", projectName);
 }
