@@ -580,7 +580,7 @@ export function gitDlg() {
 	let dlg = tgui.createModal({
 		title: "Git",
 		scalesize: [0, 0],
-		minsize: [330, 120],
+		minsize: [330, 200],
 		buttons: [
 			{
 				text: 'Cancel',
@@ -597,25 +597,69 @@ export function gitDlg() {
 		type: 'div',
 		style: {
 			margin: "auto",
-			width: "80%",
+			width: "100%",
 			display: "flex",
 			"justify-content": "space-between",
-
 		},
 	});
 
-	let loginBtn = tgui.createElement({
-		parent: content,
-		type: "button",
-		style: {
-			color: "#fff",
-			"background-color": "#08872B",
-			padding: "5px 20px",
-			cursor: "pointer",
-		},
-		text: "Login w/ GitHub",
-		click: () => startGithubLoginFlow(),
-	});
+	if(!localStorage.getItem("git_token")) {
+		let loginBtn = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				color: "#fff",
+				"background-color": "#08872B",
+				padding: "5px 20px",
+				cursor: "pointer",
+			},
+			text: "Login w/ GitHub",
+			click: () => startGithubLoginFlow(),
+		});
+	} else {
+		let pullBtn = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				color: "#fff",
+				margin: "10px, 0px",
+				"background-color": "red",
+				padding: "5px 20px",
+				cursor: "pointer",
+			},
+			text: "Pull",
+		});
+
+		let pushBtn = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				padding: "5px 20px",
+				color: "#fff",
+				margin: "10px, 0px",
+				"background-color": "green",
+				cursor: "pointer",
+			},
+			text: "Push",
+		});
+
+		let logout = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				padding: "5px 20px",
+				margin: "10px, 0px",
+				color: "#fff",
+				"background-color": "red",
+				cursor: "pointer",
+			},
+			text: "Logout",
+			click: () => {
+				localStorage.removeItem("git_token");
+				tgui.stopModal();
+			},
+		});
+	}
 
 	let infoBtn = tgui.createElement({
 		parent: content,
