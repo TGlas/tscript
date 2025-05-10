@@ -592,6 +592,12 @@ export function gitDlg() {
 		},
 	});
 
+	const timeout = localStorage.getItem("timeout");
+	if(timeout && Number(timeout) < Date.now()) {
+		localStorage.removeItem("timeout");
+		localStorage.removeItem("git_token");
+	}
+
 	let content = tgui.createElement({
 		parent: dlg.content,
 		type: 'div',
@@ -656,6 +662,7 @@ export function gitDlg() {
 			text: "Logout",
 			click: () => {
 				localStorage.removeItem("git_token");
+				localStorage.removeItem("timeout");
 				tgui.stopModal();
 			},
 		});

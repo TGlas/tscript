@@ -42,6 +42,12 @@ window.addEventListener("load", async () => {
 		currentUrl = redirectUrl;
 	}
 
+	const timeout = localStorage.getItem("timeout");
+	if(timeout && Number(timeout) < Date.now()) {
+		localStorage.removeItem("timeout");
+		localStorage.removeItem("git_token");
+	}
+
 	const gitCode = currentUrl.searchParams.get("code");
 	if(gitCode) {
 		window.history.replaceState({}, document.title, window.location.pathname);
@@ -51,6 +57,7 @@ window.addEventListener("load", async () => {
 		const data = await res.json();
 		if(data.info) {
 			localStorage.setItem("git_token", data.info.access_token);
+			localStorage.setItem("timeout", data.timeout);
 		}
 	}
 
