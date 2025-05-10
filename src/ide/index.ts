@@ -20,6 +20,7 @@ import "./css-dark/icons.css";
 import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
+import { client_id, proxy_server_url } from "../github_creds";
 
 window.addEventListener("load", async () => {
 	const container = document.getElementById("ide-container")!;
@@ -39,6 +40,18 @@ window.addEventListener("load", async () => {
 	if (redirectUrl) {
 		replaceUrl(redirectUrl);
 		currentUrl = redirectUrl;
+	}
+
+	const gitCode = currentUrl.searchParams.get("code");
+	if(gitCode) {
+		window.history.replaceState({}, document.title, window.location.pathname);
+		const res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${client_id}&code=${gitCode}`, {
+			method: 'get',
+		});
+		const data = await res.json();
+		if(data.info) {
+			localStorage.setItem("git_token", data.info.access_token);
+		}
 	}
 
 	await initializeNavigation(currentUrl, container, (url) => {

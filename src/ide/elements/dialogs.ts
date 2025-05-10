@@ -3,6 +3,7 @@ import * as tgui from "./../tgui";
 import { buttons } from "./commands";
 import { tab_config } from "./editor-tabs";
 import * as ide from "./index";
+import { client_id } from "../../github_creds";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -633,7 +634,7 @@ export function gitDlg() {
 	tgui.startModal(dlg);
 
 	async function startGithubLoginFlow() {
-		return;
+		window.location.href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=repo&redirect_uri=${window.location.href}`;
 	}
 
 	function openDocs() {
