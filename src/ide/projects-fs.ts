@@ -69,10 +69,15 @@ export async function setCurrentProject(
 /**
  * @returns true if the project could be created, false if the project exists
  * already
+ *
+ * @throws {InvalidProjectName}
  */
 export async function tryCreateProject(projectName: string): Promise<boolean> {
 	if (projectName.includes("/")) {
-		throw 'Project names cannot include "/"';
+		throw new InvalidProjectName(
+			projectName,
+			'Project names may not include "/"'
+		);
 	}
 	try {
 		await projectsFSP.mkdir(getProjectPath(projectName));
@@ -88,6 +93,14 @@ export async function tryCreateProject(projectName: string): Promise<boolean> {
 export class ProjectNotFoundError extends Error {
 	constructor(projectName: string) {
 		super(`Project ${projectName} could not be found`);
+	}
+}
+
+export class InvalidProjectName extends Error {
+	reason: string;
+	constructor(projectName: string, reason: string) {
+		super(`Invalid project name "${projectName}"`);
+		this.reason = reason;
 	}
 }
 
@@ -169,4 +182,19 @@ export function removeListenerOnChangeProject(
 
 export function getProjectPath(projectName: string): string {
 	return Path.join("/", projectName);
+}
+
+export async function listProjects(): Promise<string[]> {
+	return await projectsFSP.readdir("/");
+}
+
+export async function* recurseDirectory(dir: string): AsyncGenerator<string> {
+	for (const entry of await projectsFSP.readdir(dir)) {
+		const abs = Path.join(dir, entry);
+		if ((await projectsFSP.stat(abs)).type === "dir") {
+			yield* recurseDirectory(abs);
+		} else {
+			yield abs;
+		}
+	}
 }

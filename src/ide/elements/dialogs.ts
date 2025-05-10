@@ -1,4 +1,16 @@
 import { defaultParseOptions, ParseOptions } from "../../lang/parser";
+import {
+	deleteProject,
+	getCurrentProject,
+	getProjectPath,
+	InvalidProjectName,
+	listProjects,
+	ProjectNotFoundError,
+	projectsFSP,
+	recurseDirectory,
+	setCurrentProject,
+	tryCreateProject,
+} from "../projects-fs";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
 import { tab_config } from "./editor-tabs";
@@ -406,16 +418,16 @@ export function fileDlg(
 	let fileView: FileDlgView,
 		projectView: FileDlgView,
 		currentView: FileDlgView;
-	const onSwitchToProjectView = () => (currentView = projectView);
-	const onSwitchToFileView = () => (currentView = fileView);
+	const switchToProjectView = () => (currentView = projectView);
+	const switchToFileView = () => (currentView = fileView);
 	fileView = createFileDlgFileView(
 		filename,
 		allowNewFilename,
 		onOkay,
-		onSwitchToProjectView
+		switchToProjectView
 	);
-	currentView = fileView;
-	projectView = undefined as any;
+	projectView = createFileDlgProjectView(onOkay, switchToFileView);
+	currentView = projectView;
 	const onClickConfirmation = (event: Event) =>
 		currentView.onClickConfirmation(event);
 	// create dialog and its controls
@@ -453,7 +465,7 @@ function createFileDlgViewConfigurable(
 	initItem: string,
 	includeInputField: boolean,
 	initItemList: string[],
-	onDelete: () => void,
+	onDelete: () => void | Promise<void>,
 	onClickConfirmation: () => Promise<boolean> | boolean,
 	switchView: (() => void) | null,
 	deleteBtnText: string,
@@ -552,12 +564,11 @@ function createFileDlgViewConfigurable(
 	list.addEventListener("change", function (event: any) {
 		if (event.target && event.target.value) name.value = event.target.value;
 	});
-	list.addEventListener("keydown", function (event) {
+	list.addEventListener("keydown", async function (event) {
 		if (event.key === "Backspace" || event.key === "Delete") {
 			event.preventDefault();
 			event.stopPropagation();
-			onDelete();
-			return false;
+			await onDelete();
 		}
 	});
 	list.addEventListener("dblclick", async function (event) {
@@ -586,6 +597,19 @@ function createFileDlgViewConfigurable(
 		},
 		getItems: () => items,
 	});
+}
+
+/**
+ * Computes and updates status text like "5 documents" (if itemTerm="document")
+ */
+function fileViewUpdateStatusText(view: FileDlgView, itemTerm: string) {
+	const fileList = view.getItems();
+	const text =
+		(fileList.length > 0 ? fileList.length : "No") +
+		" " +
+		itemTerm +
+		(fileList.length === 1 ? "" : "s");
+	view.setStatus(text);
 }
 
 function createFileDlgFileView(
@@ -629,14 +653,7 @@ function createFileDlgFileView(
 		"Filename"
 	);
 
-	function updateStatusText() {
-		const fileList = ret.getItems();
-		const text =
-			(fileList.length > 0 ? fileList.length : "No") +
-			" document" +
-			(fileList.length === 1 ? "" : "s");
-		ret.setStatus(text);
-	}
+	const updateStatusText = () => fileViewUpdateStatusText(ret, "document");
 	updateStatusText();
 	return ret;
 
@@ -651,6 +668,87 @@ function createFileDlgFileView(
 
 			deleteFileDlg(filename, onDelete);
 		}
+	}
+}
+
+function createFileDlgProjectView(
+	onOkay: (filename: string) => any | Promise<any>,
+	switchView: () => void
+): FileDlgView {
+	const ret = createFileDlgViewConfigurable(
+		getCurrentProject() ?? "",
+		true,
+		["tmp"],
+		onDelete,
+		onLoad,
+		switchView,
+		"Delete project",
+		"New project"
+	);
+	return ret;
+
+	function updateStatusText() {
+		fileViewUpdateStatusText(ret, "project");
+	}
+
+	function onDelete() {
+		const proj = ret.getSelectedItem();
+		if (!ret.getItems().includes(proj)) {
+			return;
+		}
+
+		ret.removeItemFromList(proj);
+
+		const onDeleteConfirm = async () => {
+			for await (const entry of recurseDirectory(getProjectPath(proj))) {
+				ide.collection.closeEditor(entry.substring(1));
+			}
+			await deleteProject(proj);
+			ret.removeItemFromList(proj);
+			updateStatusText();
+			return false;
+		};
+
+		tgui.msgBox({
+			title: "Delete project",
+			icon: tgui.msgBoxExclamation,
+			prompt: 'Delete project "' + proj + '"\nAre you sure?',
+			buttons: [
+				{
+					text: "Delete",
+					isDefault: true,
+					onClick: onDeleteConfirm,
+				},
+				{ text: "Cancel" },
+			],
+		});
+	}
+
+	async function onLoad() {
+		const proj = ret.getSelectedItem();
+		try {
+			await tryCreateProject(proj);
+		} catch (e) {
+			if (e instanceof InvalidProjectName) {
+				tgui.msgBox({
+					title: "Invalid project name",
+					prompt: e.reason,
+					enterConfirms: true,
+					buttons: [
+						{
+							text: "Okay",
+							isDefault: true,
+						},
+					],
+				});
+				return false;
+			} else {
+				throw e;
+			}
+		}
+		await setCurrentProject(proj);
+		onOkay(proj);
+		return true;
 	}
 }
 
