@@ -2,7 +2,7 @@ import * as ide from ".";
 import { ParseInput, parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { fileDlg, parseOptions } from "./dialogs";
+import { fileDlg, gitDlg, parseOptions } from "./dialogs";
 import {
 	closeEditor,
 	createEditorTabByModal,
@@ -38,6 +38,13 @@ export let buttons: any = [
 		icon: icons.saveDocumentAs,
 		tooltip: "Save document as ...",
 		hotkey: "shift-control-s",
+		group: "file",
+	},
+	{
+		click: cmd_git,
+		icon: icons.saveDocument,
+		tooltip: "GIT",
+		hotkey: "shift-control-g",
 		group: "file",
 	},
 	{
@@ -107,6 +114,10 @@ function getOrRestartSession() {
 	}
 
 	return session;
+}
+
+function cmd_git() {
+	gitDlg();
 }
 
 function cmd_run() {

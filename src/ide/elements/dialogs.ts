@@ -574,3 +574,69 @@ export function tabNameDlg(onOkay: (filename: string) => boolean) {
 
 	tgui.startModal(modal);
 }
+
+export function gitDlg() {
+	let dlg = tgui.createModal({
+		title: "Git",
+		scalesize: [0, 0],
+		minsize: [330, 120],
+		buttons: [
+			{
+				text: 'Cancel',
+			},
+		],
+		contentstyle: {
+			display: "flex",
+			"align-items": "center",
+		},
+	});
+
+	let content = tgui.createElement({
+		parent: dlg.content,
+		type: 'div',
+		style: {
+			margin: "auto",
+			width: "80%",
+			display: "flex",
+			"justify-content": "space-between",
+
+		},
+	});
+
+	let loginBtn = tgui.createElement({
+		parent: content,
+		type: "button",
+		style: {
+			color: "#fff",
+			"background-color": "#08872B",
+			padding: "5px 20px",
+			cursor: "pointer",
+		},
+		text: "Login w/ GitHub",
+		click: () => startGithubLoginFlow(),
+	});
+
+	let infoBtn = tgui.createElement({
+		parent: content,
+		type: "button",
+		style: {
+			width: "30px",
+			height: "30px",
+			"border-radius": "100px",
+			"font-size": "20px",
+			cursor: "pointer",
+		},
+		text: "?",
+		click: () => openDocs(),
+	});
+
+	tgui.startModal(dlg);
+
+	async function startGithubLoginFlow() {
+		return;
+	}
+
+	function openDocs() {
+		return;
+	}
+}
