@@ -357,6 +357,45 @@ export function configDlg() {
 	tgui.startModal(dlg);
 }
 
+/**
+ * Represents an HTML element that renders a list of items, which can be
+ * selected, opened/saved as (onClickConfirmation), and deleted.
+ */
+interface FileDlgView {
+	/** Element containinng the view */
+	element: HTMLElement;
+	/** Needs to be called after the view was attached to a parent (rendered) */
+	onAttached: () => void;
+	/**
+	 * Event handler for when the primary action on items in the list is
+	 * performed (e.g., open or save). Use `this.getSelectedItem()` to get the
+	 * item the operation pertains to.
+	 *
+	 * @returns
+	 * true when the dialog should remain open (see `ModalButton.onClick`)
+	 */
+	onClickConfirmation: (event: Event) => boolean | Promise<boolean>;
+	/** Set the status text (e.g., "5 Documents") */
+	setStatus: (status: string) => void;
+	/**
+	 * Get the relevant item. This is resolved as follows:
+	 *	- If the input field was created (includeInputField=true), then takes its value
+	 *	- Otherwise, if an item was selected, return it
+	 *	- Otherwise, return the inital item passed as initItem
+	 */
+	getSelectedItem: () => string;
+	/** Get the current list of items */
+	getItems: () => string[];
+	/** Remove an item from the list */
+	removeItemFromList: (item: string) => void;
+}
+
+/**
+ * @param filename The initially selected file in the list
+ * @param allowNewFilename If true, renders a text input field whose value is
+ *	considered the currently selected file (used for Save As)
+ * @param onOkay Callback for when the dialog is confirmed.
+ */
 export function fileDlg(
 	title: string,
 	filename: string,
@@ -364,27 +403,21 @@ export function fileDlg(
 	confirmText: string,
 	onOkay: (filename: string) => any | Promise<any>
 ) {
-	// 10px horizontal spacing
-	//  7px vertical spacing
-	// populate array of existing files
-	let files = new Array();
-	for (let key in localStorage) {
-		if (key.substr(0, 13) === "tscript.code.") files.push(key.substr(13));
-	}
-	files.sort();
-
-	// return true on failure, that is when the dialog should be kept open
-	let onFileConfirmation = async function () {
-		let fn = name.value;
-		if (fn != "") {
-			if (allowNewFilename || files.indexOf(fn) >= 0) {
-				await onOkay(fn);
-				return false; // close dialog
-			}
-		}
-		return true; // keep dialog open
-	};
-
+	let fileView: FileDlgView,
+		projectView: FileDlgView,
+		currentView: FileDlgView;
+	const onSwitchToProjectView = () => (currentView = projectView);
+	const onSwitchToFileView = () => (currentView = fileView);
+	fileView = createFileDlgFileView(
+		filename,
+		allowNewFilename,
+		onOkay,
+		onSwitchToProjectView
+	);
+	currentView = fileView;
+	projectView = undefined as any;
+	const onClickConfirmation = (event: Event) =>
+		currentView.onClickConfirmation(event);
 	// create dialog and its controls
 	let dlg = tgui.createModal({
 		title: title,
@@ -394,20 +427,53 @@ export function fileDlg(
 			{
 				text: confirmText,
 				isDefault: true,
-				onClick: onFileConfirmation,
+				onClick: onClickConfirmation,
 			},
 			{ text: "Cancel" },
 		],
 		enterConfirms: true,
-		contentstyle: {
+	});
+
+	tgui.startModal(dlg);
+	dlg.content.replaceChildren(currentView.element);
+	currentView.onAttached();
+	return dlg;
+}
+
+/**
+ * @param initItem Item that is initially considered the current item, and if
+ *	`includeInputField=true`, then also the value of the input field.
+ * @param includeInputField Includes an text input field in the view, which sets
+ *	the value of the current item.
+ * @param onDelete Callback for when the delete button / Del is pressed
+ * @param onClickConfirmation Callback for when the modal is confirmed / an item
+ *	is double clicked
+ */
+function createFileDlgViewConfigurable(
+	initItem: string,
+	includeInputField: boolean,
+	initItemList: string[],
+	onDelete: () => void,
+	onClickConfirmation: () => Promise<boolean> | boolean,
+	switchView: (() => void) | null,
+	deleteBtnText: string,
+	inputFieldPlaceholder: string
+): FileDlgView {
+	const items = [...initItemList];
+	let ret: FileDlgView;
+	const container = tgui.createElement({
+		type: "div",
+		style: {
 			display: "flex",
-			"flex-direction": "column",
-			"justify-content": "space-between",
+			flexDirection: "column",
+			justifyContent: "space-between",
+			height: "100%",
+			width: "100%",
 		},
 	});
 
 	let toolbar = tgui.createElement({
-		parent: dlg.content,
+		parent: container,
 		type: "div",
 		style: {
 			display: "flex",
@@ -419,42 +485,37 @@ export function fileDlg(
 		},
 	});
 	// toolbar
-	{
-		let deleteBtn = tgui.createElement({
-			parent: toolbar,
-			type: "button",
-			style: {
-				width: "100px",
-				height: "100%",
-				"margin-right": "10px",
-			},
-			text: "Delete file",
-			click: () => deleteFile(name.value),
-			classname: "tgui-modal-button",
-		});
+	let deleteBtn = tgui.createElement({
+		parent: toolbar,
+		type: "button",
+		style: {
+			width: "100px",
+			height: "100%",
+			"margin-right": "10px",
+		},
+		text: deleteBtnText,
+		click: onDelete,
+		classname: "tgui-modal-button",
+	});
 
-		let status = tgui.createElement({
-			parent: toolbar,
-			type: "label",
-			style: {
-				flex: "1",
-				height: "100%",
-				"white-space": "nowrap",
-			},
-			text:
-				(files.length > 0 ? files.length : "No") +
-				" document" +
-				(files.length === 1 ? "" : "s"),
-			classname: "tgui-status-box",
-		});
-	}
+	let status = tgui.createElement({
+		parent: toolbar,
+		type: "label",
+		style: {
+			flex: "1",
+			height: "100%",
+			"white-space": "nowrap",
+		},
+		text: "",
+		classname: "tgui-status-box",
+	});
 	// end toolbar
 
 	let list = tgui.createElement({
-		parent: dlg.content,
+		parent: container,
 		type: "select",
 		properties: {
-			size: Math.max(2, files.length).toString(),
+			size: Math.max(2, items.length).toString(),
 			multiple: "false",
 		},
 		classname: "tgui-list-box",
@@ -465,10 +526,10 @@ export function fileDlg(
 			overflow: "scroll",
 		},
 	});
-	let name = { value: filename };
-	if (allowNewFilename) {
+	let name = { value: initItem };
+	if (includeInputField) {
 		name = tgui.createElement({
-			parent: dlg.content,
+			parent: container,
 			type: "input",
 			style: {
 				height: "25px",
@@ -476,14 +537,14 @@ export function fileDlg(
 				margin: "0 0px 7px 0px",
 			},
 			classname: "tgui-text-box",
-			text: filename,
-			properties: { type: "text", placeholder: "Filename" },
+			text: initItem,
+			properties: { type: "text", placeholder: inputFieldPlaceholder },
 		});
 	}
 
 	// populate options
-	for (let i = 0; i < files.length; i++) {
-		let option = new Option(files[i], files[i]);
+	for (let i = 0; i < items.length; i++) {
+		let option = new Option(items[i], items[i]);
 		list.options[i] = option;
 	}
 
@@ -495,29 +556,97 @@ export function fileDlg(
 		if (event.key === "Backspace" || event.key === "Delete") {
 			event.preventDefault();
 			event.stopPropagation();
-			deleteFile(name.value);
+			onDelete();
 			return false;
 		}
 	});
-	list.addEventListener("dblclick", function (event) {
+	list.addEventListener("dblclick", async function (event) {
 		event.preventDefault();
 		event.stopPropagation();
-		if (!onFileConfirmation()) tgui.stopModal();
+		if (!(await onClickConfirmation())) tgui.stopModal();
 		return false;
 	});
 
-	tgui.startModal(dlg);
-	(allowNewFilename ? (name as any) : list).focus();
-	return dlg;
+	return (ret = {
+		element: container,
+		onAttached: () => {
+			(includeInputField ? (name as any) : list).focus();
+		},
+		onClickConfirmation: onClickConfirmation,
+		getSelectedItem: () => name.value,
+		setStatus: (newStatus) => (status.innerText = newStatus),
+		removeItemFromList: (item) => {
+			const idx = items.indexOf(item);
+			if (idx >= 0) {
+				items.splice(idx, 1);
+				list.remove(idx);
+				return true;
+			}
+			return false;
+		},
+		getItems: () => items,
+	});
+}
+
+function createFileDlgFileView(
+	filename: string,
+	allowNewFilename: boolean,
+	onOkay: (filename: string) => any | Promise<any>,
+	switchView: () => void
+): FileDlgView {
+	let ret: FileDlgView;
+
+	// 10px horizontal spacing
+	//  7px vertical spacing
+	// populate array of existing files
+	let files = new Array();
+	for (let key in localStorage) {
+		if (key.substring(0, 13) === "tscript.code.")
+			files.push(key.substring(13));
+	}
+	files.sort();
+
+	// return true on failure, that is when the dialog should be kept open
+	let onFileConfirmation = async function () {
+		let fn = ret.getSelectedItem();
+		if (fn != "") {
+			if (allowNewFilename || files.indexOf(fn) >= 0) {
+				await onOkay(fn);
+				return false; // close dialog
+			}
+		}
+		return true; // keep dialog open
+	};
+
+	ret = createFileDlgViewConfigurable(
+		filename,
+		allowNewFilename,
+		files,
+		() => deleteFile(ret.getSelectedItem()),
+		onFileConfirmation,
+		switchView,
+		"Delete file",
+		"Filename"
+	);
+
+	function updateStatusText() {
+		const fileList = ret.getItems();
+		const text =
+			(fileList.length > 0 ? fileList.length : "No") +
+			" document" +
+			(fileList.length === 1 ? "" : "s");
+		ret.setStatus(text);
+	}
+	updateStatusText();
+	return ret;
 
 	function deleteFile(filename: string) {
-		let index = files.indexOf(filename);
-		if (index >= 0) {
+		if (ret.getItems().includes(filename)) {
 			let onDelete = () => {
 				ide.collection.closeEditor(filename);
 				localStorage.removeItem("tscript.code." + filename);
-				files.splice(index, 1);
-				list.remove(index);
+				ret.removeItemFromList(filename);
+				updateStatusText();
 			};
 
 			deleteFileDlg(filename, onDelete);
