@@ -14,8 +14,9 @@ import {
 } from "../projects-fs";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
-import { tab_config } from "./editor-tabs";
+import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
 import * as ide from "./index";
+import { updateControls } from "./utils";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -403,43 +404,27 @@ interface FileDlgView {
 	removeItemFromList: (item: string) => void;
 }
 
-/**
- * @param filename The initially selected file in the list
- * @param allowNewFilename If true, renders a text input field whose value is
- *	considered the currently selected file (used for Save As)
- * @param onOkay Callback for when a file is confirmed.
- * @param includeProjectsView Whether to add a button to switch to the projects
- * view
- */
-export async function fileDlg(
-	title: string,
-	filename: string,
-	allowNewFilename: boolean,
-	confirmText: string,
-	onOkay: (filename: string) => any | Promise<any>,
-	includeProjectView: boolean
-) {
+export const fileDlgSize = {
+	scalesize: [0.5, 0.7],
+	minsize: [440, 260],
+} as const;
+
+export async function loadFileProjDlg() {
+	const title = "Load file";
 	let fileView: FileDlgView,
 		projectView: FileDlgView,
 		currentView: FileDlgView;
-	fileView = createFileDlgFileView(
-		filename,
-		allowNewFilename,
-		onOkay,
-		includeProjectView ? switchToProjectView : null
-	);
-	if (includeProjectView) {
-		projectView = await createFileDlgProjectView(onOkay, switchToFileView);
-	}
+	fileView = createFileDlgFileView("", false, loadFile, switchToProjectView);
+	projectView = await createFileDlgProjectView(switchToFileView);
 	currentView = fileView;
 	// create dialog and its controls
 	let dlg = tgui.createModal({
 		title: title,
-		scalesize: [0.5, 0.7],
-		minsize: [440, 260],
+		minsize: [...fileDlgSize.minsize],
+		scalesize: [...fileDlgSize.scalesize],
 		buttons: [
 			{
-				text: confirmText,
+				text: "Load",
 				isDefault: true,
 				onClick: onClickConfirmation,
 			},
@@ -470,6 +455,17 @@ export async function fileDlg(
 	function updateView() {
 		dlg.content.replaceChildren(currentView.element);
 		currentView.onAttached();
+	}
+
+	function loadFile(name: string) {
+		let ed = ide.collection.getEditor(name);
+		if (ed) {
+			ed.focus();
+			return;
+		}
+
+		openEditorFromLocalStorage(name);
+		return updateControls().then(() => undefined);
 	}
 }
 
@@ -652,7 +648,7 @@ function fileViewUpdateStatusText(view: FileDlgView, itemTerm: string) {
 	view.setStatus(text);
 }
 
-function createFileDlgFileView(
+export function createFileDlgFileView(
 	filename: string,
 	allowNewFilename: boolean,
 	onOkay: (filename: string) => any | Promise<any>,
@@ -713,7 +709,6 @@ function createFileDlgFileView(
 }
 
 async function createFileDlgProjectView(
-	onOkay: (filename: string) => any | Promise<any>,
 	switchView: (() => void) | null
 ): Promise<FileDlgView> {
 	const projs = await listProjects();
@@ -792,7 +787,6 @@ async function createFileDlgProjectView(
 			}
 		}
 		await setCurrentProject(proj);
-		onOkay(proj);
 		return false;
 	}
 }
