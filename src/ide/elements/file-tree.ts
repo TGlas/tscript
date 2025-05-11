@@ -173,10 +173,10 @@ export class FileTree {
 			this.selectedPath &&
 			this.pathToNodeInfo(this.selectedPath) === null
 		) {
-			this.selectPath(null);
+			await this.selectPath(null);
 		} else {
 			// add the css class
-			this.selectPath(this.selectedPath);
+			await this.selectPath(this.selectedPath);
 		}
 	}
 
