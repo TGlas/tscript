@@ -304,16 +304,23 @@ function cmd_new() {
 }
 
 async function cmd_load() {
-	await fileDlg("Load file", "", false, "Load", function (name) {
-		let ed = ide.collection.getEditor(name);
-		if (ed) {
-			ed.focus();
-			return;
-		}
+	await fileDlg(
+		"Load file",
+		"",
+		false,
+		"Load",
+		function (name) {
+			let ed = ide.collection.getEditor(name);
+			if (ed) {
+				ed.focus();
+				return;
+			}
 
-		openEditorFromLocalStorage(name);
-		return updateControls().then(() => undefined);
-	});
+			openEditorFromLocalStorage(name);
+			return updateControls().then(() => undefined);
+		},
+		true
+	);
 }
 
 function cmd_save() {
@@ -338,7 +345,8 @@ async function cmd_save_as() {
 			closeEditor(filename);
 			localStorage.setItem("tscript.code." + filename, ed.text());
 			openEditorFromLocalStorage(filename);
-		}
+		},
+		false
 	);
 }
 

@@ -1,3 +1,4 @@
+import { update } from "lodash";
 import { defaultParseOptions, ParseOptions } from "../../lang/parser";
 import {
 	deleteProject,
@@ -406,30 +407,31 @@ interface FileDlgView {
  * @param filename The initially selected file in the list
  * @param allowNewFilename If true, renders a text input field whose value is
  *	considered the currently selected file (used for Save As)
- * @param onOkay Callback for when the dialog is confirmed.
+ * @param onOkay Callback for when a file is confirmed.
+ * @param includeProjectsView Whether to add a button to switch to the projects
+ * view
  */
 export async function fileDlg(
 	title: string,
 	filename: string,
 	allowNewFilename: boolean,
 	confirmText: string,
-	onOkay: (filename: string) => any | Promise<any>
+	onOkay: (filename: string) => any | Promise<any>,
+	includeProjectView: boolean
 ) {
 	let fileView: FileDlgView,
 		projectView: FileDlgView,
 		currentView: FileDlgView;
-	const switchToProjectView = () => (currentView = projectView);
-	const switchToFileView = () => (currentView = fileView);
 	fileView = createFileDlgFileView(
 		filename,
 		allowNewFilename,
 		onOkay,
-		switchToProjectView
+		includeProjectView ? switchToProjectView : null
 	);
-	projectView = await createFileDlgProjectView(onOkay, switchToFileView);
-	currentView = projectView;
-	const onClickConfirmation = (event: Event) =>
-		currentView.onClickConfirmation(event);
+	if (includeProjectView) {
+		projectView = await createFileDlgProjectView(onOkay, switchToFileView);
+	}
+	currentView = fileView;
 	// create dialog and its controls
 	let dlg = tgui.createModal({
 		title: title,
@@ -447,9 +449,26 @@ export async function fileDlg(
 	});
 
 	tgui.startModal(dlg);
-	dlg.content.replaceChildren(currentView.element);
-	currentView.onAttached();
+	updateView();
 	return dlg;
+
+	function switchToProjectView() {
+		currentView = projectView;
+		updateView();
+	}
+	function switchToFileView() {
+		currentView = fileView;
+		updateView();
+	}
+
+	function onClickConfirmation(event: Event) {
+		currentView.onClickConfirmation(event);
+	}
+
+	function updateView() {
+		dlg.content.replaceChildren(currentView.element);
+		currentView.onAttached();
+	}
 }
 
 /**
@@ -469,7 +488,8 @@ function createFileDlgViewConfigurable(
 	onClickConfirmation: () => Promise<boolean> | boolean,
 	switchView: (() => void) | null,
 	deleteBtnText: string,
-	inputFieldPlaceholder: string
+	inputFieldPlaceholder: string,
+	switchBtnText: string
 ): FileDlgView {
 	const items = [...initItemList];
 	let ret: FileDlgView;
@@ -521,6 +541,24 @@ function createFileDlgViewConfigurable(
 		text: "",
 		classname: "tgui-status-box",
 	});
+
+	if (switchView !== null) {
+		// switch button
+		tgui.createElement({
+			parent: toolbar,
+			type: "button",
+			style: {
+				height: "100%",
+				marginLeft: "auto",
+				padding: "0px 10px",
+				//display: "inline-flex",
+				//alignItems: "center",
+			},
+			text: switchBtnText,
+			click: switchView,
+			classname: "tgui-modal-button",
+		});
+	}
 	// end toolbar
 
 	let list = tgui.createElement({
@@ -616,7 +654,7 @@ function createFileDlgFileView(
 	filename: string,
 	allowNewFilename: boolean,
 	onOkay: (filename: string) => any | Promise<any>,
-	switchView: () => void
+	switchView: (() => void) | null
 ): FileDlgView {
 	let ret: FileDlgView;
 
@@ -650,7 +688,8 @@ function createFileDlgFileView(
 		onFileConfirmation,
 		switchView,
 		"Delete file",
-		"Filename"
+		"Filename",
+		"Show projects"
 	);
 
 	const updateStatusText = () => fileViewUpdateStatusText(ret, "document");
@@ -673,7 +712,7 @@ function createFileDlgFileView(
 
 async function createFileDlgProjectView(
 	onOkay: (filename: string) => any | Promise<any>,
-	switchView: () => void
+	switchView: (() => void) | null
 ): Promise<FileDlgView> {
 	const projs = await listProjects();
 	projs.sort();
@@ -685,8 +724,10 @@ async function createFileDlgProjectView(
 		onLoad,
 		switchView,
 		"Delete project",
-		"New project"
+		"New project",
+		"Show files"
 	);
+	updateStatusText();
 	return ret;
 
 	function updateStatusText() {
