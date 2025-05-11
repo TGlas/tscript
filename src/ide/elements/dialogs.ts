@@ -408,7 +408,7 @@ interface FileDlgView {
  *	considered the currently selected file (used for Save As)
  * @param onOkay Callback for when the dialog is confirmed.
  */
-export function fileDlg(
+export async function fileDlg(
 	title: string,
 	filename: string,
 	allowNewFilename: boolean,
@@ -426,7 +426,7 @@ export function fileDlg(
 		onOkay,
 		switchToProjectView
 	);
-	projectView = createFileDlgProjectView(onOkay, switchToFileView);
+	projectView = await createFileDlgProjectView(onOkay, switchToFileView);
 	currentView = projectView;
 	const onClickConfirmation = (event: Event) =>
 		currentView.onClickConfirmation(event);
@@ -671,14 +671,16 @@ function createFileDlgFileView(
 	}
 }
 
-function createFileDlgProjectView(
+async function createFileDlgProjectView(
 	onOkay: (filename: string) => any | Promise<any>,
 	switchView: () => void
-): FileDlgView {
+): Promise<FileDlgView> {
+	const projs = await listProjects();
+	projs.sort();
 	const ret = createFileDlgViewConfigurable(
 		getCurrentProject() ?? "",
 		true,
-		["tmp"],
+		projs,
 		onDelete,
 		onLoad,
 		switchView,
@@ -741,14 +743,14 @@ function createFileDlgProjectView(
 						},
 					],
 				});
-				return false;
+				return true;
 			} else {
 				throw e;
 			}
 		}
 		await setCurrentProject(proj);
 		onOkay(proj);
-		return true;
+		return false;
 	}
 }
 

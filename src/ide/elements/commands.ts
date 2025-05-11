@@ -11,6 +11,9 @@ import {
 import { showdoc, showdocConfirm } from "./show-docs";
 import { interpreterEnded, updateControls } from "./utils";
 
+/**
+ * click may be async
+ */
 export let buttons: any = [
 	{
 		click: cmd_new,
@@ -300,8 +303,8 @@ function cmd_new() {
 	createEditorTabByModal();
 }
 
-function cmd_load() {
-	fileDlg("Load file", "", false, "Load", function (name) {
+async function cmd_load() {
+	await fileDlg("Load file", "", false, "Load", function (name) {
 		let ed = ide.collection.getEditor(name);
 		if (ed) {
 			ed.focus();
@@ -322,11 +325,11 @@ function cmd_save() {
 	ed.setClean();
 }
 
-function cmd_save_as() {
+async function cmd_save_as() {
 	const ed = ide.collection.getActiveEditor();
 	if (!ed) return;
 
-	fileDlg(
+	await fileDlg(
 		"Save file as ...",
 		ed.properties().name,
 		true,
