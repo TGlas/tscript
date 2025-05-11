@@ -740,8 +740,11 @@ async function createFileDlgProjectView(
 		ret.removeItemFromList(proj);
 
 		const onDeleteConfirm = async () => {
-			for await (const entry of recurseDirectory(getProjectPath(proj))) {
-				ide.collection.closeEditor(entry.substring(1));
+			const projPath = getProjectPath(proj);
+			for await (const entry of recurseDirectory(projPath)) {
+				ide.collection.closeEditor(
+					entry.substring(1 + projPath.length)
+				);
 			}
 			await deleteProject(proj);
 			ret.removeItemFromList(proj);
