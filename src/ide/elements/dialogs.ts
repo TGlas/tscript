@@ -454,10 +454,12 @@ export async function fileDlg(
 
 	function switchToProjectView() {
 		currentView = projectView;
+		dlg.setTitle("Load project");
 		updateView();
 	}
 	function switchToFileView() {
 		currentView = fileView;
+		dlg.setTitle(title);
 		updateView();
 	}
 
