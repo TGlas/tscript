@@ -87,10 +87,9 @@ document.addEventListener("keydown", async function (event) {
 
 		// handle global hotkeys
 		if (hotkeys.hasOwnProperty(key)) {
-			await hotkeys[key](event);
 			event.preventDefault();
 			event.stopPropagation();
-			return false;
+			await hotkeys[key](event);
 		}
 	}
 	return true;

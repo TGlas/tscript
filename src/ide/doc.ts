@@ -982,10 +982,10 @@ export const doc = (function () {
 					if (!href.startsWith("?doc=")) return true;
 					href = href.replace("?doc=", "#");
 					window.sessionStorage.setItem("docpath", href);
-					await module.setpath(href);
 					event.preventDefault();
 					event.stopPropagation();
 					event.stopImmediatePropagation();
+					await module.setpath(href);
 					return false;
 				}
 			});
