@@ -55,10 +55,10 @@ interface ModalButton {
 	text: string;
 	/** The handler, that is called, when the button has
 	 * been clicked, default: a no-op function
-	 * @return a true value to keep the dialog open
-	 * return a false value/nothing to close the dialog
+	 * @return a true value to keep the dialog open, return a false value/nothing
+	 * to close the dialog. If wrapped in a Promise, it will be awaited.
 	 */
-	onClick?: (event: MouseEvent) => any;
+	onClick?: (event: MouseEvent) => boolean | Promise<boolean> | void;
 	/** flag if the button is the default button of the dialog, default: false */
 	isDefault?: boolean;
 }
@@ -80,6 +80,8 @@ interface Modal extends ModalDescription {
 	focusControl: any;
 	/** TODO: document */
 	handleHelp?: ((event: Event) => any) | null;
+	/** Update title */
+	setTitle: (newTitle: string) => void;
 }
 
 /**
@@ -186,12 +188,14 @@ export function createModal(description: ModalDescription): Modal {
 
 	control.handleClose = async (event) => await handleButton(event, null);
 	// createTitleBar defined below
-	control.titlebar = createTitleBar(
+	const { titlebar, setTitle } = createTitleBar(
 		dialog,
 		control.title,
 		control.handleClose,
 		control.handleHelp
 	);
+	control.titlebar = titlebar;
+	control.setTitle = setTitle;
 
 	// create the content div
 	let contentHeight = control.hasOwnProperty("buttons")
@@ -248,7 +252,19 @@ export function createModal(description: ModalDescription): Modal {
 	// dlg         -- parent dialog
 	// title       -- titlebar text
 	// handleClose -- "event" handler, that gets called with null, whenever the x-button is pressed
-	function createTitleBar(dlg, title, handleClose, handleHelp) {
+	/**
+	 * @returns titlebar: HTMLElement that is the title bar
+	 *			setTitle: function to update the title
+	 */
+	function createTitleBar(
+		dlg,
+		title,
+		handleClose,
+		handleHelp
+	): {
+		titlebar: HTMLElement;
+		setTitle: (newTitle: string) => void;
+	} {
 		let titlebar = createElement({
 			parent: dlg,
 			type: "div",
@@ -269,6 +285,9 @@ export function createModal(description: ModalDescription): Modal {
 			classname: "tgui-modal-titlebar-title",
 			style: { height: "20px", "line-height": "20px" },
 		});
+
+		const setTitle = (newTitle: string) =>
+			(titlebar_title.innerText = newTitle);
 
 		if (handleHelp !== null) {
 			// show help for the current dialog
@@ -297,7 +316,7 @@ export function createModal(description: ModalDescription): Modal {
 			"tooltip-right": "Close",
 		});
 
-		return titlebar;
+		return { titlebar, setTitle };
 	}
 }
 

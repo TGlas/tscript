@@ -2,7 +2,12 @@ import * as ide from ".";
 import { ParseInput, parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { fileDlg, parseOptions } from "./dialogs";
+import {
+	createFileDlgFileView,
+	loadFileProjDlg,
+	fileDlgSize,
+	parseOptions,
+} from "./dialogs";
 import {
 	closeEditor,
 	createEditorTabByModal,
@@ -11,6 +16,9 @@ import {
 import { showdoc, showdocConfirm } from "./show-docs";
 import { interpreterEnded, updateControls } from "./utils";
 
+/**
+ * click may be async
+ */
 export let buttons: any = [
 	{
 		click: cmd_new,
@@ -300,17 +308,8 @@ function cmd_new() {
 	createEditorTabByModal();
 }
 
-function cmd_load() {
-	fileDlg("Load file", "", false, "Load", function (name) {
-		let ed = ide.collection.getEditor(name);
-		if (ed) {
-			ed.focus();
-			return;
-		}
-
-		openEditorFromLocalStorage(name);
-		return updateControls().then(() => undefined);
-	});
+async function cmd_load() {
+	await loadFileProjDlg();
 }
 
 function cmd_save() {
@@ -326,17 +325,34 @@ function cmd_save_as() {
 	const ed = ide.collection.getActiveEditor();
 	if (!ed) return;
 
-	fileDlg(
-		"Save file as ...",
-		ed.properties().name,
+	const filename = ed.properties.name;
+	const fileView = createFileDlgFileView(
+		filename,
 		true,
-		"Save",
 		function (filename) {
 			closeEditor(filename);
 			localStorage.setItem("tscript.code." + filename, ed.text());
 			openEditorFromLocalStorage(filename);
-		}
+		},
+		null
 	);
+	let dlg = tgui.createModal({
+		title: "Save file as ...",
+		minsize: [...fileDlgSize.minsize],
+		scalesize: [...fileDlgSize.scalesize],
+		buttons: [
+			{
+				text: "Save",
+				isDefault: true,
+				onClick: fileView.onClickConfirmation,
+			},
+			{ text: "Cancel" },
+		],
+		enterConfirms: true,
+	});
+	tgui.startModal(dlg);
+	dlg.content.replaceChildren(fileView.element);
+	return dlg;
 }
 
 export function cmd_upload() {

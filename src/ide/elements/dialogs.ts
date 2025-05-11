@@ -1,8 +1,22 @@
+import { update } from "lodash";
 import { defaultParseOptions, ParseOptions } from "../../lang/parser";
+import {
+	deleteProject,
+	getCurrentProject,
+	getProjectPath,
+	InvalidProjectName,
+	listProjects,
+	ProjectNotFoundError,
+	projectsFSP,
+	recurseDirectory,
+	setCurrentProject,
+	tryCreateProject,
+} from "../projects-fs";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
-import { tab_config } from "./editor-tabs";
+import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
 import * as ide from "./index";
+import { updateControls } from "./utils";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -357,57 +371,139 @@ export function configDlg() {
 	tgui.startModal(dlg);
 }
 
-export function fileDlg(
-	title: string,
-	filename: string,
-	allowNewFilename: boolean,
-	confirmText: string,
-	onOkay: (filename: string) => any | Promise<any>
-) {
-	// 10px horizontal spacing
-	//  7px vertical spacing
-	// populate array of existing files
-	let files = new Array();
-	for (let key in localStorage) {
-		if (key.substr(0, 13) === "tscript.code.") files.push(key.substr(13));
-	}
-	files.sort();
+/**
+ * Represents an HTML element that renders a list of items, which can be
+ * selected, opened/saved as (onClickConfirmation), and deleted.
+ */
+interface FileDlgView {
+	/** Element containinng the view */
+	element: HTMLElement;
+	/** Needs to be called after the view was attached to a parent (rendered) */
+	onAttached: () => void;
+	/**
+	 * Event handler for when the primary action on items in the list is
+	 * performed (e.g., open or save). Use `this.getSelectedItem()` to get the
+	 * item the operation pertains to.
+	 *
+	 * @returns
+	 * true when the dialog should remain open (see `ModalButton.onClick`)
+	 */
+	onClickConfirmation: (event: Event) => boolean | Promise<boolean>;
+	/** Set the status text (e.g., "5 Documents") */
+	setStatus: (status: string) => void;
+	/**
+	 * Get the relevant item. This is resolved as follows:
+	 *	- If the input field was created (includeInputField=true), then takes its value
+	 *	- Otherwise, if an item was selected, return it
+	 *	- Otherwise, return the inital item passed as initItem
+	 */
+	getSelectedItem: () => string;
+	/** Get the current list of items */
+	getItems: () => string[];
+	/** Remove an item from the list */
+	removeItemFromList: (item: string) => void;
+}
 
-	// return true on failure, that is when the dialog should be kept open
-	let onFileConfirmation = async function () {
-		let fn = name.value;
-		if (fn != "") {
-			if (allowNewFilename || files.indexOf(fn) >= 0) {
-				await onOkay(fn);
-				return false; // close dialog
-			}
-		}
-		return true; // keep dialog open
-	};
+export const fileDlgSize = {
+	scalesize: [0.5, 0.7],
+	minsize: [440, 260],
+} as const;
 
+export async function loadFileProjDlg() {
+	const title = "Load file";
+	let fileView: FileDlgView,
+		projectView: FileDlgView,
+		currentView: FileDlgView;
+	fileView = createFileDlgFileView("", false, loadFile, switchToProjectView);
+	projectView = await createFileDlgProjectView(switchToFileView);
+	currentView = fileView;
 	// create dialog and its controls
 	let dlg = tgui.createModal({
 		title: title,
-		scalesize: [0.5, 0.7],
-		minsize: [440, 260],
+		minsize: [...fileDlgSize.minsize],
+		scalesize: [...fileDlgSize.scalesize],
 		buttons: [
 			{
-				text: confirmText,
+				text: "Load",
 				isDefault: true,
-				onClick: onFileConfirmation,
+				onClick: onClickConfirmation,
 			},
 			{ text: "Cancel" },
 		],
 		enterConfirms: true,
-		contentstyle: {
+	});
+
+	tgui.startModal(dlg);
+	updateView();
+	return dlg;
+
+	function switchToProjectView() {
+		currentView = projectView;
+		dlg.setTitle("Load project");
+		updateView();
+	}
+	function switchToFileView() {
+		currentView = fileView;
+		dlg.setTitle(title);
+		updateView();
+	}
+
+	function onClickConfirmation(event: Event) {
+		currentView.onClickConfirmation(event);
+	}
+
+	function updateView() {
+		dlg.content.replaceChildren(currentView.element);
+		currentView.onAttached();
+	}
+
+	function loadFile(name: string) {
+		let ed = ide.collection.getEditor(name);
+		if (ed) {
+			ed.focus();
+			return;
+		}
+
+		openEditorFromLocalStorage(name);
+		return updateControls().then(() => undefined);
+	}
+}
+
+/**
+ * @param initItem Item that is initially considered the current item, and if
+ *	`includeInputField=true`, then also the value of the input field.
+ * @param includeInputField Includes an text input field in the view, which sets
+ *	the value of the current item.
+ * @param onDelete Callback for when the delete button / Del is pressed
+ * @param onClickConfirmation Callback for when the modal is confirmed / an item
+ *	is double clicked
+ */
+function createFileDlgViewConfigurable(
+	initItem: string,
+	includeInputField: boolean,
+	initItemList: string[],
+	onDelete: () => void | Promise<void>,
+	onClickConfirmation: () => Promise<boolean> | boolean,
+	switchView: (() => void) | null,
+	deleteBtnText: string,
+	inputFieldPlaceholder: string,
+	switchBtnText: string
+): FileDlgView {
+	const items = [...initItemList];
+	let ret: FileDlgView;
+	const container = tgui.createElement({
+		type: "div",
+		style: {
 			display: "flex",
-			"flex-direction": "column",
-			"justify-content": "space-between",
+			flexDirection: "column",
+			justifyContent: "space-between",
+			height: "100%",
+			width: "100%",
 		},
 	});
 
 	let toolbar = tgui.createElement({
-		parent: dlg.content,
+		parent: container,
 		type: "div",
 		style: {
 			display: "flex",
@@ -419,42 +515,55 @@ export function fileDlg(
 		},
 	});
 	// toolbar
-	{
-		let deleteBtn = tgui.createElement({
+	let deleteBtn = tgui.createElement({
+		parent: toolbar,
+		type: "button",
+		style: {
+			width: "100px",
+			height: "100%",
+			"margin-right": "10px",
+		},
+		text: deleteBtnText,
+		click: onDelete,
+		classname: "tgui-modal-button",
+	});
+
+	let status = tgui.createElement({
+		parent: toolbar,
+		type: "label",
+		style: {
+			flex: "1",
+			height: "100%",
+			"white-space": "nowrap",
+		},
+		text: "",
+		classname: "tgui-status-box",
+	});
+
+	if (switchView !== null) {
+		// switch button
+		tgui.createElement({
 			parent: toolbar,
 			type: "button",
 			style: {
-				width: "100px",
 				height: "100%",
-				"margin-right": "10px",
+				marginLeft: "auto",
+				padding: "0px 10px",
+				//display: "inline-flex",
+				//alignItems: "center",
 			},
-			text: "Delete file",
-			click: () => deleteFile(name.value),
+			text: switchBtnText,
+			click: switchView,
 			classname: "tgui-modal-button",
-		});
-
-		let status = tgui.createElement({
-			parent: toolbar,
-			type: "label",
-			style: {
-				flex: "1",
-				height: "100%",
-				"white-space": "nowrap",
-			},
-			text:
-				(files.length > 0 ? files.length : "No") +
-				" document" +
-				(files.length === 1 ? "" : "s"),
-			classname: "tgui-status-box",
 		});
 	}
 	// end toolbar
 
 	let list = tgui.createElement({
-		parent: dlg.content,
+		parent: container,
 		type: "select",
 		properties: {
-			size: Math.max(2, files.length).toString(),
+			size: Math.max(2, items.length).toString(),
 			multiple: "false",
 		},
 		classname: "tgui-list-box",
@@ -465,10 +574,10 @@ export function fileDlg(
 			overflow: "scroll",
 		},
 	});
-	let name = { value: filename };
-	if (allowNewFilename) {
+	let name = { value: initItem };
+	if (includeInputField) {
 		name = tgui.createElement({
-			parent: dlg.content,
+			parent: container,
 			type: "input",
 			style: {
 				height: "25px",
@@ -476,14 +585,14 @@ export function fileDlg(
 				margin: "0 0px 7px 0px",
 			},
 			classname: "tgui-text-box",
-			text: filename,
-			properties: { type: "text", placeholder: "Filename" },
+			text: initItem,
+			properties: { type: "text", placeholder: inputFieldPlaceholder },
 		});
 	}
 
 	// populate options
-	for (let i = 0; i < files.length; i++) {
-		let option = new Option(files[i], files[i]);
+	for (let i = 0; i < items.length; i++) {
+		let option = new Option(items[i], items[i]);
 		list.options[i] = option;
 	}
 
@@ -491,49 +600,226 @@ export function fileDlg(
 	list.addEventListener("change", function (event: any) {
 		if (event.target && event.target.value) name.value = event.target.value;
 	});
-	list.addEventListener("keydown", function (event) {
+	list.addEventListener("keydown", async function (event) {
 		if (event.key === "Backspace" || event.key === "Delete") {
 			event.preventDefault();
 			event.stopPropagation();
-			deleteFile(name.value);
-			return false;
+			await onDelete();
 		}
 	});
-	list.addEventListener("dblclick", function (event) {
+	list.addEventListener("dblclick", async function (event) {
 		event.preventDefault();
 		event.stopPropagation();
-		if (!onFileConfirmation()) tgui.stopModal();
+		if (!(await onClickConfirmation())) tgui.stopModal();
 		return false;
 	});
 
-	tgui.startModal(dlg);
-	(allowNewFilename ? (name as any) : list).focus();
-	return dlg;
+	return (ret = {
+		element: container,
+		onAttached: () => {
+			(includeInputField ? (name as any) : list).focus();
+		},
+		onClickConfirmation: onClickConfirmation,
+		getSelectedItem: () => name.value,
+		setStatus: (newStatus) => (status.innerText = newStatus),
+		removeItemFromList: (item) => {
+			const idx = items.indexOf(item);
+			if (idx >= 0) {
+				items.splice(idx, 1);
+				list.remove(idx);
+				return true;
+			}
+			return false;
+		},
+		getItems: () => items,
+	});
+}
 
-	function deleteFile(filename) {
-		let index = files.indexOf(filename);
-		if (index >= 0) {
+/**
+ * Computes and updates status text like "5 documents" (if itemTerm="document")
+ */
+function fileViewUpdateStatusText(view: FileDlgView, itemTerm: string) {
+	const fileList = view.getItems();
+	const text =
+		(fileList.length > 0 ? fileList.length : "No") +
+		" " +
+		itemTerm +
+		(fileList.length === 1 ? "" : "s");
+	view.setStatus(text);
+}
+
+export function createFileDlgFileView(
+	filename: string,
+	allowNewFilename: boolean,
+	onOkay: (filename: string) => any | Promise<any>,
+	switchView: (() => void) | null
+): FileDlgView {
+	let ret: FileDlgView;
+
+	// 10px horizontal spacing
+	//  7px vertical spacing
+	// populate array of existing files
+	let files = new Array();
+	for (let key in localStorage) {
+		if (key.substring(0, 13) === "tscript.code.")
+			files.push(key.substring(13));
+	}
+	files.sort();
+
+	// return true on failure, that is when the dialog should be kept open
+	let onFileConfirmation = async function () {
+		let fn = ret.getSelectedItem();
+		if (fn != "") {
+			if (allowNewFilename || files.indexOf(fn) >= 0) {
+				await onOkay(fn);
+				return false; // close dialog
+			}
+		}
+		return true; // keep dialog open
+	};
+
+	ret = createFileDlgViewConfigurable(
+		filename,
+		allowNewFilename,
+		files,
+		() => deleteFile(ret.getSelectedItem()),
+		onFileConfirmation,
+		switchView,
+		"Delete file",
+		"Filename",
+		"Show projects"
+	);
+
+	const updateStatusText = () => fileViewUpdateStatusText(ret, "document");
+	updateStatusText();
+	return ret;
+
+	function deleteFile(filename: string) {
+		if (ret.getItems().includes(filename)) {
 			let onDelete = () => {
 				ide.collection.closeEditor(filename);
 				localStorage.removeItem("tscript.code." + filename);
-				files.splice(index, 1);
-				list.remove(index);
+				ret.removeItemFromList(filename);
+				updateStatusText();
 			};
 
-			tgui.msgBox({
-				title: "Delete file",
-				icon: tgui.msgBoxExclamation,
-				prompt: 'Delete file "' + filename + '"\nAre you sure?',
-				buttons: [
-					{ text: "Delete", isDefault: true, onClick: onDelete },
-					{ text: "Cancel" },
-				],
-			});
+			deleteFileDlg(filename, onDelete);
 		}
 	}
 }
 
-export function tabNameDlg(onOkay: (filename: string) => boolean) {
+async function createFileDlgProjectView(
+	switchView: (() => void) | null
+): Promise<FileDlgView> {
+	const projs = await listProjects();
+	projs.sort();
+	const ret = createFileDlgViewConfigurable(
+		getCurrentProject() ?? "",
+		true,
+		projs,
+		onDelete,
+		onLoad,
+		switchView,
+		"Delete project",
+		"New project",
+		"Show files"
+	);
+	updateStatusText();
+	return ret;
+
+	function updateStatusText() {
+		fileViewUpdateStatusText(ret, "project");
+	}
+
+	function onDelete() {
+		const proj = ret.getSelectedItem();
+		if (!ret.getItems().includes(proj)) {
+			return;
+		}
+
+		ret.removeItemFromList(proj);
+
+		const onDeleteConfirm = async () => {
+			const projPath = getProjectPath(proj);
+			for await (const entry of recurseDirectory(projPath)) {
+				ide.collection.closeEditor(
+					entry.substring(1 + projPath.length)
+				);
+			}
+			await deleteProject(proj);
+			ret.removeItemFromList(proj);
+			updateStatusText();
+			return false;
+		};
+
+		tgui.msgBox({
+			title: "Delete project",
+			icon: tgui.msgBoxExclamation,
+			prompt: 'Delete project "' + proj + '"\nAre you sure?',
+			buttons: [
+				{
+					text: "Delete",
+					isDefault: true,
+					onClick: onDeleteConfirm,
+				},
+				{ text: "Cancel" },
+			],
+		});
+	}
+
+	async function onLoad() {
+		const proj = ret.getSelectedItem();
+		try {
+			await tryCreateProject(proj);
+		} catch (e) {
+			if (e instanceof InvalidProjectName) {
+				tgui.msgBox({
+					title: "Invalid project name",
+					prompt: e.reason,
+					enterConfirms: true,
+					buttons: [
+						{
+							text: "Okay",
+							isDefault: true,
+						},
+					],
+				});
+				return true;
+			} else {
+				throw e;
+			}
+		}
+		await setCurrentProject(proj);
+		return false;
+	}
+}
+
+/**
+ * @param onDelete See `ModalButton.onClick` for meaning of return value
+ */
+export function deleteFileDlg(
+	filename: string,
+	onDelete: () => boolean | Promise<boolean> | void
+): void {
+	tgui.msgBox({
+		title: "Delete file",
+		icon: tgui.msgBoxExclamation,
+		prompt: 'Delete file "' + filename + '"\nAre you sure?',
+		buttons: [
+			{ text: "Delete", isDefault: true, onClick: onDelete },
+			{ text: "Cancel" },
+		],
+	});
+}
+
+/**
+ * @param onOkay See `ModalButton.onClick` for meaning of return value
+ */
+export function tabNameDlg(
+	onOkay: (filename: string) => boolean | Promise<boolean> | void,
+	title: string = "New tab",
+	defaultInput: string | undefined = undefined
+) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
 		return onOkay(name.value);
@@ -541,7 +827,7 @@ export function tabNameDlg(onOkay: (filename: string) => boolean) {
 
 	// create dialog and its controls
 	let modal = tgui.createModal({
-		title: "New tab",
+		title,
 		scalesize: [0, 0],
 		minsize: [330, 120],
 		buttons: [
@@ -560,6 +846,13 @@ export function tabNameDlg(onOkay: (filename: string) => boolean) {
 	});
 
 	let name = { value: "" };
+	const inputProps: Record<string, string> = {
+		type: "text",
+		placeholder: "Filename",
+	};
+	if (defaultInput !== undefined) {
+		inputProps.value = defaultInput;
+	}
 	name = tgui.createElement({
 		parent: modal.content,
 		type: "input",
@@ -569,7 +862,7 @@ export function tabNameDlg(onOkay: (filename: string) => boolean) {
 			"margin-vertical": "7px",
 		},
 		classname: "tgui-text-box",
-		properties: { type: "text", placeholder: "Filename" },
+		properties: inputProps,
 	});
 
 	tgui.startModal(modal);
