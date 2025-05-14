@@ -4,6 +4,7 @@ import { buttons } from "./commands";
 import { tab_config } from "./editor-tabs";
 import * as ide from "./index";
 import { client_id } from "../../github_creds";
+import { validJWT } from "../git_token";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -608,8 +609,8 @@ export function gitDlg() {
 			"justify-content": "space-between",
 		},
 	});
-
-	if(!localStorage.getItem("git_token")) {
+	if(!validJWT(localStorage.getItem("git_token"))) {
+		localStorage.removeItem("git_token");
 		let loginBtn = tgui.createElement({
 			parent: content,
 			type: "button",

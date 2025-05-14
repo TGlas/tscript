@@ -21,6 +21,7 @@ import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
 import { client_id, proxy_server_url } from "../github_creds";
+import { validJWT } from "./git_token";
 
 window.addEventListener("load", async () => {
 	const container = document.getElementById("ide-container")!;
@@ -42,23 +43,16 @@ window.addEventListener("load", async () => {
 		currentUrl = redirectUrl;
 	}
 
-	const timeout = localStorage.getItem("timeout");
-	if(timeout && Number(timeout) < Date.now()) {
-		localStorage.removeItem("timeout");
-		localStorage.removeItem("git_token");
-	}
-
 	const gitCode = currentUrl.searchParams.get("code");
 	if(gitCode) {
 		window.history.replaceState({}, document.title, window.location.pathname);
 		const res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${client_id}&code=${gitCode}`, {
 			method: 'get',
 		});
-		const data = await res.json();
-		if(data.info) {
-			localStorage.setItem("git_token", data.info.access_token);
-			localStorage.setItem("timeout", data.timeout);
-		}
+		
+		res.text().then((token) => {
+			if(validJWT(token)) localStorage.setItem("git_token", token);
+		});
 	}
 
 	await initializeNavigation(currentUrl, container, (url) => {
