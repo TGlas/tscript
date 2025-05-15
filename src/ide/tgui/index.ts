@@ -302,6 +302,19 @@ export interface TreeNodeInfo<NodeDataT> {
 	visible?: boolean;
 }
 
+/**
+ * function describing the tree content
+ *
+ * @param value The user data of the child that was returned by a previous
+ *	call to this function (as `TreeNodeInfo.children`). `null` for the root.
+ * @param node_id The node id that was returned in `TreeNodeInfo.ids`. `""`
+ *	for the root.
+ */
+type TreeInfoCb<NodeDataT> = (
+	value: NodeDataT | null,
+	node_id: string
+) => Promise<TreeNodeInfo<NodeDataT>> | TreeNodeInfo<NodeDataT>;
+
 export interface TreeDescription<NodeDataT> {
 	/** dictionary of CSS styles */
 	style?: Record<string, string>;
@@ -311,17 +324,8 @@ export interface TreeDescription<NodeDataT> {
 	id?: string;
 	/** tooltip */
 	tooltip?: string;
-	/**
-	 * function describing the tree content
-	 * @param value The user data of the child that was returned by a previous
-	 *	call to this function (as `TreeNodeInfo.children`). `null` for the root.
-	 * @param node_id The node id that was returned in `TreeNodeInfo.ids`. `""`
-	 *	for the root.
-	 */
-	info?: (
-		value: NodeDataT | null,
-		node_id: string
-	) => Promise<TreeNodeInfo<NodeDataT>> | TreeNodeInfo<NodeDataT>;
+	/** function describing the tree content */
+	info?: TreeInfoCb<NodeDataT>;
 	/** event handler, taking an "event" argument */
 	nodeclick?: (event: MouseEvent, value: NodeDataT, id: string) => any;
 }
@@ -365,9 +369,12 @@ export class TreeControl<NodeDataT> {
 	private id2state: Record<string, TreeControlState<NodeDataT>>;
 	// preserved across updates
 	private readonly id2open: Record<string, boolean>;
-	private info: TreeDescription<NodeDataT>["info"];
+	private info?: TreeInfoCb<NodeDataT>;
 	/** Index of the row a node in the tree that is supposed to be visible. */
 	private visible: number | null;
+
+	#currentUpdate: Promise<void> | null = null;
+	#queuedUpdate: TreeInfoCb<NodeDataT> | null = null;
 
 	constructor(description: Readonly<TreeDescription<NodeDataT>>) {
 		// control with styling
@@ -406,12 +413,30 @@ export class TreeControl<NodeDataT> {
 	 * info function and apply the new function to obtain the tree. If no info
 	 * is provided, then it just (re-) renders.
 	 */
-	async update(info?: TreeDescription<NodeDataT>["info"]) {
-		// store the new info object for later use
-		if (info) {
-			this.info = info;
+	update(info: TreeInfoCb<NodeDataT> | undefined = this.info): void {
+		if (!info) return; // no update function
+
+		// there is an ongoing update, queue the next
+		if (this.#currentUpdate) {
+			this.#queuedUpdate = info;
+			return;
 		}
-		console.assert(this.info);
+
+		this.#currentUpdate = this.#doUpdate(info).finally(() => {
+			this.#currentUpdate = null;
+
+			// start the next update if there is one queued
+			const queued = this.#queuedUpdate;
+			if (queued) {
+				this.#queuedUpdate = null;
+				this.update(queued);
+			}
+		});
+	}
+
+	async #doUpdate(info: TreeInfoCb<NodeDataT>) {
+		// store the new info object for later use
+		this.info = info;
 		this.visible = null;
 		this.numberOfNodes = 0;
 
@@ -627,23 +652,6 @@ export class TreeControl<NodeDataT> {
 
 		return state;
 	}
-}
-
-/**
- * Create a new tree control.
- * The tree content is determined by the function description.info.
- * On calling `control.update(info)` the tree is rebuilt from scratch.
- * The function `control.value(element)` returns the value identifying a given tree element.
- */
-export async function createTreeControl<NodeDataT = any>(
-	description: TreeDescription<NodeDataT>
-): Promise<TreeControl<NodeDataT>> {
-	const control = new TreeControl(description);
-
-	// initialize the control
-	if (description.info) await control.update();
-
-	return control;
 }
 
 /**
