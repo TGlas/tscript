@@ -92,14 +92,14 @@ export function createModal(description: ModalDescription): Modal {
 	// dialog  -- the DOM object of the dialog contents
 	let control: any = Object.assign({}, description);
 
-	let handleButton = async function (event, button) {
+	let handleButton = function (event, button) {
 		if (event) {
 			event.preventDefault();
 			event.stopPropagation();
 		}
 
 		if (button && button.onClick) {
-			let keepOpen = await button.onClick();
+			let keepOpen = button.onClick();
 			if (keepOpen) return false;
 		}
 
@@ -184,7 +184,7 @@ export function createModal(description: ModalDescription): Modal {
 		}
 	});
 
-	control.handleClose = async (event) => await handleButton(event, null);
+	control.handleClose = (event) => handleButton(event, null);
 	// createTitleBar defined below
 	control.titlebar = createTitleBar(
 		dialog,
@@ -218,8 +218,7 @@ export function createModal(description: ModalDescription): Modal {
 		});
 
 		for (let button of control.buttons) {
-			let eventHandler = async (event) =>
-				await handleButton(event, button);
+			let eventHandler = (event) => handleButton(event, button);
 
 			if (button.isDefault) control.handleDefault = eventHandler;
 
@@ -287,8 +286,8 @@ export function createModal(description: ModalDescription): Modal {
 
 		let close = createButton({
 			parent: titlebar,
-			click: async function () {
-				return await handleClose(null);
+			click: function () {
+				return handleClose(null);
 			},
 			width: 20,
 			height: 20,

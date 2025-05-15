@@ -21,7 +21,7 @@ import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
 
-window.addEventListener("load", async () => {
+window.addEventListener("load", () => {
 	const container = document.getElementById("ide-container")!;
 	container.replaceChildren(); // empties the container
 
@@ -41,7 +41,7 @@ window.addEventListener("load", async () => {
 		currentUrl = redirectUrl;
 	}
 
-	await initializeNavigation(currentUrl, container, (url) => {
+	initializeNavigation(currentUrl, container, (url) => {
 		if (url.searchParams.has("doc")) return DocumentationPageController;
 		return IDEPageController;
 	});
@@ -69,17 +69,10 @@ function translateLegacyURL(currentUrl: URL): URL | null {
 }
 
 class IDEPageController implements IPageController {
-	container: HTMLElement;
-	location: URL;
 	constructor(container: HTMLElement, location: URL) {
-		this.container = container;
-		this.location = location;
-	}
+		elements.create(container);
 
-	async init() {
-		await elements.create(this.container);
-
-		const loadUrl = this.location.searchParams.get("load");
+		const loadUrl = location.searchParams.get("load");
 		if (loadUrl) loadScriptFromUrl(loadUrl);
 	}
 
@@ -101,16 +94,9 @@ async function loadScriptFromUrl(url: string): Promise<void> {
 }
 
 class DocumentationPageController implements IPageController {
-	container: HTMLElement;
-	location: URL;
 	constructor(container: HTMLElement, location: URL) {
-		this.container = container;
-		this.location = location;
-	}
-
-	async init() {
-		await doc.create(this.container);
-		this.showPage(this.location.searchParams);
+		doc.create(container);
+		this.showPage(location.searchParams);
 	}
 
 	navigate(newLocation: URL): boolean {

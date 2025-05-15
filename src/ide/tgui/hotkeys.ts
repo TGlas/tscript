@@ -7,10 +7,7 @@ let hotkeyElement = null;
 /**
  * register a new hotkey, check for conflicts
  */
-export function setHotkey(
-	hotkey: string,
-	handler: (event: MouseEvent) => Promise<any> | any
-) {
+export function setHotkey(hotkey: string, handler: (event: MouseEvent) => any) {
 	if (!hotkey) return;
 	hotkey = normalizeHotkey(hotkey);
 	if (hotkeys.hasOwnProperty(hotkey))
@@ -52,13 +49,13 @@ export function normalizeHotkey(hotkey) {
 }
 
 /** register a global key listener for hotkey events */
-document.addEventListener("keydown", async function (event) {
+document.addEventListener("keydown", function (event) {
 	if (modal.length > 0) {
 		// redirect key events to the topmost dialog
 		let dlg = modal[modal.length - 1];
 		if (!dlg.onKeyDownOverride) {
 			if (event.key == "Escape") {
-				return await dlg.handleClose(event);
+				return dlg.handleClose(event);
 			}
 			if (event.key == "F1") {
 				return dlg.handleHelp?.(event);
@@ -67,7 +64,7 @@ document.addEventListener("keydown", async function (event) {
 				dlg.hasOwnProperty("enterConfirms") &&
 				dlg.enterConfirms
 			) {
-				return await dlg.handleDefault(event);
+				return dlg.handleDefault(event);
 			}
 		}
 
@@ -87,7 +84,7 @@ document.addEventListener("keydown", async function (event) {
 
 		// handle global hotkeys
 		if (hotkeys.hasOwnProperty(key)) {
-			await hotkeys[key](event);
+			hotkeys[key](event);
 			event.preventDefault();
 			event.stopPropagation();
 			return false;

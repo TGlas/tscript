@@ -110,7 +110,7 @@ export function addMessage(
 			msg.ide_filename = filename;
 			msg.ide_line = line;
 			msg.ide_ch = ch;
-			msg.addEventListener("click", async function (event) {
+			msg.addEventListener("click", function (event) {
 				utils.setCursorPosition(
 					event.target.ide_line,
 					event.target.ide_ch,
@@ -120,7 +120,7 @@ export function addMessage(
 					interpreter &&
 					(interpreter.status != "running" || !interpreter.background)
 				) {
-					await utils.updateControls();
+					utils.updateControls();
 				}
 				return false;
 			});
@@ -262,8 +262,8 @@ class InterpreterSession {
 		) => {
 			addMessage("error", msg, filename, line, ch, href);
 		};
-		interpreter.service.statechanged = async (stop: boolean) => {
-			if (stop) await utils.updateControls();
+		interpreter.service.statechanged = (stop: boolean) => {
+			if (stop) utils.updateControls();
 			else utils.updateStatus();
 			if (interpreter.status === "finished") {
 				let ed = collection.getActiveEditor();
@@ -300,7 +300,7 @@ class InterpreterSession {
 	}
 }
 
-export async function create(container: HTMLElement, options?: any) {
+export function create(container: HTMLElement, options?: any) {
 	let config = loadConfig();
 
 	if (!options)

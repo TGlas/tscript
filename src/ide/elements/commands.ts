@@ -91,9 +91,9 @@ export let buttons: any = [
 	},
 ];
 
-async function cmd_reset() {
+function cmd_reset() {
 	ide.clear();
-	await updateControls();
+	updateControls();
 }
 
 /**
@@ -309,7 +309,7 @@ function cmd_load() {
 		}
 
 		openEditorFromLocalStorage(name);
-		return updateControls().then(() => undefined);
+		updateControls();
 	});
 }
 
@@ -362,7 +362,7 @@ export function cmd_upload() {
 					} else {
 						openEditorFromLocalStorage(filename);
 					}
-					await updateControls();
+					updateControls();
 				}
 			},
 		},
