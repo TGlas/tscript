@@ -330,7 +330,7 @@ interface MessageBoxDescription extends ModalDescription {
 /**
  * create and show a MessageBox (utilizes modals)
  */
-export function msgBox(description: MessageBoxDescription) {
+export function msgBox(description: MessageBoxDescription): Modal {
 	let default_description = {
 		buttons: [{ text: "Okay", isDefault: true }],
 	};
@@ -378,6 +378,7 @@ export function msgBox(description: MessageBoxDescription) {
 	});
 
 	startModal(dlg);
+	return dlg;
 }
 
 export let msgBoxQuestion = icons.msgBoxQuestion;

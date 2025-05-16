@@ -308,8 +308,8 @@ function cmd_new() {
 	createEditorTabByModal();
 }
 
-async function cmd_load() {
-	await loadFileProjDlg();
+function cmd_load() {
+	loadFileProjDlg();
 }
 
 function cmd_save() {
@@ -326,6 +326,7 @@ function cmd_save_as() {
 	if (!ed) return;
 
 	const filename = ed.properties.name;
+	const ac = new AbortController();
 	const fileView = createFileDlgFileView(
 		filename,
 		true,
@@ -334,7 +335,8 @@ function cmd_save_as() {
 			localStorage.setItem("tscript.code." + filename, ed.text());
 			openEditorFromLocalStorage(filename);
 		},
-		null
+		null,
+		ac.signal
 	);
 	let dlg = tgui.createModal({
 		title: "Save file as ...",
@@ -349,6 +351,7 @@ function cmd_save_as() {
 			{ text: "Cancel" },
 		],
 		enterConfirms: true,
+		onClose: () => ac.abort(),
 	});
 	tgui.startModal(dlg);
 	dlg.content.replaceChildren(fileView.element);
