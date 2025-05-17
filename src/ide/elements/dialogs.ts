@@ -1,4 +1,3 @@
-import { update } from "lodash";
 import { defaultParseOptions, ParseOptions } from "../../lang/parser";
 import {
 	deleteProject,
@@ -424,14 +423,14 @@ export function loadFileProjDlg() {
 		currentView: FileDlgView;
 	/** Whether the modal wasn't yet closed */
 	let modalAlive = true;
-	fileView = createFileDlgFileView(
-		"",
-		false,
-		loadFile,
-		switchToProjectView,
-		tryCloseDlg
-	);
-	projectView = createFileDlgProjectView(switchToFileView, tryCloseDlg);
+	fileView = createFileDlgFileView("", false, loadFile, {
+		switchView: switchToProjectView,
+		tryClose: tryCloseDlg,
+	});
+	projectView = createFileDlgProjectView({
+		switchView: switchToFileView,
+		tryClose: tryCloseDlg,
+	});
 	currentView = fileView;
 	// create dialog and its controls
 	let dlg = tgui.createModal({
@@ -461,6 +460,7 @@ export function loadFileProjDlg() {
 		dlg.setTitle("Load project");
 		updateView();
 	}
+
 	function switchToFileView() {
 		currentView = fileView;
 		dlg.setTitle(title);
@@ -493,28 +493,44 @@ export function loadFileProjDlg() {
 	}
 }
 
-/**
- * @param initItem Item that is initially considered the current item, and if
- *	`includeInputField=true`, then also the value of the input field.
- * @param includeInputField Includes an text input field in the view, which sets
- *	the value of the current item.
- * @param onDelete Callback for when the delete button / Del is pressed
- * @param onClickConfirmation Callback for when the modal is confirmed / an item
- *	is double clicked
- * @param tryClose Callback that tries to close the modal, returning true on
- * success. Might fail due to modal.onClose signaling not to close.
- */
+interface FileViewContext {
+	/**
+	 * callback for when the other view should be displayed. Set to null to
+	 * remove button for switching views
+	 */
+	switchView: (() => void) | null;
+	/**
+	 * Callback that tries to close the modal, returning true on
+	 * success. Might fail due to modal.onClose signaling not to close.
+	 * Also returns true if the dialog was already closed.
+	 */
+	tryClose: () => boolean;
+}
+
+interface FileViewDescription {
+	/**
+	 * Item that is initially considered the current item, and if
+	 * `includeInputField=true`, then also the value of the input field.
+	 */
+	initItem: string;
+	/**
+	 * Include an text input field in the view, which sets the value of the
+	 * current item.
+	 */
+	includeInputField: boolean;
+	initItemListP: Promise<string[]>;
+	/** Callback for when the delete button / Del is pressed */
+	onDelete: () => void;
+	/** Callback for when the modal is confirmed / an item is double clicked */
+	onClickConfirmation: () => boolean | Promise<boolean>;
+	deleteBtnText: string;
+	inputFieldPlaceholder: string;
+	switchBtnText: string;
+}
+
 function createFileDlgViewConfigurable(
-	initItem: string,
-	includeInputField: boolean,
-	initItemListP: Promise<string[]>,
-	onDelete: () => void,
-	onClickConfirmation: () => boolean | Promise<boolean>,
-	switchView: (() => void) | null,
-	deleteBtnText: string,
-	inputFieldPlaceholder: string,
-	switchBtnText: string,
-	tryClose: () => boolean
+	dsc: FileViewDescription,
+	ctx: FileViewContext
 ): FileDlgView {
 	let items: string[] | null = null;
 	let ret: FileDlgView;
@@ -551,8 +567,8 @@ function createFileDlgViewConfigurable(
 			height: "100%",
 			"margin-right": "10px",
 		},
-		text: deleteBtnText,
-		click: onDelete,
+		text: dsc.deleteBtnText,
+		click: dsc.onDelete,
 		classname: "tgui-modal-button",
 	});
 	deleteBtn.disabled = true;
@@ -569,7 +585,7 @@ function createFileDlgViewConfigurable(
 		classname: "tgui-status-box",
 	});
 
-	if (switchView !== null) {
+	if (ctx.switchView !== null) {
 		// switch button
 		tgui.createElement({
 			parent: toolbar,
@@ -581,8 +597,8 @@ function createFileDlgViewConfigurable(
 				//display: "inline-flex",
 				//alignItems: "center",
 			},
-			text: switchBtnText,
-			click: switchView,
+			text: dsc.switchBtnText,
+			click: ctx.switchView,
 			classname: "tgui-modal-button",
 		});
 	}
@@ -595,11 +611,11 @@ function createFileDlgViewConfigurable(
 	let listRes: (value: HTMLSelectElement) => void;
 	let list: HTMLSelectElement | null = null;
 	const listP = new Promise<HTMLSelectElement>((res) => (listRes = res));
-	/** `initItemListP` was resolved and the rest of the view was rendered */
+	/** `dsc.initItemListP` was resolved and the rest of the view was rendered */
 	let fullyRendered = false;
 	// render rest once items are ready
-	initItemListP.then((initItemListP) => {
-		items = [...initItemListP];
+	dsc.initItemListP.then((initItemList) => {
+		items = [...initItemList];
 
 		list = tgui.createElement({
 			parent: container,
@@ -616,8 +632,8 @@ function createFileDlgViewConfigurable(
 				overflow: "scroll",
 			},
 		});
-		name = { value: initItem };
-		if (includeInputField) {
+		name = { value: dsc.initItem };
+		if (dsc.includeInputField) {
 			name = tgui.createElement({
 				parent: container,
 				type: "input",
@@ -627,10 +643,10 @@ function createFileDlgViewConfigurable(
 					margin: "0 0px 7px 0px",
 				},
 				classname: "tgui-text-box",
-				text: initItem,
+				text: dsc.initItem,
 				properties: {
 					type: "text",
-					placeholder: inputFieldPlaceholder,
+					placeholder: dsc.inputFieldPlaceholder,
 				},
 			});
 		}
@@ -650,7 +666,7 @@ function createFileDlgViewConfigurable(
 			if (event.key === "Backspace" || event.key === "Delete") {
 				event.preventDefault();
 				event.stopPropagation();
-				onDelete();
+				dsc.onDelete();
 			}
 		});
 		list.addEventListener("dblclick", function (event) {
@@ -701,8 +717,8 @@ function createFileDlgViewConfigurable(
 	});
 
 	function syncOnClickConfirmation() {
-		Promise.resolve(onClickConfirmation()).then((keepOpen) => {
-			if (!keepOpen) tryClose();
+		Promise.resolve(dsc.onClickConfirmation()).then((keepOpen) => {
+			if (!keepOpen) ctx.tryClose();
 		});
 		return true;
 	}
@@ -730,8 +746,7 @@ export function createFileDlgFileView(
 	filename: string,
 	allowNewFilename: boolean,
 	onOkay: (filename: string) => void,
-	switchView: (() => void) | null,
-	tryClose: () => boolean
+	ctx: FileViewContext
 ): FileDlgView {
 	let ret: FileDlgView;
 
@@ -759,19 +774,20 @@ export function createFileDlgFileView(
 	};
 
 	ret = createFileDlgViewConfigurable(
-		filename,
-		allowNewFilename,
-		Promise.resolve(files),
-		() => {
-			const selectedFile = ret.getSelectedItem();
-			if (selectedFile !== null) deleteFile(selectedFile);
+		{
+			initItem: filename,
+			includeInputField: allowNewFilename,
+			initItemListP: Promise.resolve(files),
+			onDelete: () => {
+				const selectedFile = ret.getSelectedItem();
+				if (selectedFile !== null) deleteFile(selectedFile);
+			},
+			onClickConfirmation: onFileConfirmation,
+			deleteBtnText: "Delete file",
+			inputFieldPlaceholder: "Filename",
+			switchBtnText: "Show projects",
 		},
-		onFileConfirmation,
-		switchView,
-		"Delete file",
-		"Filename",
-		"Show projects",
-		tryClose
+		ctx
 	);
 
 	const updateStatusText = () => fileViewUpdateStatusText(ret, "document");
@@ -793,22 +809,20 @@ export function createFileDlgFileView(
 	}
 }
 
-function createFileDlgProjectView(
-	switchView: (() => void) | null,
-	tryClose: () => boolean
-): FileDlgView {
+function createFileDlgProjectView(ctx: FileViewContext): FileDlgView {
 	const projs = listProjects().then((projs) => projs.sort());
 	const ret = createFileDlgViewConfigurable(
-		getCurrentProject() ?? "",
-		true,
-		projs,
-		onDelete,
-		onLoad,
-		switchView,
-		"Delete project",
-		"New project",
-		"Show files",
-		tryClose
+		{
+			initItem: getCurrentProject() ?? "",
+			includeInputField: true,
+			initItemListP: projs,
+			onDelete,
+			onClickConfirmation: onLoad,
+			deleteBtnText: "Delete project",
+			inputFieldPlaceholder: "New project",
+			switchBtnText: "Show files",
+		},
+		ctx
 	);
 	updateStatusText();
 	ret.fullyRendered.then(updateStatusText);

@@ -335,8 +335,10 @@ function cmd_save_as() {
 			localStorage.setItem("tscript.code." + filename, ed.text());
 			openEditorFromLocalStorage(filename);
 		},
-		null,
-		() => tryStopModal(dlg)
+		{
+			switchView: null,
+			tryClose: () => tryStopModal(dlg),
+		}
 	);
 	let dlg = tgui.createModal({
 		title: "Save file as ...",
