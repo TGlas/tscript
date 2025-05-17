@@ -2,7 +2,6 @@ import * as ide from ".";
 import { ParseInput, parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { tryStopModal } from "./../tgui";
 import {
 	createFileDlgFileView,
 	loadFileProjDlg,
@@ -337,23 +336,22 @@ function cmd_save_as() {
 		},
 		{
 			switchView: null,
-			tryClose: () => tryStopModal(dlg),
+			clickConfirmation: () => dlg.pressButton(confirmationButton),
 		}
 	);
+	const confirmationButton = {
+		text: "Save",
+		isDefault: true,
+		onClick: () => fileView.onClickConfirmation(),
+	};
 	let dlg = tgui.createModal({
 		title: "Save file as ...",
 		minsize: [...fileDlgSize.minsize],
 		scalesize: [...fileDlgSize.scalesize],
-		buttons: [
-			{
-				text: "Save",
-				isDefault: true,
-				onClick: fileView.onClickConfirmation,
-			},
-			{ text: "Cancel" },
-		],
+		buttons: [confirmationButton, { text: "Cancel" }],
 		enterConfirms: true,
 	});
+
 	tgui.startModal(dlg);
 	dlg.content.replaceChildren(fileView.element);
 	return dlg;

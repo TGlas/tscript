@@ -380,33 +380,31 @@ export function loadFileProjDlg() {
 		projectView: FileDlgView,
 		currentView: FileDlgView;
 	/** Whether the modal wasn't yet closed */
-	let modalAlive = true;
+	const ctxBase = {
+		clickConfirmation: simulateClickConfirmation,
+	};
 	fileView = createFileDlgFileView("", false, loadFile, {
+		...ctxBase,
 		switchView: switchToProjectView,
-		tryClose: tryCloseDlg,
 	});
 	projectView = createFileDlgProjectView({
+		...ctxBase,
 		switchView: switchToFileView,
-		tryClose: tryCloseDlg,
 	});
 	currentView = fileView;
+
 	// create dialog and its controls
+	const confirmationBtn = {
+		text: "Load",
+		isDefault: true,
+		onClick: onClickConfirmation,
+	};
 	let dlg = tgui.createModal({
 		title: title,
 		minsize: [...fileDlgSize.minsize],
 		scalesize: [...fileDlgSize.scalesize],
-		buttons: [
-			{
-				text: "Load",
-				isDefault: true,
-				onClick: onClickConfirmation,
-			},
-			{ text: "Cancel" },
-		],
+		buttons: [confirmationBtn, { text: "Cancel" }],
 		enterConfirms: true,
-		onClose: () => {
-			modalAlive = false;
-		},
 	});
 
 	tgui.startModal(dlg);
@@ -425,8 +423,8 @@ export function loadFileProjDlg() {
 		updateView();
 	}
 
-	function onClickConfirmation() {
-		return currentView.onClickConfirmation();
+	async function onClickConfirmation() {
+		return await currentView.onClickConfirmation();
 	}
 
 	function updateView() {
@@ -445,9 +443,8 @@ export function loadFileProjDlg() {
 		return updateControls().then(() => undefined);
 	}
 
-	function tryCloseDlg() {
-		if (!modalAlive) return true;
-		return tryStopModal(dlg);
+	function simulateClickConfirmation() {
+		dlg.pressButton(confirmationBtn);
 	}
 }
 
@@ -457,12 +454,8 @@ interface FileViewContext {
 	 * remove button for switching views
 	 */
 	switchView: (() => void) | null;
-	/**
-	 * Callback that tries to close the modal, returning true on
-	 * success. Might fail due to modal.onClose signaling not to close.
-	 * Also returns true if the dialog was already closed.
-	 */
-	tryClose: () => boolean;
+	/** Simulates clicking on the confirmation button */
+	clickConfirmation: () => void;
 }
 
 interface FileViewDescription {
@@ -662,7 +655,7 @@ class FileDlgView {
 			list.addEventListener("dblclick", (event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				this.#syncOnClickConfirmation();
+				this.#ctx.clickConfirmation();
 				return false;
 			});
 			deleteBtn.disabled = false;
@@ -676,13 +669,6 @@ class FileDlgView {
 		});
 
 		this.element = container;
-	}
-
-	#syncOnClickConfirmation() {
-		Promise.resolve(this.#dsc.onClickConfirmation()).then((keepOpen) => {
-			if (!keepOpen) this.#ctx.tryClose();
-		});
-		return true;
 	}
 
 	/**
@@ -708,8 +694,8 @@ class FileDlgView {
 	 * @returns
 	 * true when the dialog should remain open (see `ModalButton.onClick`)
 	 */
-	onClickConfirmation(): boolean {
-		return this.#syncOnClickConfirmation();
+	async onClickConfirmation(): Promise<boolean> {
+		return await this.#dsc.onClickConfirmation();
 	}
 
 	/**
@@ -969,16 +955,7 @@ export function tabNameDlg(
 ) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
-		const keepOpen = onOkay(name.value);
-		if (!(keepOpen instanceof Promise)) {
-			return keepOpen;
-		}
-		// keep open and close if necessary once keepOpen is resolved
-		keepOpen.then((keepOpenResolved) => {
-			if (keepOpenResolved) return;
-			tryStopModal(modal);
-		});
-		return true;
+		return onOkay(name.value);
 	};
 
 	// create dialog and its controls

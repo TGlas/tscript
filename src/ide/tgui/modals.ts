@@ -56,9 +56,13 @@ interface ModalButton {
 	/** The handler, that is called, when the button has
 	 * been clicked, default: a no-op function
 	 * @return a true value to keep the dialog open, return a false value/nothing
-	 * to close the dialog. If wrapped in a Promise, it will be awaited.
+	 * to close the dialog. If wrapped in a Promise, the modal will be kept open
+	 * and when the promise resolves try to close it (via tryStopModal). Note
+	 * that this does not protect against race conditions in any way. However,
+	 * the scenario where the modal is already closed when the promise resolves
+	 * is handled gracefully.
 	 */
-	onClick?: (event: MouseEvent) => boolean | Promise<boolean> | void;
+	onClick?: (event: MouseEvent) => boolean | void | Promise<boolean | void>;
 	/** flag if the button is the default button of the dialog, default: false */
 	isDefault?: boolean;
 }
@@ -82,6 +86,17 @@ interface Modal extends ModalDescription {
 	handleHelp?: ((event: Event) => any) | null;
 	/** Update title */
 	setTitle: (newTitle: string) => void;
+	/**
+	 * Behaves as if the button was pressed. This is useful since ModalButtons
+	 * may have async event handlers
+	 */
+	pressButton: (button: ModalButton) => void;
+}
+
+class NotAButtonOfThisModalException extends Error {
+	constructor(button: ModalButton) {
+		super(`Button "${button.text}" is not a button on this modal`);
+	}
 }
 
 /**
@@ -94,23 +109,24 @@ export function createModal(description: ModalDescription): Modal {
 	// dialog  -- the DOM object of the dialog contents
 	let control: any = Object.assign({}, description);
 
-	let handleButton = async function (event, button) {
+	let handleButton = function (event, button): false {
 		if (event) {
 			event.preventDefault();
 			event.stopPropagation();
 		}
 
 		if (button && button.onClick) {
-			let keepOpen = await button.onClick();
-			if (keepOpen) return false;
+			let keepOpen = button.onClick();
+			if (!(keepOpen instanceof Promise)) {
+				if (!keepOpen) tryStopModal();
+			} else {
+				keepOpen.then((keepOpenResolved) => {
+					if (!keepOpenResolved) tryStopModal();
+				});
+			}
+		} else {
+			tryStopModal();
 		}
-
-		if (control.onClose) {
-			let keepOpen = control.onClose();
-			if (keepOpen) return false;
-		}
-
-		stopModal(control); // close current dialog
 		return false;
 	};
 
@@ -186,7 +202,7 @@ export function createModal(description: ModalDescription): Modal {
 		}
 	});
 
-	control.handleClose = async (event) => await handleButton(event, null);
+	control.handleClose = (event) => handleButton(event, null);
 	// createTitleBar defined below
 	const { titlebar, setTitle } = createTitleBar(
 		dialog,
@@ -222,8 +238,7 @@ export function createModal(description: ModalDescription): Modal {
 		});
 
 		for (let button of control.buttons) {
-			let eventHandler = async (event) =>
-				await handleButton(event, button);
+			let eventHandler = (event) => handleButton(event, button);
 
 			if (button.isDefault) control.handleDefault = eventHandler;
 
@@ -244,6 +259,12 @@ export function createModal(description: ModalDescription): Modal {
 			if (button.isDefault) control.focusControl = buttonDom;
 		}
 	}
+
+	control.pressButton = (button: ModalButton) => {
+		if (!description.buttons?.includes(button))
+			throw new NotAButtonOfThisModalException(button);
+		handleButton(null, button);
+	};
 
 	return control;
 
@@ -306,8 +327,8 @@ export function createModal(description: ModalDescription): Modal {
 
 		let close = createButton({
 			parent: titlebar,
-			click: async function () {
-				return await handleClose(null);
+			click: function () {
+				return handleClose(null);
 			},
 			width: 20,
 			height: 20,
@@ -456,8 +477,9 @@ export function stopModal(dialog?: Modal) {
 
 /**
  * Calls dialog.onClose (if existent), and if it doesn't return true, closes the
- * dialog.
- * @returns true if the dialog was closed, false if dialog.onClose prevented it
+ * dialog. If it is not currently shown, onClose is not called.
+ * @returns true if the dialog was closed (or the dialog was not open to begin
+ * with), false if dialog.onClose prevented it
  */
 export function tryStopModal(dialog?: Modal) {
 	if (dialog === undefined) {
@@ -465,6 +487,9 @@ export function tryStopModal(dialog?: Modal) {
 		if (dialog === undefined) {
 			throw NoModalDialogToCloseErrStr;
 		}
+	}
+	if (!modal.includes(dialog)) {
+		return true;
 	}
 	const keepOpen = dialog.onClose?.();
 	if (keepOpen) return false;
