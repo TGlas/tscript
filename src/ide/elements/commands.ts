@@ -327,7 +327,6 @@ function cmd_save_as() {
 	if (!ed) return;
 
 	const filename = ed.properties.name;
-	const ac = new AbortController();
 	const fileView = createFileDlgFileView(
 		filename,
 		true,
@@ -337,7 +336,6 @@ function cmd_save_as() {
 			openEditorFromLocalStorage(filename);
 		},
 		null,
-		ac.signal,
 		() => tryStopModal(dlg)
 	);
 	let dlg = tgui.createModal({
@@ -353,7 +351,6 @@ function cmd_save_as() {
 			{ text: "Cancel" },
 		],
 		enterConfirms: true,
-		onClose: () => ac.abort(),
 	});
 	tgui.startModal(dlg);
 	dlg.content.replaceChildren(fileView.element);

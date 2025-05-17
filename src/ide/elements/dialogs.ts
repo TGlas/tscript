@@ -422,21 +422,16 @@ export function loadFileProjDlg() {
 	let fileView: FileDlgView,
 		projectView: FileDlgView,
 		currentView: FileDlgView;
-	const ac = new AbortController();
-	const tryCloseDlg = () => tryStopModal(dlg);
+	/** Whether the modal wasn't yet closed */
+	let modalAlive = true;
 	fileView = createFileDlgFileView(
 		"",
 		false,
 		loadFile,
 		switchToProjectView,
-		ac.signal,
 		tryCloseDlg
 	);
-	projectView = createFileDlgProjectView(
-		switchToFileView,
-		ac.signal,
-		tryCloseDlg
-	);
+	projectView = createFileDlgProjectView(switchToFileView, tryCloseDlg);
 	currentView = fileView;
 	// create dialog and its controls
 	let dlg = tgui.createModal({
@@ -452,7 +447,9 @@ export function loadFileProjDlg() {
 			{ text: "Cancel" },
 		],
 		enterConfirms: true,
-		onClose: () => ac.abort(),
+		onClose: () => {
+			modalAlive = false;
+		},
 	});
 
 	tgui.startModal(dlg);
@@ -489,6 +486,11 @@ export function loadFileProjDlg() {
 		openEditorFromLocalStorage(name);
 		return updateControls().then(() => undefined);
 	}
+
+	function tryCloseDlg() {
+		if (!modalAlive) return true;
+		return tryStopModal(dlg);
+	}
 }
 
 /**
@@ -512,7 +514,6 @@ function createFileDlgViewConfigurable(
 	deleteBtnText: string,
 	inputFieldPlaceholder: string,
 	switchBtnText: string,
-	detachSignal: AbortSignal,
 	tryClose: () => boolean
 ): FileDlgView {
 	let items: string[] | null = null;
@@ -701,7 +702,7 @@ function createFileDlgViewConfigurable(
 
 	function syncOnClickConfirmation() {
 		Promise.resolve(onClickConfirmation()).then((keepOpen) => {
-			if (!keepOpen && !detachSignal.aborted) tryClose();
+			if (!keepOpen) tryClose();
 		});
 		return true;
 	}
@@ -730,7 +731,6 @@ export function createFileDlgFileView(
 	allowNewFilename: boolean,
 	onOkay: (filename: string) => void,
 	switchView: (() => void) | null,
-	detachSignal: AbortSignal,
 	tryClose: () => boolean
 ): FileDlgView {
 	let ret: FileDlgView;
@@ -771,7 +771,6 @@ export function createFileDlgFileView(
 		"Delete file",
 		"Filename",
 		"Show projects",
-		detachSignal,
 		tryClose
 	);
 
@@ -796,7 +795,6 @@ export function createFileDlgFileView(
 
 function createFileDlgProjectView(
 	switchView: (() => void) | null,
-	detachSignal: AbortSignal,
 	tryClose: () => boolean
 ): FileDlgView {
 	const projs = listProjects().then((projs) => projs.sort());
@@ -810,7 +808,6 @@ function createFileDlgProjectView(
 		"Delete project",
 		"New project",
 		"Show files",
-		detachSignal,
 		tryClose
 	);
 	updateStatusText();
