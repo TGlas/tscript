@@ -415,13 +415,15 @@ export function startModal(element: Modal) {
 	element.focusControl.focus();
 }
 
+const NoModalDialogToCloseErrStr = "[tgui.stopModal] no modal dialog to close";
+
 /**
  * Discard a modal dialog.
  * Optional parameter of the dialog to close.
  * The default is the topmost dialog.
  */
 export function stopModal(dialog?: Modal) {
-	if (modal.length == 0) throw "[tgui.stopModal] no modal dialog to close";
+	if (modal.length == 0) throw NoModalDialogToCloseErrStr;
 
 	if (dialog === undefined || dialog === modal[modal.length - 1]) {
 		// remove the topmost modal element
@@ -450,4 +452,23 @@ export function stopModal(dialog?: Modal) {
 	// remove the separator after the last modal dialog was closed
 	if (modal.length == 0) document.body.removeChild(separator);
 	else modal[modal.length - 1].dom.style.zIndex = 100;
+}
+
+/**
+ * Calls dialog.onClose (if existent), and if it doesn't return true, closes the
+ * dialog.
+ * @returns true if the dialog was closed, false if dialog.onClose prevented it
+ */
+export function tryStopModal(dialog?: Modal) {
+	if (dialog === undefined) {
+		dialog = modal.at(-1);
+		if (dialog === undefined) {
+			throw NoModalDialogToCloseErrStr;
+		}
+	}
+	const keepOpen = dialog.onClose?.();
+	if (keepOpen) return false;
+
+	stopModal(dialog); // close current dialog
+	return true;
 }

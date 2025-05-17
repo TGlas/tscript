@@ -13,7 +13,7 @@ import {
 	tryCreateProject,
 } from "../projects-fs";
 import * as tgui from "./../tgui";
-import { stopModal } from "./../tgui";
+import { stopModal, tryStopModal } from "./../tgui";
 import { buttons } from "./commands";
 import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
 import * as ide from "./index";
@@ -739,7 +739,7 @@ function createFileDlgViewConfigurable<Disablable extends boolean>(
 
 	function syncOnClickConfirmation() {
 		Promise.resolve(onClickConfirmation()).then((keepOpen) => {
-			if (!keepOpen && !detachSignal.aborted) tgui.stopModal();
+			if (!keepOpen && !detachSignal.aborted) tgui.tryStopModal();
 		});
 		return true;
 	}
@@ -909,7 +909,7 @@ function createFileDlgProjectView(
 						onDeleteConfirm().then((keepOpen) => {
 							if (!keepOpen && !msgBoxAC.signal.aborted) {
 								msgBoxAC.abort();
-								stopModal(msgBox);
+								tryStopModal(msgBox);
 							}
 						});
 						return true;
