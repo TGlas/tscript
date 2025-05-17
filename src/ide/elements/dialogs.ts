@@ -423,16 +423,20 @@ export function loadFileProjDlg() {
 		projectView: FileDlgView,
 		currentView: FileDlgView;
 	const ac = new AbortController();
-	/** If true, the modal won't be closed. Used by views to keep state from
-	 * changing during async tasks */
+	const tryCloseDlg = () => tryStopModal(dlg);
 	fileView = createFileDlgFileView(
 		"",
 		false,
 		loadFile,
 		switchToProjectView,
-		ac.signal
+		ac.signal,
+		tryCloseDlg
 	);
-	projectView = createFileDlgProjectView(switchToFileView, ac.signal);
+	projectView = createFileDlgProjectView(
+		switchToFileView,
+		ac.signal,
+		tryCloseDlg
+	);
 	currentView = fileView;
 	// create dialog and its controls
 	let dlg = tgui.createModal({
@@ -495,8 +499,8 @@ export function loadFileProjDlg() {
  * @param onDelete Callback for when the delete button / Del is pressed
  * @param onClickConfirmation Callback for when the modal is confirmed / an item
  *	is double clicked
- * @param close Callback that closes the modal
- * @param setMayClose prevent/allow closing the modal
+ * @param tryClose Callback that tries to close the modal, returning true on
+ * success. Might fail due to modal.onClose signaling not to close.
  */
 function createFileDlgViewConfigurable(
 	initItem: string,
@@ -508,7 +512,8 @@ function createFileDlgViewConfigurable(
 	deleteBtnText: string,
 	inputFieldPlaceholder: string,
 	switchBtnText: string,
-	detachSignal: AbortSignal
+	detachSignal: AbortSignal,
+	tryClose: () => boolean
 ): FileDlgView {
 	let items: string[] | null = null;
 	let ret: FileDlgView;
@@ -664,7 +669,7 @@ function createFileDlgViewConfigurable(
 		element: container,
 		onAttached: () => {
 			nameP.then((name) => {
-				if (!detachSignal.aborted && name instanceof HTMLInputElement) {
+				if (name instanceof HTMLInputElement && name.isConnected) {
 					name.focus();
 				}
 			});
@@ -677,7 +682,7 @@ function createFileDlgViewConfigurable(
 		removeItemFromList: (item) => {
 			if (!fullyRendered) {
 				listP.then(() => {
-					if (!detachSignal.aborted) ret.removeItemFromList(item);
+					ret.removeItemFromList(item);
 				});
 				return;
 			}
@@ -691,15 +696,12 @@ function createFileDlgViewConfigurable(
 			return false;
 		},
 		getItems: () => items,
-		fullyRendered: nameP.then(() => {
-			if (!detachSignal.aborted) return;
-			return new Promise(() => undefined); // doesn't resolve
-		}),
+		fullyRendered: nameP.then(() => undefined),
 	});
 
 	function syncOnClickConfirmation() {
 		Promise.resolve(onClickConfirmation()).then((keepOpen) => {
-			if (!keepOpen && !detachSignal.aborted) tgui.tryStopModal();
+			if (!keepOpen && !detachSignal.aborted) tryClose();
 		});
 		return true;
 	}
@@ -728,7 +730,8 @@ export function createFileDlgFileView(
 	allowNewFilename: boolean,
 	onOkay: (filename: string) => void,
 	switchView: (() => void) | null,
-	detachSignal: AbortSignal
+	detachSignal: AbortSignal,
+	tryClose: () => boolean
 ): FileDlgView {
 	let ret: FileDlgView;
 
@@ -768,7 +771,8 @@ export function createFileDlgFileView(
 		"Delete file",
 		"Filename",
 		"Show projects",
-		detachSignal
+		detachSignal,
+		tryClose
 	);
 
 	const updateStatusText = () => fileViewUpdateStatusText(ret, "document");
@@ -792,7 +796,8 @@ export function createFileDlgFileView(
 
 function createFileDlgProjectView(
 	switchView: (() => void) | null,
-	detachSignal: AbortSignal
+	detachSignal: AbortSignal,
+	tryClose: () => boolean
 ): FileDlgView {
 	const projs = listProjects().then((projs) => projs.sort());
 	const ret = createFileDlgViewConfigurable(
@@ -805,7 +810,8 @@ function createFileDlgProjectView(
 		"Delete project",
 		"New project",
 		"Show files",
-		detachSignal
+		detachSignal,
+		tryClose
 	);
 	updateStatusText();
 	ret.fullyRendered.then(updateStatusText);

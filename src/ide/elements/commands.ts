@@ -2,6 +2,7 @@ import * as ide from ".";
 import { ParseInput, parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
+import { tryStopModal } from "./../tgui";
 import {
 	createFileDlgFileView,
 	loadFileProjDlg,
@@ -336,7 +337,8 @@ function cmd_save_as() {
 			openEditorFromLocalStorage(filename);
 		},
 		null,
-		ac.signal
+		ac.signal,
+		() => tryStopModal(dlg)
 	);
 	let dlg = tgui.createModal({
 		title: "Save file as ...",
