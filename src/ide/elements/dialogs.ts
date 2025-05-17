@@ -959,6 +959,8 @@ export function deleteFileDlg(
 
 /**
  * @param onOkay See `ModalButton.onClick` for meaning of return value
+ *	If it is a promise, the modal is kept open and depending on the value it
+ *	resolves to it is closed upon resolution.
  */
 export function tabNameDlg(
 	onOkay: (filename: string) => boolean | Promise<boolean> | void,
@@ -967,7 +969,16 @@ export function tabNameDlg(
 ) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
-		return onOkay(name.value);
+		const keepOpen = onOkay(name.value);
+		if (!(keepOpen instanceof Promise)) {
+			return keepOpen;
+		}
+		// keep open and close if necessary once keepOpen is resolved
+		keepOpen.then((keepOpenResolved) => {
+			if (keepOpenResolved) return;
+			tryStopModal(modal);
+		});
+		return true;
 	};
 
 	// create dialog and its controls
