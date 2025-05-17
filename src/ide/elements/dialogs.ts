@@ -6,14 +6,12 @@ import {
 	getProjectPath,
 	InvalidProjectName,
 	listProjects,
-	ProjectNotFoundError,
-	projectsFSP,
 	recurseDirectory,
 	setCurrentProject,
 	tryCreateProject,
 } from "../projects-fs";
 import * as tgui from "./../tgui";
-import { stopModal, tryStopModal } from "./../tgui";
+import { tryStopModal } from "./../tgui";
 import { buttons } from "./commands";
 import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
 import * as ide from "./index";
@@ -376,7 +374,7 @@ export function configDlg() {
  * Represents an HTML element that renders a list of items, which can be
  * selected, opened/saved as (onClickConfirmation), and deleted.
  */
-interface FileDlgView<Disablable extends boolean> {
+interface FileDlgView {
 	/** Element containinng the view */
 	element: HTMLElement;
 	/** Needs to be called after the view was attached to a parent (rendered) */
@@ -412,8 +410,6 @@ interface FileDlgView<Disablable extends boolean> {
 	 * beforehand)
 	 */
 	fullyRendered: Promise<void>;
-	setIsDisabled: Disablable extends true ? (v: boolean) => void : undefined;
-	getIsDisabled: Disablable extends true ? () => boolean : undefined;
 }
 
 export const fileDlgSize = {
@@ -423,14 +419,12 @@ export const fileDlgSize = {
 
 export function loadFileProjDlg() {
 	const title = "Load file";
-	let fileView: FileDlgView<false>,
-		projectView: FileDlgView<true>,
-		currentView: FileDlgView<boolean>;
+	let fileView: FileDlgView,
+		projectView: FileDlgView,
+		currentView: FileDlgView;
 	const ac = new AbortController();
 	/** If true, the modal won't be closed. Used by views to keep state from
 	 * changing during async tasks */
-	let mayClose = true;
-	const setMayClose = (val: boolean) => (mayClose = val);
 	fileView = createFileDlgFileView(
 		"",
 		false,
@@ -438,11 +432,7 @@ export function loadFileProjDlg() {
 		switchToProjectView,
 		ac.signal
 	);
-	projectView = createFileDlgProjectView(
-		switchToFileView,
-		ac.signal,
-		setMayClose
-	);
+	projectView = createFileDlgProjectView(switchToFileView, ac.signal);
 	currentView = fileView;
 	// create dialog and its controls
 	let dlg = tgui.createModal({
@@ -453,12 +443,12 @@ export function loadFileProjDlg() {
 			{
 				text: "Load",
 				isDefault: true,
-				onClick: wrapWithMayCloseCheck(onClickConfirmation),
+				onClick: onClickConfirmation,
 			},
-			{ text: "Cancel", onClick: wrapWithMayCloseCheck(() => false) },
+			{ text: "Cancel" },
 		],
 		enterConfirms: true,
-		onClose: wrapWithMayCloseCheck(() => ac.abort()),
+		onClose: () => ac.abort(),
 	});
 
 	tgui.startModal(dlg);
@@ -495,15 +485,6 @@ export function loadFileProjDlg() {
 		openEditorFromLocalStorage(name);
 		return updateControls().then(() => undefined);
 	}
-
-	function wrapWithMayCloseCheck<T extends any[], U>(
-		func: (...args: T) => U
-	): (...args: T) => boolean | U {
-		return (...args: T) => {
-			if (!mayClose) return true;
-			return func(...args);
-		};
-	}
 }
 
 /**
@@ -517,7 +498,7 @@ export function loadFileProjDlg() {
  * @param close Callback that closes the modal
  * @param setMayClose prevent/allow closing the modal
  */
-function createFileDlgViewConfigurable<Disablable extends boolean>(
+function createFileDlgViewConfigurable(
 	initItem: string,
 	includeInputField: boolean,
 	initItemListP: Promise<string[]>,
@@ -527,12 +508,10 @@ function createFileDlgViewConfigurable<Disablable extends boolean>(
 	deleteBtnText: string,
 	inputFieldPlaceholder: string,
 	switchBtnText: string,
-	detachSignal: AbortSignal,
-	setMayClose: Disablable extends true ? (v: boolean) => void : undefined
-): FileDlgView<Disablable> {
+	detachSignal: AbortSignal
+): FileDlgView {
 	let items: string[] | null = null;
-	let ret: FileDlgView<Disablable>;
-	let isDisabled = false;
+	let ret: FileDlgView;
 
 	const container = tgui.createElement({
 		type: "div",
@@ -584,10 +563,9 @@ function createFileDlgViewConfigurable<Disablable extends boolean>(
 		classname: "tgui-status-box",
 	});
 
-	let switchBtn = { disabled: false };
 	if (switchView !== null) {
 		// switch button
-		switchBtn = tgui.createElement({
+		tgui.createElement({
 			parent: toolbar,
 			type: "button",
 			style: {
@@ -598,7 +576,7 @@ function createFileDlgViewConfigurable<Disablable extends boolean>(
 				//alignItems: "center",
 			},
 			text: switchBtnText,
-			click: wrapWithIsDisabledCheck(switchView),
+			click: switchView,
 			classname: "tgui-modal-button",
 		});
 	}
@@ -658,32 +636,23 @@ function createFileDlgViewConfigurable<Disablable extends boolean>(
 		}
 
 		// event handlers
-		list.addEventListener(
-			"change",
-			wrapWithIsDisabledCheck(function (event: any) {
-				if (event.target && event.target.value)
-					name!.value = event.target.value;
-			})
-		);
-		list.addEventListener(
-			"keydown",
-			wrapWithIsDisabledCheck(function (event) {
-				if (event.key === "Backspace" || event.key === "Delete") {
-					event.preventDefault();
-					event.stopPropagation();
-					onDelete();
-				}
-			})
-		);
-		list.addEventListener(
-			"dblclick",
-			wrapWithIsDisabledCheck(function (event) {
+		list.addEventListener("change", function (event: any) {
+			if (event.target && event.target.value)
+				name!.value = event.target.value;
+		});
+		list.addEventListener("keydown", function (event) {
+			if (event.key === "Backspace" || event.key === "Delete") {
 				event.preventDefault();
 				event.stopPropagation();
-				syncOnClickConfirmation();
-				return false;
-			})
-		);
+				onDelete();
+			}
+		});
+		list.addEventListener("dblclick", function (event) {
+			event.preventDefault();
+			event.stopPropagation();
+			syncOnClickConfirmation();
+			return false;
+		});
 		deleteBtn.disabled = false;
 
 		fullyRendered = true;
@@ -726,15 +695,6 @@ function createFileDlgViewConfigurable<Disablable extends boolean>(
 			if (!detachSignal.aborted) return;
 			return new Promise(() => undefined); // doesn't resolve
 		}),
-		setIsDisabled: (setMayClose === undefined
-			? undefined
-			: (v: boolean) => {
-					isDisabled = deleteBtn.disabled = switchBtn.disabled = v;
-					setMayClose(!v);
-			  }) as any,
-		getIsDisabled: (setMayClose === undefined
-			? undefined
-			: () => isDisabled) as any,
 	});
 
 	function syncOnClickConfirmation() {
@@ -743,24 +703,12 @@ function createFileDlgViewConfigurable<Disablable extends boolean>(
 		});
 		return true;
 	}
-
-	function wrapWithIsDisabledCheck<T extends any[], U>(
-		func: (...args: T) => U
-	): (...args: T) => U | void {
-		return (...args: T) => {
-			if (isDisabled) return;
-			return func(...args);
-		};
-	}
 }
 
 /**
  * Computes and updates status text like "5 documents" (if itemTerm="document")
  */
-function fileViewUpdateStatusText<Disablable extends boolean>(
-	view: FileDlgView<Disablable>,
-	itemTerm: string
-) {
+function fileViewUpdateStatusText(view: FileDlgView, itemTerm: string) {
 	const fileList = view.getItems();
 	let text: string;
 	if (fileList === null) {
@@ -781,8 +729,8 @@ export function createFileDlgFileView(
 	onOkay: (filename: string) => void,
 	switchView: (() => void) | null,
 	detachSignal: AbortSignal
-): FileDlgView<false> {
-	let ret: FileDlgView<false>;
+): FileDlgView {
+	let ret: FileDlgView;
 
 	// 10px horizontal spacing
 	//  7px vertical spacing
@@ -820,8 +768,7 @@ export function createFileDlgFileView(
 		"Delete file",
 		"Filename",
 		"Show projects",
-		detachSignal,
-		undefined
+		detachSignal
 	);
 
 	const updateStatusText = () => fileViewUpdateStatusText(ret, "document");
@@ -845,11 +792,10 @@ export function createFileDlgFileView(
 
 function createFileDlgProjectView(
 	switchView: (() => void) | null,
-	detachSignal: AbortSignal,
-	setMayClose: (v: boolean) => void
-): FileDlgView<true> {
+	detachSignal: AbortSignal
+): FileDlgView {
 	const projs = listProjects().then((projs) => projs.sort());
-	const ret = createFileDlgViewConfigurable<true>(
+	const ret = createFileDlgViewConfigurable(
 		getCurrentProject() ?? "",
 		true,
 		projs,
@@ -859,8 +805,7 @@ function createFileDlgProjectView(
 		"Delete project",
 		"New project",
 		"Show files",
-		detachSignal,
-		setMayClose
+		detachSignal
 	);
 	updateStatusText();
 	ret.fullyRendered.then(updateStatusText);
@@ -882,8 +827,6 @@ function createFileDlgProjectView(
 		const msgBoxAC = new AbortController();
 
 		const onDeleteConfirm = async () => {
-			if (ret.getIsDisabled()) return true;
-			ret.setIsDisabled(true);
 			const projPath = getProjectPath(proj);
 			for await (const entry of recurseDirectory(projPath)) {
 				ide.collection.closeEditor(
@@ -893,7 +836,6 @@ function createFileDlgProjectView(
 			await deleteProject(proj);
 			ret.removeItemFromList(proj);
 			updateStatusText();
-			ret.setIsDisabled(false);
 			return false;
 		};
 
@@ -923,7 +865,6 @@ function createFileDlgProjectView(
 
 	async function onLoad() {
 		const proj = ret.getSelectedItem();
-		ret.setIsDisabled(true);
 		if (proj === null) {
 			return true;
 		}
@@ -947,7 +888,6 @@ function createFileDlgProjectView(
 				throw e;
 			}
 		} finally {
-			ret.setIsDisabled(false);
 		}
 		await setCurrentProject(proj);
 		return false;
