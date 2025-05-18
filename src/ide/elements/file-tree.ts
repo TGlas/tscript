@@ -359,7 +359,7 @@ export class FileTree {
 		deleteFileDlg(this.selectedPath, onDlgConfirm);
 	}
 
-	private async handleCreate() {
+	private handleCreate() {
 		tabNameDlg(async (filename: string) => {
 			if (!checkValidBasename(filename)) {
 				informInvalidBasename(filename);
