@@ -446,7 +446,6 @@ export class TreeControl<NodeDataT> {
 		info: TreeInfoCb<NodeDataT> | undefined = this.info,
 		onUpdateDone?: () => Promise<void> | void
 	): void {
-		console.trace(info, onUpdateDone);
 		if (!info) return; // no update function
 
 		// there is an ongoing update, queue the next
