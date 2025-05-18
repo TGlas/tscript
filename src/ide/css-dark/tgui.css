@@ -122,17 +122,21 @@
 	border-color: #fff;
 	color: #fff;
 }
-.dark-theme .tgui-modal-button:focus {
+.dark-theme .tgui-modal-button:focus:not(:disabled) {
 	background: #444;
 }
 
-.dark-theme .tgui-modal-button:hover {
+.dark-theme .tgui-modal-button:hover:not(:disabled) {
 	background: #346;
 }
 
-.dark-theme .tgui-modal-button:active {
+.dark-theme .tgui-modal-button:active:not(:disabled) {
 	background: #222;
 	color: #fff;
+}
+
+.dark-theme .tgui-modal-button:disabled {
+	color: #bbb;
 }
 
 .dark-theme .tgui-modal-default-button {
@@ -152,6 +156,11 @@
 .dark-theme .tgui-modal-default-button:active {
 	background: #139;
 	border-color: #27f;
+}
+
+.dark-theme .tgui-modal-default-button:disabled:disabled {
+	background: #4bf;
+	color: #bbb;
 }
 
 .dark-theme .tgui-modal-dropdown {

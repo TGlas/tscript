@@ -99,9 +99,9 @@ export let buttons: any = [
 	},
 ];
 
-async function cmd_reset() {
+function cmd_reset() {
 	ide.clear();
-	await updateControls();
+	updateControls();
 }
 
 /**
@@ -308,8 +308,8 @@ function cmd_new() {
 	createEditorTabByModal();
 }
 
-async function cmd_load() {
-	await loadFileProjDlg();
+function cmd_load() {
+	loadFileProjDlg();
 }
 
 function cmd_save() {
@@ -334,22 +334,24 @@ function cmd_save_as() {
 			localStorage.setItem("tscript.code." + filename, ed.text());
 			openEditorFromLocalStorage(filename);
 		},
-		null
+		{
+			switchView: null,
+			clickConfirmation: () => dlg.pressButton(confirmationButton),
+		}
 	);
+	const confirmationButton = {
+		text: "Save",
+		isDefault: true,
+		onClick: () => fileView.onClickConfirmation(),
+	};
 	let dlg = tgui.createModal({
 		title: "Save file as ...",
 		minsize: [...fileDlgSize.minsize],
 		scalesize: [...fileDlgSize.scalesize],
-		buttons: [
-			{
-				text: "Save",
-				isDefault: true,
-				onClick: fileView.onClickConfirmation,
-			},
-			{ text: "Cancel" },
-		],
+		buttons: [confirmationButton, { text: "Cancel" }],
 		enterConfirms: true,
 	});
+
 	tgui.startModal(dlg);
 	dlg.content.replaceChildren(fileView.element);
 	return dlg;
@@ -378,7 +380,7 @@ export function cmd_upload() {
 					} else {
 						openEditorFromLocalStorage(filename);
 					}
-					await updateControls();
+					updateControls();
 				}
 			},
 		},
