@@ -163,14 +163,12 @@ export class FileTree {
 
 	init(): Promise<void> {
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
-			console.log(1);
 			await this.refresh();
 		}));
 	}
 
 	changeRootDir(dir: string | null): Promise<void> {
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
-			console.log(2);
 			this.dir = dir;
 			return await this.refresh();
 		}));
@@ -183,9 +181,7 @@ export class FileTree {
 		this.path2NodeInfo = {};
 		this.path2FileTreeNode = {};
 		return (this.refreshDoneProm = new Promise((res) => {
-			console.log(3);
 			this.treeControl.update(undefined, async () => {
-				console.log(4);
 				if (
 					this.selectedPath &&
 					this.pathToNodeInfo(this.selectedPath) === null
