@@ -399,7 +399,9 @@ export class TreeControl<NodeDataT> {
 	private visible: number | null;
 
 	#currentUpdate: Promise<void> | null = null;
-	#queuedUpdate: TreeInfoCb<NodeDataT> | null = null;
+	#queuedUpdate:
+		| [TreeInfoCb<NodeDataT>, (() => void | Promise<void>) | undefined]
+		| null = null;
 
 	constructor(description: Readonly<TreeDescription<NodeDataT>>) {
 		// control with styling
@@ -437,26 +439,40 @@ export class TreeControl<NodeDataT> {
 	 * Update the tree to represent new data, i.e., replace the stored
 	 * info function and apply the new function to obtain the tree. If no info
 	 * is provided, then it just (re-) renders.
+	 * @param onUpdateDone async callback that will be executed when the update
+	 * is done, and all updates are blocked until it settles
 	 */
-	update(info: TreeInfoCb<NodeDataT> | undefined = this.info): void {
+	update(
+		info: TreeInfoCb<NodeDataT> | undefined = this.info,
+		onUpdateDone?: () => Promise<void> | void
+	): void {
+		console.trace(info, onUpdateDone);
 		if (!info) return; // no update function
 
 		// there is an ongoing update, queue the next
 		if (this.#currentUpdate) {
-			this.#queuedUpdate = info;
+			this.#queuedUpdate = [info, onUpdateDone];
 			return;
 		}
 
-		this.#currentUpdate = this.#doUpdate(info).finally(() => {
-			this.#currentUpdate = null;
+		this.#currentUpdate = (async () => {
+			try {
+				await this.#doUpdate(info);
+			} finally {
+				try {
+					await onUpdateDone?.();
+				} finally {
+					this.#currentUpdate = null;
 
-			// start the next update if there is one queued
-			const queued = this.#queuedUpdate;
-			if (queued) {
-				this.#queuedUpdate = null;
-				this.update(queued);
+					// start the next update if there is one queued
+					const queued = this.#queuedUpdate;
+					if (queued) {
+						this.#queuedUpdate = null;
+						this.update(...queued);
+					}
+				}
 			}
-		});
+		})();
 	}
 
 	async #doUpdate(info: TreeInfoCb<NodeDataT>) {

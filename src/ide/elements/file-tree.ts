@@ -86,6 +86,11 @@ export class FileTree {
 	 */
 	private path2NodeInfo: Record<string, tgui.TreeNodeInfo<FileTreeNode>>;
 	private path2FileTreeNode: Record<string, FileTreeNode>;
+	/**
+	 * All tasks that would interfere with refresh should .then to this and
+	 * overwrite this with the resulting promise
+	 */
+	private refreshDoneProm: Promise<void> = Promise.resolve();
 
 	constructor() {
 		this.panel = tgui.createPanel({
@@ -156,28 +161,43 @@ export class FileTree {
 		);
 	}
 
-	async init() {
-		await this.refresh();
+	init(): Promise<void> {
+		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
+			console.log(1);
+			await this.refresh();
+		}));
 	}
 
-	async changeRootDir(dir: string | null) {
-		this.dir = dir;
-		await this.refresh();
+	changeRootDir(dir: string | null): Promise<void> {
+		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
+			console.log(2);
+			this.dir = dir;
+			return await this.refresh();
+		}));
 	}
 
+	/**
+	 * @returns Promise that resolves after this refresh round is done
+	 */
 	async refresh() {
 		this.path2NodeInfo = {};
 		this.path2FileTreeNode = {};
-		await this.treeControl.update();
-		if (
-			this.selectedPath &&
-			this.pathToNodeInfo(this.selectedPath) === null
-		) {
-			await this.selectPath(null);
-		} else {
-			// add the css class
-			await this.selectPath(this.selectedPath);
-		}
+		return (this.refreshDoneProm = new Promise((res) => {
+			console.log(3);
+			this.treeControl.update(undefined, async () => {
+				console.log(4);
+				if (
+					this.selectedPath &&
+					this.pathToNodeInfo(this.selectedPath) === null
+				) {
+					this.selectPath(null);
+				} else {
+					// add the css class
+					this.selectPath(this.selectedPath);
+				}
+				res();
+			});
+		}));
 	}
 
 	/**
@@ -249,31 +269,33 @@ export class FileTree {
 	};
 
 	async addSampleContent() {
-		try {
-			await deleteProject("tmp");
-		} catch (e) {
-			if (!(e instanceof ProjectNotFoundError)) throw e;
-		}
+		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
+			try {
+				await deleteProject("tmp");
+			} catch (e) {
+				if (!(e instanceof ProjectNotFoundError)) throw e;
+			}
 
-		const projName = getProjectPath("tmp");
-		if (!(await tryCreateProject("tmp")))
-			throw "Sample project should not exist right now";
-		await projectsFSP.writeFile(Path.join(projName, "root"), "Hello");
-		await projectsFSP.mkdir(Path.join(projName, "sub"));
-		await projectsFSP.writeFile(
-			Path.join(projName, "sub/file"),
-			"Hello file"
-		);
-		await projectsFSP.mkdir(Path.join(projName, "sub2"));
-		await projectsFSP.writeFile(
-			Path.join(projName, "sub2/file2"),
-			"Hello file2"
-		);
-		await projectsFSP.mkdir(Path.join(projName, "sub/ssub"));
-		await projectsFSP.writeFile(
-			Path.join(projName, "sub/ssub/sfile"),
-			"Hello sfile"
-		);
+			const projName = getProjectPath("tmp");
+			if (!(await tryCreateProject("tmp")))
+				throw "Sample project should not exist right now";
+			await projectsFSP.writeFile(Path.join(projName, "root"), "Hello");
+			await projectsFSP.mkdir(Path.join(projName, "sub"));
+			await projectsFSP.writeFile(
+				Path.join(projName, "sub/file"),
+				"Hello file"
+			);
+			await projectsFSP.mkdir(Path.join(projName, "sub2"));
+			await projectsFSP.writeFile(
+				Path.join(projName, "sub2/file2"),
+				"Hello file2"
+			);
+			await projectsFSP.mkdir(Path.join(projName, "sub/ssub"));
+			await projectsFSP.writeFile(
+				Path.join(projName, "sub/ssub/sfile"),
+				"Hello sfile"
+			);
+		}));
 	}
 
 	private pathToNodeInfo(
@@ -286,16 +308,15 @@ export class FileTree {
 		return this.path2FileTreeNode[path] ?? null;
 	}
 
-	private async selectPath(path: string | null) {
+	private selectPath(path: string | null) {
 		if (this.selectedPath) {
-			this.pathToNodeInfo(this.selectedPath)!.element!.classList.remove(
+			this.pathToNodeInfo(this.selectedPath)?.element?.classList.remove(
 				"file-tree-selected"
 			);
 		}
-		await Promise.resolve();
 		this.selectedPath = path;
 		if (this.selectedPath) {
-			this.pathToNodeInfo(this.selectedPath)!.element!.classList.add(
+			this.pathToNodeInfo(this.selectedPath)?.element?.classList.add(
 				"file-tree-selected"
 			);
 		}

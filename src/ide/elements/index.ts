@@ -707,8 +707,8 @@ export function create(container: HTMLElement, options?: any) {
 	// for testing
 	(async () => {
 		await ft.addSampleContent();
-		await setCurrentProject("tmp");
 		await ft.init();
+		await setCurrentProject("tmp");
 	})();
 
 	tgui.arrangePanels();
