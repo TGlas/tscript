@@ -664,7 +664,7 @@ export const doc = (function () {
 		return [node, parent, parentpath, index];
 	}
 
-	module.setpath = async function (path) {
+	module.setpath = function (path) {
 		if (!path) path = "";
 		if (path.length > 0 && path[0] == "#") path = path.substr(1);
 
@@ -712,7 +712,7 @@ export const doc = (function () {
 			module.dom_content.innerHTML = html;
 			module.dom_content.scrollTop = 0;
 			docpath = "";
-			await doctree!.update(docinfo);
+			doctree!.update(docinfo);
 		} else {
 			try {
 				let data = getnode(path);
@@ -775,7 +775,7 @@ export const doc = (function () {
 				module.dom_content.innerHTML = prepare(html);
 				module.dom_content.scrollTop = 0;
 				docpath = path;
-				await doctree!.update(docinfo);
+				doctree!.update(docinfo);
 
 				let pres = document.getElementsByTagName("pre");
 				for (let i = 0; i < pres.length; i++) {
@@ -846,7 +846,7 @@ export const doc = (function () {
 	module.dom_content = null;
 	module.embedded = false;
 
-	module.create = async function (container, options) {
+	module.create = function (container, options) {
 		if (!options)
 			options = {
 				embedded: false,
@@ -900,13 +900,10 @@ export const doc = (function () {
 		// display the version
 		window.setTimeout(function (event) {
 			module.dom_version.innerHTML = Version.full();
-			module.dom_version.addEventListener(
-				"click",
-				async function (event) {
-					if (module.embedded) await module.setpath("/legal");
-					else navigate("?doc=/legal");
-				}
-			);
+			module.dom_version.addEventListener("click", function (event) {
+				if (module.embedded) module.setpath("/legal");
+				else navigate("?doc=/legal");
+			});
 		}, 100);
 
 		// prepare the error sub-tree of the documentation tree
@@ -933,38 +930,33 @@ export const doc = (function () {
 		doctree = new tgui.TreeControl({
 			parent: module.dom_tree,
 			info: docinfo,
-			nodeclick: async function (event, value, id) {
-				if (module.embedded) await module.setpath(id);
+			nodeclick: function (event, value, id) {
+				if (module.embedded) module.setpath(id);
 				else navigate("?doc=" + id);
 			},
 		});
-		await doctree.update();
+		doctree.update();
 
 		// make the search field functional
 		searchengine.clear();
 		initsearch("", doc); // index the docs
-		module.dom_searchtext.addEventListener(
-			"keypress",
-			async function (event) {
-				if (event.key != "Enter") return;
+		module.dom_searchtext.addEventListener("keypress", function (event) {
+			if (event.key != "Enter") return;
 
-				if (module.embedded) {
-					let keys = searchengine.tokenize(
-						module.dom_searchtext.value
-					);
-					let h = "#search";
-					for (let i = 0; i < keys.length; i++) h += "/" + keys[i];
-					window.sessionStorage.setItem("docpath", h);
-					await module.setpath(h);
-				} else {
-					const searchParams = new URLSearchParams({
-						doc: "search",
-						q: module.dom_searchtext.value,
-					});
-					navigate("?" + searchParams.toString());
-				}
+			if (module.embedded) {
+				let keys = searchengine.tokenize(module.dom_searchtext.value);
+				let h = "#search";
+				for (let i = 0; i < keys.length; i++) h += "/" + keys[i];
+				window.sessionStorage.setItem("docpath", h);
+				module.setpath(h);
+			} else {
+				const searchParams = new URLSearchParams({
+					doc: "search",
+					q: module.dom_searchtext.value,
+				});
+				navigate("?" + searchParams.toString());
 			}
-		);
+		});
 
 		// check all internal links
 		checklinks(doc, "");
@@ -972,9 +964,9 @@ export const doc = (function () {
 		if (options.embedded) {
 			let path = window.sessionStorage.getItem("docpath");
 			if (!path) path = "#";
-			await module.setpath(path);
+			module.setpath(path);
 
-			document.addEventListener("click", async function (event) {
+			document.addEventListener("click", function (event) {
 				let target: any = event.target || event.srcElement;
 				if (target.tagName === "A") {
 					let href = target.getAttribute("href");
@@ -982,10 +974,10 @@ export const doc = (function () {
 					if (!href.startsWith("?doc=")) return true;
 					href = href.replace("?doc=", "#");
 					window.sessionStorage.setItem("docpath", href);
+					module.setpath(href);
 					event.preventDefault();
 					event.stopPropagation();
 					event.stopImmediatePropagation();
-					await module.setpath(href);
 					return false;
 				}
 			});

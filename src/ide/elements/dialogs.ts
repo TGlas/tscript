@@ -440,7 +440,7 @@ export function loadFileProjDlg() {
 		}
 
 		openEditorFromLocalStorage(name);
-		return updateControls().then(() => undefined);
+		return updateControls();
 	}
 
 	function simulateClickConfirmation() {
