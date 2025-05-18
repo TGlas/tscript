@@ -274,21 +274,25 @@
 	border-radius: 2px;
 	color: #000;
 }
-.tgui-modal-button:focus {
+.tgui-modal-button:focus:not(:disabled) {
 	background: #eee;
 	border-width: 2px;
 }
 
-.tgui-modal-button:hover {
+.tgui-modal-button:hover:not(:disabled) {
 	background: #fff;
 	border-width: 2px;
 }
 
-.tgui-modal-button:active {
+.tgui-modal-button:active:not(:disabled) {
 	background: #bbb;
 	border-width: 2px;
 	box-shadow: inset 0px 0px 3px #00000066;
 	color: #000;
+}
+
+.tgui-modal-button:disabled {
+	color: #333;
 }
 
 .tgui-modal-default-button {
@@ -320,6 +324,11 @@
 	border-width: 2px;
 	border-color: #000;
 	box-shadow: inset 0px 0px 3px #00000066;
+}
+
+.tgui-modal-default-button:disabled:disabled {
+	background: #4bf;
+	color: #333;
 }
 
 .tgui-modal-dropdown {
