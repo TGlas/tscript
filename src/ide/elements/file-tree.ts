@@ -147,14 +147,6 @@ export class FileTree {
 	 */
 	private refreshDoneProm: Promise<void> = Promise.resolve();
 
-	// list.addEventListener("keydown", async function (event) {
-	// 	if (event.key === "Backspace" || event.key === "Delete") {
-	// 		event.preventDefault();
-	// 		event.stopPropagation();
-	// 		await onDelete();
-	// 	}
-	// });
-
 	constructor() {
 		this.panel = tgui.createPanel({
 			name: "file_tree",
@@ -221,6 +213,18 @@ export class FileTree {
 					? null
 					: getProjectPath(newProjectName)
 			)
+		);
+
+		this.panel.content.setAttribute("tabindex", "0");
+		this.panel.content.addEventListener(
+			"keydown",
+			async (event: KeyboardEvent) => {
+				if (event.key === "Backspace" || event.key === "Delete") {
+					event.preventDefault();
+					event.stopPropagation();
+					await this.handleDelete();
+				}
+			}
 		);
 	}
 
