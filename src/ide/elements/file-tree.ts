@@ -319,8 +319,13 @@ export class FileTree {
 		});
 		info = {
 			element: tgui.createElement({
-				type: "span",
+				type: "div",
 				text: formatPath(value, true),
+				style: {
+					minWidth: "8px",
+					width: "fit-content",
+					minHeight: "var(--general-page-style--line-height)",
+				},
 			}),
 			children: children.map(([ftn]) => ftn),
 			ids: children.map(([_, id]) => id),
