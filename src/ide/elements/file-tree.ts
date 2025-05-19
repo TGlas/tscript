@@ -12,10 +12,11 @@ import {
 	tryCreateProject,
 } from "../projects-fs";
 import { createEditorTab } from "./editor-tabs";
-import { collection } from "./index";
+import { collection, filetree } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
 import { msgBox } from "../tgui";
 import Path from "@isomorphic-git/lightning-fs/src/path";
+import { mod } from "../../interop";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -51,7 +52,54 @@ export async function saveFileTreeFile(
 	fileTreePath: string,
 	editorContent: string
 ) {
+	if (!(await pathExists(fileTreePath))) {
+		// TODO: handle case, when parent dir is deleted
+		let modal = tgui.createModal({
+			title: "File not present in file tree anymore",
+			scalesize: [0, 0],
+			minsize: [400, 120],
+			buttons: [
+				{
+					text: "Delete",
+					onClick: () => {
+						collection.closeEditor(
+							fileTreePath.slice(
+								fileTreePath.lastIndexOf("/") + 1
+							)
+						);
+						return;
+					},
+				},
+				{
+					text: "Save",
+					isDefault: true,
+					onClick: async () => {
+						await projectsFSP.writeFile(
+							fileTreePath,
+							editorContent
+						);
+						await filetree.refresh();
+					},
+				},
+				{
+					text: "Cancel",
+				},
+			],
+			enterConfirms: true,
+			contentstyle: {
+				display: "flex",
+				"align-items": "center",
+			},
+		});
+		tgui.createText(
+			"Irreversibly delete file content or save it again at old location in file tree?",
+			modal.content
+		);
+		tgui.startModal(modal);
+		return;
+	}
 	await projectsFSP.writeFile(fileTreePath, editorContent);
+	await filetree.refresh();
 }
 
 function simplifyPath(path: string): string {

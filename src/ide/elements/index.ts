@@ -55,6 +55,8 @@ let iconlist: any = null;
 let highlight: any = null;
 export let runselector: HTMLSelectElement;
 
+export let filetree!: FileTree;
+
 /**
  * add a message to the message panel
  */
@@ -703,11 +705,11 @@ export function create(container: HTMLElement, options?: any) {
 		}
 	);
 
-	let ft = new FileTree();
+	filetree = new FileTree();
 	// for testing
 	(async () => {
-		await ft.addSampleContent();
-		await ft.init();
+		await filetree.addSampleContent();
+		await filetree.init();
 		await setCurrentProject("tmp");
 	})();
 
