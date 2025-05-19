@@ -4,6 +4,7 @@ import { type Panel } from "../tgui/panels";
 import {
 	addListenerOnChangeProject,
 	deleteProject,
+	getCurrentProject,
 	getProjectPath,
 	pathExists,
 	ProjectNotFoundError,
@@ -48,12 +49,37 @@ async function readFileContent(filePath: string): Promise<string> {
 	}
 }
 
+async function createMissingDirectories(fileTreePath: string) {
+	const parts = fileTreePath.split("/");
+	if (parts[0] === "") {
+		// sanity check, should always be the case, because path starts with '/'
+		parts.shift();
+	}
+	const currentProjectName = getCurrentProject();
+	if (parts[0] !== currentProjectName) {
+		msgBox({
+			title: "File from other project",
+			prompt: `Cannot save this file from project ${parts[0]} in currently open project ${currentProjectName}`,
+		});
+		return false;
+	}
+
+	const projPath = getProjectPath(currentProjectName);
+	let currentPath = projPath;
+	for (let i = 1; i < parts.length - 1; i++) {
+		currentPath = Path.join(currentPath, parts[i]);
+		if (!(await pathExists(currentPath))) {
+			await projectsFSP.mkdir(currentPath);
+		}
+	}
+	return true;
+}
+
 export async function saveFileTreeFile(
 	fileTreePath: string,
 	editorContent: string
 ) {
 	if (!(await pathExists(fileTreePath))) {
-		// TODO: handle case, when parent dir is deleted
 		let modal = tgui.createModal({
 			title: "File not present in file tree anymore",
 			scalesize: [0, 0],
@@ -74,6 +100,9 @@ export async function saveFileTreeFile(
 					text: "Save",
 					isDefault: true,
 					onClick: async () => {
+						if (!(await createMissingDirectories(fileTreePath))) {
+							return;
+						}
 						await projectsFSP.writeFile(
 							fileTreePath,
 							editorContent
