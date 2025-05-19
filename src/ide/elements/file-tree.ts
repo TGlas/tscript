@@ -129,6 +129,12 @@ function informNodeAlreadyExists(path: string) {
 	});
 }
 
+/**
+ * This class manages its async operations by itself: The public methods that return a
+ * Promise (init, changeRootDir, refresh, addSampleContent) can be called
+ * without awaiting, and it will be guaranteed that these calls will be executed
+ * sequentially (one after another by chaining them using Promise.then)
+ */
 export class FileTree {
 	private panel: Panel;
 	private treeControl: tgui.TreeControl<FileTreeNode>;
@@ -228,12 +234,18 @@ export class FileTree {
 		);
 	}
 
+	/**
+	 * asynchroncity managed internally by the instance, see class description
+	 */
 	init(): Promise<void> {
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
 			await this.refresh();
 		}));
 	}
 
+	/**
+	 * asynchroncity managed internally by the instance, see class description
+	 */
 	changeRootDir(dir: string | null): Promise<void> {
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
 			this.dir = dir;
@@ -243,8 +255,10 @@ export class FileTree {
 
 	/**
 	 * @returns Promise that resolves after this refresh round is done
+	 *
+	 * asynchroncity managed internally by the instance, see class description
 	 */
-	async refresh() {
+	refresh(): Promise<void> {
 		this.path2NodeInfo = {};
 		this.path2FileTreeNode = {};
 		return (this.refreshDoneProm = new Promise((res) => {
@@ -336,6 +350,9 @@ export class FileTree {
 		return info;
 	};
 
+	/**
+	 * asynchroncity managed internally by the instance, see class description
+	 */
 	async addSampleContent() {
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
 			try {
