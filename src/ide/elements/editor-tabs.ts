@@ -48,7 +48,8 @@ export function createEditorTabByModal() {
 export function createEditorTab(
 	name: string,
 	text: string | null = null,
-	save_config: boolean = true
+	save_config: boolean = true,
+	fileTreePath: string | null = null
 ) {
 	// create a new tab
 	let tab = tgui.createElement({
@@ -94,7 +95,8 @@ export function createEditorTab(
 		runoption,
 		name,
 		text,
-		save_config
+		save_config,
+		fileTreePath
 	);
 
 	return ed;

@@ -42,9 +42,16 @@ async function readFileContent(filePath: string): Promise<string> {
 		});
 		return fileContent.toString();
 	} catch (error) {
-		console.error("Error reading file:", error);
+		console.error(`path: ${filePath}, Error reading file:`, error);
 		return "";
 	}
+}
+
+export async function saveFileTreeFile(
+	fileTreePath: string,
+	editorContent: string
+) {
+	await projectsFSP.writeFile(fileTreePath, editorContent);
 }
 
 function simplifyPath(path: string): string {
@@ -91,6 +98,14 @@ export class FileTree {
 	 * overwrite this with the resulting promise
 	 */
 	private refreshDoneProm: Promise<void> = Promise.resolve();
+
+	// list.addEventListener("keydown", async function (event) {
+	// 	if (event.key === "Backspace" || event.key === "Delete") {
+	// 		event.preventDefault();
+	// 		event.stopPropagation();
+	// 		await onDelete();
+	// 	}
+	// });
 
 	constructor() {
 		this.panel = tgui.createPanel({
@@ -326,6 +341,7 @@ export class FileTree {
 		if (value.type === "file") {
 			try {
 				const absPath = simplifyPath(`${this.dir}/${value.path}`);
+				console.log(absPath);
 				// TODO: same file name in other projects/dirs?
 				const existingEditor = collection.getEditor(value.basename);
 				if (existingEditor) {
@@ -334,7 +350,12 @@ export class FileTree {
 					return;
 				}
 				const fileContent = await readFileContent(absPath);
-				createEditorTab(value.basename, fileContent.toString());
+				createEditorTab(
+					value.basename,
+					fileContent.toString(),
+					true,
+					absPath
+				);
 			} catch (error) {
 				console.error("Failed to read file:", error);
 			}

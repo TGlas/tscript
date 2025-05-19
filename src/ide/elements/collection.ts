@@ -79,7 +79,8 @@ export class EditorCollection {
 		runoption: any,
 		name: string,
 		text: string | null = null,
-		save_config: boolean = true
+		save_config: boolean = true,
+		fileTreePath: string | null = null
 	) {
 		if (this.getEditor(name))
 			throw new Error(
@@ -94,6 +95,7 @@ export class EditorCollection {
 		ed.properties().tab = tab;
 		ed.properties().runoption = runoption;
 		ed.properties().name = name;
+		ed.properties().fileTreePath = fileTreePath;
 		ed.properties().breakpoints = new Set<number>();
 		ed.properties().toggleBreakpoint = (function (ed) {
 			return function (line) {

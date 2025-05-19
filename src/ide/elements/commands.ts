@@ -13,6 +13,7 @@ import {
 	createEditorTabByModal,
 	openEditorFromLocalStorage,
 } from "./editor-tabs";
+import { saveFileTreeFile } from "./file-tree";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { interpreterEnded, updateControls } from "./utils";
 
@@ -315,6 +316,12 @@ function cmd_load() {
 function cmd_save() {
 	const ed = ide.collection.getActiveEditor();
 	if (!ed) return;
+	let fileTreePath = ed.properties().fileTreePath;
+	if (fileTreePath) {
+		saveFileTreeFile(fileTreePath, ed.text());
+		ed.setClean();
+		return;
+	}
 	let name = ed.properties().name;
 
 	localStorage.setItem("tscript.code." + name, ed.text());
