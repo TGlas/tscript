@@ -5,6 +5,19 @@ export function decodeJWT(token: string): object {
 	return JSON.parse(JSON.stringify(jwtDecode(token)));;
 }
 
+export function getRawToken(): string {
+    try {
+        const token = localStorage.getItem("git_token");
+        if(validJWT(token)) {
+            return String(token);
+        } else {
+            return "";
+        }
+    } catch(err) {
+        return "";
+    }
+}
+
 export function validJWT(token: string | null): boolean {
     if(!token) return false;
     try {

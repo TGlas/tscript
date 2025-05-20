@@ -3,8 +3,8 @@ import * as tgui from "./../tgui";
 import { buttons } from "./commands";
 import { tab_config } from "./editor-tabs";
 import * as ide from "./index";
-import { client_id } from "../../github_creds";
-import { validJWT } from "../git_token";
+import { client_id, proxy_server_url } from "../../github_creds";
+import { getRawToken, validJWT } from "../git_token";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -663,7 +663,6 @@ export function gitDlg() {
 			text: "Logout",
 			click: () => {
 				localStorage.removeItem("git_token");
-				localStorage.removeItem("timeout");
 				tgui.stopModal();
 			},
 		});
