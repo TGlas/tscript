@@ -20,7 +20,7 @@ import "./css-dark/icons.css";
 import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
-import { client_id, proxy_server_url } from "../github_creds";
+import { app_id_gitlab, client_id_github, proxy_server_url } from "../github_creds";
 import { validJWT } from "./git_token";
 
 window.addEventListener("load", async () => {
@@ -44,15 +44,25 @@ window.addEventListener("load", async () => {
 	}
 
 	const gitCode = currentUrl.searchParams.get("code");
-	if(gitCode) {
-		replaceUrl(currentUrl.origin);
-		const res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${client_id}&code=${gitCode}`, {
-			method: 'get',
-		});
+	const git_auth_type = sessionStorage.getItem("git_auth_type");
+	if(gitCode && git_auth_type) {
+		let res;
+		if(git_auth_type == "hub") {
+			replaceUrl(currentUrl.origin);
+			res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`, {
+				method: 'get',
+			});
+		} else if(git_auth_type == "lab") {
+			replaceUrl(currentUrl.origin);
+			res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`, {
+				method: 'get',
+			});
+		}
 		
 		res.text().then((token) => {
 			if(validJWT(token)) localStorage.setItem("git_token", token);
 		});
+		sessionStorage.removeItem("git_auth_type");
 	}
 
 	await initializeNavigation(currentUrl, container, (url) => {

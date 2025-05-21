@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
-export function decodeJWT(token: string): object {
+export function decodeJWT(token: string): any {
     if(!validJWT(token)) throw "InvalidToken";
 	return JSON.parse(JSON.stringify(jwtDecode(token)));;
 }

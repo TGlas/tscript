@@ -3,8 +3,8 @@ import * as tgui from "./../tgui";
 import { buttons } from "./commands";
 import { tab_config } from "./editor-tabs";
 import * as ide from "./index";
-import { client_id, proxy_server_url } from "../../github_creds";
-import { getRawToken, validJWT } from "../git_token";
+import { app_id_gitlab, client_id_github, proxy_server_url } from "../../github_creds";
+import { decodeJWT, getRawToken, validJWT } from "../git_token";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -593,12 +593,6 @@ export function gitDlg() {
 		},
 	});
 
-	const timeout = localStorage.getItem("timeout");
-	if(timeout && Number(timeout) < Date.now()) {
-		localStorage.removeItem("timeout");
-		localStorage.removeItem("git_token");
-	}
-
 	let content = tgui.createElement({
 		parent: dlg.content,
 		type: 'div',
@@ -610,8 +604,8 @@ export function gitDlg() {
 		},
 	});
 	if(!validJWT(localStorage.getItem("git_token"))) {
-		localStorage.removeItem("git_token");
-		let loginBtn = tgui.createElement({
+		gitLogout();
+		let loginBtnGithub = tgui.createElement({
 			parent: content,
 			type: "button",
 			style: {
@@ -621,7 +615,21 @@ export function gitDlg() {
 				cursor: "pointer",
 			},
 			text: "Login w/ GitHub",
-			click: () => startGithubLoginFlow(),
+			click: () => startGitLoginFlow("hub"),
+		});
+
+		let loginBtnGitlab = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				color: "#fff",
+				"background-color": "#554488",
+				padding: "5px 20px",
+				cursor: "pointer",
+				"margin-left": "10px",
+			},
+			text: "Login w/ GitLab",
+			click: () => startGitLoginFlow("lab")
 		});
 	} else {
 		let pullBtn = tgui.createElement({
@@ -662,7 +670,7 @@ export function gitDlg() {
 			},
 			text: "Logout",
 			click: () => {
-				localStorage.removeItem("git_token");
+				gitLogout();
 				tgui.stopModal();
 			},
 		});
@@ -677,6 +685,7 @@ export function gitDlg() {
 			"border-radius": "100px",
 			"font-size": "20px",
 			cursor: "pointer",
+			"margin-left": "10px",
 		},
 		text: "?",
 		click: () => openDocs(),
@@ -684,8 +693,43 @@ export function gitDlg() {
 
 	tgui.startModal(dlg);
 
-	async function startGithubLoginFlow() {
-		window.location.href = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=repo&redirect_uri=${window.location.href}`;
+	async function startGitLoginFlow(type: string) {
+		switch (type) {
+			case "hub":
+				sessionStorage.setItem("git_auth_type", "hub");
+				window.location.href = `https://github.com/login/oauth/authorize?client_id=${client_id_github}&scope=repo&redirect_uri=${window.location.href}`;
+				break;
+			case "lab":
+				sessionStorage.setItem("git_auth_type", "lab");
+				window.location.href = `https://gitlab.ruhr-uni-bochum.de/oauth/authorize?client_id=${app_id_gitlab}&redirect_uri=${window.location.href}&response_type=code&scope=api+write_repository`;
+				break;
+		}
+	}
+
+	async function gitLogout() {
+		try {
+			const token = localStorage.getItem("git_token");
+			if(token) {
+				let decoded = decodeJWT(token);
+				let result;
+				if(decoded.data.type == "lab") {
+					result = await fetch(`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${app_id_gitlab}&type=lab`, {
+						method: 'delete',
+					});
+				} else if(decoded.data.type == "hub") {
+					result = await fetch(`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${client_id_github}&type=hub`, {
+						method: "delete",
+					});
+				}
+
+				if(result.status == 200) {
+					localStorage.removeItem("git_token");
+				}
+			}
+
+		} catch(err) {
+
+		}
 	}
 
 	function openDocs() {
