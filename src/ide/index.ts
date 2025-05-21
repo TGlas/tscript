@@ -45,7 +45,7 @@ window.addEventListener("load", async () => {
 
 	const gitCode = currentUrl.searchParams.get("code");
 	if(gitCode) {
-		window.history.replaceState({}, document.title, window.location.pathname);
+		replaceUrl(currentUrl.origin);
 		const res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${client_id}&code=${gitCode}`, {
 			method: 'get',
 		});
