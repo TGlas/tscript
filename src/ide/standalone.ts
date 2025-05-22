@@ -15,7 +15,7 @@ export function showStandalonePage(
 	data: StandaloneData
 ): void {
 	const { documents } = data.code;
-	function getParseInput(filename: string): ParseInput | null {
+	function getParseInput(filename: string): ParseInput<false> | null {
 		if (!Object.hasOwn(documents, filename)) return null;
 		return {
 			filename,

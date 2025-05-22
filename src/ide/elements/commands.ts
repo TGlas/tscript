@@ -98,18 +98,18 @@ function cmd_reset() {
 /**
  * Gets the active interpreter session or creates a new one if no program is running
  */
-function getOrRestartSession() {
+async function getOrRestartSession() {
 	let session = ide.interpreterSession;
-	if (!session || interpreterEnded(session.interpreter)) {
+	if (session && !interpreterEnded(session.interpreter)) {
+		return session;
+	} else {
 		// (re-)start the interpreter
-		session = ide.prepareRun();
+		return await ide.prepareRun();
 	}
-
-	return session;
 }
 
-function cmd_run() {
-	getOrRestartSession()?.interpreter.run();
+async function cmd_run() {
+	(await getOrRestartSession())?.interpreter.run();
 }
 
 function cmd_interrupt() {
@@ -117,25 +117,25 @@ function cmd_interrupt() {
 	if (interpreter && !interpreterEnded(interpreter)) interpreter.interrupt();
 }
 
-function cmd_step_into() {
-	getOrRestartSession()?.interpreter.step_into();
+async function cmd_step_into() {
+	(await getOrRestartSession())?.interpreter.step_into();
 }
 
-function cmd_step_over() {
-	getOrRestartSession()?.interpreter.step_over();
+async function cmd_step_over() {
+	(await getOrRestartSession())?.interpreter.step_over();
 }
 
-function cmd_step_out() {
-	getOrRestartSession()?.interpreter.step_out();
+async function cmd_step_out() {
+	(await getOrRestartSession())?.interpreter.step_out();
 }
 
-export function cmd_export() {
+export async function cmd_export() {
 	const parsedFiles = new Map<string, ParseInput>();
 	const parseInput = ide.createParseInput(parsedFiles);
 	if (!parseInput) return;
 
 	// check that the code at least compiles
-	let result = parseProgram(parseInput, parseOptions);
+	let result = await parseProgram(parseInput, parseOptions);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {

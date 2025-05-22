@@ -164,14 +164,18 @@ export function createParseInput(
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
+ * @returns an {@link InterpreterSession} instance, or `null` on error
  */
-export function prepareRun(): InterpreterSession | null {
-	clear();
-
+export async function prepareRun(): Promise<InterpreterSession | null> {
 	const parseInput = createParseInput();
-	if (!parseInput) return null;
+	if (!parseInput) {
+		return null;
+	}
 
-	const { program, errors } = parseProgram(parseInput, parseOptions);
+	const { program, errors } = await parseProgram(parseInput, parseOptions);
+
+	// everything after that should ideally be synchronous
+	clear();
 	for (const err of errors) {
 		addMessage(
 			err.type,
@@ -187,7 +191,9 @@ export function prepareRun(): InterpreterSession | null {
 			err.type === "error" ? err.href : undefined
 		);
 	}
-	if (!program) return null;
+	if (!program) {
+		return null;
+	}
 
 	interpreterSession = new InterpreterSession(
 		program,
