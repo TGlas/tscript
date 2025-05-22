@@ -45,7 +45,10 @@ export let programstate: any = null;
 let canvasContainer!: HTMLElement;
 let turtleContainer!: HTMLElement;
 
-/** current interpreter, non-null after successful parsing */
+/**
+ * current interpreter, non-null after successful parsing.
+ * Only for convenience, always equals `interpreterSession.interpreter`
+ */
 export let interpreter: Interpreter | null = null;
 export let interpreterSession: InterpreterSession | null = null;
 
@@ -174,14 +177,23 @@ export function createParseInput(
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
+ * @param onPrepared called with InterpreterSession/null once ready. The purpose
+ * of using a callback instead of a promise is that even awaiting a resolved
+ * promise yields control to the event loop
  */
-export function prepareRun(): InterpreterSession | null {
-	clear();
-
+export async function prepareRun(
+	onPrepared: (session: InterpreterSession | null) => void
+): Promise<void> {
 	const parseInput = createParseInput();
-	if (!parseInput) return null;
+	if (!parseInput) {
+		onPrepared(null);
+		return;
+	}
 
-	const { program, errors } = parseProgram(parseInput, parseOptions);
+	const { program, errors } = await parseProgram(parseInput, parseOptions);
+
+	// everything after that should ideally be synchronous
+	clear();
 	for (const err of errors) {
 		addMessage(
 			err.type,
@@ -197,7 +209,10 @@ export function prepareRun(): InterpreterSession | null {
 			err.type === "error" ? err.href : undefined
 		);
 	}
-	if (!program) return null;
+	if (!program) {
+		onPrepared(null);
+		return;
+	}
 
 	interpreterSession = new InterpreterSession(
 		program,
@@ -221,10 +236,10 @@ export function prepareRun(): InterpreterSession | null {
 		}
 	}
 
-	return interpreterSession;
+	onPrepared(interpreterSession);
 }
 
-class InterpreterSession {
+export class InterpreterSession {
 	readonly interpreter: Interpreter;
 
 	readonly #controller = new AbortController();

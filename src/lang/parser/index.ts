@@ -150,7 +150,9 @@ export interface ParseInput {
 	 * @param filename the filename as specified in the include statement
 	 * @returns the file to be included or null if none could be found
 	 */
-	resolveInclude(filename: string): ParseInput | null;
+	resolveInclude(
+		filename: string
+	): ParseInput | null | Promise<ParseInput | null>;
 }
 
 export interface ParseResult {
@@ -170,10 +172,11 @@ export function parseProgramFromString(source: string, options?: ParseOptions) {
 	);
 }
 
-export function parseProgram(
+// Frame 2
+export async function parseProgram(
 	mainInput: ParseInput,
 	options: ParseOptions = defaultParseOptions
-): ParseResult {
+): Promise<ParseResult> {
 	const includedFiles = new Set<string>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
@@ -205,16 +208,17 @@ export function parseProgram(
 		}
 	}
 
+	// Frame1
 	/**
 	 * Parse one library or program from a file. Includes are supported
 	 */
-	function parseFile(file: ParseInput) {
+	async function parseFile(file: ParseInput) {
 		includedFiles.add(file.filename);
 		state.setSource(file.source, null, file.filename);
 		while (state.good()) {
 			const inc = parse_include(state, program, options);
 			if (inc !== null) {
-				const targetFile = file.resolveInclude(inc.filename);
+				const targetFile = await file.resolveInclude(inc.filename);
 				if (!targetFile) {
 					// the file was not found
 					state.set(inc.position);
@@ -234,7 +238,7 @@ export function parseProgram(
 					};
 
 					// import the file
-					parseFile(targetFile);
+					await parseFile(targetFile);
 
 					// restore the state
 					state.source = backup.source;
@@ -266,7 +270,7 @@ export function parseProgram(
 
 		// parse the user's source code
 		program.where = state.get();
-		parseFile(mainInput);
+		await parseFile(mainInput);
 		program.lines = state.line;
 
 		// append an "end" breakpoint
