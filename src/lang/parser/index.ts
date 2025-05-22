@@ -140,7 +140,10 @@ export const defaultParseOptions: ParseOptions = {
 	checkstyle: false,
 };
 
-export interface ParseInput {
+/**
+ * @param AllowAwait If true, resolveInclude may also return Promise
+ */
+export interface ParseInput<AllowAwait extends boolean = true> {
 	filename: string;
 	source: string;
 
@@ -152,7 +155,12 @@ export interface ParseInput {
 	 */
 	resolveInclude(
 		filename: string
-	): ParseInput | null | Promise<ParseInput | null>;
+	):
+		| ParseInput<AllowAwait>
+		| null
+		| (AllowAwait extends true
+				? Promise<ParseInput<AllowAwait> | null>
+				: never);
 }
 
 export interface ParseResult {
@@ -161,22 +169,37 @@ export interface ParseResult {
 	errors: ParseErrorOrWarning[];
 }
 
-export function parseProgramFromString(source: string, options?: ParseOptions) {
+export function parseProgramFromString(
+	source: string,
+	options?: ParseOptions
+): ParseResult {
 	return parseProgram(
 		{
 			filename: "main",
 			source,
 			resolveInclude: () => null,
 		},
-		options
+		options,
+		false
 	);
 }
 
-// Frame 2
-export async function parseProgram(
-	mainInput: ParseInput,
-	options: ParseOptions = defaultParseOptions
-): Promise<ParseResult> {
+/**
+ * @param allowAwait corresponds to AllowAwait type parameter. If true,
+ * mainInput.resolveInclude may return a promise and parseProgram also returns a
+ * promise. true by default.
+ * @param options `defaultParseOptions` by default
+ */
+export function parseProgram<AllowAwait extends boolean = true>(
+	mainInput: ParseInput<AllowAwait>,
+	options?: ParseOptions,
+	allowAwait?: AllowAwait
+): AllowAwait extends true ? Promise<ParseResult> : ParseResult;
+export function parseProgram(
+	mainInput: ParseInput<any>,
+	options: ParseOptions = defaultParseOptions,
+	allowAwait: boolean = true
+): Promise<ParseResult> | ParseResult {
 	const includedFiles = new Set<string>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
@@ -208,17 +231,54 @@ export async function parseProgram(
 		}
 	}
 
-	// Frame1
 	/**
-	 * Parse one library or program from a file. Includes are supported
+	 * Parse one library or program from a file. Includes are supported.
+	 *
+	 * To support runtime switching between async and sync, parseFile and
+	 * parseFileAsync both use parseFileGenerator under the hood
+	 * and only act as event loops for the returned Generator. In parseFile, all
+	 * yields are evaluated to its operand, which allows the function to remain
+	 * synchronous. In parseFileAsync, yields are evaluated to the awaited value
+	 * of the operand, thus making yields in parseFileGenerator equivalent to
+	 * awaits.
 	 */
-	async function parseFile(file: ParseInput) {
+	function parseFile(file: ParseInput<any>) {
+		const gen = parseFileGenerator(file);
+		// let yield expressions always evaluate to its operand
+		for (let e = gen.next(); !e.done; e = gen.next(e.value)) {
+			if (e.value instanceof Promise) {
+				throw new Error("Unexpected Promise, async not allowed");
+			}
+		}
+	}
+	async function parseFileAsync(file: ParseInput<any>): Promise<void> {
+		const gen = parseFileGenerator(file);
+		let e = gen.next();
+		while (!e.done) {
+			// pass control to event loop and get result
+			const awaitedVal = await e.value;
+			// continue generator and provide result
+			e = gen.next(awaitedVal);
+		}
+	}
+	/**
+	 * Depending on where this is called, yield corresponds to either just
+	 * return the value (expecting it to not be a promise), or awaiting it if it
+	 * is a promise.
+	 */
+	function* parseFileGenerator(
+		file: ParseInput<any>
+	): Generator<
+		ReturnType<ParseInput<any>["resolveInclude"]>,
+		void,
+		ParseInput<any> | null
+	> {
 		includedFiles.add(file.filename);
 		state.setSource(file.source, null, file.filename);
 		while (state.good()) {
 			const inc = parse_include(state, program, options);
 			if (inc !== null) {
-				const targetFile = await file.resolveInclude(inc.filename);
+				const targetFile = yield file.resolveInclude(inc.filename);
 				if (!targetFile) {
 					// the file was not found
 					state.set(inc.position);
@@ -238,7 +298,7 @@ export async function parseProgram(
 					};
 
 					// import the file
-					await parseFile(targetFile);
+					yield* parseFileGenerator(targetFile);
 
 					// restore the state
 					state.source = backup.source;
@@ -270,26 +330,51 @@ export async function parseProgram(
 
 		// parse the user's source code
 		program.where = state.get();
-		await parseFile(mainInput);
-		program.lines = state.line;
+		const afterParse = () => {
+			program.lines = state.line;
 
-		// append an "end" breakpoint
-		state.skip();
-		if (
-			!program.breakpoints[mainInput.filename].hasOwnProperty(state.line)
-		) {
-			// create and register a new breakpoint
-			let b = create_breakpoint(program, state);
-			program.breakpoints[mainInput.filename][state.line] = b;
-			program.commands.push(b);
+			// append an "end" breakpoint
+			state.skip();
+			if (
+				!program.breakpoints[mainInput.filename].hasOwnProperty(
+					state.line
+				)
+			) {
+				// create and register a new breakpoint
+				let b = create_breakpoint(program, state);
+				program.breakpoints[mainInput.filename][state.line] = b;
+				program.commands.push(b);
+			}
+
+			// pass 2: resolve all names
+			compilerPass(state, "Resolve");
+
+			// further passes may follow in the future, e.g., for optimizations
+			// compilerPass("Optimize");
+		};
+
+		// both branches are equivalent up to the first awaiting
+		if (allowAwait) {
+			return parseFileAsync(mainInput)
+				.then(afterParse)
+				.catch(handleError)
+				.then(constructResult);
+		} else {
+			parseFile(mainInput);
+			afterParse();
 		}
-
-		// pass 2: resolve all names
-		compilerPass(state, "Resolve");
-
-		// further passes may follow in the future, e.g., for optimizations
-		// compilerPass("Optimize");
 	} catch (ex: any) {
+		handleError(ex);
+	}
+	return constructResult();
+
+	function constructResult() {
+		return errors.length > 0
+			? { program: null, errors }
+			: { program, errors: [] };
+	}
+
+	function handleError(ex: any) {
 		// ignore the actual exception and rely on state.errors instead
 		if (ex.name !== "Parse Error") {
 			// report an internal parser error
@@ -302,10 +387,6 @@ export async function parseProgram(
 			});
 		}
 	}
-
-	return errors.length > 0
-		? { program: null, errors }
-		: { program, errors: [] };
 }
 
 /** recursive compiler pass through the syntax tree */
