@@ -42,7 +42,7 @@ export let buttons: any = [
 	},
 	{
 		click: cmd_git,
-		icon: icons.saveDocument,
+		icon: icons.git,
 		tooltip: "GIT",
 		hotkey: "shift-control-g",
 		group: "file",
