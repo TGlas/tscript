@@ -3,6 +3,7 @@ import * as tgui from "../tgui";
 import { type Panel } from "../tgui/panels";
 import {
 	addListenerOnChangeProject,
+	isInvalidBasename,
 	deleteProject,
 	getCurrentProject,
 	getProjectPath,
@@ -17,7 +18,6 @@ import { collection, filetree } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
 import { msgBox } from "../tgui";
 import Path from "@isomorphic-git/lightning-fs/src/path";
-import { mod } from "../../interop";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -152,14 +152,10 @@ type FileTreeControlInfo = Exclude<
 	undefined
 >;
 
-function checkValidBasename(basename: string): boolean {
-	return !basename.includes("/");
-}
-
-function informInvalidBasename(_basename: string) {
+function informInvalidBasename(msg: string) {
 	msgBox({
 		title: "Invalid file name",
-		prompt: `File names may not contain "/"`,
+		prompt: `Filenames ${msg}`,
 	});
 }
 
@@ -526,8 +522,9 @@ print("Hello sfile");`
 
 	private handleCreate() {
 		tabNameDlg(async (filename: string) => {
-			if (!checkValidBasename(filename)) {
-				informInvalidBasename(filename);
+			const namingErr = isInvalidBasename(filename);
+			if (namingErr !== undefined) {
+				informInvalidBasename(namingErr);
 				return true;
 			}
 			/* set to "/" if nothing selected, dirname if file selected, path if
@@ -567,8 +564,9 @@ print("Hello sfile");`
 				if (this.selectedPath === null) {
 					return false;
 				}
-				if (!checkValidBasename(filename)) {
-					informInvalidBasename(filename);
+				const namingErr = isInvalidBasename(filename);
+				if (namingErr !== undefined) {
+					informInvalidBasename(namingErr);
 					return true;
 				}
 				const newProjPath = Path.join(

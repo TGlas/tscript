@@ -73,11 +73,9 @@ export async function setCurrentProject(
  * @throws {InvalidProjectName}
  */
 export async function tryCreateProject(projectName: string): Promise<boolean> {
-	if (projectName.includes("/")) {
-		throw new InvalidProjectName(
-			projectName,
-			'Project names may not include "/"'
-		);
+	const namingErr = isInvalidBasename(projectName);
+	if (namingErr !== undefined) {
+		throw new InvalidProjectName(projectName, `Project names ${namingErr}`);
 	}
 	try {
 		await projectsFSP.mkdir(getProjectPath(projectName));
@@ -88,6 +86,13 @@ export async function tryCreateProject(projectName: string): Promise<boolean> {
 		}
 		throw e;
 	}
+}
+
+export function isInvalidBasename(basename: string): string | undefined {
+	if (basename.includes("/")) return 'may not contain "/"';
+	if (basename === ".") return 'may not be "."';
+	if (basename === "..") return 'may not be ".."';
+	if (basename === "") return "may not be empty";
 }
 
 export class ProjectNotFoundError extends Error {
