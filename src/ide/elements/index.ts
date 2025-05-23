@@ -20,8 +20,13 @@ import {
 	createIDEInterpreter,
 	createTurtle,
 } from "./create-interpreter";
-import { FileTree } from "./file-tree";
-import { projectsFSP, setCurrentProject } from "../projects-fs";
+import {
+	FileTree,
+	fileTreePathToProjectNameFileName,
+	simplifyPath,
+} from "./file-tree";
+import { getProjectPath, projectsFSP, setCurrentProject } from "../projects-fs";
+import Path from "@isomorphic-git/lightning-fs/src/path";
 
 export { createEditorTab };
 
@@ -154,24 +159,101 @@ export function clear() {
  *
  * @returns a ParseInput object or `null` if no editors are open
  */
-export function createParseInput(
+export async function createParseInput(
 	files = new Map<string, ParseInput>()
-): ParseInput | null {
-	function getFile(filename: string): ParseInput | null {
-		const existing = files.get(filename);
-		if (existing) return existing;
+): Promise<ParseInput | null> {
+	type SourceFilename = { source: string; filename: string };
+	/**
+	 * @param getSource returns source and standardized filename for filename, or null if invalid
+	 */
+	function includeResolveWrapper(
+		getSource: (
+			filename: string
+		) => Promise<null | SourceFilename> | null | SourceFilename
+	): (filename: string) => Promise<ParseInput | null> {
+		const resolveInclude = async (filename: string) => {
+			const existing = files.get(filename);
+			if (existing) return existing;
 
+			const sourceFilename = await getSource(filename);
+			if (sourceFilename === null) return null;
+
+			const file: ParseInput = {
+				filename,
+				source: sourceFilename.source,
+				resolveInclude,
+			};
+			files.set(sourceFilename.filename, file);
+			console.log(files);
+			return file;
+		};
+		return resolveInclude;
+	}
+
+	const resolveIncludeLocalStorage = includeResolveWrapper((filename) => {
 		const source =
 			collection.getEditor(filename)?.text() ??
 			localStorage.getItem(`tscript.code.${filename}`);
-		if (!source) return null;
+		if (source === null) return null;
+		return {
+			source,
+			filename: filename,
+		};
+	});
+	const projNameToResolveIncludeProject = (projectName: string) => {
+		return includeResolveWrapper(async (filename) => {
+			const simplifiedPath = simplifyPath("/" + filename);
+			if (
+				simplifiedPath
+					.split("/")
+					.some((val) => val == "." || val == "..")
+			) {
+				return null;
+			}
+			const editor = collection.getEditor(Path.basename(filename));
+			if (editor && editor.properties().fileTreePath) {
+				// is actually the relevant tab
+				return { source: editor.text(), filename: simplifiedPath };
+			}
 
-		const file: ParseInput = { filename, source, resolveInclude: getFile };
-		files.set(filename, file);
-		return file;
+			const projPath = getProjectPath(projectName);
+			let readRes: string | undefined; // undefined if dir
+			try {
+				readRes = (await projectsFSP.readFile(
+					Path.join(projPath, filename),
+					{ encoding: "utf8" }
+				)) as string | undefined;
+			} catch (e: any) {
+				// EISDIR is not actually thrown, but it's undocumented
+				if (
+					e instanceof Error &&
+					"code" in e &&
+					(e.code === "ENOENT" || e.code === "EISDIR")
+				) {
+					return null;
+				} else {
+					throw e;
+				}
+			}
+			if (readRes === undefined) {
+				return null;
+			} else {
+				return { source: readRes, filename: simplifiedPath };
+			}
+		});
+	};
+
+	const selection = getRunSelection();
+	const editor = collection.getEditor(selection);
+	if (editor && editor.properties().fileTreePath) {
+		// is file in a project
+		const { project, filename } = fileTreePathToProjectNameFileName(
+			editor.properties().fileTreePath
+		);
+		return await projNameToResolveIncludeProject(project)(filename);
+	} else {
+		return resolveIncludeLocalStorage(selection);
 	}
-
-	return getFile(getRunSelection());
 }
 
 /**
@@ -184,7 +266,7 @@ export function createParseInput(
 export async function prepareRun(
 	onPrepared: (session: InterpreterSession | null) => void
 ): Promise<void> {
-	const parseInput = createParseInput();
+	const parseInput = await createParseInput();
 	if (!parseInput) {
 		onPrepared(null);
 		return;

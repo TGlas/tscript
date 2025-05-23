@@ -153,7 +153,7 @@ export async function cmd_export() {
 	}
 
 	const parsedFiles = new Map<string, ParseInput>();
-	const parseInput = ide.createParseInput(parsedFiles);
+	const parseInput = await ide.createParseInput(parsedFiles);
 	if (!parseInput) return;
 
 	let result = await parseProgram(parseInput, parseOptions);

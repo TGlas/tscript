@@ -131,8 +131,20 @@ export async function saveFileTreeFile(
 	await filetree.refresh();
 }
 
-function simplifyPath(path: string): string {
-	return path.replaceAll(/\/+/g, "/");
+export function simplifyPath(path: string): string {
+	return path.replaceAll(/\/+/g, "/").replace(/\/$/, "");
+}
+
+export function fileTreePathToProjectNameFileName(fileTreePath: string): {
+	project: string;
+	filename: string;
+} {
+	const pathSegments = simplifyPath(fileTreePath)
+		.split("/")
+		.filter((val) => val.length > 0);
+	const project = pathSegments[0];
+	const filename = pathSegments.slice(1).join("/");
+	return { project, filename };
 }
 
 type FileTreeControlInfo = Exclude<
