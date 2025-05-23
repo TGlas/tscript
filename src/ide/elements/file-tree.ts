@@ -13,7 +13,7 @@ import {
 	rmdirRecursive,
 	tryCreateProject,
 } from "../projects-fs";
-import { createEditorTab } from "./editor-tabs";
+import { createEditorTab, updateTabTitle } from "./editor-tabs";
 import { collection, filetree } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
 import { msgBox } from "../tgui";
@@ -132,8 +132,6 @@ export async function saveFileTreeFile(
 }
 
 function renameFilePathsInEditors(oldPath: string, newPath: string) {
-	console.log(oldPath);
-	console.log(newPath);
 	const eds = collection.getEditors();
 	for (const ed of eds) {
 		const curPath = ed.properties().fileTreePath;
@@ -141,12 +139,12 @@ function renameFilePathsInEditors(oldPath: string, newPath: string) {
 			// editor not from file tree project
 			continue;
 		}
-		console.log(curPath);
 		if (curPath === oldPath) {
-			// This editors file has been renamed
+			// This editors file has been renamedS
+			const newFileName = newPath.slice(newPath.lastIndexOf("/") + 1);
 			ed.properties().fileTreePath = newPath;
-			ed.properties().name = newPath.slice(newPath.lastIndexOf("/") + 1);
-			// TODO update name html element
+			ed.properties().name = newFileName;
+			updateTabTitle(ed, newFileName);
 		}
 		if (curPath.length <= oldPath.length) {
 			// length of renamed path is longer, it cannot be this file or an ancestor

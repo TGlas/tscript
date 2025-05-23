@@ -29,6 +29,12 @@ export class EditorCollection {
 		return null;
 	}
 
+	// find an editor by the associated tab
+	public getEditorByTab(tab: any): Editor | null {
+		for (let ed of this.editors) if (ed.properties().tab === tab) return ed;
+		return null;
+	}
+
 	// obtain the currently active editor
 	public getActiveEditor(): Editor | null {
 		return this.active;

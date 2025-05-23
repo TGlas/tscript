@@ -1,3 +1,4 @@
+import { Editor } from "../editor";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import {
@@ -45,6 +46,20 @@ export function createEditorTabByModal() {
 	});
 }
 
+export function updateTabTitle(editor: any, newTitle: string) {
+	const editorProperties = editor.properties();
+	if (!editorProperties || !editorProperties.tab) return;
+	const nameSpan = editorProperties.tab.querySelector(".name");
+	if (nameSpan) {
+		nameSpan.textContent = newTitle;
+	}
+
+	if (editorProperties.runoption) {
+		editorProperties.runoption.textContent = newTitle;
+		editorProperties.runoption.value = newTitle;
+	}
+}
+
 export function createEditorTab(
 	name: string,
 	text: string | null = null,
@@ -62,23 +77,22 @@ export function createEditorTab(
 		parent: tab,
 		classname: "name",
 		text: name,
-		click: (function (filename) {
-			return function (event) {
-				let ed = ide.collection.getEditor(filename);
-				if (ed) ide.collection.setActiveEditor(ed);
-			};
-		})(name),
+		click: function (event) {
+			let ed = ide.collection.getEditorByTab(tab);
+			if (ed) ide.collection.setActiveEditor(ed);
+		},
 	});
 	tgui.createElement({
 		type: "span",
 		parent: tab,
 		classname: "close",
 		text: "\u00d7",
-		click: (function (filename) {
-			return function (event) {
-				confirmFileDiscard(filename, () => closeEditor(filename));
-			};
-		})(name),
+		click: function (event) {
+			let ed = ide.collection.getEditorByTab(tab);
+			if (!ed) return;
+			let filename = ed.properties().name;
+			confirmFileDiscard(filename, () => closeEditor(filename));
+		},
 	});
 
 	// create a "run" option
