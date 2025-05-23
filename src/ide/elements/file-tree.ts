@@ -393,21 +393,33 @@ export class FileTree {
 			const projName = getProjectPath("tmp");
 			if (!(await tryCreateProject("tmp")))
 				throw "Sample project should not exist right now";
-			await projectsFSP.writeFile(Path.join(projName, "root"), "Hello");
+			await projectsFSP.writeFile(
+				Path.join(projName, "root"),
+				`\
+include "sub/file";
+print("Hello");`
+			);
 			await projectsFSP.mkdir(Path.join(projName, "sub"));
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub/file"),
-				"Hello file"
+				`\
+include "sub2/file2";
+include "sub/ssub/sfile";
+print("Hello file");`
 			);
 			await projectsFSP.mkdir(Path.join(projName, "sub2"));
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub2/file2"),
-				"Hello file2"
+				`\
+include "sub/ssub/sfile";
+print("Hello file2");`
 			);
 			await projectsFSP.mkdir(Path.join(projName, "sub/ssub"));
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub/ssub/sfile"),
-				"Hello sfile"
+				`\
+include "/root";
+print("Hello sfile");`
 			);
 		}));
 	}
