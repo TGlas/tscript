@@ -108,18 +108,20 @@ function cmd_reset() {
 /**
  * Gets the active interpreter session or creates a new one if no program is running
  */
-function getOrRestartSession() {
+function getOrRestartSession(
+	cb: (session: ide.InterpreterSession | null) => void
+) {
 	let session = ide.interpreterSession;
-	if (!session || interpreterEnded(session.interpreter)) {
+	if (session && !interpreterEnded(session.interpreter)) {
+		cb(session);
+	} else {
 		// (re-)start the interpreter
-		session = ide.prepareRun();
+		ide.prepareRun(cb);
 	}
-
-	return session;
 }
 
 function cmd_run() {
-	getOrRestartSession()?.interpreter.run();
+	getOrRestartSession((session) => session?.interpreter.run());
 }
 
 function cmd_interrupt() {
@@ -128,18 +130,18 @@ function cmd_interrupt() {
 }
 
 function cmd_step_into() {
-	getOrRestartSession()?.interpreter.step_into();
+	getOrRestartSession((session) => session?.interpreter.step_into());
 }
 
 function cmd_step_over() {
-	getOrRestartSession()?.interpreter.step_over();
+	getOrRestartSession((session) => session?.interpreter.step_over());
 }
 
 function cmd_step_out() {
-	getOrRestartSession()?.interpreter.step_out();
+	getOrRestartSession((session) => session?.interpreter.step_out());
 }
 
-export function cmd_export() {
+export async function cmd_export() {
 	// don't interrupt a running program
 	if (ide.interpreter) {
 		if (
@@ -154,10 +156,12 @@ export function cmd_export() {
 	const parseInput = ide.createParseInput(parsedFiles);
 	if (!parseInput) return;
 
+	let result = await parseProgram(parseInput, parseOptions);
+
+	// everything after that should ideally be synchronous
 	ide.clear();
 
 	// check that the code at least compiles
-	let result = parseProgram(parseInput, parseOptions);
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {

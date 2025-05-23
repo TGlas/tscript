@@ -10,10 +10,10 @@ export type StandaloneData = {
 	mode: "canvas" | "turtle";
 };
 
-export function showStandalonePage(
+export async function showStandalonePage(
 	container: HTMLElement,
 	data: StandaloneData
-): void {
+): Promise<void> {
 	const { documents } = data.code;
 	function getParseInput(filename: string): ParseInput | null {
 		if (!Object.hasOwn(documents, filename)) return null;
@@ -26,7 +26,8 @@ export function showStandalonePage(
 	const mainFile = getParseInput(data.code.main);
 	if (!mainFile) return; // This has been validated on export
 
-	const { program } = parseProgram(mainFile);
+	// should be safe the await, we are only called in setup
+	const { program } = await parseProgram(mainFile);
 	if (program == null) return; // This has been validated on export
 
 	const interpreter = createIDEInterpreter(program);
