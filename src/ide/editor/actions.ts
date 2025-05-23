@@ -26,6 +26,15 @@ export class Action {
 	public static tab = new Uint32Array([9]);
 }
 
+export interface LineStructureChange {
+	/** the start line of the change */
+	line: number;
+	/** the number of additional lines */
+	inserted: number;
+	/** the number of lines removed */
+	removed: number;
+}
+
 // A simple action operates at a single location in the document.
 // It can remove and insert characters. The constructor expects the
 // following formats for #remove and #insert:
@@ -68,14 +77,16 @@ export class SimpleAction extends Action {
 		document.cursor = this.pos + this.remove.length;
 	}
 
-	// Return an object { line, removed, inserted } of line changes
-	// as it is needed for the "changed" event of the editor.
-	public linesChanged(document) {
+	/**
+	 * Return an object { line, removed, inserted } of line changes
+	 * as it is needed for the "changed" event of the editor.
+	 */
+	public linesChanged(document: Document): LineStructureChange | null {
 		let nr = 0,
 			ni = 0;
 		for (let c of this.remove) if (c === 10) nr++;
 		for (let c of this.insert) if (c === 10) ni++;
-		if (nr + ni === 0) return { line: null, removed: null, inserted: null };
+		if (nr + ni === 0) return null;
 		let iter = new Iterator(document);
 		iter.setPosition(this.pos);
 		return { line: iter.row, removed: nr, inserted: ni };
