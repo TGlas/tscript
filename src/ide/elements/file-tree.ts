@@ -131,6 +131,41 @@ export async function saveFileTreeFile(
 	await filetree.refresh();
 }
 
+function renameFilePathsInEditors(oldPath: string, newPath: string) {
+	console.log(oldPath);
+	console.log(newPath);
+	const eds = collection.getEditors();
+	for (const ed of eds) {
+		const curPath = ed.properties().fileTreePath;
+		if (!curPath) {
+			// editor not from file tree project
+			continue;
+		}
+		console.log(curPath);
+		if (curPath === oldPath) {
+			// This editors file has been renamed
+			ed.properties().fileTreePath = newPath;
+			ed.properties().name = newPath.slice(newPath.lastIndexOf("/") + 1);
+			// TODO update name html element
+		}
+		if (curPath.length <= oldPath.length) {
+			// length of renamed path is longer, it cannot be this file or an ancestor
+			continue;
+		}
+		const relevantPrefix = curPath.slice(0, oldPath.length + 1);
+		const oldWithSlash = oldPath + "/";
+		const ancestorRenamed = relevantPrefix === oldWithSlash;
+		if (!ancestorRenamed) {
+			continue;
+		}
+		ed.properties().fileTreePath = Path.join(
+			newPath,
+			curPath.slice(oldPath.length)
+		);
+	}
+	return;
+}
+
 export function simplifyPath(path: string): string {
 	return path.replaceAll(/\/+/g, "/").replace(/\/$/, "");
 }
@@ -464,7 +499,6 @@ print("Hello sfile");`
 		if (value.type === "file") {
 			try {
 				const absPath = simplifyPath(`${this.dir}/${value.path}`);
-				console.log(absPath);
 				// TODO: same file name in other projects/dirs?
 				const existingEditor = collection.getEditor(value.basename);
 				if (existingEditor) {
@@ -578,6 +612,7 @@ print("Hello sfile");`
 					informNodeAlreadyExists(newProjPath);
 					return true;
 				}
+				renameFilePathsInEditors(this.toAbs(this.selectedPath), newAbs);
 				await projectsFSP.rename(this.toAbs(this.selectedPath), newAbs);
 				this.selectPath(newProjPath);
 				await this.refresh();
