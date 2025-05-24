@@ -444,22 +444,22 @@ print("Hello");`
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub/file"),
 				`\
-include "sub2/file2";
-include "sub/ssub/sfile";
+include "../sub2/file2";
+include "ssub/sfile";
 print("Hello file");`
 			);
 			await projectsFSP.mkdir(Path.join(projName, "sub2"));
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub2/file2"),
 				`\
-include "sub/ssub/sfile";
+include "/sub/ssub/sfile";
 print("Hello file2");`
 			);
 			await projectsFSP.mkdir(Path.join(projName, "sub/ssub"));
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub/ssub/sfile"),
 				`\
-include "/root";
+include "../../root";
 print("Hello sfile");`
 			);
 		}));

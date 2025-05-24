@@ -178,6 +178,7 @@ async function createParseInputProject(
 	const includeResolutions: IncludeResolutionList = [];
 	const includeSourceResolutions: Map<StandardizedFilename, string> =
 		new Map();
+	const projectPath = getProjectPath(projectName);
 
 	/**
 	 * A standardized filename for project is the project-absolute path
@@ -188,17 +189,23 @@ async function createParseInputProject(
 		includingFile: StandardizedFilename | null,
 		includeOperand: string
 	): StandardizedFilename | null => {
-		const simplifiedPath = simplifyPath("/" + includeOperand);
-		if (
-			simplifiedPath.split("/").some((val) => val == "." || val == "..")
-		) {
+		const dirname =
+			includingFile === null ? "/" : Path.dirname(includingFile);
+
+		let resolved: string;
+		try {
+			// both functions can throw
+			resolved = Path.normalize(Path.resolve(dirname, includeOperand));
+		} catch (e) {
 			return null;
 		}
+		// simplifyPath for removing trailing "/"
+		resolved = simplifyPath(resolved);
 		if (includingFile !== null) {
 			const newEntry: IncludeResolutionList[0] = [
 				includingFile,
 				includeOperand,
-				simplifiedPath as StandardizedFilename,
+				resolved as StandardizedFilename,
 			];
 			if (
 				!includeResolutions.some((e) =>
@@ -209,16 +216,12 @@ async function createParseInputProject(
 				includeResolutions.push(newEntry);
 			}
 		}
-		return simplifiedPath as StandardizedFilename;
+		return resolved as StandardizedFilename;
 	};
 
 	const resolveInclude = async (
-		projectName: string,
 		stdFilename: StandardizedFilename
 	): Promise<ParseInput<true> | null> => {
-		const projectSpecificResolveInclude = (
-			stdFilename2: StandardizedFilename
-		) => resolveInclude(projectName, stdFilename2);
 		const editor = collection.getEditor(Path.basename(stdFilename));
 		if (editor && editor.properties().fileTreePath) {
 			// is actually the relevant tab
@@ -227,15 +230,14 @@ async function createParseInputProject(
 				source: editor.text(),
 				filename: stdFilename,
 				resolveIncludeToStdFilename: resolveIncludeToStdFilename,
-				resolveInclude: projectSpecificResolveInclude,
+				resolveInclude,
 			};
 		}
 
-		const projPath = getProjectPath(projectName);
 		let readRes: string | undefined; // undefined if dir
 		try {
 			readRes = (await projectsFSP.readFile(
-				Path.join(projPath, stdFilename),
+				Path.join(projectPath, stdFilename),
 				{ encoding: "utf8" }
 			)) as string | undefined;
 		} catch (e: any) {
@@ -257,7 +259,7 @@ async function createParseInputProject(
 			return {
 				source: readRes,
 				filename: stdFilename,
-				resolveInclude: projectSpecificResolveInclude,
+				resolveInclude,
 				resolveIncludeToStdFilename,
 			};
 		}
@@ -265,7 +267,7 @@ async function createParseInputProject(
 
 	const entryStdFilename = resolveIncludeToStdFilename(null, entryFilename);
 	if (entryStdFilename === null) return null;
-	const mainParseInput = await resolveInclude(projectName, entryStdFilename);
+	const mainParseInput = await resolveInclude(entryStdFilename);
 	if (mainParseInput === null) return null;
 	return {
 		parseInput: mainParseInput,
