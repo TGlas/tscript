@@ -1,6 +1,10 @@
 import { Interpreter } from "../../lang/interpreter/interpreter";
 import { ProgramRoot } from "../../lang/interpreter/program-elements";
-import { ParseInput, parseProgram } from "../../lang/parser";
+import {
+	ParseInput,
+	parseProgram,
+	StandardizedFilename,
+} from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
@@ -154,19 +158,26 @@ export function clear() {
 	tgui.clearElement(messages);
 }
 
+export type IncludeResolutionList = [
+	StandardizedFilename,
+	string,
+	StandardizedFilename
+][];
+
 /** @see createParseInput */
 export type ParseInputIncludeSpecification = {
 	parseInput: ParseInput;
-	includeResolutions: [string, string, string][] | null;
-	includeSourceResolutions: Map<string, string>;
+	includeResolutions: IncludeResolutionList | null;
+	includeSourceResolutions: Map<StandardizedFilename, string>;
 };
 
 async function createParseInputProject(
 	projectName: string,
 	entryFilename: string
 ): Promise<ParseInputIncludeSpecification | null> {
-	const includeResolutions: [string, string, string][] = [];
-	const includeSourceResolutions: Map<string, string> = new Map();
+	const includeResolutions: IncludeResolutionList = [];
+	const includeSourceResolutions: Map<StandardizedFilename, string> =
+		new Map();
 
 	/**
 	 * A standardized filename for project is the project-absolute path
@@ -174,9 +185,9 @@ async function createParseInputProject(
 	 * @param includingFile `null` to signal that this wasn't an actual include
 	 */
 	const resolveIncludeToStdFilename = (
-		includingFile: string | null,
+		includingFile: StandardizedFilename | null,
 		includeOperand: string
-	) => {
+	): StandardizedFilename | null => {
 		const simplifiedPath = simplifyPath("/" + includeOperand);
 		if (
 			simplifiedPath.split("/").some((val) => val == "." || val == "..")
@@ -184,10 +195,10 @@ async function createParseInputProject(
 			return null;
 		}
 		if (includingFile !== null) {
-			const newEntry: [string, string, string] = [
+			const newEntry: IncludeResolutionList[0] = [
 				includingFile,
 				includeOperand,
-				simplifiedPath,
+				simplifiedPath as StandardizedFilename,
 			];
 			if (
 				!includeResolutions.some((e) =>
@@ -198,15 +209,16 @@ async function createParseInputProject(
 				includeResolutions.push(newEntry);
 			}
 		}
-		return simplifiedPath;
+		return simplifiedPath as StandardizedFilename;
 	};
 
 	const resolveInclude = async (
 		projectName: string,
-		stdFilename: string
+		stdFilename: StandardizedFilename
 	): Promise<ParseInput<true> | null> => {
-		const projectSpecificResolveInclude = (fileIdentifier: string) =>
-			resolveInclude(projectName, fileIdentifier);
+		const projectSpecificResolveInclude = (
+			stdFilename2: StandardizedFilename
+		) => resolveInclude(projectName, stdFilename2);
 		const editor = collection.getEditor(Path.basename(stdFilename));
 		if (editor && editor.properties().fileTreePath) {
 			// is actually the relevant tab
@@ -265,9 +277,12 @@ async function createParseInputProject(
 function createParseInputLocalStorage(
 	entryFilename: string
 ): ParseInputIncludeSpecification | null {
-	const includeSourceResolutions: Map<string, string> = new Map();
+	const includeSourceResolutions: Map<StandardizedFilename, string> =
+		new Map();
 
-	const resolveInclude = (filename: string): ParseInput | null => {
+	const resolveInclude = (
+		filename: StandardizedFilename
+	): ParseInput | null => {
 		const source =
 			collection.getEditor(filename)?.text() ??
 			localStorage.getItem(`tscript.code.${filename}`);
@@ -276,7 +291,9 @@ function createParseInputLocalStorage(
 		return { source, filename, resolveInclude };
 	};
 
-	const mainParseInput = resolveInclude(entryFilename);
+	const mainParseInput = resolveInclude(
+		entryFilename as StandardizedFilename
+	);
 	if (mainParseInput === null) return null;
 	return {
 		parseInput: mainParseInput,

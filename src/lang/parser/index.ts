@@ -141,6 +141,14 @@ export const defaultParseOptions: ParseOptions = {
 };
 
 /**
+ * The thing on the right obviously doesn't actually exist and is only meant to
+ * distinguish this type from regular strings
+ */
+export type StandardizedFilename = string & {
+	__standardized_filename_pseudo_attribute: undefined;
+};
+
+/**
  * If `AllowWait` is `false`, evaluates to `T`; if `AllowWait` is `true`,
  * evaluates to `T | Promise<T>`.
  */
@@ -155,7 +163,7 @@ export interface ParseInput<AllowAwait extends boolean = true> {
 	 * standardized filename as returned by
 	 * ParseInput.resolveIncludeToStdFilename. Also used in user output.
 	 */
-	filename: string;
+	filename: StandardizedFilename;
 	/** file content / source code associated with this ParseInput */
 	source: string;
 
@@ -170,9 +178,9 @@ export interface ParseInput<AllowAwait extends boolean = true> {
 	 * @returns the standardized filename or `null` if could not be resolved
 	 */
 	resolveIncludeToStdFilename?: (
-		includingFile: string,
+		includingFile: StandardizedFilename,
 		includeOperand: string
-	) => string | null;
+	) => StandardizedFilename | null;
 
 	/**
 	 * Given a standardized filename for an include as returned by
@@ -180,7 +188,7 @@ export interface ParseInput<AllowAwait extends boolean = true> {
 	 * `ParseInput`, or `null` to signal that it is invalid.
 	 */
 	resolveInclude(
-		fileIdentifier: string
+		stdFilename: StandardizedFilename
 	): ConditionallyIncludePromisified<
 		ParseInput<AllowAwait> | null,
 		AllowAwait

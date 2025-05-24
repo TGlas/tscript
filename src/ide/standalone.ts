@@ -1,4 +1,5 @@
-import { ParseInput, parseProgram } from "../lang/parser";
+import { ParseInput, parseProgram, StandardizedFilename } from "../lang/parser";
+import { IncludeResolutionList } from "./elements";
 import {
 	createCanvas,
 	createIDEInterpreter,
@@ -6,13 +7,15 @@ import {
 } from "./elements/create-interpreter";
 
 export type StandaloneCode = {
-	includeSourceResolutions: Record<string, string>;
+	/** map from standardized filenames to their contents */
+	includeSourceResolutions: Record<StandardizedFilename, string>;
 	/**
 	 * triples [includingFile, includeOperand, stdFilename], where stdFilename
 	 * is in the key set of includeSourceResolutions.
 	 */
-	includeResolutions: [string, string, string][] | null;
-	main: string;
+	includeResolutions: IncludeResolutionList | null;
+	/** standardized filename of entry point file */
+	main: StandardizedFilename;
 };
 export type StandaloneData = {
 	code: StandaloneCode;
@@ -25,11 +28,11 @@ export function showStandalonePage(
 ): void {
 	const { includeSourceResolutions, includeResolutions } = data.code;
 	function resolveIncludeToStdFilename(
-		includingFile: string,
+		includingFile: StandardizedFilename,
 		includeOperand: string
-	): string | null {
+	): StandardizedFilename | null {
 		if (includeResolutions === null) {
-			return includeOperand;
+			return includeOperand as StandardizedFilename;
 		} else {
 			const relevantTriple = includeResolutions.find(
 				(val) => val[0] === includingFile && val[1] === includeOperand
@@ -43,7 +46,9 @@ export function showStandalonePage(
 			return relevantTriple[2];
 		}
 	}
-	function getParseInput(filename: string): ParseInput<false> | null {
+	function getParseInput(
+		filename: StandardizedFilename
+	): ParseInput<false> | null {
 		return {
 			filename,
 			source: includeSourceResolutions[filename],
