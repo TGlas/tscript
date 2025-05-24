@@ -52,10 +52,16 @@ export function showStandalonePage(
 		};
 	}
 	const mainFile = getParseInput(data.code.main);
-	if (!mainFile) return; // This has been validated on export
+	if (!mainFile) {
+		console.error("Could not get parse input of main file");
+		return; // This has been validated on export
+	}
 
-	const { program } = parseProgram(mainFile, false);
-	if (program == null) return; // This has been validated on export
+	const { program, errors } = parseProgram(mainFile, false);
+	if (program == null) {
+		console.error("Could not parse program", errors);
+		return; // This has been validated on export
+	}
 
 	const interpreter = createIDEInterpreter(program);
 
