@@ -13,7 +13,7 @@ import { parse_include } from "./parse_include";
 
 export interface ParserPosition {
 	/** filename or null */
-	filename: string | null;
+	filename: StandardizedFilename | null;
 
 	/** zero-based position in the source code string */
 	pos: number;
@@ -68,7 +68,7 @@ export interface ParserState extends ParserPosition {
 		this: ParserState,
 		source: string,
 		impl?: object | null,
-		filename?: string | null
+		filename?: StandardizedFilename | null
 	): void;
 
 	/** @returns Whether there is text to parse and no errors have occurred */
@@ -141,8 +141,9 @@ export const defaultParseOptions: ParseOptions = {
 };
 
 /**
- * The thing on the right obviously doesn't actually exist and is only meant to
- * distinguish this type from regular strings
+ * The thing on the right doesn't actually exist and is only meant to
+ * distinguish this type from regular strings. See ParseInput on what
+ * standardized filenames are.
  */
 export type StandardizedFilename = string & {
 	__standardized_filename_pseudo_attribute: undefined;
@@ -207,7 +208,7 @@ export function parseProgramFromString(
 ): ParseResult {
 	return parseProgram(
 		{
-			filename: "main",
+			filename: "main" as StandardizedFilename,
 			source,
 			resolveInclude: () => null,
 		},
@@ -233,7 +234,7 @@ export function parseProgram(
 	options: ParseOptions = defaultParseOptions
 ): Promise<ParseResult> | ParseResult {
 	/** List of filenames of all included ParseInputs */
-	const includedFiles = new Set<string>();
+	const includedFiles = new Set<StandardizedFilename>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
 	const program = createEmptyProgram();
@@ -246,7 +247,7 @@ export function parseProgram(
 	function parseString(
 		source: string,
 		impl: any = null,
-		filename: string | null = null
+		filename: StandardizedFilename | null = null
 	) {
 		state.setSource(source, impl, filename);
 		while (state.good()) {
@@ -317,27 +318,27 @@ export function parseProgram(
 				continue;
 			}
 
-			let targetFileId: string | null;
+			let targetFilename: StandardizedFilename | null;
 			if (file.resolveIncludeToStdFilename) {
-				targetFileId = file.resolveIncludeToStdFilename(
+				targetFilename = file.resolveIncludeToStdFilename(
 					file.filename,
 					inc.filename
 				);
 			} else {
-				targetFileId = inc.filename;
+				targetFilename = inc.filename as StandardizedFilename;
 			}
-			if (targetFileId === null) {
+			if (targetFilename === null) {
 				// the include could not be resolved
 				state.set(inc.position);
 				state.error("/argument-mismatch/am-48", [inc.filename]);
 				return;
 			}
 
-			if (includedFiles.has(targetFileId)) {
+			if (includedFiles.has(targetFilename)) {
 				continue;
 			}
 
-			const targetFile = yield file.resolveInclude(targetFileId);
+			const targetFile = yield file.resolveInclude(targetFilename);
 			if (targetFile === null) {
 				// the file was not found
 				state.set(inc.position);
@@ -504,7 +505,7 @@ const createParserState = (
 	setSource(
 		source: string,
 		impl: any = null,
-		filename: string | null = null
+		filename: StandardizedFilename | null = null
 	) {
 		this.source = source;
 		this.impl = impl;
