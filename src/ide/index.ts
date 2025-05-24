@@ -21,14 +21,14 @@ import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
 
-window.addEventListener("load", async () => {
+window.addEventListener("load", () => {
 	const container = document.getElementById("ide-container")!;
 	container.replaceChildren(); // empties the container
 
 	// handle standalone pages
 	const standaloneData = window["TScript"];
 	if (typeof standaloneData === "object") {
-		await showStandalonePage(container, standaloneData);
+		showStandalonePage(container, standaloneData);
 		return;
 	}
 

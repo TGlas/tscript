@@ -154,95 +154,154 @@ export function clear() {
 	tgui.clearElement(messages);
 }
 
-/**
- * Create ParseInput from the current editors
- *
- * @returns a ParseInput object or `null` if no editors are open
- */
-export async function createParseInput(
-	files = new Map<string, ParseInput>()
-): Promise<ParseInput | null> {
-	type SourceFilename = { source: string; filename: string };
+/** @see createParseInput */
+export type ParseInputIncludeSpecification = {
+	parseInput: ParseInput;
+	includeResolutions: [string, string, string][] | null;
+	includeSourceResolutions: Map<string, string>;
+};
+
+async function createParseInputProject(
+	projectName: string,
+	entryFilename: string
+): Promise<ParseInputIncludeSpecification | null> {
+	const includeResolutions: [string, string, string][] = [];
+	const includeSourceResolutions: Map<string, string> = new Map();
+
 	/**
-	 * @param getSource returns source and standardized filename for filename, or null if invalid
+	 * A standardized filename for project is the project-absolute path
+	 * (i.e. absolute path without the project prefix)
+	 * @param includingFile `null` to signal that this wasn't an actual include
 	 */
-	function includeResolveWrapper(
-		getSource: (
-			filename: string
-		) => Promise<null | SourceFilename> | null | SourceFilename
-	): (filename: string) => Promise<ParseInput | null> {
-		const resolveInclude = async (filename: string) => {
-			const existing = files.get(filename);
-			if (existing) return existing;
+	const resolveIncludeToStdFilename = (
+		includingFile: string | null,
+		includeOperand: string
+	) => {
+		const simplifiedPath = simplifyPath("/" + includeOperand);
+		if (
+			simplifiedPath.split("/").some((val) => val == "." || val == "..")
+		) {
+			return null;
+		}
+		if (includingFile !== null) {
+			const newEntry: [string, string, string] = [
+				includingFile,
+				includeOperand,
+				simplifiedPath,
+			];
+			if (
+				!includeResolutions.some((e) =>
+					e.every((val, idx) => val === newEntry[idx])
+				)
+			) {
+				// newEntry is in fact new
+				includeResolutions.push(newEntry);
+			}
+		}
+		return simplifiedPath;
+	};
 
-			const sourceFilename = await getSource(filename);
-			if (sourceFilename === null) return null;
-
-			const file: ParseInput = {
-				filename,
-				source: sourceFilename.source,
-				resolveInclude,
+	const resolveInclude = async (
+		projectName: string,
+		stdFilename: string
+	): Promise<ParseInput<true> | null> => {
+		const projectSpecificResolveInclude = (fileIdentifier: string) =>
+			resolveInclude(projectName, fileIdentifier);
+		const editor = collection.getEditor(Path.basename(stdFilename));
+		if (editor && editor.properties().fileTreePath) {
+			// is actually the relevant tab
+			includeSourceResolutions.set(stdFilename, editor.text());
+			return {
+				source: editor.text(),
+				filename: stdFilename,
+				resolveIncludeToStdFilename: resolveIncludeToStdFilename,
+				resolveInclude: projectSpecificResolveInclude,
 			};
-			files.set(sourceFilename.filename, file);
-			console.log(files);
-			return file;
-		};
-		return resolveInclude;
-	}
+		}
 
-	const resolveIncludeLocalStorage = includeResolveWrapper((filename) => {
+		const projPath = getProjectPath(projectName);
+		let readRes: string | undefined; // undefined if dir
+		try {
+			readRes = (await projectsFSP.readFile(
+				Path.join(projPath, stdFilename),
+				{ encoding: "utf8" }
+			)) as string | undefined;
+		} catch (e: any) {
+			// EISDIR is not actually thrown, but it's undocumented
+			if (
+				e instanceof Error &&
+				"code" in e &&
+				(e.code === "ENOENT" || e.code === "EISDIR")
+			) {
+				return null;
+			} else {
+				throw e;
+			}
+		}
+		if (readRes === undefined) {
+			return null;
+		} else {
+			includeSourceResolutions.set(stdFilename, readRes);
+			return {
+				source: readRes,
+				filename: stdFilename,
+				resolveInclude: projectSpecificResolveInclude,
+				resolveIncludeToStdFilename,
+			};
+		}
+	};
+
+	const entryStdFilename = resolveIncludeToStdFilename(null, entryFilename);
+	if (entryStdFilename === null) return null;
+	const mainParseInput = await resolveInclude(projectName, entryStdFilename);
+	if (mainParseInput === null) return null;
+	return {
+		parseInput: mainParseInput,
+		includeResolutions,
+		includeSourceResolutions,
+	};
+}
+
+function createParseInputLocalStorage(
+	entryFilename: string
+): ParseInputIncludeSpecification | null {
+	const includeSourceResolutions: Map<string, string> = new Map();
+
+	const resolveInclude = (filename: string): ParseInput | null => {
 		const source =
 			collection.getEditor(filename)?.text() ??
 			localStorage.getItem(`tscript.code.${filename}`);
 		if (source === null) return null;
-		return {
-			source,
-			filename: filename,
-		};
-	});
-	const projNameToResolveIncludeProject = (projectName: string) => {
-		return includeResolveWrapper(async (filename) => {
-			const simplifiedPath = simplifyPath("/" + filename);
-			if (
-				simplifiedPath
-					.split("/")
-					.some((val) => val == "." || val == "..")
-			) {
-				return null;
-			}
-			const editor = collection.getEditor(Path.basename(filename));
-			if (editor && editor.properties().fileTreePath) {
-				// is actually the relevant tab
-				return { source: editor.text(), filename: simplifiedPath };
-			}
-
-			const projPath = getProjectPath(projectName);
-			let readRes: string | undefined; // undefined if dir
-			try {
-				readRes = (await projectsFSP.readFile(
-					Path.join(projPath, filename),
-					{ encoding: "utf8" }
-				)) as string | undefined;
-			} catch (e: any) {
-				// EISDIR is not actually thrown, but it's undocumented
-				if (
-					e instanceof Error &&
-					"code" in e &&
-					(e.code === "ENOENT" || e.code === "EISDIR")
-				) {
-					return null;
-				} else {
-					throw e;
-				}
-			}
-			if (readRes === undefined) {
-				return null;
-			} else {
-				return { source: readRes, filename: simplifiedPath };
-			}
-		});
+		includeSourceResolutions.set(filename, source);
+		return { source, filename, resolveInclude };
 	};
 
+	const mainParseInput = resolveInclude(entryFilename);
+	if (mainParseInput === null) return null;
+	return {
+		parseInput: mainParseInput,
+		includeSourceResolutions,
+		includeResolutions: null,
+	};
+}
+
+/**
+ * Create ParseInput from the current editors
+ *
+ * @returns
+ *	- `parseInput`: a ParseInput object
+ *	- `includeResolutions`: array of triples `[includingFile, includeOperand,
+ *		resolvedFilename]`, meaning that that in `includingFile`, an include with
+ *		operand `includeOperand` resolves to the file `resolvedFilename`. null
+ *		if resolutions weren't used (i.e. the includeOperand is always the same
+ *		as the resolvedFilename)
+ *	- `includeSourceResolutions`: Map from resolved filenames (third entry in
+ *		includeResolutions triples) to their sources
+ *	or null if the current run selection could not be resolved.
+ *	`includeResolutions` and `includeSourceResolutions` will only be filled once
+ *	`parseInput` is actually parsed.
+ */
+export async function createParseInput(): Promise<ParseInputIncludeSpecification | null> {
 	const selection = getRunSelection();
 	const editor = collection.getEditor(selection);
 	if (editor && editor.properties().fileTreePath) {
@@ -250,9 +309,9 @@ export async function createParseInput(
 		const { project, filename } = fileTreePathToProjectNameFileName(
 			editor.properties().fileTreePath
 		);
-		return await projNameToResolveIncludeProject(project)(filename);
+		return createParseInputProject(project, filename);
 	} else {
-		return resolveIncludeLocalStorage(selection);
+		return createParseInputLocalStorage(selection);
 	}
 }
 
@@ -266,13 +325,17 @@ export async function createParseInput(
 export async function prepareRun(
 	onPrepared: (session: InterpreterSession | null) => void
 ): Promise<void> {
-	const parseInput = await createParseInput();
+	const parseInput = (await createParseInput())?.parseInput;
 	if (!parseInput) {
 		onPrepared(null);
 		return;
 	}
 
-	const { program, errors } = await parseProgram(parseInput, parseOptions);
+	const { program, errors } = await parseProgram(
+		parseInput,
+		true,
+		parseOptions
+	);
 
 	// everything after that should ideally be synchronous
 	clear();
