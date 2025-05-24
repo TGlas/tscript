@@ -1,4 +1,14 @@
-import { ParseInput, parseProgram } from "../lang/parser";
+import {
+	ParseInput,
+	parseProgram,
+	FileID,
+	StringFileID,
+	fileIDToContextDependentFilename,
+	splitFileIDAtColon,
+	fileIDToHumanFriendly,
+	stringFileID,
+} from "../lang/parser";
+import { IncludeResolutionList } from "./elements";
 import {
 	createCanvas,
 	createIDEInterpreter,
@@ -6,13 +16,15 @@ import {
 } from "./elements/create-interpreter";
 
 export type StandaloneCode = {
-	includeSourceResolutions: Record<string, string>;
+	/** map from standardized filenames to their contents */
+	includeSourceResolutions: Record<StringFileID, string>;
 	/**
 	 * triples [includingFile, includeOperand, stdFilename], where stdFilename
 	 * is in the key set of includeSourceResolutions.
 	 */
-	includeResolutions: [string, string, string][] | null;
-	main: string;
+	includeResolutions: IncludeResolutionList;
+	/** standardized filename of entry point file */
+	main: StringFileID;
 };
 export type StandaloneData = {
 	code: StandaloneCode;
@@ -24,30 +36,30 @@ export function showStandalonePage(
 	data: StandaloneData
 ): void {
 	const { includeSourceResolutions, includeResolutions } = data.code;
-	function resolveIncludeToStdFilename(
-		includingFile: string,
+	function resolveIncludeToFileID(
+		includingFile: StringFileID,
 		includeOperand: string
-	): string | null {
-		if (includeResolutions === null) {
-			return includeOperand;
-		} else {
-			const relevantTriple = includeResolutions.find(
-				(val) => val[0] === includingFile && val[1] === includeOperand
+	): StringFileID | null {
+		const relevantTriple = includeResolutions.find(
+			(val) => val[0] === includingFile && val[1] === includeOperand
+		);
+		if (relevantTriple === undefined) {
+			console.error(
+				`Unexpectedly could not resolve include in ${fileIDToHumanFriendly(
+					includingFile
+				)} operand "${includeOperand}" to fileID`
 			);
-			if (relevantTriple === undefined) {
-				console.error(
-					`Unexpectedly could not resolve include in "${includingFile}" operand "${includeOperand}" to standardized filename`
-				);
-				return null;
-			}
-			return relevantTriple[2];
+			return null;
 		}
+		return relevantTriple[2];
 	}
-	function getParseInput(filename: string): ParseInput<false> | null {
+	function getParseInput(
+		fileID: StringFileID
+	): ParseInput<StringFileID, false> | null {
 		return {
-			filename,
-			source: includeSourceResolutions[filename],
-			resolveIncludeToStdFilename: resolveIncludeToStdFilename,
+			filename: fileID,
+			source: includeSourceResolutions[fileID],
+			resolveIncludeToFileID: resolveIncludeToFileID,
 			resolveInclude: getParseInput,
 		};
 	}

@@ -1,10 +1,17 @@
 import * as ide from ".";
+import {
+	FileID,
+	fileIDToHumanFriendly,
+	isLoadableFileID,
+	LoadableFileID,
+	splitFileIDAtColon,
+} from "../../lang/parser";
 import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
 import { EditorController, NavigationRequest } from "./editor-controller";
 
 interface SavedEditorCollectionState {
-	open: string[];
-	active: string | null;
+	open: LoadableFileID[];
+	active: LoadableFileID | null;
 }
 
 /**
@@ -43,7 +50,7 @@ export class EditorCollection {
 	}
 
 	/** find an editor controller by (file) name */
-	getEditor(name: string): EditorController | null {
+	getEditor(name: FileID): EditorController | null {
 		return this.#editors.find((c) => c.filename === name) ?? null;
 	}
 
@@ -54,9 +61,13 @@ export class EditorCollection {
 
 	/** get state for saving */
 	getSerializedState(): SavedEditorCollectionState {
+		const activeFile = this.#active?.filename;
 		return {
-			open: this.#editors.map((c) => c.filename),
-			active: this.#active?.filename ?? null,
+			open: this.#editors.map((c) => c.filename).filter(isLoadableFileID),
+			active:
+				activeFile !== undefined && isLoadableFileID(activeFile)
+					? activeFile
+					: null,
 		};
 	}
 
@@ -92,11 +103,12 @@ export class EditorCollection {
 		this.onStateChanged();
 	}
 
-	#updateActiveFilename(filename: string | null) {
+	#updateActiveFilename(filename: FileID | null) {
 		if (ide.panel_editor) {
-			ide.panel_editor.title = filename;
+			const title = filename ? fileIDToHumanFriendly(filename) : null;
+			ide.panel_editor.title = title;
 			ide.panel_editor.titlebar.innerText =
-				filename !== null ? "Editor \u2014 " + filename : "Editor";
+				filename !== null ? "Editor \u2014 " + title : "Editor";
 		}
 	}
 
@@ -108,14 +120,15 @@ export class EditorCollection {
 	 * @returns the editor controller or `null` if the file doesn't exist
 	 */
 	openEditorFromFile(
-		filename: string,
+		filename: LoadableFileID,
 		navigateTo?: NavigationRequest
 	): EditorController | null {
 		let controller = this.getEditor(filename);
 		if (controller) {
 			this.#setActiveEditor(controller);
 		} else {
-			const text = localStorage.getItem("tscript.code." + filename);
+			const [_, suffix] = splitFileIDAtColon(filename);
+			const text = localStorage.getItem("tscript.code." + suffix);
 			if (text !== null) {
 				controller = this.openEditorFromData(filename, text);
 			}
@@ -133,7 +146,7 @@ export class EditorCollection {
 	 *
 	 * @returns the created {@link EditorController}
 	 */
-	openEditorFromData(filename: string, text: string): EditorController {
+	openEditorFromData(filename: FileID, text: string): EditorController {
 		// close an existing Editor for this file
 		this.getEditor(filename)?.close();
 
