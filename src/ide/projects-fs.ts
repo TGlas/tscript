@@ -41,6 +41,10 @@ export function getCurrentProject(): string | undefined {
 	return currentProjectValue;
 }
 
+export function simplifyPath(path: string): string {
+	return path.replaceAll(/\/+/g, "/").replace(/\/$/, "");
+}
+
 /**
  * Loads the project with name projectName by calling all registered listeners
  * (via addListenerOnChangeProject).

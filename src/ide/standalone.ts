@@ -1,4 +1,11 @@
-import { ParseInput, parseProgram, StandardizedFilename } from "../lang/parser";
+import {
+	ParseInput,
+	parseProgram,
+	FileID,
+	StringFileID,
+	fileIDToContextDependentFilename,
+	splitFileIDAtColon,
+} from "../lang/parser";
 import { IncludeResolutionList } from "./elements";
 import {
 	createCanvas,
@@ -8,14 +15,14 @@ import {
 
 export type StandaloneCode = {
 	/** map from standardized filenames to their contents */
-	includeSourceResolutions: Record<StandardizedFilename, string>;
+	includeSourceResolutions: Record<StringFileID, string>;
 	/**
 	 * triples [includingFile, includeOperand, stdFilename], where stdFilename
 	 * is in the key set of includeSourceResolutions.
 	 */
-	includeResolutions: IncludeResolutionList | null;
+	includeResolutions: IncludeResolutionList;
 	/** standardized filename of entry point file */
-	main: StandardizedFilename;
+	main: FileID;
 };
 export type StandaloneData = {
 	code: StandaloneCode;
@@ -27,36 +34,33 @@ export function showStandalonePage(
 	data: StandaloneData
 ): void {
 	const { includeSourceResolutions, includeResolutions } = data.code;
-	function resolveIncludeToStdFilename(
-		includingFile: StandardizedFilename,
+	function resolveIncludeToFileID(
+		includingFile: StringFileID,
 		includeOperand: string
-	): StandardizedFilename | null {
-		if (includeResolutions === null) {
-			return includeOperand as StandardizedFilename;
-		} else {
-			const relevantTriple = includeResolutions.find(
-				(val) => val[0] === includingFile && val[1] === includeOperand
+	): StringFileID | null {
+		const relevantTriple = includeResolutions.find(
+			(val) => val[0] === includingFile && val[1] === includeOperand
+		);
+		if (relevantTriple === undefined) {
+			console.error(
+				`Unexpectedly could not resolve include in "${includingFile}" operand "${includeOperand}" to standardized filename`
 			);
-			if (relevantTriple === undefined) {
-				console.error(
-					`Unexpectedly could not resolve include in "${includingFile}" operand "${includeOperand}" to standardized filename`
-				);
-				return null;
-			}
-			return relevantTriple[2];
+			return null;
 		}
+		fileIDToContextDependentFilename;
+		return relevantTriple[2];
 	}
 	function getParseInput(
-		filename: StandardizedFilename
-	): ParseInput<false> | null {
+		fileID: StringFileID
+	): ParseInput<StringFileID, false> | null {
 		return {
-			filename,
-			source: includeSourceResolutions[filename],
-			resolveIncludeToStdFilename: resolveIncludeToStdFilename,
+			filename: fileID,
+			source: includeSourceResolutions[fileID],
+			resolveIncludeToFileID: resolveIncludeToFileID,
 			resolveInclude: getParseInput,
 		};
 	}
-	const mainFile = getParseInput(data.code.main);
+	const mainFile = getParseInput(`string:${data.code.main}`);
 	if (!mainFile) {
 		console.error("Could not get parse input of main file");
 		return; // This has been validated on export

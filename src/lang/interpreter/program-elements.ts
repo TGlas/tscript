@@ -1,4 +1,4 @@
-import { ParserPosition, StandardizedFilename } from "../parser";
+import { ParserPosition, FileID } from "../parser";
 import { Interpreter } from "./interpreter";
 
 interface ProgramElementBase<Type extends string> {
@@ -45,7 +45,7 @@ export interface ProgramRoot extends ProgramElementBase<"global scope"> {
 	/** mapping of index to name */
 	variables: string[];
 	/** mapping of line numbers to breakpoints (some lines do not have breakpoints) */
-	breakpoints: Record<StandardizedFilename, Record<number, Breakpoint>>;
+	breakpoints: Record<FileID, Record<number, Breakpoint>>;
 	/** total number of lines in the program = maximal line number */
 	lines: number;
 }

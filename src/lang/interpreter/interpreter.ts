@@ -3,6 +3,7 @@ import { RuntimeError } from "../errors/RuntimeError";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { ProgramRoot } from "./program-elements";
+import { FileID } from "../parser";
 
 export interface InterpreterOptions {
 	/** @default 10000 */
@@ -478,7 +479,7 @@ export class Interpreter {
 	//   active: boolean,    // is the breakpoint active after the action?
 	// }
 	// If no valid position can be found then the function returns null.
-	public toggleBreakpoint(line, filename) {
+	public toggleBreakpoint(line, filename: FileID) {
 		const breakpoints = this.program.breakpoints[filename];
 
 		while (line <= this.program.lines) {

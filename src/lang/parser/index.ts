@@ -13,7 +13,7 @@ import { parse_include } from "./parse_include";
 
 export interface ParserPosition {
 	/** filename or null */
-	filename: StandardizedFilename | null;
+	filename: FileID | null;
 
 	/** zero-based position in the source code string */
 	pos: number;
@@ -68,7 +68,7 @@ export interface ParserState extends ParserPosition {
 		this: ParserState,
 		source: string,
 		impl?: object | null,
-		filename?: StandardizedFilename | null
+		filename?: FileID | null
 	): void;
 
 	/** @returns Whether there is text to parse and no errors have occurred */
@@ -141,13 +141,64 @@ export const defaultParseOptions: ParseOptions = {
 };
 
 /**
- * The thing on the right doesn't actually exist and is only meant to
- * distinguish this type from regular strings. See ParseInput on what
- * standardized filenames are.
+ * Namespaces used as the prefix in FileID. "string" is used for inputs that
+ * aren't attached to a file, as in parseProgramFromString.
+ *
+ * project: The corresponding FileID suffix (part after :) is
+ *		`${projectName}${projectAbsolutePath}`, where projectAbsolutePath
+ *		is the with simplifyPath normalized absolute path (where the
+ *		project directory is taken to be the root "/")
+ * localstorage: The corresponding FileID suffix is just the name of the "file"
+ * string: The corresponding FileID suffix should be the context dependent
+ *		filename as returned by fileIDToContextDependentFilename.
  */
-export type StandardizedFilename = string & {
-	__standardized_filename_pseudo_attribute: undefined;
-};
+export const fileIDNamespaces = ["project", "localstorage", "string"] as const;
+export type FileIDNamespace = (typeof fileIDNamespaces)[number];
+
+export type ProjectFileID = `project:${string}`;
+export type StringFileID = `string:${string}`;
+export type LocalStorageFileID = `localstorage:${string}`;
+export type FileID = ProjectFileID | StringFileID | LocalStorageFileID;
+
+/**
+ * Given a file id, returns a string that unambiguously represents that file to
+ * the user:
+ *	- within the localStorage if the fileID represents a file in localStorage
+ *	- within the project if the fileID represents a file in a project
+ * For fileIDs starting with "string", it just returns the file id suffix after
+ * ":".
+ */
+export function fileIDToContextDependentFilename(fileID: FileID): string {
+	const [ns, suffix] = splitFileIDAtColon(fileID);
+	switch (ns) {
+		case "localstorage":
+			return suffix;
+		case "project":
+			return projectFileIDToProjAbsPath(fileID as `project:${string}`);
+		case "string":
+			return suffix;
+	}
+}
+
+export function splitFileIDAtColon(fileID: FileID): [FileIDNamespace, string] {
+	const ns = fileID.split(":", 1)[0] as FileIDNamespace;
+	const suffix = fileID.slice(ns.length + 1);
+	return [ns, suffix];
+}
+
+export function projectFileIDToProjAbsPath(fileID: ProjectFileID): string {
+	const [_, suffix] = splitFileIDAtColon(fileID);
+	const projectName = suffix.split("/", 1)[0];
+	return suffix.slice(projectName.length);
+}
+
+export function fileIDChangeNamespace<FileIDNamespaceT extends FileIDNamespace>(
+	fileID: FileID,
+	namespace: FileIDNamespaceT
+): `${FileIDNamespaceT}:${string}` {
+	const [_, suffix] = splitFileIDAtColon(fileID);
+	return `${namespace}:${suffix}`;
+}
 
 /**
  * If `AllowWait` is `false`, evaluates to `T`; if `AllowWait` is `true`,
@@ -159,41 +210,35 @@ export type ConditionallyIncludePromisified<T, AllowAwait extends boolean> =
 /**
  * @param AllowAwait If true, resolveInclude may also return Promise
  */
-export interface ParseInput<AllowAwait extends boolean = true> {
-	/**
-	 * standardized filename as returned by
-	 * ParseInput.resolveIncludeToStdFilename. Also used in user output.
-	 */
-	filename: StandardizedFilename;
+export interface ParseInput<
+	FileIDT extends FileID = FileID,
+	AllowAwait extends boolean = true
+> {
+	/** file id as returned by ParseInput.resolveIncludeToFileID. */
+	filename: FileIDT;
 	/** file content / source code associated with this ParseInput */
 	source: string;
 
 	/**
-	 * Resolve an include statement to a standardized filename. If not
-	 * specified, the mapping `(includeFile, includeOperand) => includeOperand`
-	 * is used.
+	 * Resolve an include statement to a FileID.
 	 *
 	 * @param includingFile `ParseInput.filename` of the file where the include
 	 * statement occured
 	 * @param includeOperand the filename as specified in the include statement
-	 * @returns the standardized filename or `null` if could not be resolved
+	 * @returns the FileID or `null` if could not be resolved
 	 */
-	resolveIncludeToStdFilename?: (
-		includingFile: StandardizedFilename,
+	resolveIncludeToFileID: (
+		includingFile: FileIDT,
 		includeOperand: string
-	) => StandardizedFilename | null;
+	) => FileIDT | null;
 
 	/**
-	 * Given a standardized filename for an include as returned by
-	 * `ParseInput.resolveIncludeToStdFilename`, return corresponding
+	 * Given a FileID for an include, return corresponding
 	 * `ParseInput`, or `null` to signal that it is invalid.
 	 */
 	resolveInclude(
-		stdFilename: StandardizedFilename
-	): ConditionallyIncludePromisified<
-		ParseInput<AllowAwait> | null,
-		AllowAwait
-	>;
+		fileID: FileIDT
+	): ConditionallyIncludePromisified<this | null, AllowAwait>;
 }
 
 export interface ParseResult {
@@ -208,9 +253,10 @@ export function parseProgramFromString(
 ): ParseResult {
 	return parseProgram(
 		{
-			filename: "main" as StandardizedFilename,
+			filename: "string:main",
 			source,
 			resolveInclude: () => null,
+			resolveIncludeToFileID: () => null,
 		},
 		false,
 		options
@@ -223,18 +269,21 @@ export function parseProgramFromString(
  * promise. true by default.
  * @param options `defaultParseOptions` by default
  */
-export function parseProgram<AllowAwait extends boolean = true>(
-	mainInput: ParseInput<AllowAwait>,
+export function parseProgram<
+	ParseInputT extends ParseInput<any, AllowAwait>,
+	AllowAwait extends boolean
+>(
+	mainInput: ParseInputT,
 	allowAwait: AllowAwait,
 	options?: ParseOptions
 ): AllowAwait extends true ? Promise<ParseResult> : ParseResult;
-export function parseProgram(
-	mainInput: ParseInput<any>,
+export function parseProgram<FileIDT extends FileID>(
+	mainInput: ParseInput<FileIDT, any>,
 	allowAwait: boolean = true,
 	options: ParseOptions = defaultParseOptions
 ): Promise<ParseResult> | ParseResult {
 	/** List of filenames of all included ParseInputs */
-	const includedFiles = new Set<StandardizedFilename>();
+	const includedFiles = new Set<FileIDT>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
 	const program = createEmptyProgram();
@@ -247,7 +296,7 @@ export function parseProgram(
 	function parseString(
 		source: string,
 		impl: any = null,
-		filename: StandardizedFilename | null = null
+		filename: FileIDT | null = null
 	) {
 		state.setSource(source, impl, filename);
 		while (state.good()) {
@@ -276,7 +325,7 @@ export function parseProgram(
 	 * of the operand, thus making yields in parseFileGenerator equivalent to
 	 * awaits.
 	 */
-	function parseFile(file: ParseInput<any>) {
+	function parseFile(file: ParseInput<FileIDT, any>) {
 		const gen = parseFileGenerator(file);
 		// let yield expressions always evaluate to its operand
 		for (let e = gen.next(); !e.done; e = gen.next(e.value)) {
@@ -285,7 +334,9 @@ export function parseProgram(
 			}
 		}
 	}
-	async function parseFileAsync(file: ParseInput<any>): Promise<void> {
+	async function parseFileAsync(
+		file: ParseInput<FileIDT, any>
+	): Promise<void> {
 		const gen = parseFileGenerator(file);
 		let e = gen.next();
 		while (!e.done) {
@@ -301,9 +352,11 @@ export function parseProgram(
 	 * is a promise.
 	 */
 	function* parseFileGenerator(
-		file: ParseInput<any>
+		file: ParseInput<FileIDT, any>
 	): Generator<
-		ParseInput | null | Promise<ParseInput | null>,
+		| ParseInput<FileIDT, any>
+		| null
+		| Promise<ParseInput<FileIDT, any> | null>,
 		void,
 		ParseInput<any> | null
 	> {
@@ -318,27 +371,22 @@ export function parseProgram(
 				continue;
 			}
 
-			let targetFilename: StandardizedFilename | null;
-			if (file.resolveIncludeToStdFilename) {
-				targetFilename = file.resolveIncludeToStdFilename(
-					file.filename,
-					inc.filename
-				);
-			} else {
-				targetFilename = inc.filename as StandardizedFilename;
-			}
-			if (targetFilename === null) {
+			const targetFileID = file.resolveIncludeToFileID(
+				file.filename,
+				inc.filename
+			);
+			if (targetFileID === null) {
 				// the include could not be resolved
 				state.set(inc.position);
 				state.error("/argument-mismatch/am-48", [inc.filename]);
 				return;
 			}
 
-			if (includedFiles.has(targetFilename)) {
+			if (includedFiles.has(targetFileID)) {
 				continue;
 			}
 
-			const targetFile = yield file.resolveInclude(targetFilename);
+			const targetFile = yield file.resolveInclude(targetFileID);
 			if (targetFile === null) {
 				// the file was not found
 				state.set(inc.position);
@@ -505,7 +553,7 @@ const createParserState = (
 	setSource(
 		source: string,
 		impl: any = null,
-		filename: StandardizedFilename | null = null
+		filename: FileID | null = null
 	) {
 		this.source = source;
 		this.impl = impl;

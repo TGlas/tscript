@@ -3,7 +3,13 @@ import { ProgramRoot } from "../../lang/interpreter/program-elements";
 import {
 	ParseInput,
 	parseProgram,
-	StandardizedFilename,
+	FileID,
+	ProjectFileID,
+	projectFileIDToProjAbsPath,
+	LocalStorageFileID,
+	StringFileID,
+	fileIDChangeNamespace,
+	splitFileIDAtColon,
 } from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
@@ -24,12 +30,13 @@ import {
 	createIDEInterpreter,
 	createTurtle,
 } from "./create-interpreter";
+import { FileTree, fileTreePathToProjectNameFileName } from "./file-tree";
 import {
-	FileTree,
-	fileTreePathToProjectNameFileName,
+	getProjectPath,
+	projectsFSP,
+	setCurrentProject,
 	simplifyPath,
-} from "./file-tree";
-import { getProjectPath, projectsFSP, setCurrentProject } from "../projects-fs";
+} from "../projects-fs";
 import Path from "@isomorphic-git/lightning-fs/src/path";
 
 export { createEditorTab };
@@ -158,39 +165,37 @@ export function clear() {
 	tgui.clearElement(messages);
 }
 
-export type IncludeResolutionList = [
-	StandardizedFilename,
-	string,
-	StandardizedFilename
-][];
+export type IncludeResolutionList = [StringFileID, string, StringFileID][];
 
 /** @see createParseInput */
 export type ParseInputIncludeSpecification = {
-	parseInput: ParseInput;
-	includeResolutions: IncludeResolutionList | null;
-	includeSourceResolutions: Map<StandardizedFilename, string>;
+	includeResolutions: IncludeResolutionList;
+	includeSourceResolutions: Map<StringFileID, string>;
 };
 
 async function createParseInputProject(
 	projectName: string,
 	entryFilename: string
-): Promise<ParseInputIncludeSpecification | null> {
+): Promise<
+	[ParseInput<ProjectFileID, true>, ParseInputIncludeSpecification] | null
+> {
 	const includeResolutions: IncludeResolutionList = [];
-	const includeSourceResolutions: Map<StandardizedFilename, string> =
-		new Map();
+	const includeSourceResolutions: Map<StringFileID, string> = new Map();
 	const projectPath = getProjectPath(projectName);
 
 	/**
-	 * A standardized filename for project is the project-absolute path
-	 * (i.e. absolute path without the project prefix)
-	 * @param includingFile `null` to signal that this wasn't an actual include
+	 * @param includingFileID `null` to signal that this wasn't an actual include
 	 */
-	const resolveIncludeToStdFilename = (
-		includingFile: StandardizedFilename | null,
+	const resolveIncludeToFileID = (
+		includingFileID: ProjectFileID | null,
 		includeOperand: string
-	): StandardizedFilename | null => {
+	): ProjectFileID | null => {
+		const includingAbs =
+			includingFileID === null
+				? null
+				: projectFileIDToProjAbsPath(includingFileID);
 		const dirname =
-			includingFile === null ? "/" : Path.dirname(includingFile);
+			includingAbs === null ? "/" : Path.dirname(includingAbs);
 
 		let resolved: string;
 		try {
@@ -201,11 +206,12 @@ async function createParseInputProject(
 		}
 		// simplifyPath for removing trailing "/"
 		resolved = simplifyPath(resolved);
-		if (includingFile !== null) {
+		const fileIDSuffix = `${projectName}${resolved}`;
+		if (includingFileID !== null) {
 			const newEntry: IncludeResolutionList[0] = [
-				includingFile,
+				fileIDChangeNamespace(includingFileID, "string"),
 				includeOperand,
-				resolved as StandardizedFilename,
+				`string:${fileIDSuffix}`,
 			];
 			if (
 				!includeResolutions.some((e) =>
@@ -216,20 +222,25 @@ async function createParseInputProject(
 				includeResolutions.push(newEntry);
 			}
 		}
-		return resolved as StandardizedFilename;
+		return `project:${fileIDSuffix}`;
 	};
 
 	const resolveInclude = async (
-		stdFilename: StandardizedFilename
-	): Promise<ParseInput<true> | null> => {
-		const editor = collection.getEditor(Path.basename(stdFilename));
+		fileID: ProjectFileID
+	): Promise<ParseInput<ProjectFileID, true> | null> => {
+		const projAbsPath = projectFileIDToProjAbsPath(fileID);
+		const editor = collection.getEditor(Path.basename(projAbsPath));
 		if (editor && editor.properties().fileTreePath) {
 			// is actually the relevant tab
-			includeSourceResolutions.set(stdFilename, editor.text());
+			const source = editor.text();
+			includeSourceResolutions.set(
+				fileIDChangeNamespace(fileID, "string"),
+				source
+			);
 			return {
-				source: editor.text(),
-				filename: stdFilename,
-				resolveIncludeToStdFilename: resolveIncludeToStdFilename,
+				source,
+				filename: fileID,
+				resolveIncludeToFileID,
 				resolveInclude,
 			};
 		}
@@ -237,7 +248,7 @@ async function createParseInputProject(
 		let readRes: string | undefined; // undefined if dir
 		try {
 			readRes = (await projectsFSP.readFile(
-				Path.join(projectPath, stdFilename),
+				Path.join(projectPath, projAbsPath),
 				{ encoding: "utf8" }
 			)) as string | undefined;
 		} catch (e: any) {
@@ -255,72 +266,95 @@ async function createParseInputProject(
 		if (readRes === undefined) {
 			return null;
 		} else {
-			includeSourceResolutions.set(stdFilename, readRes);
+			includeSourceResolutions.set(
+				fileIDChangeNamespace(fileID, "string"),
+				readRes
+			);
 			return {
 				source: readRes,
-				filename: stdFilename,
+				filename: fileID,
 				resolveInclude,
-				resolveIncludeToStdFilename,
+				resolveIncludeToFileID,
 			};
 		}
 	};
 
-	const entryStdFilename = resolveIncludeToStdFilename(null, entryFilename);
+	const entryStdFilename = resolveIncludeToFileID(null, entryFilename);
 	if (entryStdFilename === null) return null;
 	const mainParseInput = await resolveInclude(entryStdFilename);
 	if (mainParseInput === null) return null;
-	return {
-		parseInput: mainParseInput,
-		includeResolutions,
-		includeSourceResolutions,
-	};
+	return [
+		mainParseInput,
+		{
+			includeResolutions,
+			includeSourceResolutions,
+		},
+	];
 }
 
 function createParseInputLocalStorage(
 	entryFilename: string
-): ParseInputIncludeSpecification | null {
-	const includeSourceResolutions: Map<StandardizedFilename, string> =
-		new Map();
+): [ParseInput<LocalStorageFileID>, ParseInputIncludeSpecification] | null {
+	const includeSourceResolutions: Map<StringFileID, string> = new Map();
+	const includeResolutions: [StringFileID, string, StringFileID][] = [];
 
+	const resolveIncludeToFileID = (
+		includingFile: LocalStorageFileID,
+		includeOperand: string
+	): LocalStorageFileID => {
+		includeResolutions.push([
+			fileIDChangeNamespace(includingFile, "string"),
+			includeOperand,
+			`string:${includeOperand}`,
+		]);
+		return `localstorage:${includeOperand}`;
+	};
 	const resolveInclude = (
-		filename: StandardizedFilename
-	): ParseInput | null => {
+		fileID: LocalStorageFileID
+	): ParseInput<LocalStorageFileID, true> | null => {
+		const filename = splitFileIDAtColon(fileID)[1];
 		const source =
 			collection.getEditor(filename)?.text() ??
 			localStorage.getItem(`tscript.code.${filename}`);
 		if (source === null) return null;
-		includeSourceResolutions.set(filename, source);
-		return { source, filename, resolveInclude };
+		includeSourceResolutions.set(
+			fileIDChangeNamespace(fileID, "string"),
+			source
+		);
+		return {
+			source,
+			filename: fileID,
+			resolveInclude,
+			resolveIncludeToFileID,
+		};
 	};
 
-	const mainParseInput = resolveInclude(
-		entryFilename as StandardizedFilename
-	);
+	const mainParseInput = resolveInclude(`localstorage:${entryFilename}`);
 	if (mainParseInput === null) return null;
-	return {
-		parseInput: mainParseInput,
-		includeSourceResolutions,
-		includeResolutions: null,
-	};
+	return [mainParseInput, { includeSourceResolutions, includeResolutions }];
 }
 
 /**
  * Create ParseInput from the current editors
  *
- * @returns
- *	- `parseInput`: a ParseInput object
- *	- `includeResolutions`: array of triples `[includingFile, includeOperand,
+ * @returns `[parseInput, spec]`, where
+ *	- `spec.includeResolutions`: array of triples `[includingFile, includeOperand,
  *		resolvedFilename]`, meaning that that in `includingFile`, an include with
- *		operand `includeOperand` resolves to the file `resolvedFilename`. null
- *		if resolutions weren't used (i.e. the includeOperand is always the same
- *		as the resolvedFilename)
- *	- `includeSourceResolutions`: Map from resolved filenames (third entry in
+ *		operand `includeOperand` resolves to the file `resolvedFilename`.
+ *	- `spec.includeSourceResolutions`: Map from resolved filenames (third entry in
  *		includeResolutions triples) to their sources
  *	or null if the current run selection could not be resolved.
  *	`includeResolutions` and `includeSourceResolutions` will only be filled once
- *	`parseInput` is actually parsed.
+ *	`parseInput` is actually parsed. The FileIDs under `spec` have the "string"
+ *	namespace, regardless of the actual namespace the original files came from.
  */
-export async function createParseInput(): Promise<ParseInputIncludeSpecification | null> {
+export async function createParseInput(): Promise<
+	| [
+			ParseInput<ProjectFileID> | ParseInput<LocalStorageFileID>,
+			ParseInputIncludeSpecification
+	  ]
+	| null
+> {
 	const selection = getRunSelection();
 	const editor = collection.getEditor(selection);
 	if (editor && editor.properties().fileTreePath) {
@@ -344,7 +378,7 @@ export async function createParseInput(): Promise<ParseInputIncludeSpecification
 export async function prepareRun(
 	onPrepared: (session: InterpreterSession | null) => void
 ): Promise<void> {
-	const parseInput = (await createParseInput())?.parseInput;
+	const parseInput = (await createParseInput())?.[0];
 	if (!parseInput) {
 		onPrepared(null);
 		return;

@@ -12,6 +12,7 @@ import {
 	projectsFSP,
 	rmdirRecursive,
 	tryCreateProject,
+	simplifyPath,
 } from "../projects-fs";
 import { createEditorTab, updateTabTitle } from "./editor-tabs";
 import { collection, filetree } from "./index";
@@ -162,10 +163,6 @@ function renameFilePathsInEditors(oldPath: string, newPath: string) {
 		);
 	}
 	return;
-}
-
-export function simplifyPath(path: string): string {
-	return path.replaceAll(/\/+/g, "/").replace(/\/$/, "");
 }
 
 export function fileTreePathToProjectNameFileName(fileTreePath: string): {
