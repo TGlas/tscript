@@ -4,11 +4,31 @@ import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
 import { saveConfig } from "./dialogs";
 import { updateStatus } from "./utils";
 
+/** type of Editor.properties() for editors in EditorCollection */
+export type EditorIDEProps = {
+	/** html element containing editor */
+	tab: HTMLDivElement;
+	/** Option in the run selector */
+	runoption: HTMLOptionElement;
+	/** (file) name associated with editor */
+	name: string;
+	/**
+	 * absolute path (with project directory as root) if from a project, null
+	 * otherwise
+	 */
+	fileTreePath: string | null;
+	/** Set of lines on which there is a breakpoint */
+	breakpoints: Set<number>;
+	toggleBreakpoint: (line: number) => void;
+};
+
+export type EditorIDE = Editor<EditorIDEProps>;
+
 // This class collects all editor instances of the multi-document IDE.
 // It keeps track of the currently "active" document.
 export class EditorCollection {
-	private editors: Set<Editor> = new Set<Editor>();
-	private active: Editor | null = null;
+	private editors: Set<EditorIDE> = new Set<EditorIDE>();
+	private active: EditorIDE | null = null;
 
 	public constructor() {
 		subscribeOnThemeChange(() => {
@@ -23,20 +43,20 @@ export class EditorCollection {
 	}
 
 	// find an editor by (file) name
-	public getEditor(name: string): Editor | null {
+	public getEditor(name: string): EditorIDE | null {
 		for (let ed of this.editors)
 			if (ed.properties().name === name) return ed;
 		return null;
 	}
 
 	// find an editor by the associated tab
-	public getEditorByTab(tab: any): Editor | null {
+	public getEditorByTab(tab: any): EditorIDE | null {
 		for (let ed of this.editors) if (ed.properties().tab === tab) return ed;
 		return null;
 	}
 
 	// obtain the currently active editor
-	public getActiveEditor(): Editor | null {
+	public getActiveEditor(): EditorIDE | null {
 		return this.active;
 	}
 
@@ -47,7 +67,7 @@ export class EditorCollection {
 		return a;
 	}
 
-	public setActiveEditor(ed: Editor | null, save_config: boolean = true) {
+	public setActiveEditor(ed: EditorIDE | null, save_config: boolean = true) {
 		if (ed === this.active) return;
 
 		let active = ide.collection.getActiveEditor();
@@ -93,7 +113,7 @@ export class EditorCollection {
 				"[collection] internal error: duplicate filename '" + name + "'"
 			);
 
-		let ed = new Editor({
+		let ed = new Editor<EditorIDEProps>({
 			language: "tscript",
 			text: text ?? "",
 		});
@@ -110,7 +130,7 @@ export class EditorCollection {
 					// ask the interpreter for the correct position of the marker
 					let result = ide.interpreter.toggleBreakpoint(
 						line + 1,
-						ed.properties().name
+						ed.properties().name as any // TODO
 					);
 					if (result !== null) {
 						line = result.line - 1;
@@ -152,7 +172,7 @@ export class EditorCollection {
 			if (line !== null) {
 				// change breakpoints
 				let br = ed.properties().breakpoints;
-				let new_br = new Set();
+				let new_br = new Set<number>();
 				for (let b of br) {
 					if (b < line) new_br.add(b);
 					else if (b >= line + removed)

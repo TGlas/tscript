@@ -46,8 +46,8 @@ const defaultKeyBindings = new Map<string, KeyCommand>([
 // management objects) together. It refers to exactly one document in a
 // fixed language for syntax highlighting. Its main job is to process
 // events and to forward resulting actions to the document.
-export class Editor {
-	private document: Document;
+export class Editor<PropertyT extends object> {
+	private document: Document<PropertyT>;
 	private readOnly: boolean;
 	private themeName: ThemeName;
 	/** assigned by {@link applyColorTheme} */
@@ -774,8 +774,8 @@ export class Editor {
 	// of the core editor itself, but linked to it by the
 	// application. In the IDE, it is used for the filename, the
 	// panel ID, and for managing breakpoints.
-	public properties() {
-		return this.document.properties;
+	public properties(): PropertyT {
+		return this.document.properties as PropertyT;
 	}
 
 	// Recalculate element sizes based on document changes. This affects
