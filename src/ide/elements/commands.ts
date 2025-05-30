@@ -95,6 +95,11 @@ function cmd_reset() {
 	ide.clear();
 }
 
+export function existsActiveSession(): boolean {
+	let session = ide.interpreterSession;
+	return session !== null && !interpreterEnded(session.interpreter);
+}
+
 /**
  * Gets the active interpreter session or creates a new one if no program is running
  */
@@ -131,7 +136,7 @@ async function cmd_step_out() {
 
 export async function cmd_export() {
 	const parsedFiles = new Map<string, ParseInput>();
-	const parseInput = ide.createParseInput(parsedFiles);
+	const parseInput = await ide.createParseInput(parsedFiles);
 	if (!parseInput) return;
 
 	// check that the code at least compiles

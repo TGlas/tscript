@@ -6,7 +6,13 @@ import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
 import { EditorCollection } from "./collection";
-import { buttons, cmd_download, cmd_export, cmd_upload } from "./commands";
+import {
+	buttons,
+	cmd_download,
+	cmd_export,
+	cmd_upload,
+	existsActiveSession,
+} from "./commands";
 import {
 	createCanvas,
 	createIDEInterpreter,
@@ -175,6 +181,10 @@ export async function prepareRun(): Promise<InterpreterSession | null> {
 	const { program, errors } = await parseProgram(parseInput, parseOptions);
 
 	// everything after that should ideally be synchronous
+	if (existsActiveSession()) {
+		return null;
+	}
+
 	clear();
 	for (const err of errors) {
 		addMessage(
