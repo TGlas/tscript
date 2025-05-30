@@ -13,12 +13,27 @@ import {
 	rmdirRecursive,
 	tryCreateProject,
 	simplifyPath,
+	readFileContent,
 } from "../projects-fs";
-import { createEditorTab, updateTabTitle } from "./editor-tabs";
+import {
+	closeEditor,
+	closeProjectEditorTabsRecursively,
+	createEditorTab,
+	openEditorFromProjectFS,
+	updateTabTitle,
+} from "./editor-tabs";
 import { collection, filetree } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
-import { msgBox } from "../tgui";
+import { errorMsgBox, msgBox } from "../tgui";
 import Path from "@isomorphic-git/lightning-fs/src/path";
+import {
+	fileIDHasNamespace,
+	fileIDNamespaces,
+	ProjectFileID,
+	projectFileIDToProjAbsPath,
+	projectFileIDTripleSplit,
+	splitFileIDAtColon,
+} from "../../lang/parser";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -36,18 +51,6 @@ type FileTreeNode = {
 function formatPath(node: FileTreeNode, basename: boolean = false): string {
 	const str = basename ? node.basename : node.path;
 	return node.type === "dir" ? str + "/" : str;
-}
-
-async function readFileContent(filePath: string): Promise<string> {
-	try {
-		const fileContent = await projectsFSP.readFile(filePath, {
-			encoding: "utf8",
-		});
-		return fileContent.toString();
-	} catch (error) {
-		console.error(`path: ${filePath}, Error reading file:`, error);
-		return "";
-	}
 }
 
 async function createMissingDirectories(fileTreePath: string) {
@@ -77,9 +80,11 @@ async function createMissingDirectories(fileTreePath: string) {
 }
 
 export async function saveFileTreeFile(
-	fileTreePath: string,
+	fileID: ProjectFileID,
 	editorContent: string
 ) {
+	const [_, projName, projAbsPath] = projectFileIDTripleSplit(fileID);
+	const fileTreePath = Path.join(getProjectPath(projName), projAbsPath);
 	if (!(await pathExists(fileTreePath))) {
 		let modal = tgui.createModal({
 			title: "File not present in file tree anymore",
@@ -89,11 +94,7 @@ export async function saveFileTreeFile(
 				{
 					text: "Delete",
 					onClick: () => {
-						collection.closeEditor(
-							fileTreePath.slice(
-								fileTreePath.lastIndexOf("/") + 1
-							)
-						);
+						collection.closeEditor(fileID);
 						return;
 					},
 				},
@@ -132,35 +133,33 @@ export async function saveFileTreeFile(
 	await filetree.refresh();
 }
 
-function renameFilePathsInEditors(oldPath: string, newPath: string) {
+function renameFilePathsInEditors(
+	projectName: string,
+	oldPath: string,
+	newPath: string
+) {
 	const eds = collection.getEditors();
 	for (const ed of eds) {
-		const curPath = ed.properties().fileTreePath;
-		if (!curPath) {
-			// editor not from file tree project
+		const edFileID = ed.properties().name;
+		if (!fileIDHasNamespace(edFileID, "project")) {
+			continue;
+		}
+		const [_, edProjName, curPath] = projectFileIDTripleSplit(edFileID);
+		if (edProjName !== projectName) {
 			continue;
 		}
 		if (curPath === oldPath) {
 			// This editors file has been renamedS
-			const newFileName = newPath.slice(newPath.lastIndexOf("/") + 1);
-			ed.properties().fileTreePath = newPath;
-			ed.properties().name = newFileName;
-			updateTabTitle(ed, newFileName);
-		}
-		if (curPath.length <= oldPath.length) {
-			// length of renamed path is longer, it cannot be this file or an ancestor
+			ed.properties().name = `project:${projectName}${newPath}`;
+			updateTabTitle(ed, Path.basename(newPath));
+		} else if (curPath.startsWith(oldPath + "/")) {
+			// renamed ancestor directory of editor file
+			const newEdPath = Path.join(newPath, curPath.slice(oldPath.length));
+			ed.properties().name = `project:${projectName}${newEdPath}`;
+		} else {
+			// Editor file not affected
 			continue;
 		}
-		const relevantPrefix = curPath.slice(0, oldPath.length + 1);
-		const oldWithSlash = oldPath + "/";
-		const ancestorRenamed = relevantPrefix === oldWithSlash;
-		if (!ancestorRenamed) {
-			continue;
-		}
-		ed.properties().fileTreePath = Path.join(
-			newPath,
-			curPath.slice(oldPath.length)
-		);
 	}
 	return;
 }
@@ -207,6 +206,7 @@ export class FileTree {
 	private treeControl: tgui.TreeControl<FileTreeNode>;
 	/** The current root directory */
 	private dir: string | null = null;
+	private openedProject: string | null = null;
 	private selectedPath: string | null = null;
 	/**
 	 * Map from a project-absolute path to the corresponding
@@ -280,13 +280,9 @@ export class FileTree {
 		});
 		this.path2NodeInfo = {};
 		this.path2FileTreeNode = {};
-		addListenerOnChangeProject((newProjectName) =>
-			this.changeRootDir(
-				newProjectName === undefined
-					? null
-					: getProjectPath(newProjectName)
-			)
-		);
+		addListenerOnChangeProject((newProjectName) => {
+			this.changeRootDir(newProjectName ?? null);
+		});
 
 		this.panel.content.setAttribute("tabindex", "0");
 		this.panel.content.addEventListener(
@@ -313,9 +309,12 @@ export class FileTree {
 	/**
 	 * asynchroncity managed internally by the instance, see class description
 	 */
-	changeRootDir(dir: string | null): Promise<void> {
+	changeRootDir(newProjectName: string | null): Promise<void> {
+		const dir =
+			newProjectName === null ? null : getProjectPath(newProjectName);
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
 			this.dir = dir;
+			this.openedProject = newProjectName;
 			return await this.refresh();
 		}));
 	}
@@ -492,24 +491,13 @@ print("Hello sfile");`
 	> = async (_event, value, _id) => {
 		this.selectPath(value.path);
 		if (value.type === "file") {
-			try {
-				const absPath = simplifyPath(`${this.dir}/${value.path}`);
-				// TODO: same file name in other projects/dirs?
-				const existingEditor = collection.getEditor(value.basename);
-				if (existingEditor) {
-					collection.setActiveEditor(existingEditor);
-					existingEditor.focus();
-					return;
-				}
-				const fileContent = await readFileContent(absPath);
-				createEditorTab(
-					value.basename,
-					fileContent.toString(),
-					true,
-					absPath
-				);
-			} catch (error) {
-				console.error("Failed to read file:", error);
+			const fileID = `project:${this.openedProject}${simplifyPath(
+				value.path
+			)}` as const;
+			const ed = openEditorFromProjectFS(fileID, false, true);
+			if (ed instanceof Error) {
+				errorMsgBox(`Could not open file: ${ed.message}`);
+				return;
 			}
 		}
 	};
@@ -525,19 +513,21 @@ print("Hello sfile");`
 	}
 
 	private async handleDelete() {
-		if (this.selectedPath === null) {
-			return;
-		}
+		if (this.openedProject === null || this.selectedPath === null) return;
+		const proj = this.openedProject;
 		const abs = this.toAbs(this.selectedPath);
+		const projAbsDeletePath = this.selectedPath;
 		const onDlgConfirm = async () => {
-			if (this.selectedPath === null) {
-				return false;
-			}
-			switch (this.pathToFileTreeNode(this.selectedPath)!.type) {
+			switch (this.pathToFileTreeNode(projAbsDeletePath)!.type) {
 				case "dir":
+					await closeProjectEditorTabsRecursively(
+						proj,
+						projAbsDeletePath
+					);
 					await rmdirRecursive(abs);
 					break;
 				case "file":
+					closeEditor(`project:${proj}${projAbsDeletePath}`);
 					await projectsFSP.unlink(abs);
 					break;
 			}
@@ -588,6 +578,8 @@ print("Hello sfile");`
 		if (this.selectedPath === null) {
 			return;
 		}
+		const projName = this.openedProject;
+		if (projName === null) return;
 		tabNameDlg(
 			async (filename: string) => {
 				if (this.selectedPath === null) {
@@ -607,7 +599,11 @@ print("Hello sfile");`
 					informNodeAlreadyExists(newProjPath);
 					return true;
 				}
-				renameFilePathsInEditors(this.toAbs(this.selectedPath), newAbs);
+				renameFilePathsInEditors(
+					projName,
+					simplifyPath(this.selectedPath),
+					simplifyPath(newProjPath)
+				);
 				await projectsFSP.rename(this.toAbs(this.selectedPath), newAbs);
 				this.selectPath(newProjPath);
 				await this.refresh();

@@ -5,6 +5,7 @@ import {
 	StringFileID,
 	fileIDToContextDependentFilename,
 	splitFileIDAtColon,
+	fileIDToHumanFriendly,
 } from "../lang/parser";
 import { IncludeResolutionList } from "./elements";
 import {
@@ -43,11 +44,12 @@ export function showStandalonePage(
 		);
 		if (relevantTriple === undefined) {
 			console.error(
-				`Unexpectedly could not resolve include in "${includingFile}" operand "${includeOperand}" to standardized filename`
+				`Unexpectedly could not resolve include in ${fileIDToHumanFriendly(
+					includingFile
+				)} operand "${includeOperand}" to fileID`
 			);
 			return null;
 		}
-		fileIDToContextDependentFilename;
 		return relevantTriple[2];
 	}
 	function getParseInput(

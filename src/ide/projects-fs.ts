@@ -1,6 +1,15 @@
 import FS from "@isomorphic-git/lightning-fs";
 import Path from "@isomorphic-git/lightning-fs/src/path";
 
+/**
+ * The error handling of lightning-fs is not that great. Currently, the
+ * following error codes (given as .code on a thrown error) can occur:
+ * EEXIST, ENOENT, ENOTDIR, ENOTEMPTY, ETIMEDOUT
+ *
+ * When calling readFile on a directory, EISDIR is not thrown, instead undefined
+ * is returned.
+ */
+
 export const projectsFS = new FS("projects");
 export const projectsFSP = projectsFS.promises;
 
@@ -197,6 +206,9 @@ export async function listProjects(): Promise<string[]> {
 	return await projectsFSP.readdir("/");
 }
 
+/**
+ * @throws ENOTDIR if dir is not dir
+ */
 export async function* recurseDirectory(dir: string): AsyncGenerator<string> {
 	for (const entry of await projectsFSP.readdir(dir)) {
 		const abs = Path.join(dir, entry);
@@ -204,6 +216,37 @@ export async function* recurseDirectory(dir: string): AsyncGenerator<string> {
 			yield* recurseDirectory(abs);
 		} else {
 			yield abs;
+		}
+	}
+}
+
+class IsDirError extends Error {
+	declare code: string;
+	constructor(filename: string) {
+		super(`Can't open "${filename}: is a directory"`);
+		this.code = "EISDIR";
+	}
+}
+
+/**
+ * Returns an error if could not read for any reason
+ * @returns file content on success, otherwise error, possibly with .code
+ * attribute (which can also be "EISDIR")
+ */
+export async function readFileContent(
+	filePath: string
+): Promise<string | Error> {
+	try {
+		const fileContent = (await projectsFSP.readFile(filePath, {
+			encoding: "utf8",
+		})) as string | undefined; // undefined is returned for dirs
+		if (fileContent === undefined) throw new IsDirError(filePath);
+		return fileContent.toString();
+	} catch (error) {
+		if (error instanceof Error) {
+			return error;
+		} else {
+			return new Error("" + error);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 import * as ide from ".";
+import { FileID, fileIDToHumanFriendly } from "../../lang/parser";
 import { Editor } from "../editor";
 import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
 import { saveConfig } from "./dialogs";
@@ -10,13 +11,8 @@ export type EditorIDEProps = {
 	tab: HTMLDivElement;
 	/** Option in the run selector */
 	runoption: HTMLOptionElement;
-	/** (file) name associated with editor */
-	name: string;
-	/**
-	 * absolute path (with project directory as root) if from a project, null
-	 * otherwise
-	 */
-	fileTreePath: string | null;
+	/** FileID of the file opened in the editor */
+	name: FileID;
 	/** Set of lines on which there is a breakpoint */
 	breakpoints: Set<number>;
 	toggleBreakpoint: (line: number) => void;
@@ -42,15 +38,15 @@ export class EditorCollection {
 		return this.editors;
 	}
 
-	// find an editor by (file) name
-	public getEditor(name: string): EditorIDE | null {
+	// find an editor by fileID
+	public getEditor(name: FileID): EditorIDE | null {
 		for (let ed of this.editors)
 			if (ed.properties().name === name) return ed;
 		return null;
 	}
 
 	// find an editor by the associated tab
-	public getEditorByTab(tab: any): EditorIDE | null {
+	public getEditorByTab(tab: HTMLElement): EditorIDE | null {
 		for (let ed of this.editors) if (ed.properties().tab === tab) return ed;
 		return null;
 	}
@@ -61,8 +57,8 @@ export class EditorCollection {
 	}
 
 	// obtain an array containing all filenames of open editors
-	public getFilenames() {
-		let a = new Array<string>();
+	public getFilenames(): FileID[] {
+		let a = new Array<FileID>();
 		for (let ed of this.editors) a.push(ed.properties().name);
 		return a;
 	}
@@ -84,7 +80,7 @@ export class EditorCollection {
 		}
 
 		if (ide.panel_editor) {
-			let title = ed ? ed.properties().name : null;
+			let title = ed ? fileIDToHumanFriendly(ed.properties().name) : null;
 			ide.panel_editor.title = title;
 			if (ed)
 				ide.panel_editor.titlebar.innerText = "Editor \u2014 " + title;
@@ -103,10 +99,9 @@ export class EditorCollection {
 	public createEditor(
 		tab: any,
 		runoption: any,
-		name: string,
+		name: FileID,
 		text: string | null = null,
-		save_config: boolean = true,
-		fileTreePath: string | null = null
+		save_config: boolean = true
 	) {
 		if (this.getEditor(name))
 			throw new Error(
@@ -121,7 +116,6 @@ export class EditorCollection {
 		ed.properties().tab = tab;
 		ed.properties().runoption = runoption;
 		ed.properties().name = name;
-		ed.properties().fileTreePath = fileTreePath;
 		ed.properties().breakpoints = new Set<number>();
 		ed.properties().toggleBreakpoint = (function (ed) {
 			return function (line) {
@@ -130,7 +124,7 @@ export class EditorCollection {
 					// ask the interpreter for the correct position of the marker
 					let result = ide.interpreter.toggleBreakpoint(
 						line + 1,
-						ed.properties().name as any // TODO
+						ed.properties().name
 					);
 					if (result !== null) {
 						line = result.line - 1;
@@ -191,7 +185,7 @@ export class EditorCollection {
 	}
 
 	// close an editor, remove it from the set
-	public closeEditor(name: string, save_config: boolean = true) {
+	public closeEditor(name: FileID, save_config: boolean = true) {
 		let ed = this.getEditor(name);
 		if (!ed) return;
 

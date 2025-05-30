@@ -154,11 +154,20 @@ export const defaultParseOptions: ParseOptions = {
  */
 export const fileIDNamespaces = ["project", "localstorage", "string"] as const;
 export type FileIDNamespace = (typeof fileIDNamespaces)[number];
+export const loadableFileIDNamespaces = ["project", "localstorage"] as const;
+export type LoadableFileIDNamespace = (typeof loadableFileIDNamespaces)[number];
 
 export type ProjectFileID = `project:${string}`;
 export type StringFileID = `string:${string}`;
 export type LocalStorageFileID = `localstorage:${string}`;
 export type FileID = ProjectFileID | StringFileID | LocalStorageFileID;
+export type LoadableFileID = LocalStorageFileID | ProjectFileID;
+
+export function isLoadableFileID(fileID: FileID): fileID is LoadableFileID {
+	return loadableFileIDNamespaces.some((ns) =>
+		fileIDHasNamespace(fileID, ns)
+	);
+}
 
 /**
  * Given a file id, returns a string that unambiguously represents that file to
@@ -174,10 +183,32 @@ export function fileIDToContextDependentFilename(fileID: FileID): string {
 		case "localstorage":
 			return suffix;
 		case "project":
-			return projectFileIDToProjAbsPath(fileID as `project:${string}`);
+			return projectFileIDToProjAbsPath(fileID as ProjectFileID);
 		case "string":
 			return suffix;
 	}
+}
+
+export function fileIDToHumanFriendly(fileID: FileID): string {
+	const [ns, suffix] = splitFileIDAtColon(fileID);
+	switch (ns) {
+		case "localstorage":
+			return suffix;
+		case "project":
+			const [_, projName, path] = projectFileIDTripleSplit(
+				fileID as ProjectFileID
+			);
+			return `${path} (${projName})`;
+		case "string":
+			return `${suffix} (no file)`;
+	}
+}
+
+export function fileIDHasNamespace<NamespaceT extends FileIDNamespace>(
+	fileID: FileID,
+	namespace: NamespaceT
+): fileID is `${NamespaceT}:${string}` {
+	return fileID.startsWith(namespace);
 }
 
 export function splitFileIDAtColon(fileID: FileID): [FileIDNamespace, string] {
@@ -187,9 +218,25 @@ export function splitFileIDAtColon(fileID: FileID): [FileIDNamespace, string] {
 }
 
 export function projectFileIDToProjAbsPath(fileID: ProjectFileID): string {
-	const [_, suffix] = splitFileIDAtColon(fileID);
+	return projectFileIDTripleSplit(fileID)[2];
+}
+
+export function localStorageFileIDToFilename(
+	fileID: LocalStorageFileID
+): string {
+	return splitFileIDAtColon(fileID)[1];
+}
+
+/**
+ * @returns [namespace, projectName, projAbsPath]
+ */
+export function projectFileIDTripleSplit(
+	fileID: ProjectFileID
+): [FileIDNamespace, string, string] {
+	const [ns, suffix] = splitFileIDAtColon(fileID);
 	const projectName = suffix.split("/", 1)[0];
-	return suffix.slice(projectName.length);
+	const projAbsPath = suffix.slice(projectName.length);
+	return [ns, projectName, projAbsPath];
 }
 
 export function fileIDChangeNamespace<FileIDNamespaceT extends FileIDNamespace>(

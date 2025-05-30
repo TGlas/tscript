@@ -1,6 +1,25 @@
+import Path from "@isomorphic-git/lightning-fs/src/path";
+import {
+	FileID,
+	fileIDHasNamespace,
+	fileIDToContextDependentFilename,
+	fileIDToHumanFriendly,
+	LoadableFileID,
+	LocalStorageFileID,
+	ProjectFileID,
+	projectFileIDTripleSplit,
+} from "../../lang/parser";
 import { Editor } from "../editor";
 import { icons } from "../icons";
+import {
+	getProjectPath,
+	readFileContent,
+	recurseDirectory,
+	simplifyPath,
+} from "../projects-fs";
 import * as tgui from "../tgui";
+import { errorMsgBox } from "../tgui";
+import { EditorIDE } from "./collection";
 import {
 	saveConfig,
 	confirmFileDiscard,
@@ -15,12 +34,61 @@ export let tab_config: any = { align: "horizontal" };
 export function openEditorFromLocalStorage(
 	name: string,
 	save_config: boolean = true
-) {
+): EditorIDE | null {
 	const sourcecode = localStorage.getItem("tscript.code." + name);
 	if (sourcecode === null) return null;
-	let ed = createEditorTab(name, sourcecode, save_config);
+	let ed = createEditorTab(`localstorage:${name}`, sourcecode, save_config);
 	if (save_config) saveConfig();
 	return ed;
+}
+
+export async function openEditorFromStorage(
+	fileID: LocalStorageFileID | ProjectFileID,
+	save_config: boolean = true
+): Promise<EditorIDE | null> {
+	if (fileIDHasNamespace(fileID, "project")) {
+		const ed = await openEditorFromProjectFS(fileID, true, save_config);
+		if (ed instanceof Error) {
+			if (
+				!("code" in ed) ||
+				(ed.code !== "ENOENT" && ed.code !== "EISDIR")
+			)
+				errorMsgBox(`Could not open file: ${ed.message}`);
+			return null;
+		}
+		return ed;
+	} else {
+		return openEditorFromLocalStorage(fileID, save_config);
+	}
+}
+
+/**
+ * @param overwrite whether to replace the content of the existing editor (if
+ * existent)
+ * @returns null if the file doesn't exist, an error if there was some error,
+ * and the file content otherwise.
+ */
+export async function openEditorFromProjectFS(
+	fileID: ProjectFileID,
+	overwrite: boolean,
+	save_config: boolean = true
+): Promise<EditorIDE | Error> {
+	const [_, projName, projAbsPath] = projectFileIDTripleSplit(fileID);
+	const projPath = getProjectPath(projName);
+	const absPath = Path.join(projPath, projAbsPath);
+	const existingEditor = ide.collection.getEditor(fileID);
+	if (!overwrite && existingEditor) {
+		ide.collection.setActiveEditor(existingEditor);
+		existingEditor.focus();
+		return existingEditor;
+	}
+
+	const fileContent = await readFileContent(absPath);
+	if (fileContent instanceof Error) {
+		return fileContent;
+	}
+	if (save_config) saveConfig();
+	return createEditorTab(fileID, fileContent, save_config);
 }
 
 export function createEditorTabByModal() {
@@ -28,19 +96,19 @@ export function createEditorTabByModal() {
 		// Don't accept empty filenames
 		if (!name) return true; // keep dialog open
 
-		let eds = ide.collection.getEditors();
-		let ed = ide.collection.getEditor(name);
+		const fileID = `localstorage:${name}` as const;
+		let ed = ide.collection.getEditor(fileID);
 		const isOpenDoc = !!ed;
 		const isSavedDoc =
 			localStorage.getItem("tscript.code." + name) !== null;
 
 		if (isOpenDoc || isSavedDoc) {
 			confirmFileOverwrite(name, () => {
-				ide.collection.closeEditor(name);
-				createEditorTab(name);
+				ide.collection.closeEditor(fileID);
+				createEditorTab(fileID);
 			});
 			return false;
-		} else createEditorTab(name);
+		} else createEditorTab(fileID);
 
 		return false;
 	});
@@ -61,10 +129,9 @@ export function updateTabTitle(editor: any, newTitle: string) {
 }
 
 export function createEditorTab(
-	name: string,
+	name: FileID,
 	text: string | null = null,
-	save_config: boolean = true,
-	fileTreePath: string | null = null
+	save_config: boolean = true
 ) {
 	// create a new tab
 	let tab = tgui.createElement({
@@ -76,7 +143,7 @@ export function createEditorTab(
 		type: "span",
 		parent: tab,
 		classname: "name",
-		text: name,
+		text: fileIDToContextDependentFilename(name),
 		click: function (event) {
 			let ed = ide.collection.getEditorByTab(tab);
 			if (ed) ide.collection.setActiveEditor(ed);
@@ -100,7 +167,7 @@ export function createEditorTab(
 		type: "option",
 		parent: ide.runselector,
 		properties: { value: name },
-		text: name,
+		text: fileIDToHumanFriendly(name),
 	});
 
 	// create a new editor
@@ -109,13 +176,25 @@ export function createEditorTab(
 		runoption,
 		name,
 		text,
-		save_config,
-		fileTreePath
+		save_config
 	);
 
 	return ed;
 }
 
-export function closeEditor(filename: string) {
-	ide.collection.closeEditor(filename);
+export function closeEditor(fileID: FileID) {
+	ide.collection.closeEditor(fileID);
+}
+
+export async function closeProjectEditorTabsRecursively(
+	projectName: string,
+	projAbsPath: string
+): Promise<void> {
+	const projPath = simplifyPath(getProjectPath(projectName));
+	const absPath = Path.join(projPath, projAbsPath);
+	for await (const entry of recurseDirectory(absPath)) {
+		const projAbsPathToClose = simplifyPath(entry.slice(projPath.length));
+		const fileID = `project:${projectName}${projAbsPathToClose}` as const;
+		ide.collection.closeEditor(fileID);
+	}
 }

@@ -1,4 +1,15 @@
-import { defaultParseOptions, ParseOptions } from "../../lang/parser";
+import {
+	defaultParseOptions,
+	FileID,
+	fileIDHasNamespace,
+	fileIDToContextDependentFilename,
+	fileIDToHumanFriendly,
+	isLoadableFileID,
+	LoadableFileID,
+	LocalStorageFileID,
+	ParseOptions,
+	ProjectFileID,
+} from "../../lang/parser";
 import {
 	deleteProject,
 	getCurrentProject,
@@ -7,12 +18,17 @@ import {
 	listProjects,
 	recurseDirectory,
 	setCurrentProject,
+	simplifyPath,
 	tryCreateProject,
 } from "../projects-fs";
 import * as tgui from "./../tgui";
 import { tryStopModal } from "./../tgui";
 import { buttons } from "./commands";
-import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
+import {
+	closeProjectEditorTabsRecursively,
+	openEditorFromLocalStorage,
+	tab_config,
+} from "./editor-tabs";
 import * as ide from "./index";
 import { updateControls } from "./utils";
 
@@ -24,7 +40,7 @@ export let parseOptions: ParseOptions = defaultParseOptions;
  * When the document was not changed, or the user allows to discard the changes the function onConfirm is
  * called.
  */
-export function confirmFileDiscard(name: string, onConfirm: () => any) {
+export function confirmFileDiscard(name: FileID, onConfirm: () => any) {
 	const ed = ide.collection.getEditor(name);
 	if (!ed) return;
 
@@ -32,7 +48,7 @@ export function confirmFileDiscard(name: string, onConfirm: () => any) {
 		tgui.msgBox({
 			prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
 			icon: tgui.msgBoxQuestion,
-			title: name,
+			title: fileIDToHumanFriendly(name),
 			buttons: [
 				{ text: "Discard", onClick: onConfirm, isDefault: true },
 				{ text: "Cancel" },
@@ -58,14 +74,24 @@ export function confirmFileOverwrite(name: string, onConfirm: () => any) {
 	});
 }
 
+type Config = {
+	options: ParseOptions;
+	hotkeys: string[];
+	theme: tgui.ThemeConfiguration;
+	tabs: any;
+	open: LoadableFileID[];
+	main: FileID;
+	active?: LoadableFileID;
+};
+
 /**
  * Load hotkeys & other settings
  */
 export function loadConfig() {
 	let str = localStorage.getItem("tscript.ide.config");
-	let config: any = null;
+	let config: Config | null = null;
 	if (str) {
-		config = JSON.parse(str);
+		config = JSON.parse(str) as Config;
 		if (config.hasOwnProperty("hotkeys")) {
 			let n = Math.min(buttons.length, config.hotkeys.length);
 			for (let i = 0; i < n; i++) {
@@ -91,16 +117,19 @@ export function loadConfig() {
  * Save hotkeys
  */
 export function saveConfig() {
-	let config: any = {
+	let config: Config = {
 		options: parseOptions,
 		hotkeys: [],
 		theme: tgui.getThemeConfig(),
 		tabs: tab_config,
-		open: ide.collection.getFilenames(),
+		open: ide.collection.getFilenames().filter(isLoadableFileID),
 		main: ide.getRunSelection(),
 	};
 	let active = ide.collection.getActiveEditor();
-	if (active) config.active = active.properties().name;
+	if (active) {
+		const activeFileID = active.properties().name;
+		if (isLoadableFileID(activeFileID)) config.active = activeFileID;
+	}
 	for (let i = 0; i < buttons.length; i++) {
 		config.hotkeys.push(buttons[i].hotkey);
 	}
@@ -433,7 +462,7 @@ export function loadFileProjDlg() {
 	}
 
 	function loadFile(name: string) {
-		let ed = ide.collection.getEditor(name);
+		let ed = ide.collection.getEditor(`localstorage:${name}`);
 		if (ed) {
 			ed.focus();
 			return;
@@ -815,7 +844,7 @@ export function createFileDlgFileView(
 	function deleteFile(filename: string) {
 		if (ret.getItems()?.includes(filename)) {
 			let onDelete = () => {
-				ide.collection.closeEditor(filename);
+				ide.collection.closeEditor(`localstorage:${filename}`);
 				localStorage.removeItem("tscript.code." + filename);
 				ret.removeItemFromList(filename);
 				updateStatusText();
@@ -856,12 +885,7 @@ function createFileDlgProjectView(ctx: FileViewContext): FileDlgView {
 		}
 
 		const onDeleteConfirm = async () => {
-			const projPath = getProjectPath(proj);
-			for await (const entry of recurseDirectory(projPath)) {
-				ide.collection.closeEditor(
-					entry.substring(1 + projPath.length)
-				);
-			}
+			await closeProjectEditorTabsRecursively(proj, "/");
 			await deleteProject(proj);
 			ret.removeItemFromList(proj);
 			ret.updateStatusText();

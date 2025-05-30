@@ -10,6 +10,10 @@ import {
 	StringFileID,
 	fileIDChangeNamespace,
 	splitFileIDAtColon,
+	fileIDHasNamespace,
+	LoadableFileID,
+	localStorageFileIDToFilename,
+	projectFileIDTripleSplit,
 } from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
@@ -24,6 +28,7 @@ import {
 	tab_config,
 	createEditorTab,
 	openEditorFromLocalStorage,
+	openEditorFromStorage,
 } from "./editor-tabs";
 import {
 	createCanvas,
@@ -82,7 +87,7 @@ export let filetree!: FileTree;
 export function addMessage(
 	type: "print" | "warning" | "error",
 	text: string,
-	filename?: string,
+	filename?: FileID,
 	line?: number,
 	ch?: number,
 	href?: string
@@ -229,9 +234,9 @@ async function createParseInputProject(
 		fileID: ProjectFileID
 	): Promise<ParseInput<ProjectFileID, true> | null> => {
 		const projAbsPath = projectFileIDToProjAbsPath(fileID);
-		const editor = collection.getEditor(Path.basename(projAbsPath));
-		if (editor && editor.properties().fileTreePath) {
-			// is actually the relevant tab
+		const editor = collection.getEditor(fileID);
+		if (editor) {
+			// file is opened
 			const source = editor.text();
 			includeSourceResolutions.set(
 				fileIDChangeNamespace(fileID, "string"),
@@ -314,7 +319,7 @@ function createParseInputLocalStorage(
 	): ParseInput<LocalStorageFileID, true> | null => {
 		const filename = splitFileIDAtColon(fileID)[1];
 		const source =
-			collection.getEditor(filename)?.text() ??
+			collection.getEditor(fileID)?.text() ??
 			localStorage.getItem(`tscript.code.${filename}`);
 		if (source === null) return null;
 		includeSourceResolutions.set(
@@ -356,15 +361,15 @@ export async function createParseInput(): Promise<
 	| null
 > {
 	const selection = getRunSelection();
-	const editor = collection.getEditor(selection);
-	if (editor && editor.properties().fileTreePath) {
-		// is file in a project
-		const { project, filename } = fileTreePathToProjectNameFileName(
-			editor.properties().fileTreePath
+	if (fileIDHasNamespace(selection, "project")) {
+		const [_, projName, projAbsPath] = projectFileIDTripleSplit(selection);
+		return createParseInputProject(projName, projAbsPath);
+	} else if (fileIDHasNamespace(selection, "localstorage")) {
+		return createParseInputLocalStorage(
+			localStorageFileIDToFilename(selection)
 		);
-		return createParseInputProject(project, filename);
 	} else {
-		return createParseInputLocalStorage(selection);
+		throw new Error("Not implemented");
 	}
 }
 
@@ -472,7 +477,7 @@ export class InterpreterSession {
 		};
 		interpreter.service.message = (
 			msg: string,
-			filename?: string,
+			filename?: FileID,
 			line?: number,
 			ch?: number,
 			href?: string
@@ -797,22 +802,28 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "editorcontainer",
 	});
 
-	if (config && config.hasOwnProperty("open")) {
-		for (let filename of config.open) {
-			openEditorFromLocalStorage(filename, false);
+	(async () => {
+		if (config && config.hasOwnProperty("open")) {
+			for (let filename of config.open) {
+				await openEditorFromStorage(filename, false);
+			}
 		}
-	}
-	if (config && config.hasOwnProperty("active")) {
-		let ed = collection.getEditor(config.active);
-		if (ed) collection.setActiveEditor(ed, false);
-	}
-	if (config && config.hasOwnProperty("main")) {
-		runselector.value = config.main;
-	}
-	if (collection.getEditors().size === 0) {
-		const ed = openEditorFromLocalStorage("Main");
-		if (!ed) createEditorTab("Main");
-	}
+		if (
+			config &&
+			config.hasOwnProperty("active") &&
+			config.active !== undefined
+		) {
+			let ed = collection.getEditor(config.active);
+			if (ed) collection.setActiveEditor(ed, false);
+		}
+		if (config && config.hasOwnProperty("main")) {
+			runselector.value = config.main;
+		}
+		if (collection.getEditors().size === 0) {
+			const ed = openEditorFromLocalStorage("Main");
+			if (!ed) createEditorTab("localstorage:Main");
+		}
+	})();
 
 	let panel_messages = tgui.createPanel({
 		name: "messages",
@@ -933,6 +944,6 @@ export function create(container: HTMLElement, options?: any) {
 /**
  * Returns the current filename, selected in the run-selector
  */
-export function getRunSelection() {
-	return runselector.value;
+export function getRunSelection(): FileID {
+	return runselector.value as FileID;
 }

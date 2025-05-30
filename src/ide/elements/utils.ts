@@ -3,6 +3,7 @@ import { openEditorFromLocalStorage } from "./editor-tabs";
 import { programinfo } from "./programinfo";
 import { stackinfo } from "./stackinfo";
 import { Interpreter } from "../../lang/interpreter/interpreter";
+import { FileID, LoadableFileID } from "../../lang/parser";
 
 export const type2css = [
 	"ide-keyword",
@@ -92,7 +93,7 @@ export function updateControls() {
 /**
  * set the cursor in the editor; line is 1-based, ch (char within the line) is 0-based
  */
-export function setCursorPosition(line: number, ch: number, name: string) {
+export function setCursorPosition(line: number, ch: number, name: FileID) {
 	let ed = ide.collection.getEditor(name);
 	if (!ed) ed = openEditorFromLocalStorage(name);
 	if (!ed) return;

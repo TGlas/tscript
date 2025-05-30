@@ -1,8 +1,17 @@
 import * as ide from ".";
-import { parseProgram } from "../../lang/parser";
+import {
+	fileIDHasNamespace,
+	fileIDToContextDependentFilename,
+	LocalStorageFileID,
+	localStorageFileIDToFilename,
+	parseProgram,
+	projectFileIDToProjAbsPath,
+	splitFileIDAtColon,
+} from "../../lang/parser";
 import { icons } from "../icons";
 import { type StandaloneCode } from "../standalone";
 import * as tgui from "./../tgui";
+import { errorMsgBox, msgBox } from "./../tgui";
 import {
 	createFileDlgFileView,
 	loadFileProjDlg,
@@ -323,15 +332,16 @@ function cmd_load() {
 function cmd_save() {
 	const ed = ide.collection.getActiveEditor();
 	if (!ed) return;
-	let fileTreePath = ed.properties().fileTreePath;
-	if (fileTreePath) {
-		saveFileTreeFile(fileTreePath, ed.text());
-		ed.setClean();
-		return;
+	const fileID = ed.properties().name;
+	if (fileIDHasNamespace(fileID, "project")) {
+		saveFileTreeFile(fileID, ed.text());
+	} else if (fileIDHasNamespace(fileID, "localstorage")) {
+		let name = localStorageFileIDToFilename(fileID);
+		localStorage.setItem("tscript.code." + name, ed.text());
+	} else {
+		const ns = splitFileIDAtColon(fileID)[0];
+		errorMsgBox(`Can't save files with FileID namespace "${ns}"`);
 	}
-	let name = ed.properties().name;
-
-	localStorage.setItem("tscript.code." + name, ed.text());
 	ed.setClean();
 }
 
@@ -344,9 +354,10 @@ function cmd_save_as() {
 		filename,
 		true,
 		function (filename) {
-			closeEditor(filename);
+			const fileID: LocalStorageFileID = `localstorage:${filename}`;
+			closeEditor(fileID);
 			localStorage.setItem("tscript.code." + filename, ed.text());
-			openEditorFromLocalStorage(filename);
+			openEditorFromLocalStorage(fileID);
 		},
 		{
 			switchView: null,
@@ -386,7 +397,9 @@ export function cmd_upload() {
 					let content = await file.text();
 					if (!content) continue;
 					localStorage.setItem("tscript.code." + filename, content); // write or overwrite
-					let ed = ide.collection.getEditor(filename);
+					let ed = ide.collection.getEditor(
+						`localstorage:${filename}`
+					);
 					if (ed) {
 						ide.collection.setActiveEditor(ed);
 						ed.setText(content);
@@ -406,7 +419,7 @@ export function cmd_upload() {
 export function cmd_download() {
 	const ed = ide.collection.getActiveEditor();
 	if (!ed) return;
-	let filename = ed.properties().name;
+	let filename = fileIDToContextDependentFilename(ed.properties().name);
 	let content = ed.text();
 
 	let link = tgui.createElement({

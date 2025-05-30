@@ -438,10 +438,10 @@ export class Interpreter {
 	// effective.
 	// Some breakpoints may get merged this way. If all provided
 	// breakpoints are in legal positions then the function returns null.
-	public defineBreakpoints(lines, filename) {
+	public defineBreakpoints(lines: number[], fileID: FileID) {
 		let pos = new Set<number>();
 		let changed = false;
-		const breakpoints = this.program.breakpoints[filename];
+		const breakpoints = this.program.breakpoints[fileID];
 		if (!breakpoints) return null;
 
 		// loop over all positions
