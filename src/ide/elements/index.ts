@@ -414,7 +414,11 @@ function updateProgramState(options?: { interpreterChanged: boolean }) {
 		if (stack && stack.length > 0) {
 			const frame = stack[stack.length - 1];
 			const pe = frame.pe[frame.pe.length - 1];
-			if (pe.where) {
+			if (
+				pe.where &&
+				pe.where.filename !== null &&
+				isLoadableFileID(pe.where.filename)
+			) {
 				collection.openEditorFromFile(pe.where.filename, {
 					line: pe.where.line - 1,
 					character: pe.where.ch,

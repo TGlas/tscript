@@ -1,7 +1,7 @@
 import { ParserPosition, FileID } from "../parser";
 import { Interpreter } from "./interpreter";
 
-interface ProgramElementBase<Type extends string> {
+export interface ProgramElementBase<Type extends string> {
 	readonly petype: Type;
 
 	/** The position where this program element starts in the source code */

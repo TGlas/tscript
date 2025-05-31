@@ -2,7 +2,7 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { RuntimeError } from "../errors/RuntimeError";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
-import { ProgramRoot } from "./program-elements";
+import { ProgramElementBase, ProgramRoot } from "./program-elements";
 import { FileID } from "../parser";
 
 export interface InterpreterOptions {
@@ -25,7 +25,7 @@ export type InterpreterStatus =
  * For calls to non-static methods, the frame contains a field for the object in addition.
  */
 export interface StackFrame {
-	pe: any[];
+	pe: (ProgramElementBase<string> & Record<string, any>)[];
 	ip: number[];
 	temporaries: any[];
 	variables: any[];
