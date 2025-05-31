@@ -1,28 +1,26 @@
+import { FileID } from "../parser";
+
 // exception type
 export class RuntimeError extends Error {
-	public filename;
-	public line;
-	public ch;
-	public href;
+	public filename: FileID | null;
+	public line: number | null;
+	public ch: number | null;
+	public href: string;
 
 	public constructor(
-		msg,
-		filename: any = undefined,
-		line: any = undefined,
-		ch: any = undefined,
-		href: any = undefined
+		msg: string,
+		filename?: FileID,
+		line?: number,
+		ch?: number,
+		href?: string
 	) {
 		super();
 		this.message = msg;
 		this.name = "Runtime Error";
 
-		if (typeof filename === "undefined") filename = null;
-		if (typeof line === "undefined") line = null;
-		if (typeof ch === "undefined") ch = null;
-		if (typeof href === "undefined") href = "";
-		this.filename = filename;
-		this.line = line;
-		this.ch = ch;
-		this.href = href;
+		this.filename = filename ?? null;
+		this.line = line ?? null;
+		this.ch = ch ?? null;
+		this.href = href ?? "";
 	}
 }
