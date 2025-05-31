@@ -176,10 +176,14 @@ export async function cmd_export() {
 	if (errors && errors.length > 0) {
 		for (let i = 0; i < errors.length; i++) {
 			let err = errors[i];
+			const humandReadable =
+				err.filename && fileIDToContextDependentFilename(err.filename);
 			ide.addMessage(
 				err.type,
 				err.type +
-					(err.filename ? " in file '" + err.filename + "'" : "") +
+					(humandReadable
+						? " in file '" + humandReadable + "'"
+						: "") +
 					" in line " +
 					err.line +
 					": " +

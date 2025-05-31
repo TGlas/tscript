@@ -11,12 +11,12 @@ import {
 	fileIDChangeNamespace,
 	splitFileIDAtColon,
 	fileIDHasNamespace,
-	LoadableFileID,
 	localStorageFileIDToFilename,
 	projectFileIDTripleSplit,
 	localstorageFileID,
 	projectFileID,
 	stringFileID,
+	fileIDToContextDependentFilename,
 } from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
@@ -407,10 +407,12 @@ export async function prepareRun(): Promise<InterpreterSession | null> {
 	// everything after that should ideally be synchronous
 	clear();
 	for (const err of errors) {
+		const humandReadable =
+			err.filename && fileIDToContextDependentFilename(err.filename);
 		addMessage(
 			err.type,
 			err.type +
-				(err.filename ? " in file '" + err.filename + "'" : "") +
+				(humandReadable ? " in file '" + humandReadable + "'" : "") +
 				" in line " +
 				err.line +
 				": " +
