@@ -202,7 +202,10 @@ export async function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = mainEntry.filename;
+	const humandReadableFilename = fileIDToContextDependentFilename(
+		mainEntry.filename
+	);
+	let title = humandReadableFilename;
 	let fn = "tscript-export";
 	if (
 		!fn.endsWith("html") &&
