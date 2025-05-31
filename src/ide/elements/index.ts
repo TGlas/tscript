@@ -179,6 +179,7 @@ export type IncludeResolutionList = [StringFileID, string, StringFileID][];
 export type ParseInputIncludeSpecification = {
 	includeResolutions: IncludeResolutionList;
 	includeSourceResolutions: Map<StringFileID, string>;
+	main: StringFileID;
 };
 
 async function createParseInputProject(
@@ -296,6 +297,7 @@ async function createParseInputProject(
 		{
 			includeResolutions,
 			includeSourceResolutions,
+			main: fileIDChangeNamespace(entryStdFilename, "string"),
 		},
 	];
 }
@@ -337,9 +339,17 @@ function createParseInputLocalStorage(
 		};
 	};
 
-	const mainParseInput = resolveInclude(localstorageFileID(entryFilename));
+	const entryFileID = localstorageFileID(entryFilename);
+	const mainParseInput = resolveInclude(entryFileID);
 	if (mainParseInput === null) return null;
-	return [mainParseInput, { includeSourceResolutions, includeResolutions }];
+	return [
+		mainParseInput,
+		{
+			includeSourceResolutions,
+			includeResolutions,
+			main: fileIDChangeNamespace(entryFileID, "string"),
+		},
+	];
 }
 
 /**
@@ -351,6 +361,7 @@ function createParseInputLocalStorage(
  *		operand `includeOperand` resolves to the file `resolvedFilename`.
  *	- `spec.includeSourceResolutions`: Map from resolved filenames (third entry in
  *		includeResolutions triples) to their sources
+ *	- `spec.mainEntry`: main file/entry point
  *	or null if the current run selection could not be resolved.
  *	`includeResolutions` and `includeSourceResolutions` will only be filled once
  *	`parseInput` is actually parsed. The FileIDs under `spec` have the "string"

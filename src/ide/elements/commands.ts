@@ -248,7 +248,7 @@ export async function cmd_export() {
 			includeResolutions.includeSourceResolutions.entries()
 		),
 		includeResolutions: includeResolutions.includeResolutions,
-		main: mainEntry.filename,
+		main: includeResolutions.main,
 	};
 	// escape the TScript source code; prepare it to reside inside an html document
 	let source = JSON.stringify(standaloneCode);
