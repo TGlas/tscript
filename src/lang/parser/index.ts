@@ -277,42 +277,43 @@ export function parseProgram(
 		state.setSource(file.source, null, file.filename);
 		while (state.good()) {
 			const inc = parse_include(state, program, options);
-			if (inc !== null) {
-				const targetFile = yield file.resolveInclude(inc.filename);
-				if (!targetFile) {
-					// the file was not found
-					state.set(inc.position);
-					state.error("/argument-mismatch/am-48", [inc.filename]);
-					return;
-				}
-
-				if (!includedFiles.has(targetFile.filename)) {
-					// safe the state
-					let backup = {
-						source: state.source,
-						pos: state.pos,
-						line: state.line,
-						filename: state.filename,
-						ch: state.ch,
-						indent: state.indent.slice(),
-					};
-
-					// import the file
-					yield* parseFileGenerator(targetFile);
-
-					// restore the state
-					state.source = backup.source;
-					state.pos = backup.pos;
-					state.line = backup.line;
-					state.filename = backup.filename;
-					state.ch = backup.ch;
-					state.indent = backup.indent;
-				}
-			} else {
+			if (inc === null) {
 				let p = parse_statement_or_declaration(state, program, options);
 				program.commands.push(p);
 				program.children.push(p);
+				continue;
 			}
+			const targetFile = yield file.resolveInclude(inc.filename);
+			if (!targetFile) {
+				// the file was not found
+				state.set(inc.position);
+				state.error("/argument-mismatch/am-48", [inc.filename]);
+				return;
+			}
+
+			if (includedFiles.has(targetFile.filename)) {
+				continue;
+			}
+			// safe the state
+			let backup = {
+				source: state.source,
+				pos: state.pos,
+				line: state.line,
+				filename: state.filename,
+				ch: state.ch,
+				indent: state.indent.slice(),
+			};
+
+			// import the file
+			yield* parseFileGenerator(targetFile);
+
+			// restore the state
+			state.source = backup.source;
+			state.pos = backup.pos;
+			state.line = backup.line;
+			state.filename = backup.filename;
+			state.ch = backup.ch;
+			state.indent = backup.indent;
 		}
 	}
 
