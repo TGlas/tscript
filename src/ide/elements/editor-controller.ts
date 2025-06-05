@@ -2,7 +2,7 @@ import {
 	FileID,
 	fileIDToHumanFriendly,
 	splitFileIDAtColon,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import { Editor } from "../editor";
 import * as tgui from "../tgui";
 import { confirmFileDiscard } from "./dialogs";

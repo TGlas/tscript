@@ -1,4 +1,5 @@
-import { ParserPosition, FileID } from "../parser";
+import { ParserPosition } from "../parser";
+import { FileID } from "../parser/file_id";
 import { Interpreter } from "./interpreter";
 
 export interface ProgramElementBase<Type extends string> {
