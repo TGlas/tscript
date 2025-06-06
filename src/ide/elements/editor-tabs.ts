@@ -5,8 +5,10 @@ import {
 	fileIDToContextDependentFilename,
 	fileIDToHumanFriendly,
 	LoadableFileID,
+	localstorageFileID,
 	LocalStorageFileID,
 	localStorageFileIDToFilename,
+	projectFileID,
 	ProjectFileID,
 	projectFileIDTripleSplit,
 } from "../../lang/parser";
@@ -38,7 +40,7 @@ export function openEditorFromLocalStorage(
 ): EditorIDE | null {
 	const sourcecode = localStorage.getItem("tscript.code." + name);
 	if (sourcecode === null) return null;
-	let ed = createEditorTab(`localstorage:${name}`, sourcecode, save_config);
+	let ed = createEditorTab(localstorageFileID(name), sourcecode, save_config);
 	if (save_config) saveConfig();
 	return ed;
 }
@@ -100,7 +102,7 @@ export function createEditorTabByModal() {
 		// Don't accept empty filenames
 		if (!name) return true; // keep dialog open
 
-		const fileID = `localstorage:${name}` as const;
+		const fileID = localstorageFileID(name);
 		let ed = ide.collection.getEditor(fileID);
 		const isOpenDoc = !!ed;
 		const isSavedDoc =
@@ -198,7 +200,7 @@ export async function closeProjectEditorTabsRecursively(
 	const absPath = Path.join(projPath, projAbsPath);
 	for await (const entry of recurseDirectory(absPath)) {
 		const projAbsPathToClose = simplifyPath(entry.slice(projPath.length));
-		const fileID = `project:${projectName}${projAbsPathToClose}` as const;
+		const fileID = projectFileID(projectName, projAbsPathToClose);
 		ide.collection.closeEditor(fileID);
 	}
 }

@@ -6,6 +6,7 @@ import {
 	fileIDToContextDependentFilename,
 	splitFileIDAtColon,
 	fileIDToHumanFriendly,
+	stringFileID,
 } from "../lang/parser";
 import { IncludeResolutionList } from "./elements";
 import {
@@ -62,7 +63,7 @@ export function showStandalonePage(
 			resolveInclude: getParseInput,
 		};
 	}
-	const mainFile = getParseInput(`string:${data.code.main}`);
+	const mainFile = getParseInput(stringFileID(data.code.main));
 	if (!mainFile) {
 		console.error("Could not get parse input of main file");
 		return; // This has been validated on export

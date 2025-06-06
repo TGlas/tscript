@@ -29,6 +29,7 @@ import Path from "@isomorphic-git/lightning-fs/src/path";
 import {
 	fileIDHasNamespace,
 	fileIDNamespaces,
+	projectFileID,
 	ProjectFileID,
 	projectFileIDToProjAbsPath,
 	projectFileIDTripleSplit,
@@ -150,12 +151,12 @@ function renameFilePathsInEditors(
 		}
 		if (curPath === oldPath) {
 			// This editors file has been renamedS
-			ed.properties().name = `project:${projectName}${newPath}`;
+			ed.properties().name = projectFileID(projectName, newPath);
 			updateTabTitle(ed, Path.basename(newPath));
 		} else if (curPath.startsWith(oldPath + "/")) {
 			// renamed ancestor directory of editor file
 			const newEdPath = Path.join(newPath, curPath.slice(oldPath.length));
-			ed.properties().name = `project:${projectName}${newEdPath}`;
+			ed.properties().name = projectFileID(projectName, newEdPath);
 		} else {
 			// Editor file not affected
 			continue;
@@ -491,9 +492,10 @@ print("Hello sfile");`
 	> = async (_event, value, _id) => {
 		this.selectPath(value.path);
 		if (value.type === "file") {
-			const fileID = `project:${this.openedProject}${simplifyPath(
-				value.path
-			)}` as const;
+			const fileID = projectFileID(
+				this.openedProject!,
+				simplifyPath(value.path)
+			);
 			const ed = openEditorFromProjectFS(fileID, false, true);
 			if (ed instanceof Error) {
 				errorMsgBox(`Could not open file: ${ed.message}`);
@@ -527,7 +529,7 @@ print("Hello sfile");`
 					await rmdirRecursive(abs);
 					break;
 				case "file":
-					closeEditor(`project:${proj}${projAbsDeletePath}`);
+					closeEditor(projectFileID(proj, projAbsDeletePath));
 					await projectsFSP.unlink(abs);
 					break;
 			}

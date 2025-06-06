@@ -14,6 +14,9 @@ import {
 	LoadableFileID,
 	localStorageFileIDToFilename,
 	projectFileIDTripleSplit,
+	localstorageFileID,
+	projectFileID,
+	stringFileID,
 } from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
@@ -216,7 +219,7 @@ async function createParseInputProject(
 			const newEntry: IncludeResolutionList[0] = [
 				fileIDChangeNamespace(includingFileID, "string"),
 				includeOperand,
-				`string:${fileIDSuffix}`,
+				stringFileID(fileIDSuffix),
 			];
 			if (
 				!includeResolutions.some((e) =>
@@ -227,7 +230,7 @@ async function createParseInputProject(
 				includeResolutions.push(newEntry);
 			}
 		}
-		return `project:${fileIDSuffix}`;
+		return projectFileID(projectName, resolved);
 	};
 
 	const resolveInclude = async (
@@ -310,9 +313,9 @@ function createParseInputLocalStorage(
 		includeResolutions.push([
 			fileIDChangeNamespace(includingFile, "string"),
 			includeOperand,
-			`string:${includeOperand}`,
+			stringFileID(includeOperand),
 		]);
-		return `localstorage:${includeOperand}`;
+		return localstorageFileID(includeOperand);
 	};
 	const resolveInclude = (
 		fileID: LocalStorageFileID
@@ -334,7 +337,7 @@ function createParseInputLocalStorage(
 		};
 	};
 
-	const mainParseInput = resolveInclude(`localstorage:${entryFilename}`);
+	const mainParseInput = resolveInclude(localstorageFileID(entryFilename));
 	if (mainParseInput === null) return null;
 	return [mainParseInput, { includeSourceResolutions, includeResolutions }];
 }
@@ -815,7 +818,7 @@ export function create(container: HTMLElement, options?: any) {
 		}
 		if (collection.getEditors().size === 0) {
 			const ed = openEditorFromLocalStorage("Main");
-			if (!ed) createEditorTab("localstorage:Main");
+			if (!ed) createEditorTab(localstorageFileID("Main"));
 		}
 	})();
 

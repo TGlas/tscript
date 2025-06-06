@@ -2,6 +2,7 @@ import * as ide from ".";
 import {
 	fileIDHasNamespace,
 	fileIDToContextDependentFilename,
+	localstorageFileID,
 	LocalStorageFileID,
 	localStorageFileIDToFilename,
 	parseProgram,
@@ -352,7 +353,7 @@ function cmd_save_as() {
 		filename,
 		true,
 		function (filename) {
-			const fileID: LocalStorageFileID = `localstorage:${filename}`;
+			const fileID: LocalStorageFileID = localstorageFileID(filename);
 			closeEditor(fileID);
 			localStorage.setItem("tscript.code." + filename, ed.text());
 			openEditorFromLocalStorage(fileID);
@@ -396,7 +397,7 @@ export function cmd_upload() {
 					if (!content) continue;
 					localStorage.setItem("tscript.code." + filename, content); // write or overwrite
 					let ed = ide.collection.getEditor(
-						`localstorage:${filename}`
+						localstorageFileID(filename)
 					);
 					if (ed) {
 						ide.collection.setActiveEditor(ed);

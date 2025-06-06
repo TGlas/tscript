@@ -6,6 +6,7 @@ import {
 	fileIDToHumanFriendly,
 	isLoadableFileID,
 	LoadableFileID,
+	localstorageFileID,
 	LocalStorageFileID,
 	ParseOptions,
 	ProjectFileID,
@@ -462,7 +463,7 @@ export function loadFileProjDlg() {
 	}
 
 	function loadFile(name: string) {
-		let ed = ide.collection.getEditor(`localstorage:${name}`);
+		let ed = ide.collection.getEditor(localstorageFileID(name));
 		if (ed) {
 			ed.focus();
 			return;
@@ -844,7 +845,7 @@ export function createFileDlgFileView(
 	function deleteFile(filename: string) {
 		if (ret.getItems()?.includes(filename)) {
 			let onDelete = () => {
-				ide.collection.closeEditor(`localstorage:${filename}`);
+				ide.collection.closeEditor(localstorageFileID(filename));
 				localStorage.removeItem("tscript.code." + filename);
 				ret.removeItemFromList(filename);
 				updateStatusText();
