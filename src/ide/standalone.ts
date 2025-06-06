@@ -5,8 +5,17 @@ import {
 	createTurtle,
 } from "./elements/create-interpreter";
 
+export type StandaloneCode = {
+	includeSourceResolutions: Record<string, string>;
+	/**
+	 * triples [includingFile, includeOperand, stdFilename], where stdFilename
+	 * is in the key set of includeSourceResolutions.
+	 */
+	includeResolutions: [string, string, string][] | null;
+	main: string;
+};
 export type StandaloneData = {
-	code: { documents: Record<string, string>; main: string };
+	code: StandaloneCode;
 	mode: "canvas" | "turtle";
 };
 
@@ -14,19 +23,38 @@ export function showStandalonePage(
 	container: HTMLElement,
 	data: StandaloneData
 ): void {
-	const { documents } = data.code;
+	const { includeSourceResolutions, includeResolutions } = data.code;
+	function resolveIncludeToStdFilename(
+		includingFile: string,
+		includeOperand: string
+	): string | null {
+		if (includeResolutions === null) {
+			return includeOperand;
+		} else {
+			const relevantTriple = includeResolutions.find(
+				(val) => val[0] === includingFile && val[1] === includeOperand
+			);
+			if (relevantTriple === undefined) {
+				console.error(
+					`Unexpectedly could not resolve include in "${includingFile}" operand "${includeOperand}" to standardized filename`
+				);
+				return null;
+			}
+			return relevantTriple[2];
+		}
+	}
 	function getParseInput(filename: string): ParseInput<false> | null {
-		if (!Object.hasOwn(documents, filename)) return null;
 		return {
 			filename,
-			source: documents[filename],
+			source: includeSourceResolutions[filename],
+			resolveIncludeToStdFilename: resolveIncludeToStdFilename,
 			resolveInclude: getParseInput,
 		};
 	}
 	const mainFile = getParseInput(data.code.main);
 	if (!mainFile) return; // This has been validated on export
 
-	const { program } = parseProgram(mainFile);
+	const { program } = parseProgram(mainFile, false);
 	if (program == null) return; // This has been validated on export
 
 	const interpreter = createIDEInterpreter(program);
