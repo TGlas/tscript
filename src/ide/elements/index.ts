@@ -376,17 +376,12 @@ export async function createParseInput(): Promise<
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
- * @param onPrepared called with InterpreterSession/null once ready. The purpose
- * of using a callback instead of a promise is that even awaiting a resolved
- * promise yields control to the event loop
+ * @returns An {@link InterpreterSession} or `null` on error
  */
-export async function prepareRun(
-	onPrepared: (session: InterpreterSession | null) => void
-): Promise<void> {
+export async function prepareRun(): Promise<InterpreterSession | null> {
 	const parseInput = (await createParseInput())?.[0];
 	if (!parseInput) {
-		onPrepared(null);
-		return;
+		return null;
 	}
 
 	const { program, errors } = await parseProgram(
@@ -413,8 +408,7 @@ export async function prepareRun(
 		);
 	}
 	if (!program) {
-		onPrepared(null);
-		return;
+		return null;
 	}
 
 	interpreterSession = new InterpreterSession(
@@ -439,7 +433,7 @@ export async function prepareRun(
 		}
 	}
 
-	onPrepared(interpreterSession);
+	return interpreterSession;
 }
 
 export class InterpreterSession {

@@ -118,20 +118,18 @@ function cmd_reset() {
 /**
  * Gets the active interpreter session or creates a new one if no program is running
  */
-function getOrRestartSession(
-	cb: (session: ide.InterpreterSession | null) => void
-) {
+async function getOrRestartSession(): Promise<ide.InterpreterSession | null> {
 	let session = ide.interpreterSession;
 	if (session && !interpreterEnded(session.interpreter)) {
-		cb(session);
+		return session;
 	} else {
 		// (re-)start the interpreter
-		ide.prepareRun(cb);
+		return await ide.prepareRun();
 	}
 }
 
-function cmd_run() {
-	getOrRestartSession((session) => session?.interpreter.run());
+async function cmd_run() {
+	(await getOrRestartSession())?.interpreter.run();
 }
 
 function cmd_interrupt() {
@@ -139,16 +137,16 @@ function cmd_interrupt() {
 	if (interpreter && !interpreterEnded(interpreter)) interpreter.interrupt();
 }
 
-function cmd_step_into() {
-	getOrRestartSession((session) => session?.interpreter.step_into());
+async function cmd_step_into() {
+	(await getOrRestartSession())?.interpreter.step_into();
 }
 
-function cmd_step_over() {
-	getOrRestartSession((session) => session?.interpreter.step_over());
+async function cmd_step_over() {
+	(await getOrRestartSession())?.interpreter.step_over();
 }
 
-function cmd_step_out() {
-	getOrRestartSession((session) => session?.interpreter.step_out());
+async function cmd_step_out() {
+	(await getOrRestartSession())?.interpreter.step_out();
 }
 
 export async function cmd_export() {
