@@ -6,6 +6,7 @@ import {
 	fileIDToHumanFriendly,
 	LoadableFileID,
 	LocalStorageFileID,
+	localStorageFileIDToFilename,
 	ProjectFileID,
 	projectFileIDTripleSplit,
 } from "../../lang/parser";
@@ -58,7 +59,10 @@ export async function openEditorFromStorage(
 		}
 		return ed;
 	} else {
-		return openEditorFromLocalStorage(fileID, save_config);
+		return openEditorFromLocalStorage(
+			localStorageFileIDToFilename(fileID),
+			save_config
+		);
 	}
 }
 
