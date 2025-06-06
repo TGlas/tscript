@@ -1,8 +1,7 @@
 import { Interpreter } from "../../lang/interpreter/interpreter";
 import { ProgramRoot } from "../../lang/interpreter/program-elements";
+import { ParseInput, parseProgram } from "../../lang/parser";
 import {
-	ParseInput,
-	parseProgram,
 	FileID,
 	ProjectFileID,
 	projectFileIDToProjAbsPath,
@@ -17,7 +16,7 @@ import {
 	projectFileID,
 	stringFileID,
 	fileIDToContextDependentFilename,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";

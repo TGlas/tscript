@@ -3,7 +3,7 @@ import { openEditorFromLocalStorage } from "./editor-tabs";
 import { programinfo } from "./programinfo";
 import { stackinfo } from "./stackinfo";
 import { Interpreter } from "../../lang/interpreter/interpreter";
-import { FileID, LoadableFileID } from "../../lang/parser";
+import { FileID, LoadableFileID } from "../../lang/parser/file_id";
 
 export const type2css = [
 	"ide-keyword",

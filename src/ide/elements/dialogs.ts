@@ -1,5 +1,5 @@
+import { defaultParseOptions, ParseOptions } from "../../lang/parser";
 import {
-	defaultParseOptions,
 	FileID,
 	fileIDHasNamespace,
 	fileIDToContextDependentFilename,
@@ -8,9 +8,8 @@ import {
 	LoadableFileID,
 	localstorageFileID,
 	LocalStorageFileID,
-	ParseOptions,
 	ProjectFileID,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import {
 	deleteProject,
 	getCurrentProject,

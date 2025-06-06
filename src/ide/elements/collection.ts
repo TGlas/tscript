@@ -1,5 +1,5 @@
 import * as ide from ".";
-import { FileID, fileIDToHumanFriendly } from "../../lang/parser";
+import { FileID, fileIDToHumanFriendly } from "../../lang/parser/file_id";
 import { Editor } from "../editor";
 import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
 import { saveConfig } from "./dialogs";

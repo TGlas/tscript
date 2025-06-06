@@ -1,14 +1,14 @@
 import * as ide from ".";
+import { parseProgram } from "../../lang/parser";
 import {
 	fileIDHasNamespace,
 	fileIDToContextDependentFilename,
 	localstorageFileID,
 	LocalStorageFileID,
 	localStorageFileIDToFilename,
-	parseProgram,
 	projectFileIDToProjAbsPath,
 	splitFileIDAtColon,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import { icons } from "../icons";
 import { type StandaloneCode } from "../standalone";
 import * as tgui from "./../tgui";

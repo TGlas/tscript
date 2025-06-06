@@ -11,7 +11,7 @@ import {
 	projectFileID,
 	ProjectFileID,
 	projectFileIDTripleSplit,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import { Editor } from "../editor";
 import { icons } from "../icons";
 import {

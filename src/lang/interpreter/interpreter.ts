@@ -3,7 +3,7 @@ import { RuntimeError } from "../errors/RuntimeError";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
 import { ProgramRoot } from "./program-elements";
-import { FileID } from "../parser";
+import { FileID } from "../parser/file_id";
 
 export interface InterpreterOptions {
 	/** @default 10000 */

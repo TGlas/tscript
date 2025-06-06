@@ -34,7 +34,7 @@ import {
 	projectFileIDToProjAbsPath,
 	projectFileIDTripleSplit,
 	splitFileIDAtColon,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 
 type FileTreeNode = {
 	/** path relative to project root */
