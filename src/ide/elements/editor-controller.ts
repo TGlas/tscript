@@ -1,5 +1,7 @@
 import {
 	FileID,
+	fileIDHasNamespace,
+	fileIDToContextDependentFilename,
 	fileIDToHumanFriendly,
 	splitFileIDAtColon,
 } from "../../lang/parser/file_id";
@@ -55,7 +57,6 @@ export class EditorController {
 		this.#onActivate = onActivate;
 		this.close = onClosed;
 		this.#onBeforeFilenameChange = onBeforeFilenameChange;
-		const humanFriendlyName = fileIDToHumanFriendly(filename);
 
 		// create tab
 		this.tab = tgui.createElement({
@@ -66,7 +67,7 @@ export class EditorController {
 			(this.tabLabel = tgui.createElement({
 				type: "span",
 				classname: "name",
-				text: humanFriendlyName,
+				text: "",
 				click: () => onActivate(),
 			})),
 			tgui.createElement({
@@ -85,8 +86,9 @@ export class EditorController {
 		this.runOption = tgui.createElement({
 			type: "option",
 			properties: { value: filename },
-			text: humanFriendlyName,
+			text: "",
 		});
+		this.updateUITextsForFileID();
 
 		// create editor view
 		const ed = (this.editorView = new Editor({
@@ -186,12 +188,17 @@ export class EditorController {
 	saveAs(filename: FileID) {
 		this.#onBeforeFilenameChange(filename);
 
-		this.tabLabel.innerText = filename;
-		this.runOption.innerText = filename;
-		this.runOption.value = filename;
-
 		this.#filename = filename;
+		this.updateUITextsForFileID();
+		this.runOption.value = filename;
 		this.save();
+	}
+
+	private updateUITextsForFileID() {
+		this.tabLabel.innerText = fileIDToContextDependentFilename(
+			this.#filename
+		);
+		this.runOption.innerText = fileIDToHumanFriendly(this.#filename);
 	}
 
 	save() {
