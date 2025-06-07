@@ -19,6 +19,7 @@ export type ProjectFileID = `project:${string}`;
 export type StringFileID = `string:${string}`;
 export type LocalStorageFileID = `localstorage:${string}`;
 export type FileID = ProjectFileID | StringFileID | LocalStorageFileID;
+/** Subset of files that are actually stored somewhere */
 export type LoadableFileID = LocalStorageFileID | ProjectFileID;
 
 export function isLoadableFileID(fileID: FileID): fileID is LoadableFileID {

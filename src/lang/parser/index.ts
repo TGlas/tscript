@@ -369,46 +369,52 @@ export function parseProgram<FileIDT extends FileID>(
 		parseString(lib_turtle.source, lib_turtle.impl);
 		parseString(lib_canvas.source, lib_canvas.impl);
 		parseString(lib_audio.source, lib_audio.impl);
-
-		// parse the user's source code
 		program.where = state.get();
-		const afterParse = () => {
-			program.lines = state.line;
+	} catch (e) {
+		handleError(e);
+		return constructResult();
+	}
 
-			// append an "end" breakpoint
-			state.skip();
-			if (
-				!program.breakpoints[mainInput.filename].hasOwnProperty(
-					state.line
-				)
-			) {
-				// create and register a new breakpoint
-				let b = create_breakpoint(program, state);
-				program.breakpoints[mainInput.filename][state.line] = b;
-				program.commands.push(b);
+	if (allowAwait) {
+		return (async () => {
+			try {
+				await parseFileAsync(mainInput);
+				afterParse();
+			} catch (e) {
+				handleError(e);
 			}
-
-			// pass 2: resolve all names
-			compilerPass(state, "Resolve");
-
-			// further passes may follow in the future, e.g., for optimizations
-			// compilerPass("Optimize");
-		};
-
-		// both branches are equivalent up to the first awaiting
-		if (allowAwait) {
-			return parseFileAsync(mainInput)
-				.then(afterParse)
-				.catch(handleError)
-				.then(constructResult);
-		} else {
+			return constructResult();
+		})();
+	} else {
+		try {
 			parseFile(mainInput);
 			afterParse();
+		} catch (e) {
+			handleError(e);
 		}
-	} catch (ex: any) {
-		handleError(ex);
+		return constructResult();
 	}
-	return constructResult();
+
+	function afterParse() {
+		program.lines = state.line;
+
+		// append an "end" breakpoint
+		state.skip();
+		if (
+			!program.breakpoints[mainInput.filename].hasOwnProperty(state.line)
+		) {
+			// create and register a new breakpoint
+			let b = create_breakpoint(program, state);
+			program.breakpoints[mainInput.filename][state.line] = b;
+			program.commands.push(b);
+		}
+
+		// pass 2: resolve all names
+		compilerPass(state, "Resolve");
+
+		// further passes may follow in the future, e.g., for optimizations
+		// compilerPass("Optimize");
+	}
 
 	function constructResult() {
 		return errors.length > 0

@@ -11,14 +11,13 @@ import { Language } from "./language";
 // It provides several highly non-trivial methods, but overall it is
 // a rather thin abstraction layer, resulting in the editor fiddling
 // around with some of its internals like cursor and selection.
-export class Document<PropertyT extends object = any> {
+export class Document {
 	readonly language: Language; // language for syntax highlighting and bracket matching
 	root: Node; // document tree
 	begin: Leaf; // begin of double-linked list of leaf nodes
 	end: Leaf; // end of double-linked list of leaf nodes
 	cursor: number = 0; // cursor, equals one selection end
 	selection: number | null = null; // null or the other selection end
-	properties: Partial<PropertyT> = {}; // possibility to attach arbitrary data to a document, like a file name
 	private history: Array<Action> = []; // list of transactions
 	private history_pos: number = 0; // number of applied transactions
 	private history_clean: number = 0; // undo position of a "saved" state, which is not considered "dirty"

@@ -1,12 +1,5 @@
 import { ParseInput, parseProgram } from "../lang/parser";
-import {
-	FileID,
-	StringFileID,
-	fileIDToContextDependentFilename,
-	splitFileIDAtColon,
-	fileIDToHumanFriendly,
-	stringFileID,
-} from "../lang/parser/file_id";
+import { StringFileID, fileIDToHumanFriendly } from "../lang/parser/file_id";
 import { IncludeResolutionList } from "./elements";
 import {
 	createCanvas,

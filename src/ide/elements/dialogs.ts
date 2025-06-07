@@ -10,6 +10,7 @@ import {
 	LocalStorageFileID,
 	ProjectFileID,
 } from "../../lang/parser/file_id";
+import { closeProjectEditorTabsRecursively } from "../editor/editor";
 import {
 	deleteProject,
 	getCurrentProject,
@@ -24,13 +25,7 @@ import {
 import * as tgui from "./../tgui";
 import { tryStopModal } from "./../tgui";
 import { buttons } from "./commands";
-import {
-	closeProjectEditorTabsRecursively,
-	openEditorFromLocalStorage,
-	tab_config,
-} from "./editor-tabs";
 import * as ide from "./index";
-import { updateControls } from "./utils";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -41,22 +36,15 @@ export let parseOptions: ParseOptions = defaultParseOptions;
  * called.
  */
 export function confirmFileDiscard(name: FileID, onConfirm: () => any) {
-	const ed = ide.collection.getEditor(name);
-	if (!ed) return;
-
-	if (ed.isDirty()) {
-		tgui.msgBox({
-			prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
-			icon: tgui.msgBoxQuestion,
-			title: fileIDToHumanFriendly(name),
-			buttons: [
-				{ text: "Discard", onClick: onConfirm, isDefault: true },
-				{ text: "Cancel" },
-			],
-		});
-	} else {
-		onConfirm();
-	}
+	tgui.msgBox({
+		prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
+		icon: tgui.msgBoxQuestion,
+		title: fileIDToHumanFriendly(name),
+		buttons: [
+			{ text: "Discard", onClick: onConfirm, isDefault: true },
+			{ text: "Cancel" },
+		],
+	});
 }
 
 export function confirmFileOverwrite(name: string, onConfirm: () => any) {
@@ -81,7 +69,7 @@ type Config = {
 	tabs: any;
 	open: LoadableFileID[];
 	main: FileID;
-	active?: LoadableFileID;
+	active: LoadableFileID | null;
 };
 
 /**
@@ -117,19 +105,16 @@ export function loadConfig() {
  * Save hotkeys
  */
 export function saveConfig() {
+	const editorsState = ide.collection.getSerializedState();
 	let config: Config = {
 		options: parseOptions,
 		hotkeys: [],
 		theme: tgui.getThemeConfig(),
-		tabs: tab_config,
-		open: ide.collection.getFilenames().filter(isLoadableFileID),
+		tabs: ide.tab_config,
+		open: editorsState.open.filter(isLoadableFileID),
 		main: ide.getRunSelection(),
+		active: editorsState.active,
 	};
-	let active = ide.collection.getActiveEditor();
-	if (active) {
-		const activeFileID = active.properties().name;
-		if (isLoadableFileID(activeFileID)) config.active = activeFileID;
-	}
 	for (let i = 0; i < buttons.length; i++) {
 		config.hotkeys.push(buttons[i].hotkey);
 	}
@@ -461,20 +446,56 @@ export function loadFileProjDlg() {
 		currentView.onAttached();
 	}
 
-	function loadFile(name: string) {
+	async function loadFile(name: string) {
 		let ed = ide.collection.getEditor(localstorageFileID(name));
 		if (ed) {
-			ed.focus();
+			ed.editorView.focus();
 			return;
 		}
 
-		openEditorFromLocalStorage(name);
-		return updateControls();
+		await ide.collection.openEditorFromFile(localstorageFileID(name));
 	}
 
 	function simulateClickConfirmation() {
 		dlg.pressButton(confirmationBtn);
 	}
+}
+
+/**
+ * Helper function for creating a dialog containing a FileView with a text input
+ * field, title "Save file as...", confirm button text "Save", and no alternate
+ * view (no switchView).
+ * @returns modal
+ */
+export function saveAsDialog(
+	initFilename: string | null,
+	onConfirm: (filename: string) => void
+) {
+	const fileView = createFileDlgFileView(
+		initFilename ?? "",
+		true,
+		onConfirm,
+		{
+			switchView: null,
+			clickConfirmation: () => dlg.pressButton(confirmationButton),
+		}
+	);
+	const confirmationButton = {
+		text: "Save",
+		isDefault: true,
+		onClick: () => fileView.onClickConfirmation(),
+	};
+	let dlg = tgui.createModal({
+		title: "Save file as ...",
+		minsize: [...fileDlgSize.minsize],
+		scalesize: [...fileDlgSize.scalesize],
+		buttons: [confirmationButton, { text: "Cancel" }],
+		enterConfirms: true,
+	});
+
+	tgui.startModal(dlg);
+	dlg.content.replaceChildren(fileView.element);
+	return dlg;
 }
 
 interface FileViewContext {
@@ -790,7 +811,7 @@ class FileDlgView {
 export function createFileDlgFileView(
 	filename: string,
 	allowNewFilename: boolean,
-	onOkay: (filename: string) => void,
+	onOkay: (filename: string) => Promise<void> | void,
 	ctx: FileViewContext
 ): FileDlgView {
 	let ret: FileDlgView;
@@ -806,12 +827,12 @@ export function createFileDlgFileView(
 	files.sort();
 
 	// return true on failure, that is when the dialog should be kept open
-	let onFileConfirmation = function () {
+	let onFileConfirmation = async function () {
 		let fn = ret.getSelectedItem();
 		if (fn === null) return true;
 		if (fn != "") {
 			if (allowNewFilename || files.indexOf(fn) >= 0) {
-				onOkay(fn);
+				await onOkay(fn);
 				return false; // close dialog
 			}
 		}
@@ -844,7 +865,7 @@ export function createFileDlgFileView(
 	function deleteFile(filename: string) {
 		if (ret.getItems()?.includes(filename)) {
 			let onDelete = () => {
-				ide.collection.closeEditor(localstorageFileID(filename));
+				ide.collection.getEditor(localstorageFileID(filename))?.close();
 				localStorage.removeItem("tscript.code." + filename);
 				ret.removeItemFromList(filename);
 				updateStatusText();

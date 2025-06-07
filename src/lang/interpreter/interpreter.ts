@@ -2,7 +2,7 @@ import { ErrorHelper } from "../errors/ErrorHelper";
 import { RuntimeError } from "../errors/RuntimeError";
 import { TScript } from "..";
 import { Typeid } from "../helpers/typeIds";
-import { ProgramRoot } from "./program-elements";
+import { ProgramElementBase, ProgramRoot } from "./program-elements";
 import { FileID } from "../parser/file_id";
 
 export interface InterpreterOptions {
@@ -25,7 +25,7 @@ export type InterpreterStatus =
  * For calls to non-static methods, the frame contains a field for the object in addition.
  */
 export interface StackFrame {
-	pe: any[];
+	pe: (ProgramElementBase<string> & Record<string, any>)[];
 	ip: number[];
 	temporaries: any[];
 	variables: any[];
@@ -312,12 +312,12 @@ export class Interpreter {
 					const ch = pe?.where?.ch || ex.ch;
 
 					this.service.message(
-						"runtime error " +
-							(filename ? "in file '" + filename + "' " : "") +
-							"in line " +
-							line +
-							": " +
-							ex.message,
+						ErrorHelper.getLocatedErrorMsg(
+							"runtime error",
+							filename,
+							line,
+							ex.message
+						),
 						filename,
 						line,
 						ch,
@@ -432,31 +432,33 @@ export class Interpreter {
 			);
 	}
 
-	// Request to define a number of breakpoints. This function should
-	// be called right after construction of the interpreter. It returns
-	// a Set of (zero-based) line numbers where actual breakpoints are
-	// effective.
-	// Some breakpoints may get merged this way. If all provided
-	// breakpoints are in legal positions then the function returns null.
-	public defineBreakpoints(lines: number[], fileID: FileID) {
+	/**
+	 * Request to define a number of breakpoints. This function should
+	 * be called right after construction of the interpreter. It returns
+	 * a Set of (one-based) line numbers where actual breakpoints are
+	 * effective.
+	 * Some breakpoints may get merged this way. If all provided
+	 * breakpoints are in legal positions then the function returns null.
+	 *
+	 * @param lines one-based positions of breakpoints
+	 */
+	public defineBreakpoints(lines: Iterable<number>, fileID: FileID) {
 		let pos = new Set<number>();
 		let changed = false;
 		const breakpoints = this.program.breakpoints[fileID];
 		if (!breakpoints) return null;
 
 		// loop over all positions
-		for (let i = 0; i < lines.length; i++) {
-			let line = lines[i];
-
+		for (let line of lines) {
 			if (breakpoints.hasOwnProperty(line)) {
 				// position is valid
-				pos.add(line - 1);
+				pos.add(line);
 			} else {
 				// find a valid position if possible
 				changed = true;
-				while (line < this.program.lines) {
+				while (line <= this.program.lines) {
 					if (breakpoints.hasOwnProperty(line)) {
-						pos.add(line - 1);
+						pos.add(line);
 						break;
 					} else line++;
 				}
@@ -464,32 +466,38 @@ export class Interpreter {
 		}
 
 		// enable/disable break points
-		for (let key in breakpoints) {
-			if (pos.has(Number(key) - 1)) breakpoints[key].set();
-			else breakpoints[key].clear();
+		for (const b of Object.values(breakpoints)) {
+			if (pos.has(b.line)) b.set();
+			else b.clear();
 		}
 		// return the result
 		return changed ? pos : null;
 	}
 
-	// Request to toggle a breakpoint. Not every line is a valid break
-	// point position, therefore the function returns the following:
-	// {
-	//   line: number,       // position of the toggle
-	//   active: boolean,    // is the breakpoint active after the action?
-	// }
-	// If no valid position can be found then the function returns null.
-	public toggleBreakpoint(line, filename: FileID) {
+	/**
+	 * Request to toggle a breakpoint. Not every line is a valid break
+	 * point position, therefore the function returns the following:
+	 * {
+	 *   line: number,       // position of the toggle, one-based
+	 *   active: boolean,    // is the breakpoint active after the action?
+	 * }
+	 *
+	 * @param line one-based line
+	 * @returns the new state of the breakpoint or null if no valid position could be found
+	 */
+	public toggleBreakpoint(
+		line: number,
+		filename: FileID
+	): { line: number; active: boolean } | null {
 		const breakpoints = this.program.breakpoints[filename];
+		if (!breakpoints) return null;
 
-		while (line <= this.program.lines) {
-			if (breakpoints.hasOwnProperty(line)) {
-				breakpoints[line].toggle();
-				return {
-					line: line,
-					active: breakpoints[line].active(),
-				};
-			} else line++;
+		for (; line <= this.program.lines; line++) {
+			const breakpoint = breakpoints[line];
+			if (breakpoint) {
+				breakpoint.toggle();
+				return { line, active: breakpoint.active() };
+			}
 		}
 		return null;
 	}

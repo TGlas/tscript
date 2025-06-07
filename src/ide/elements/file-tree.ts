@@ -15,18 +15,12 @@ import {
 	simplifyPath,
 	readFileContent,
 } from "../projects-fs";
-import {
-	closeEditor,
-	closeProjectEditorTabsRecursively,
-	createEditorTab,
-	openEditorFromProjectFS,
-	updateTabTitle,
-} from "./editor-tabs";
 import { collection, filetree } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
 import { errorMsgBox, msgBox } from "../tgui";
 import Path from "@isomorphic-git/lightning-fs/src/path";
 import {
+	FileID,
 	fileIDHasNamespace,
 	fileIDNamespaces,
 	projectFileID,
@@ -35,6 +29,9 @@ import {
 	projectFileIDTripleSplit,
 	splitFileIDAtColon,
 } from "../../lang/parser/file_id";
+import { Editor } from "../editor";
+import { EditorController } from "./editor-controller";
+import { closeProjectEditorTabsRecursively } from "../editor/editor";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -95,7 +92,7 @@ export async function saveFileTreeFile(
 				{
 					text: "Delete",
 					onClick: () => {
-						collection.closeEditor(fileID);
+						collection.getEditor(fileID)?.close();
 						return;
 					},
 				},
@@ -139,9 +136,9 @@ function renameFilePathsInEditors(
 	oldPath: string,
 	newPath: string
 ) {
-	const eds = collection.getEditors();
+	const eds = collection.editors;
 	for (const ed of eds) {
-		const edFileID = ed.properties().name;
+		const edFileID = ed.filename;
 		if (!fileIDHasNamespace(edFileID, "project")) {
 			continue;
 		}
@@ -151,18 +148,23 @@ function renameFilePathsInEditors(
 		}
 		if (curPath === oldPath) {
 			// This editors file has been renamedS
-			ed.properties().name = projectFileID(projectName, newPath);
-			updateTabTitle(ed, Path.basename(newPath));
+			renameEditor(ed, projectFileID(projectName, newPath));
 		} else if (curPath.startsWith(oldPath + "/")) {
 			// renamed ancestor directory of editor file
 			const newEdPath = Path.join(newPath, curPath.slice(oldPath.length));
-			ed.properties().name = projectFileID(projectName, newEdPath);
+			renameEditor(ed, projectFileID(projectName, newEdPath));
 		} else {
 			// Editor file not affected
 			continue;
 		}
 	}
 	return;
+
+	function renameEditor(ed: EditorController, newFile: FileID) {
+		const text = ed.editorView.text();
+		ed.close();
+		collection.openEditorFromData(newFile, text);
+	}
 }
 
 export function fileTreePathToProjectNameFileName(fileTreePath: string): {
@@ -496,9 +498,13 @@ print("Hello sfile");`
 				this.openedProject!,
 				simplifyPath(value.path)
 			);
-			const ed = openEditorFromProjectFS(fileID, false, true);
-			if (ed instanceof Error) {
-				errorMsgBox(`Could not open file: ${ed.message}`);
+			const ed = await collection.openEditorFromFile(fileID);
+			if (ed instanceof Error || ed === null) {
+				errorMsgBox(
+					`Could not open file: ${
+						ed === null ? "Doesn't exists" : ed.message
+					}`
+				);
 				return;
 			}
 		}
@@ -529,7 +535,9 @@ print("Hello sfile");`
 					await rmdirRecursive(abs);
 					break;
 				case "file":
-					closeEditor(projectFileID(proj, projAbsDeletePath));
+					collection
+						.getEditor(projectFileID(proj, projAbsDeletePath))
+						?.close();
 					await projectsFSP.unlink(abs);
 					break;
 			}
