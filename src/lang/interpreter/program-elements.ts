@@ -1,7 +1,8 @@
 import { ParserPosition } from "../parser";
+import { FileID } from "../parser/file_id";
 import { Interpreter } from "./interpreter";
 
-interface ProgramElementBase<Type extends string> {
+export interface ProgramElementBase<Type extends string> {
 	readonly petype: Type;
 
 	/** The position where this program element starts in the source code */
@@ -45,7 +46,7 @@ export interface ProgramRoot extends ProgramElementBase<"global scope"> {
 	/** mapping of index to name */
 	variables: string[];
 	/** mapping of line numbers to breakpoints (some lines do not have breakpoints) */
-	breakpoints: Record<string, Record<number, Breakpoint>>;
+	breakpoints: Record<FileID, Record<number, Breakpoint>>;
 	/** total number of lines in the program = maximal line number */
 	lines: number;
 }

@@ -3,19 +3,35 @@ import * as tgui from "../tgui";
 import { type Panel } from "../tgui/panels";
 import {
 	addListenerOnChangeProject,
+	isInvalidBasename,
 	deleteProject,
+	getCurrentProject,
 	getProjectPath,
 	pathExists,
 	ProjectNotFoundError,
 	projectsFSP,
 	rmdirRecursive,
 	tryCreateProject,
+	simplifyPath,
+	readFileContent,
 } from "../projects-fs";
-import { createEditorTab } from "./editor-tabs";
-import { collection } from "./index";
+import { collection, filetree } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
-import { msgBox } from "../tgui";
+import { errorMsgBox, msgBox } from "../tgui";
 import Path from "@isomorphic-git/lightning-fs/src/path";
+import {
+	FileID,
+	fileIDHasNamespace,
+	fileIDNamespaces,
+	projectFileID,
+	ProjectFileID,
+	projectFileIDToProjAbsPath,
+	projectFileIDTripleSplit,
+	splitFileIDAtColon,
+} from "../../lang/parser/file_id";
+import { Editor } from "../editor";
+import { EditorController } from "./editor-controller";
+import { closeProjectEditorTabsRecursively } from "../editor/editor";
 
 type FileTreeNode = {
 	/** path relative to project root */
@@ -35,20 +51,132 @@ function formatPath(node: FileTreeNode, basename: boolean = false): string {
 	return node.type === "dir" ? str + "/" : str;
 }
 
-async function readFileContent(filePath: string): Promise<string> {
-	try {
-		const fileContent = await projectsFSP.readFile(filePath, {
-			encoding: "utf8",
+async function createMissingDirectories(fileTreePath: string) {
+	const parts = fileTreePath.split("/");
+	if (parts[0] === "") {
+		// sanity check, should always be the case, because path starts with '/'
+		parts.shift();
+	}
+	const currentProjectName = getCurrentProject();
+	if (parts[0] !== currentProjectName) {
+		msgBox({
+			title: "File from other project",
+			prompt: `Cannot save this file from project ${parts[0]} in currently open project ${currentProjectName}`,
 		});
-		return fileContent.toString();
-	} catch (error) {
-		console.error("Error reading file:", error);
-		return "";
+		return false;
+	}
+
+	const projPath = getProjectPath(currentProjectName);
+	let currentPath = projPath;
+	for (let i = 1; i < parts.length - 1; i++) {
+		currentPath = Path.join(currentPath, parts[i]);
+		if (!(await pathExists(currentPath))) {
+			await projectsFSP.mkdir(currentPath);
+		}
+	}
+	return true;
+}
+
+export async function saveFileTreeFile(
+	fileID: ProjectFileID,
+	editorContent: string
+) {
+	const [_, projName, projAbsPath] = projectFileIDTripleSplit(fileID);
+	const fileTreePath = Path.join(getProjectPath(projName), projAbsPath);
+	if (!(await pathExists(fileTreePath))) {
+		let modal = tgui.createModal({
+			title: "File not present in file tree anymore",
+			scalesize: [0, 0],
+			minsize: [400, 120],
+			buttons: [
+				{
+					text: "Delete",
+					onClick: () => {
+						collection.getEditor(fileID)?.close();
+						return;
+					},
+				},
+				{
+					text: "Save",
+					isDefault: true,
+					onClick: async () => {
+						if (!(await createMissingDirectories(fileTreePath))) {
+							return;
+						}
+						await projectsFSP.writeFile(
+							fileTreePath,
+							editorContent
+						);
+						await filetree.refresh();
+					},
+				},
+				{
+					text: "Cancel",
+				},
+			],
+			enterConfirms: true,
+			contentstyle: {
+				display: "flex",
+				"align-items": "center",
+			},
+		});
+		tgui.createText(
+			"Irreversibly delete file content or save it again at old location in file tree?",
+			modal.content
+		);
+		tgui.startModal(modal);
+		return;
+	}
+	await projectsFSP.writeFile(fileTreePath, editorContent);
+	await filetree.refresh();
+}
+
+function renameFilePathsInEditors(
+	projectName: string,
+	oldPath: string,
+	newPath: string
+) {
+	const eds = collection.editors;
+	for (const ed of eds) {
+		const edFileID = ed.filename;
+		if (!fileIDHasNamespace(edFileID, "project")) {
+			continue;
+		}
+		const [_, edProjName, curPath] = projectFileIDTripleSplit(edFileID);
+		if (edProjName !== projectName) {
+			continue;
+		}
+		if (curPath === oldPath) {
+			// This editors file has been renamedS
+			renameEditor(ed, projectFileID(projectName, newPath));
+		} else if (curPath.startsWith(oldPath + "/")) {
+			// renamed ancestor directory of editor file
+			const newEdPath = Path.join(newPath, curPath.slice(oldPath.length));
+			renameEditor(ed, projectFileID(projectName, newEdPath));
+		} else {
+			// Editor file not affected
+			continue;
+		}
+	}
+	return;
+
+	function renameEditor(ed: EditorController, newFile: FileID) {
+		const text = ed.editorView.text();
+		ed.close();
+		collection.openEditorFromData(newFile, text);
 	}
 }
 
-function simplifyPath(path: string): string {
-	return path.replaceAll(/\/+/g, "/");
+export function fileTreePathToProjectNameFileName(fileTreePath: string): {
+	project: string;
+	filename: string;
+} {
+	const pathSegments = simplifyPath(fileTreePath)
+		.split("/")
+		.filter((val) => val.length > 0);
+	const project = pathSegments[0];
+	const filename = pathSegments.slice(1).join("/");
+	return { project, filename };
 }
 
 type FileTreeControlInfo = Exclude<
@@ -56,14 +184,10 @@ type FileTreeControlInfo = Exclude<
 	undefined
 >;
 
-function checkValidBasename(basename: string): boolean {
-	return !basename.includes("/");
-}
-
-function informInvalidBasename(_basename: string) {
+function informInvalidBasename(msg: string) {
 	msgBox({
 		title: "Invalid file name",
-		prompt: `File names may not contain "/"`,
+		prompt: `Filenames ${msg}`,
 	});
 }
 
@@ -74,11 +198,18 @@ function informNodeAlreadyExists(path: string) {
 	});
 }
 
+/**
+ * This class manages its async operations by itself: The public methods that return a
+ * Promise (init, changeRootDir, refresh, addSampleContent) can be called
+ * without awaiting, and it will be guaranteed that these calls will be executed
+ * sequentially (one after another by chaining them using Promise.then)
+ */
 export class FileTree {
 	private panel: Panel;
 	private treeControl: tgui.TreeControl<FileTreeNode>;
 	/** The current root directory */
 	private dir: string | null = null;
+	private openedProject: string | null = null;
 	private selectedPath: string | null = null;
 	/**
 	 * Map from a project-absolute path to the corresponding
@@ -152,32 +283,51 @@ export class FileTree {
 		});
 		this.path2NodeInfo = {};
 		this.path2FileTreeNode = {};
-		addListenerOnChangeProject((newProjectName) =>
-			this.changeRootDir(
-				newProjectName === undefined
-					? null
-					: getProjectPath(newProjectName)
-			)
+		addListenerOnChangeProject((newProjectName) => {
+			this.changeRootDir(newProjectName ?? null);
+		});
+
+		this.panel.content.setAttribute("tabindex", "0");
+		this.panel.content.addEventListener(
+			"keydown",
+			async (event: KeyboardEvent) => {
+				if (event.key === "Backspace" || event.key === "Delete") {
+					event.preventDefault();
+					event.stopPropagation();
+					await this.handleDelete();
+				}
+			}
 		);
 	}
 
+	/**
+	 * asynchroncity managed internally by the instance, see class description
+	 */
 	init(): Promise<void> {
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
 			await this.refresh();
 		}));
 	}
 
-	changeRootDir(dir: string | null): Promise<void> {
+	/**
+	 * asynchroncity managed internally by the instance, see class description
+	 */
+	changeRootDir(newProjectName: string | null): Promise<void> {
+		const dir =
+			newProjectName === null ? null : getProjectPath(newProjectName);
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
 			this.dir = dir;
+			this.openedProject = newProjectName;
 			return await this.refresh();
 		}));
 	}
 
 	/**
 	 * @returns Promise that resolves after this refresh round is done
+	 *
+	 * asynchroncity managed internally by the instance, see class description
 	 */
-	async refresh() {
+	refresh(): Promise<void> {
 		this.path2NodeInfo = {};
 		this.path2FileTreeNode = {};
 		return (this.refreshDoneProm = new Promise((res) => {
@@ -252,8 +402,13 @@ export class FileTree {
 		});
 		info = {
 			element: tgui.createElement({
-				type: "span",
+				type: "div",
 				text: formatPath(value, true),
+				style: {
+					minWidth: "8px",
+					width: "fit-content",
+					minHeight: "var(--general-page-style--line-height)",
+				},
 			}),
 			children: children.map(([ftn]) => ftn),
 			ids: children.map(([_, id]) => id),
@@ -264,6 +419,9 @@ export class FileTree {
 		return info;
 	};
 
+	/**
+	 * asynchroncity managed internally by the instance, see class description
+	 */
 	async addSampleContent() {
 		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
 			try {
@@ -275,21 +433,33 @@ export class FileTree {
 			const projName = getProjectPath("tmp");
 			if (!(await tryCreateProject("tmp")))
 				throw "Sample project should not exist right now";
-			await projectsFSP.writeFile(Path.join(projName, "root"), "Hello");
+			await projectsFSP.writeFile(
+				Path.join(projName, "root"),
+				`\
+include "sub/file";
+print("Hello");`
+			);
 			await projectsFSP.mkdir(Path.join(projName, "sub"));
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub/file"),
-				"Hello file"
+				`\
+include "../sub2/file2";
+include "ssub/sfile";
+print("Hello file");`
 			);
 			await projectsFSP.mkdir(Path.join(projName, "sub2"));
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub2/file2"),
-				"Hello file2"
+				`\
+include "/sub/ssub/sfile";
+print("Hello file2");`
 			);
 			await projectsFSP.mkdir(Path.join(projName, "sub/ssub"));
 			await projectsFSP.writeFile(
 				Path.join(projName, "sub/ssub/sfile"),
-				"Hello sfile"
+				`\
+include "../../root";
+print("Hello sfile");`
 			);
 		}));
 	}
@@ -324,19 +494,18 @@ export class FileTree {
 	> = async (_event, value, _id) => {
 		this.selectPath(value.path);
 		if (value.type === "file") {
-			try {
-				const absPath = simplifyPath(`${this.dir}/${value.path}`);
-				// TODO: same file name in other projects/dirs?
-				const existingEditor = collection.getEditor(value.basename);
-				if (existingEditor) {
-					collection.setActiveEditor(existingEditor);
-					existingEditor.focus();
-					return;
-				}
-				const fileContent = await readFileContent(absPath);
-				createEditorTab(value.basename, fileContent.toString());
-			} catch (error) {
-				console.error("Failed to read file:", error);
+			const fileID = projectFileID(
+				this.openedProject!,
+				simplifyPath(value.path)
+			);
+			const ed = await collection.openEditorFromFile(fileID);
+			if (ed instanceof Error || ed === null) {
+				errorMsgBox(
+					`Could not open file: ${
+						ed === null ? "Doesn't exists" : ed.message
+					}`
+				);
+				return;
 			}
 		}
 	};
@@ -352,19 +521,23 @@ export class FileTree {
 	}
 
 	private async handleDelete() {
-		if (this.selectedPath === null) {
-			return;
-		}
+		if (this.openedProject === null || this.selectedPath === null) return;
+		const proj = this.openedProject;
 		const abs = this.toAbs(this.selectedPath);
+		const projAbsDeletePath = this.selectedPath;
 		const onDlgConfirm = async () => {
-			if (this.selectedPath === null) {
-				return false;
-			}
-			switch (this.pathToFileTreeNode(this.selectedPath)!.type) {
+			switch (this.pathToFileTreeNode(projAbsDeletePath)!.type) {
 				case "dir":
+					await closeProjectEditorTabsRecursively(
+						proj,
+						projAbsDeletePath
+					);
 					await rmdirRecursive(abs);
 					break;
 				case "file":
+					collection
+						.getEditor(projectFileID(proj, projAbsDeletePath))
+						?.close();
 					await projectsFSP.unlink(abs);
 					break;
 			}
@@ -378,8 +551,9 @@ export class FileTree {
 
 	private handleCreate() {
 		tabNameDlg(async (filename: string) => {
-			if (!checkValidBasename(filename)) {
-				informInvalidBasename(filename);
+			const namingErr = isInvalidBasename(filename);
+			if (namingErr !== undefined) {
+				informInvalidBasename(namingErr);
 				return true;
 			}
 			/* set to "/" if nothing selected, dirname if file selected, path if
@@ -414,13 +588,16 @@ export class FileTree {
 		if (this.selectedPath === null) {
 			return;
 		}
+		const projName = this.openedProject;
+		if (projName === null) return;
 		tabNameDlg(
 			async (filename: string) => {
 				if (this.selectedPath === null) {
 					return false;
 				}
-				if (!checkValidBasename(filename)) {
-					informInvalidBasename(filename);
+				const namingErr = isInvalidBasename(filename);
+				if (namingErr !== undefined) {
+					informInvalidBasename(namingErr);
 					return true;
 				}
 				const newProjPath = Path.join(
@@ -432,6 +609,11 @@ export class FileTree {
 					informNodeAlreadyExists(newProjPath);
 					return true;
 				}
+				renameFilePathsInEditors(
+					projName,
+					simplifyPath(this.selectedPath),
+					simplifyPath(newProjPath)
+				);
 				await projectsFSP.rename(this.toAbs(this.selectedPath), newAbs);
 				this.selectPath(newProjPath);
 				await this.refresh();

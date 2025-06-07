@@ -1,29 +1,55 @@
+import { ErrorHelper } from "../../lang/errors/ErrorHelper";
 import { Interpreter } from "../../lang/interpreter/interpreter";
 import { ProgramRoot } from "../../lang/interpreter/program-elements";
 import { ParseInput, parseProgram } from "../../lang/parser";
+import {
+	FileID,
+	ProjectFileID,
+	projectFileIDToProjAbsPath,
+	LocalStorageFileID,
+	StringFileID,
+	fileIDChangeNamespace,
+	splitFileIDAtColon,
+	fileIDHasNamespace,
+	localStorageFileIDToFilename,
+	projectFileIDTripleSplit,
+	localstorageFileID,
+	projectFileID,
+	stringFileID,
+	fileIDToContextDependentFilename,
+	isLoadableFileID,
+} from "../../lang/parser/file_id";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
-import { buttons, cmd_upload, cmd_download, cmd_export } from "./commands";
-import { configDlg, loadConfig, saveConfig, parseOptions } from "./dialogs";
-import { showdoc, showdocConfirm } from "./show-docs";
-import * as utils from "./utils";
 import { EditorCollection } from "./collection";
 import {
-	tab_config,
-	createEditorTab,
-	openEditorFromLocalStorage,
-} from "./editor-tabs";
+	buttons,
+	cmd_download,
+	cmd_export,
+	cmd_upload,
+	existsActiveSession,
+} from "./commands";
 import {
 	createCanvas,
 	createIDEInterpreter,
 	createTurtle,
 } from "./create-interpreter";
-import { FileTree } from "./file-tree";
-import { projectsFSP, setCurrentProject } from "../projects-fs";
+import { FileTree, fileTreePathToProjectNameFileName } from "./file-tree";
+import {
+	getProjectPath,
+	projectsFSP,
+	setCurrentProject,
+	simplifyPath,
+} from "../projects-fs";
+import Path from "@isomorphic-git/lightning-fs/src/path";
 
-export { createEditorTab };
+import { configDlg, loadConfig, parseOptions, saveConfig } from "./dialogs";
+import { programinfo } from "./programinfo";
+import { showdoc, showdocConfirm } from "./show-docs";
+import { stackinfo } from "./stackinfo";
+import { EditorController } from "./editor-controller";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -32,21 +58,19 @@ export { createEditorTab };
 export let collection!: EditorCollection;
 export let editor_title: any = null;
 export let panel_editor: any = null;
-export let editorcontainer: any = null;
-export let editortabs: any = null;
 
-export let messages: any = null;
-let messagecontainer: any = null;
+let messages!: HTMLElement;
+let messagecontainer!: HTMLElement;
+let hasErrorMessage = false;
 
 export let stacktree: tgui.TreeControl<any> | null = null;
 export let programtree: tgui.TreeControl<any> | null = null;
-export let programstate: any = null;
+let programStatusLabel!: tgui.LabelControl;
 
 let canvasContainer!: HTMLElement;
 let turtleContainer!: HTMLElement;
 
-/** current interpreter, non-null after successful parsing */
-export let interpreter: Interpreter | null = null;
+/** current interpreter session, non-null after successful parsing */
 export let interpreterSession: InterpreterSession | null = null;
 
 let main: any = null;
@@ -55,13 +79,18 @@ let iconlist: any = null;
 let highlight: any = null;
 export let runselector: HTMLSelectElement;
 
+export let filetree!: FileTree;
+export let tab_config: { align: "horizontal" | "vertical" } = {
+	align: "horizontal",
+};
+
 /**
  * add a message to the message panel
  */
 export function addMessage(
 	type: "print" | "warning" | "error",
 	text: string,
-	filename?: string,
+	filename?: FileID,
 	line?: number,
 	ch?: number,
 	href?: string
@@ -107,28 +136,24 @@ export function addMessage(
 				"ide ide-message" +
 				(type !== "print" ? " ide-errormessage" : ""),
 			text: s,
-		}) as any;
-		if (typeof line !== "undefined") {
-			msg.ide_filename = filename;
-			msg.ide_line = line;
-			msg.ide_ch = ch;
-			msg.addEventListener("click", function (event) {
-				utils.setCursorPosition(
-					event.target.ide_line,
-					event.target.ide_ch,
-					filename!
-				);
-				if (
-					interpreter &&
-					(interpreter.status != "running" || !interpreter.background)
-				) {
-					utils.updateControls();
-				}
-				return false;
+		});
+		if (filename && line != null && isLoadableFileID(filename)) {
+			msg.addEventListener("click", (event) => {
+				event.preventDefault();
+				collection.openEditorFromFile(filename!, {
+					line: line - 1,
+					character: ch,
+				});
 			});
 		}
 	}
 	messagecontainer.scrollTop = messagecontainer.scrollHeight;
+
+	if (type === "error") {
+		hasErrorMessage = true;
+		updateProgramState();
+	}
+
 	return { symbol: th, content: td };
 }
 
@@ -139,90 +164,284 @@ export function addMessage(
 export function clear() {
 	interpreterSession?.destroy();
 	interpreterSession = null;
-	interpreter = null;
 
-	tgui.clearElement(messages);
+	messages.replaceChildren();
+	hasErrorMessage = false;
+
+	updateProgramState({ interpreterChanged: true });
+}
+
+export type IncludeResolutionList = [StringFileID, string, StringFileID][];
+
+/** @see createParseInput */
+export type ParseInputIncludeSpecification = {
+	includeResolutions: IncludeResolutionList;
+	includeSourceResolutions: Map<StringFileID, string>;
+	main: StringFileID;
+};
+
+async function createParseInputProject(
+	projectName: string,
+	entryFilename: string
+): Promise<
+	[ParseInput<ProjectFileID, true>, ParseInputIncludeSpecification] | null
+> {
+	const includeResolutions: IncludeResolutionList = [];
+	const includeSourceResolutions: Map<StringFileID, string> = new Map();
+	const projectPath = getProjectPath(projectName);
+
+	/**
+	 * @param includingFileID `null` to signal that this wasn't an actual include
+	 */
+	const resolveIncludeToFileID = (
+		includingFileID: ProjectFileID | null,
+		includeOperand: string
+	): ProjectFileID | null => {
+		const includingAbs =
+			includingFileID === null
+				? null
+				: projectFileIDToProjAbsPath(includingFileID);
+		const dirname =
+			includingAbs === null ? "/" : Path.dirname(includingAbs);
+
+		let resolved: string;
+		try {
+			// both functions can throw
+			resolved = Path.normalize(Path.resolve(dirname, includeOperand));
+		} catch (e) {
+			return null;
+		}
+		// simplifyPath for removing trailing "/"
+		resolved = simplifyPath(resolved);
+		const fileIDSuffix = `${projectName}${resolved}`;
+		if (includingFileID !== null) {
+			const newEntry: IncludeResolutionList[0] = [
+				fileIDChangeNamespace(includingFileID, "string"),
+				includeOperand,
+				stringFileID(fileIDSuffix),
+			];
+			if (
+				!includeResolutions.some((e) =>
+					e.every((val, idx) => val === newEntry[idx])
+				)
+			) {
+				// newEntry is in fact new
+				includeResolutions.push(newEntry);
+			}
+		}
+		return projectFileID(projectName, resolved);
+	};
+
+	const resolveInclude = async (
+		fileID: ProjectFileID
+	): Promise<ParseInput<ProjectFileID, true> | null> => {
+		const projAbsPath = projectFileIDToProjAbsPath(fileID);
+		const editor = collection.getEditor(fileID);
+		if (editor) {
+			// file is opened
+			const source = editor.editorView.text();
+			includeSourceResolutions.set(
+				fileIDChangeNamespace(fileID, "string"),
+				source
+			);
+			return {
+				source,
+				filename: fileID,
+				resolveIncludeToFileID,
+				resolveInclude,
+			};
+		}
+
+		let readRes: string | undefined; // undefined if dir
+		try {
+			readRes = (await projectsFSP.readFile(
+				Path.join(projectPath, projAbsPath),
+				{ encoding: "utf8" }
+			)) as string | undefined;
+		} catch (e: any) {
+			// EISDIR is not actually thrown, but it's undocumented
+			if (
+				e instanceof Error &&
+				"code" in e &&
+				(e.code === "ENOENT" || e.code === "EISDIR")
+			) {
+				return null;
+			} else {
+				throw e;
+			}
+		}
+		if (readRes === undefined) {
+			return null;
+		} else {
+			includeSourceResolutions.set(
+				fileIDChangeNamespace(fileID, "string"),
+				readRes
+			);
+			return {
+				source: readRes,
+				filename: fileID,
+				resolveInclude,
+				resolveIncludeToFileID,
+			};
+		}
+	};
+
+	const entryStdFilename = resolveIncludeToFileID(null, entryFilename);
+	if (entryStdFilename === null) return null;
+	const mainParseInput = await resolveInclude(entryStdFilename);
+	if (mainParseInput === null) return null;
+	return [
+		mainParseInput,
+		{
+			includeResolutions,
+			includeSourceResolutions,
+			main: fileIDChangeNamespace(entryStdFilename, "string"),
+		},
+	];
+}
+
+function createParseInputLocalStorage(
+	entryFilename: string
+): [ParseInput<LocalStorageFileID>, ParseInputIncludeSpecification] | null {
+	const includeSourceResolutions: Map<StringFileID, string> = new Map();
+	const includeResolutions: [StringFileID, string, StringFileID][] = [];
+
+	const resolveIncludeToFileID = (
+		includingFile: LocalStorageFileID,
+		includeOperand: string
+	): LocalStorageFileID => {
+		includeResolutions.push([
+			fileIDChangeNamespace(includingFile, "string"),
+			includeOperand,
+			stringFileID(includeOperand),
+		]);
+		return localstorageFileID(includeOperand);
+	};
+	const resolveInclude = (
+		fileID: LocalStorageFileID
+	): ParseInput<LocalStorageFileID, true> | null => {
+		const filename = splitFileIDAtColon(fileID)[1];
+		const source =
+			collection.getEditor(fileID)?.editorView.text() ??
+			localStorage.getItem(`tscript.code.${filename}`);
+		if (source === null) return null;
+		includeSourceResolutions.set(
+			fileIDChangeNamespace(fileID, "string"),
+			source
+		);
+		return {
+			source,
+			filename: fileID,
+			resolveInclude,
+			resolveIncludeToFileID,
+		};
+	};
+
+	const entryFileID = localstorageFileID(entryFilename);
+	const mainParseInput = resolveInclude(entryFileID);
+	if (mainParseInput === null) return null;
+	return [
+		mainParseInput,
+		{
+			includeSourceResolutions,
+			includeResolutions,
+			main: fileIDChangeNamespace(entryFileID, "string"),
+		},
+	];
 }
 
 /**
  * Create ParseInput from the current editors
  *
- * @returns a ParseInput object or `null` if no editors are open
+ * @returns null if the current run selection could not be resolved, otherwise
+ * `[parseInput, spec]`. `parseInput` is the entry point of the program. `spec`
+ * stores the content of the parsed
+ * inputs, how they are included, and which one is the entry point. This is used
+ * for serializing the program for creating the standalone page.
+ *	- `spec.includeResolutions`: array of triples `[includingFile, includeOperand,
+ *		resolvedFilename]`, meaning that that in `includingFile`, an include with
+ *		operand `includeOperand` resolves to the file `resolvedFilename`.
+ *	- `spec.includeSourceResolutions`: Map from resolved filenames (third entry in
+ *		includeResolutions triples) to their sources
+ *	- `spec.mainEntry`: main file/entry point
+ *	`includeResolutions` and `includeSourceResolutions` will only be filled once
+ *	`parseInput` is actually parsed. The FileIDs under `spec` have the "string"
+ *	namespace, regardless of the actual namespace the original files came from.
  */
-export function createParseInput(
-	files = new Map<string, ParseInput>()
-): ParseInput | null {
-	function getFile(filename: string): ParseInput | null {
-		const existing = files.get(filename);
-		if (existing) return existing;
-
-		const source =
-			collection.getEditor(filename)?.text() ??
-			localStorage.getItem(`tscript.code.${filename}`);
-		if (!source) return null;
-
-		const file: ParseInput = { filename, source, resolveInclude: getFile };
-		files.set(filename, file);
-		return file;
+export async function createParseInput(): Promise<
+	| [
+			ParseInput<ProjectFileID> | ParseInput<LocalStorageFileID>,
+			ParseInputIncludeSpecification
+	  ]
+	| null
+> {
+	const selection = getRunSelection();
+	if (fileIDHasNamespace(selection, "project")) {
+		const [_, projName, projAbsPath] = projectFileIDTripleSplit(selection);
+		return createParseInputProject(projName, projAbsPath);
+	} else if (fileIDHasNamespace(selection, "localstorage")) {
+		return createParseInputLocalStorage(
+			localStorageFileIDToFilename(selection)
+		);
+	} else {
+		throw new Error("Not implemented");
 	}
-
-	return getFile(getRunSelection());
 }
 
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
+ * @returns an {@link InterpreterSession} instance, or `null` on error
  */
-export function prepareRun(): InterpreterSession | null {
+export async function prepareRun(): Promise<InterpreterSession | null> {
+	const parseInput = (await createParseInput())?.[0];
+	if (!parseInput) {
+		return null;
+	}
+
+	const { program, errors } = await parseProgram(
+		parseInput,
+		true,
+		parseOptions
+	);
+
+	if (existsActiveSession()) {
+		return null;
+	}
+
+	// everything after that should ideally be synchronous
 	clear();
-
-	const parseInput = createParseInput();
-	if (!parseInput) return null;
-
-	const { program, errors } = parseProgram(parseInput, parseOptions);
 	for (const err of errors) {
 		addMessage(
 			err.type,
-			err.type +
-				(err.filename ? " in file '" + err.filename + "'" : "") +
-				" in line " +
-				err.line +
-				": " +
-				err.message,
+			ErrorHelper.getLocatedErrorMsg(
+				err.type,
+				err.filename ?? undefined,
+				err.line,
+				err.message
+			),
 			err.filename ?? undefined,
 			err.line,
 			err.ch,
 			err.type === "error" ? err.href : undefined
 		);
 	}
-	if (!program) return null;
+	if (!program) {
+		return null;
+	}
 
 	interpreterSession = new InterpreterSession(
 		program,
 		turtleContainer,
 		canvasContainer
 	);
-	interpreter = interpreterSession.interpreter;
 
-	for (let ed of collection.getEditors()) {
-		// set and correct breakpoints
-		let br = ed.properties().breakpoints;
-		let a = new Array<number>();
-		for (let line of br) a.push(line + 1);
-
-		let result = interpreter.defineBreakpoints(a, ed.properties().name);
-		if (result !== null) {
-			for (let line of br)
-				if (!result.has(line)) ed.properties().toggleBreakpoint(line);
-			for (let line of result)
-				if (!br.has(line)) ed.properties().toggleBreakpoint(line);
-		}
-	}
-
+	// the IDE has an InterpreterSession now
+	updateProgramState({ interpreterChanged: true });
 	return interpreterSession;
 }
 
-class InterpreterSession {
+export class InterpreterSession {
 	readonly interpreter: Interpreter;
 
 	readonly #controller = new AbortController();
@@ -257,20 +476,15 @@ class InterpreterSession {
 		};
 		interpreter.service.message = (
 			msg: string,
-			filename?: string,
+			filename?: FileID,
 			line?: number,
 			ch?: number,
 			href?: string
 		) => {
 			addMessage("error", msg, filename, line, ch, href);
 		};
-		interpreter.service.statechanged = (stop: boolean) => {
-			if (stop) utils.updateControls();
-			else utils.updateStatus();
-			if (interpreter.status === "finished") {
-				let ed = collection.getActiveEditor();
-				if (ed) ed.focus();
-			}
+		interpreter.service.statechanged = () => {
+			updateProgramState();
 		};
 
 		this.#turtle = createTurtle(turtleContainer, this.#controller.signal);
@@ -286,12 +500,6 @@ class InterpreterSession {
 		interpreter.service.canvas.dom = this.#canvas;
 	}
 
-	run() {
-		// Start background execution and focus the canvas container for keyboard input
-		this.interpreter.run();
-		this.#canvas.parentElement!.focus();
-	}
-
 	destroy() {
 		this.#controller.abort();
 
@@ -299,6 +507,107 @@ class InterpreterSession {
 
 		this.#turtle.remove();
 		this.#canvas.remove();
+	}
+}
+
+type ProgramStatus =
+	| "unchecked"
+	| "running"
+	| "stepping"
+	| "waiting"
+	| "finished"
+	| "error";
+
+export const shouldLockEditors = (state = currentProgramState) =>
+	state === "running" || state === "stepping" || state === "waiting";
+
+const shouldShowSteppingInfo = (status: ProgramStatus) =>
+	status === "stepping" || status === "error";
+
+const shouldFocusCanvas = (status: ProgramStatus) =>
+	status === "running" || status === "waiting";
+
+function getProgramStatus(): ProgramStatus {
+	const interpreter = interpreterSession?.interpreter;
+	if (interpreter) {
+		const status = interpreter.status;
+		switch (status) {
+			case "running":
+				return interpreter.background ? "running" : "stepping";
+			case "dialog":
+				return "waiting";
+			default:
+				return status;
+		}
+	}
+
+	return hasErrorMessage ? "error" : "unchecked";
+}
+
+const programStatusDescription: Record<ProgramStatus, string> = {
+	unchecked: "program has not been checked",
+	running: "program is running",
+	stepping: "program is in stepping mode",
+	waiting: "program is waiting",
+	finished: "program has finished",
+	error: "an error has ocurred",
+};
+
+let currentProgramState: ProgramStatus = "unchecked";
+function updateProgramState(options?: { interpreterChanged: boolean }) {
+	const previous = currentProgramState;
+	const current = (currentProgramState = getProgramStatus());
+
+	if (shouldShowSteppingInfo(current)) {
+		// update stack info and program trees, relevant while stepping through the program
+		stacktree!.update(stackinfo);
+		programtree!.update(programinfo);
+
+		// move the cursor to the position of the current program element
+		const stack = interpreterSession?.interpreter.stack;
+		if (stack && stack.length > 0) {
+			const frame = stack[stack.length - 1];
+			const pe = frame.pe[frame.pe.length - 1];
+			if (
+				pe.where &&
+				pe.where.filename !== null &&
+				isLoadableFileID(pe.where.filename)
+			) {
+				collection.openEditorFromFile(pe.where.filename, {
+					line: pe.where.line - 1,
+					character: pe.where.ch,
+				});
+			}
+		}
+	} else if (shouldShowSteppingInfo(previous)) {
+		// empty stack info and program trees
+		const emptyTree = () => ({ children: [], ids: [] });
+		stacktree!.update(emptyTree);
+		programtree!.update(emptyTree);
+	}
+
+	// if editors should be locked, tell them about the current interpreter
+	const lockEditors = shouldLockEditors(current);
+	if (
+		options?.interpreterChanged ||
+		lockEditors !== shouldLockEditors(previous)
+	) {
+		const session = lockEditors ? interpreterSession : null;
+		for (const e of collection.editors) e.updateInterpreter(session);
+	}
+
+	if (previous !== current) {
+		// update the program status label
+		programStatusLabel.setText(programStatusDescription[current]);
+		programStatusLabel.setClassName("ide-state-" + current);
+
+		if (shouldFocusCanvas(current)) {
+			// focus the canvas container for keyboard input when entering running/waiting
+			if (!shouldFocusCanvas(previous)) canvasContainer.focus();
+		} else if (current === "finished" || current === "unchecked") {
+			// finished running the program? -> focus active editor
+			collection.activeEditor?.editorView.focus();
+		}
 	}
 }
 
@@ -402,8 +711,10 @@ export function create(container: HTMLElement, options?: any) {
 		classname: "tgui tgui-control tgui-toolbar-separator",
 	});
 
-	programstate = tgui.createLabel({
+	programStatusLabel = tgui.createLabel({
 		parent: toolbar,
+		text: programStatusDescription[currentProgramState],
+		className: "ide-state-" + currentProgramState,
 		style: {
 			float: "left",
 			width: "calc(min(250px, max(20px, 50vw - 270px)))",
@@ -417,35 +728,7 @@ export function create(container: HTMLElement, options?: any) {
 			"text-align": "center",
 		},
 	});
-
-	programstate.setStateCss = function (state) {
-		let cls = `ide-state-${state}`;
-		if (this.hasOwnProperty("state_css_class"))
-			this.dom.classList.replace(this.state_css_class, cls);
-		else this.dom.classList.add(cls);
-		this.state_css_class = cls;
-		return this;
-	};
 	// TODO set tooltip text to the content text, this should apply when the statusbox is too narrow
-	programstate.unchecked = function () {
-		this.setText("program has not been checked").setStateCss("unchecked");
-	};
-	programstate.error = function () {
-		this.setText("an error has occurred").setStateCss("error");
-	};
-	programstate.running = function () {
-		this.setText("program is running").setStateCss("running");
-	};
-	programstate.waiting = function () {
-		this.setText("program is waiting").setStateCss("waiting");
-	};
-	programstate.stepping = function () {
-		this.setText("program is in stepping mode").setStateCss("stepping");
-	};
-	programstate.finished = function () {
-		this.setText("program has finished").setStateCss("finished");
-	};
-	programstate.unchecked();
 
 	tgui.createElement({
 		type: "div",
@@ -507,7 +790,7 @@ export function create(container: HTMLElement, options?: any) {
 
 		// pressing F1
 		tgui.setHotkey("F1", function () {
-			const ed = collection.getActiveEditor();
+			const ed = collection.activeEditor?.editorView;
 			if (!ed) return;
 
 			let selection = ed.selection();
@@ -536,8 +819,6 @@ export function create(container: HTMLElement, options?: any) {
 	// prepare tgui panels
 	tgui.preparePanels(area, iconlist);
 
-	collection = new EditorCollection();
-
 	panel_editor = tgui.createPanel({
 		name: "tab_editor",
 		title: "Editor",
@@ -558,7 +839,7 @@ export function create(container: HTMLElement, options?: any) {
 		parent: panel_editor.content,
 		classname: "tabs-container " + tab_config.align,
 	});
-	editortabs = tgui.createElement({
+	const editortabs = tgui.createElement({
 		type: "div",
 		parent: p,
 		classname: "tabs",
@@ -576,28 +857,50 @@ export function create(container: HTMLElement, options?: any) {
 			saveConfig();
 		},
 	});
-	editorcontainer = tgui.createElement({
+	const editorcontainer = tgui.createElement({
 		type: "div",
 		parent: p,
 		classname: "editorcontainer",
 	});
 
-	if (config && config.hasOwnProperty("open")) {
-		for (let filename of config.open) {
-			openEditorFromLocalStorage(filename, false);
+	let configSaveScheduled = false;
+	function scheduleEditorStateSave() {
+		// save the config after a short delay
+		// used to batch multiple changes into a single write to localStorage
+		if (!configSaveScheduled) {
+			configSaveScheduled = true;
+			setTimeout(() => {
+				configSaveScheduled = false;
+				saveConfig();
+			}, 500);
 		}
 	}
-	if (config && config.hasOwnProperty("active")) {
-		let ed = collection.getEditor(config.active);
-		if (ed) collection.setActiveEditor(ed, false);
-	}
-	if (config && config.hasOwnProperty("main")) {
-		runselector.value = config.main;
-	}
-	if (collection.getEditors().size === 0) {
-		const ed = openEditorFromLocalStorage("Main");
-		if (!ed) createEditorTab("Main");
-	}
+	collection = new EditorCollection(
+		editorcontainer,
+		editortabs,
+		runselector,
+		scheduleEditorStateSave
+	);
+	collection
+		.restoreState({
+			open: config?.open ?? [],
+			active: config?.active ?? null,
+		})
+		.then(async () => {
+			if (config && config.hasOwnProperty("main")) {
+				runselector.value = config.main;
+			}
+			if (!collection.activeEditor) {
+				const fileID = localstorageFileID("Main");
+				if (
+					!(
+						(await collection.openEditorFromFile(fileID)) instanceof
+						EditorController
+					)
+				)
+					collection.openEditorFromData(fileID, "");
+			}
+		});
 
 	let panel_messages = tgui.createPanel({
 		name: "messages",
@@ -641,13 +944,12 @@ export function create(container: HTMLElement, options?: any) {
 
 	programtree = new tgui.TreeControl<any>({
 		parent: panel_programview.content,
-		nodeclick: function (event, value, id) {
+		nodeclick: async function (event, value, id) {
 			if (value.where) {
-				utils.setCursorPosition(
-					value.where.line,
-					value.where.ch,
-					value.where.filename
-				);
+				await collection.openEditorFromFile(value.where.filename, {
+					line: value.where.line - 1,
+					character: value.where.ch,
+				});
 			}
 		},
 	});
@@ -691,10 +993,7 @@ export function create(container: HTMLElement, options?: any) {
 	});
 	tutorial.init(
 		tutorial_container,
-		function () {
-			let ed = collection.getActiveEditor();
-			return ed ? ed.text() : "";
-		},
+		() => collection.activeEditor?.editorView.text() ?? "",
 		function () {
 			messages.innerHTML = "";
 		},
@@ -703,11 +1002,11 @@ export function create(container: HTMLElement, options?: any) {
 		}
 	);
 
-	let ft = new FileTree();
+	filetree = new FileTree();
 	// for testing
 	(async () => {
-		await ft.addSampleContent();
-		await ft.init();
+		await filetree.addSampleContent();
+		await filetree.init();
 		await setCurrentProject("tmp");
 	})();
 
@@ -718,6 +1017,6 @@ export function create(container: HTMLElement, options?: any) {
 /**
  * Returns the current filename, selected in the run-selector
  */
-export function getRunSelection() {
-	return runselector.value;
+export function getRunSelection(): FileID {
+	return runselector.value as FileID;
 }

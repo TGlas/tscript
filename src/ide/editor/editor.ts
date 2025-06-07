@@ -1,7 +1,13 @@
+import Path from "@isomorphic-git/lightning-fs/src/path";
+import { projectFileID } from "../../lang/parser/file_id";
+import { collection } from "../elements";
+import { EditorController } from "../elements/editor-controller";
+import { getProjectPath, recurseDirectory, simplifyPath } from "../projects-fs";
 import { getResolvedTheme, ThemeName } from "../tgui";
 import {
 	CommentAction,
 	IndentAction,
+	LineStructureChange,
 	ReplaceAction,
 	SimpleAction,
 	UncommentAction,
@@ -42,6 +48,39 @@ const defaultKeyBindings = new Map<string, KeyCommand>([
 	["ctrl+b", "bracket"],
 ]);
 
+interface EditorEvents {
+	/** Triggered when the editor gains focus. */
+	focus?: () => void;
+
+	/** Triggered when the editor loses focus. */
+	blur?: () => void;
+
+	/**
+	 * Triggered after the document has changed.
+	 *
+	 * @param lineChange changes to the line structure, if any
+	 * @returns
+	 */
+	changed?: (lineChange: LineStructureChange | null) => void;
+
+	/**
+	 * It is expected to return an array of nulls or strings, one per line,
+	 * to be drawn into the icon bar. Since the bar is narrow,
+	 * single-character strings are expected.
+	 *
+	 * @param begin the start of the drawn range of lines
+	 * @param end the end of the drawn range of lines
+	 */
+	barDraw?: (begin: number, end: number) => (null | string)[];
+
+	/**
+	 * Triggered when the bar is clicked
+	 *
+	 * @param line the number of the line at which the bar was clicked
+	 */
+	barClick?: (line: number) => void;
+}
+
 // The editor class links all components (DOM elements and internal
 // management objects) together. It refers to exactly one document in a
 // fixed language for syntax highlighting. Its main job is to process
@@ -57,7 +96,7 @@ export class Editor {
 	private scroll_x: number = 0;
 	private scroll_y: number = 0;
 	private capture: number | null = null;
-	private eventHandlers: any = {};
+	readonly events: EditorEvents = {};
 	private fontsize: number = 0;
 	private tpad: number = 0;
 	private bpad: number = 0;
@@ -375,9 +414,7 @@ export class Editor {
 
 	// Set the document text. Essentially, this amounts to creating a new document.
 	public setText(text: string, options: any = {}) {
-		let props = this.document.properties;
 		this.document = new Document(this.document.language, text);
-		this.document.properties = props;
 		this.docChanged();
 		this.setTarget(0);
 		if (options.hasOwnProperty("cursor"))
@@ -447,28 +484,6 @@ export class Editor {
 		window.setTimeout(() => {
 			this.dom_focus.blur();
 		}, 0);
-	}
-
-	// An application can set the following event callbacks:
-	//   focus() is triggered when the editor gains focus.
-	//   blur() is triggered when the editor loses focus.
-	//   changed(line, removed, inserted) is triggered after the
-	//       document has changed. If the change involves line
-	//       breaks then line is the start line of the change,
-	//       removed is the number of lines removed, and inserted
-	//       is the number of additional lines. This information
-	//       allows to keep track of break points. For changes
-	//       not modifying the line structure, all three
-	//       parameters are null.
-	//   barDraw(begin, end) takes a range begin:end of lines.
-	//       It is expected to return an array of nulls or strings,
-	//       one per line, to be drawn into the icon bar. Since the
-	//       bar is narrow, single-character strings are expected.
-	//   barClick(line) is triggered when the bar is clicked. The
-	//       line number is provided as an argument.
-	public setEventHandler(name: string, handler: any) {
-		if (handler) this.eventHandlers[name] = handler;
-		else delete this.eventHandlers[name];
 	}
 
 	// obtain the current cursor position as an object {row, col}
@@ -549,12 +564,12 @@ export class Editor {
 			) as CanvasRenderingContext2D;
 			ctx.fillStyle = this.theme.bars.icons.background;
 			ctx.fillRect(0, 0, w, this.dom_bar_icon.height);
-			if (this.eventHandlers.barDraw) {
+			if (this.events.barDraw) {
 				ctx.font = 0.8 * this.fontsize + "px monospace";
 				ctx.textAlign = "left";
 				ctx.textBaseline = "top";
 				ctx.fillStyle = this.theme.bars.icons.color;
-				let a = this.eventHandlers.barDraw(top, bottom);
+				const a = this.events.barDraw(top, bottom);
 				for (let line = top; line < bottom; line++) {
 					let e = a[line - top];
 					if (!e) continue;
@@ -768,16 +783,6 @@ export class Editor {
 		this.draw();
 	}
 
-	// Return an object holding arbitrary extension properties,
-	// i.e., data attached to the editor/document instance. The
-	// mechanisms helps to attach data that is not the business
-	// of the core editor itself, but linked to it by the
-	// application. In the IDE, it is used for the filename, the
-	// panel ID, and for managing breakpoints.
-	public properties() {
-		return this.document.properties;
-	}
-
 	// Recalculate element sizes based on document changes. This affects
 	// the sizer element used for scrolling as well as the width of the
 	// line number display, which may trigger a size change of the
@@ -859,12 +864,7 @@ export class Editor {
 		this.document.execute(action, canMerge);
 		this.setTarget();
 		this.scrollIntoView();
-		if (this.eventHandlers.changed) {
-			let { line, removed, inserted } = action.linesChanged(
-				this.document
-			);
-			this.eventHandlers.changed(line, removed, inserted);
-		}
+		this.events.changed?.(action.linesChanged(this.document));
 	}
 
 	private onScroll(event: any = null) {
@@ -877,12 +877,12 @@ export class Editor {
 
 	private onFocus(event: Event) {
 		this.draw();
-		if (this.eventHandlers.focus) this.eventHandlers.focus();
+		this.events.focus?.();
 	}
 
 	private onBlur(event: Event) {
 		this.draw();
-		if (this.eventHandlers.blur) this.eventHandlers.blur();
+		this.events.blur?.();
 	}
 
 	private onKey(event: KeyboardEvent) {
@@ -923,26 +923,31 @@ export class Editor {
 			} else if (bound === "undo" && !this.readOnly) {
 				let action = this.document.undo();
 				this.setTarget();
-				if (this.eventHandlers.changed) {
-					if (action && action instanceof SimpleAction) {
-						let { line, removed, inserted } = action.linesChanged(
-							this.document
-						);
-						this.eventHandlers.changed(line, inserted, removed); // swap of inserted and removed is intentional!
-					} else this.eventHandlers.changed(null, null, null);
+				if (this.events.changed) {
+					const change =
+						action instanceof SimpleAction
+							? action.linesChanged(this.document)
+							: null;
+					this.events.changed(
+						change
+							? {
+									// swap of inserted and removed is intentional!
+									line: change.line,
+									inserted: change.removed,
+									removed: change.inserted,
+							  }
+							: null
+					);
 				}
 				this.scrollIntoView();
 			} else if (bound === "redo" && !this.readOnly) {
 				let action = this.document.redo();
 				this.setTarget();
-				if (this.eventHandlers.changed) {
-					if (action && action instanceof SimpleAction) {
-						let { line, removed, inserted } = action.linesChanged(
-							this.document
-						);
-						this.eventHandlers.changed(line, removed, inserted);
-					} else this.eventHandlers.changed(null, null, null);
-				}
+				this.events.changed?.(
+					action instanceof SimpleAction
+						? action.linesChanged(this.document)
+						: null
+				);
 				this.scrollIntoView();
 			} else if (bound === "toggle comment" && !this.readOnly) {
 				// toggle line comments
@@ -981,8 +986,7 @@ export class Editor {
 					this.document.execute(action);
 					this.setTarget();
 					this.scrollIntoView();
-					if (this.eventHandlers.changed)
-						this.eventHandlers.changed(null, null, null);
+					this.events.changed?.(null);
 				}
 			} else if (bound === "bracket") {
 				// jump to matching bracket
@@ -1217,8 +1221,7 @@ export class Editor {
 						this.document.execute(action);
 						this.setTarget();
 						this.scrollIntoView();
-						if (this.eventHandlers.changed)
-							this.eventHandlers.changed(null, null, null);
+						this.events.changed?.(null);
 					}
 				} else {
 					if (
@@ -1235,8 +1238,7 @@ export class Editor {
 						this.document.execute(action);
 						this.setTarget();
 						this.scrollIntoView();
-						if (this.eventHandlers.changed)
-							this.eventHandlers.changed(null, null, null);
+						this.events.changed?.(null);
 					} else {
 						// insert a tabulator as a simple "typing" action
 						this.simpleAction("\t");
@@ -1472,7 +1474,7 @@ export class Editor {
 		event.stopPropagation();
 		this.dom_focus.focus();
 
-		if (!this.eventHandlers.barClick) return;
+		if (!this.events.barClick) return;
 
 		// canvas pixel coordinates
 		let y = Math.round(event.offsetY * window.devicePixelRatio) | 0;
@@ -1481,7 +1483,7 @@ export class Editor {
 		let line = Math.floor((y + this.scroll_y) / this.em) | 0;
 
 		let h = this.document.height();
-		this.eventHandlers.barClick(Math.min(line, h));
+		this.events.barClick(Math.min(line, h));
 		this.draw();
 	}
 
@@ -1562,8 +1564,7 @@ export class Editor {
 		this.document.execute(action);
 		this.setTarget();
 		this.scrollIntoView();
-		if (this.eventHandlers.changed)
-			this.eventHandlers.changed(null, null, null);
+		this.events.changed?.(null);
 
 		this.closeSearch();
 	}
@@ -1663,4 +1664,30 @@ export class Editor {
 		"Enter",
 		"Escape",
 	]);
+}
+
+export function updateTabTitle(editor: EditorController, newTitle: string) {
+	if (!editor.tab) return;
+	const nameSpan = editor.tab.querySelector(".name");
+	if (nameSpan) {
+		nameSpan.textContent = newTitle;
+	}
+
+	if (editor.runOption) {
+		editor.runOption.textContent = newTitle;
+		editor.runOption.value = newTitle;
+	}
+}
+
+export async function closeProjectEditorTabsRecursively(
+	projectName: string,
+	projAbsPath: string
+): Promise<void> {
+	const projPath = simplifyPath(getProjectPath(projectName));
+	const absPath = Path.join(projPath, projAbsPath);
+	for await (const entry of recurseDirectory(absPath)) {
+		const projAbsPathToClose = simplifyPath(entry.slice(projPath.length));
+		const fileID = projectFileID(projectName, projAbsPathToClose);
+		collection.getEditor(fileID)?.close();
+	}
 }
