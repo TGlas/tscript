@@ -676,10 +676,10 @@ class FileDlgView {
 						margin: "0 0px 7px 0px",
 					},
 					classname: "tgui-text-box",
-					text: dsc.initItem,
 					properties: {
 						type: "text",
 						placeholder: dsc.inputFieldPlaceholder,
+						value: dsc.initItem,
 					},
 				});
 			}
