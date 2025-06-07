@@ -4,6 +4,7 @@ import {
 	fileIDToHumanFriendly,
 	isLoadableFileID,
 	LoadableFileID,
+	localstorageFileID,
 } from "../../lang/parser/file_id";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
@@ -518,11 +519,11 @@ export function fileDlg(
 	(allowNewFilename ? (name as any) : list).focus();
 	return dlg;
 
-	function deleteFile(filename) {
+	function deleteFile(filename: string) {
 		let index = files.indexOf(filename);
 		if (index >= 0) {
 			let onDelete = () => {
-				ide.collection.getEditor(filename)?.close();
+				ide.collection.getEditor(localstorageFileID(filename))?.close();
 				localStorage.removeItem("tscript.code." + filename);
 				files.splice(index, 1);
 				list.remove(index);
