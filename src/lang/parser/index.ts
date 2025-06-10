@@ -140,17 +140,23 @@ export const defaultParseOptions: ParseOptions = {
 	checkstyle: false,
 };
 
-export interface ParseInput {
+interface BaseParseInput {
 	filename: string;
 	source: string;
+}
 
+export interface ParseInput extends BaseParseInput {
 	/**
 	 * Resolve an include statement.
 	 *
 	 * @param filename the filename as specified in the include statement
 	 * @returns the file to be included or null if none could be found
 	 */
-	resolveInclude(filename: string): ParseInput | null;
+	resolveInclude(filename: string): Promise<ParseInput | null>;
+}
+
+export interface ParseInputWithoutIncludes extends BaseParseInput {
+	resolveInclude?: undefined;
 }
 
 export interface ParseResult {
@@ -159,21 +165,37 @@ export interface ParseResult {
 	errors: ParseErrorOrWarning[];
 }
 
-export function parseProgramFromString(source: string, options?: ParseOptions) {
+export function parseProgramFromString(
+	source: string,
+	options?: ParseOptions
+): ParseResult {
 	return parseProgram(
 		{
 			filename: "main",
 			source,
-			resolveInclude: () => null,
 		},
 		options
 	);
 }
 
+/**
+ * @param options `defaultParseOptions` by default.
+ *
+ * Synchronous if `mainInput` is a `ParseInputWithoutIncludes`, asynchronous if
+ * `mainInput` is a `ParseInput`.
+ */
 export function parseProgram(
 	mainInput: ParseInput,
+	options?: ParseOptions
+): Promise<ParseResult>;
+export function parseProgram(
+	mainInput: ParseInputWithoutIncludes,
+	options?: ParseOptions
+): ParseResult;
+export function parseProgram(
+	mainInput: ParseInputWithoutIncludes | ParseInput,
 	options: ParseOptions = defaultParseOptions
-): ParseResult {
+): Promise<ParseResult> | ParseResult {
 	const includedFiles = new Set<string>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
@@ -205,50 +227,49 @@ export function parseProgram(
 		}
 	}
 
-	/**
-	 * Parse one library or program from a file. Includes are supported
-	 */
-	function parseFile(file: ParseInput) {
+	/** Parse one library or program from a file. Includes are supported. */
+	async function parseFileWithIncludes(file: ParseInput) {
 		includedFiles.add(file.filename);
 		state.setSource(file.source, null, file.filename);
 		while (state.good()) {
 			const inc = parse_include(state, program, options);
-			if (inc !== null) {
-				const targetFile = file.resolveInclude(inc.filename);
-				if (!targetFile) {
-					// the file was not found
-					state.set(inc.position);
-					state.error("/argument-mismatch/am-48", [inc.filename]);
-					return;
-				}
-
-				if (!includedFiles.has(targetFile.filename)) {
-					// safe the state
-					let backup = {
-						source: state.source,
-						pos: state.pos,
-						line: state.line,
-						filename: state.filename,
-						ch: state.ch,
-						indent: state.indent.slice(),
-					};
-
-					// import the file
-					parseFile(targetFile);
-
-					// restore the state
-					state.source = backup.source;
-					state.pos = backup.pos;
-					state.line = backup.line;
-					state.filename = backup.filename;
-					state.ch = backup.ch;
-					state.indent = backup.indent;
-				}
-			} else {
+			if (inc === null) {
 				let p = parse_statement_or_declaration(state, program, options);
 				program.commands.push(p);
 				program.children.push(p);
+				continue;
 			}
+			const targetFile = await file.resolveInclude(inc.filename);
+			if (!targetFile) {
+				// the file was not found
+				state.set(inc.position);
+				state.error("/argument-mismatch/am-48", [inc.filename]);
+				return;
+			}
+
+			if (includedFiles.has(targetFile.filename)) {
+				continue;
+			}
+			// safe the state
+			let backup = {
+				source: state.source,
+				pos: state.pos,
+				line: state.line,
+				filename: state.filename,
+				ch: state.ch,
+				indent: state.indent.slice(),
+			};
+
+			// import the file
+			await parseFileWithIncludes(targetFile);
+
+			// restore the state
+			state.source = backup.source;
+			state.pos = backup.pos;
+			state.line = backup.line;
+			state.filename = backup.filename;
+			state.ch = backup.ch;
+			state.indent = backup.indent;
 		}
 	}
 
@@ -263,10 +284,34 @@ export function parseProgram(
 		parseString(lib_turtle.source, lib_turtle.impl);
 		parseString(lib_canvas.source, lib_canvas.impl);
 		parseString(lib_audio.source, lib_audio.impl);
-
-		// parse the user's source code
 		program.where = state.get();
-		parseFile(mainInput);
+	} catch (e) {
+		handleError(e);
+		return constructResult();
+	}
+
+	if (typeof mainInput.resolveInclude === "function") {
+		/** mainInput is {@link ParseInput} */
+		return (async () => {
+			try {
+				await parseFileWithIncludes(mainInput);
+				afterParse();
+			} catch (e) {
+				handleError(e);
+			}
+			return constructResult();
+		})();
+	} else {
+		try {
+			parseString(mainInput.source, null, mainInput.filename);
+			afterParse();
+		} catch (e) {
+			handleError(e);
+		}
+		return constructResult();
+	}
+
+	function afterParse() {
 		program.lines = state.line;
 
 		// append an "end" breakpoint
@@ -285,7 +330,15 @@ export function parseProgram(
 
 		// further passes may follow in the future, e.g., for optimizations
 		// compilerPass("Optimize");
-	} catch (ex: any) {
+	}
+
+	function constructResult() {
+		return errors.length > 0
+			? { program: null, errors }
+			: { program, errors: [] };
+	}
+
+	function handleError(ex: any) {
 		// ignore the actual exception and rely on state.errors instead
 		if (ex.name !== "Parse Error") {
 			// report an internal parser error
@@ -298,10 +351,6 @@ export function parseProgram(
 			});
 		}
 	}
-
-	return errors.length > 0
-		? { program: null, errors }
-		: { program, errors: [] };
 }
 
 /** recursive compiler pass through the syntax tree */

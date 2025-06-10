@@ -6,7 +6,13 @@ import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
 import { EditorCollection } from "./collection";
-import { buttons, cmd_download, cmd_export, cmd_upload } from "./commands";
+import {
+	buttons,
+	cmd_download,
+	cmd_export,
+	cmd_upload,
+	existsActiveSession,
+} from "./commands";
 import {
 	createCanvas,
 	createIDEInterpreter,
@@ -141,10 +147,10 @@ export function clear() {
  *
  * @returns a ParseInput object or `null` if no editors are open
  */
-export function createParseInput(
+export async function createParseInput(
 	files = new Map<string, ParseInput>()
-): ParseInput | null {
-	function getFile(filename: string): ParseInput | null {
+): Promise<ParseInput | null> {
+	async function getFile(filename: string): Promise<ParseInput | null> {
 		const existing = files.get(filename);
 		if (existing) return existing;
 
@@ -153,7 +159,11 @@ export function createParseInput(
 			localStorage.getItem(`tscript.code.${filename}`);
 		if (!source) return null;
 
-		const file: ParseInput = { filename, source, resolveInclude: getFile };
+		const file: ParseInput = {
+			filename,
+			source,
+			resolveInclude: getFile,
+		};
 		files.set(filename, file);
 		return file;
 	}
@@ -164,14 +174,22 @@ export function createParseInput(
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
+ * @returns an {@link InterpreterSession} instance, or `null` on error
  */
-export function prepareRun(): InterpreterSession | null {
+export async function prepareRun(): Promise<InterpreterSession | null> {
+	const parseInput = await createParseInput();
+	if (!parseInput) {
+		return null;
+	}
+
+	const { program, errors } = await parseProgram(parseInput, parseOptions);
+
+	// everything after that should ideally be synchronous
+	if (existsActiveSession()) {
+		return null;
+	}
+
 	clear();
-
-	const parseInput = createParseInput();
-	if (!parseInput) return null;
-
-	const { program, errors } = parseProgram(parseInput, parseOptions);
 	for (const err of errors) {
 		addMessage(
 			err.type,
@@ -187,7 +205,9 @@ export function prepareRun(): InterpreterSession | null {
 			err.type === "error" ? err.href : undefined
 		);
 	}
-	if (!program) return null;
+	if (!program) {
+		return null;
+	}
 
 	interpreterSession = new InterpreterSession(
 		program,
