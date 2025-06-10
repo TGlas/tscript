@@ -996,7 +996,8 @@ export function deleteFileDlg(
 export function tabNameDlg(
 	onOkay: (filename: string) => boolean | Promise<boolean> | void,
 	title: string = "New tab",
-	defaultInput: string | undefined = undefined
+	defaultInput: string | undefined = undefined,
+	customPlaceholder: string | undefined = undefined
 ) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
@@ -1026,7 +1027,7 @@ export function tabNameDlg(
 	let name = { value: "" };
 	const inputProps: Record<string, string> = {
 		type: "text",
-		placeholder: "Filename",
+		placeholder: customPlaceholder ?? "Filename",
 	};
 	if (defaultInput !== undefined) {
 		inputProps.value = defaultInput;

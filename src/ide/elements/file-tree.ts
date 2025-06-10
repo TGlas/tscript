@@ -184,11 +184,16 @@ type FileTreeControlInfo = Exclude<
 	undefined
 >;
 
-function informInvalidBasename(msg: string) {
-	msgBox({
-		title: "Invalid file name",
-		prompt: `Filenames ${msg}`,
-	});
+function informInvalidBasename(msg: string, isFile: boolean = true) {
+	isFile
+		? msgBox({
+				title: "Invalid file name",
+				prompt: `Filenames ${msg}`,
+		  })
+		: msgBox({
+				title: "Invalid directory name",
+				prompt: `Directory names ${msg}`,
+		  });
 }
 
 function informNodeAlreadyExists(path: string) {
@@ -260,6 +265,11 @@ export class FileTree {
 			click: this.handleDelete.bind(this),
 			parent: topBar,
 			text: "Delete",
+		});
+		tgui.createButton({
+			click: this.handleCreateDir.bind(this),
+			parent: topBar,
+			text: "New Dir",
 		});
 
 		const treeContainer = tgui.createElement({
@@ -582,6 +592,46 @@ print("Hello sfile");`
 			await this.refresh();
 			return false;
 		}, "New file");
+	}
+
+	private handleCreateDir() {
+		tabNameDlg(
+			async (dirname: string) => {
+				const namingErr = isInvalidBasename(dirname);
+				if (namingErr !== undefined) {
+					informInvalidBasename(namingErr, false);
+					return true;
+				}
+				/* set to "/" if nothing selected, dirname if file selected, path if
+				 * directory selected
+				 */
+				let basePath = "/";
+				if (this.selectedPath !== null) {
+					const selectedNode = this.pathToFileTreeNode(
+						this.selectedPath
+					)!;
+
+					basePath =
+						selectedNode.type === "file"
+							? Path.dirname(this.selectedPath)
+							: this.selectedPath;
+				}
+
+				const projAbs = Path.join(basePath, dirname);
+				const abs = this.toAbs(projAbs);
+				if (await pathExists(abs)) {
+					informNodeAlreadyExists(projAbs);
+					return true;
+				}
+
+				await projectsFSP.mkdir(abs);
+				await this.refresh();
+				return false;
+			},
+			"New directory",
+			undefined,
+			"Directory name"
+		);
 	}
 
 	private async handleRename() {
