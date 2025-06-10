@@ -1,9 +1,8 @@
 import { ErrorHelper } from "../../lang/errors/ErrorHelper";
 import { Interpreter } from "../../lang/interpreter/interpreter";
 import { ProgramRoot } from "../../lang/interpreter/program-elements";
+import { ParseInput, parseProgram } from "../../lang/parser";
 import {
-	ParseInput,
-	parseProgram,
 	FileID,
 	LocalStorageFileID,
 	StringFileID,
@@ -13,7 +12,7 @@ import {
 	isLoadableFileID,
 	localstorageFileID,
 	stringFileID,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";

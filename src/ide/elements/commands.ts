@@ -1,11 +1,11 @@
 import * as ide from ".";
 import { ErrorHelper } from "../../lang/errors/ErrorHelper";
+import { parseProgram } from "../../lang/parser";
 import {
 	fileIDChangeNamespace,
 	fileIDToContextDependentFilename,
 	localstorageFileID,
-	parseProgram,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import { icons } from "../icons";
 import { type StandaloneCode } from "../standalone";
 import * as tgui from "./../tgui";
