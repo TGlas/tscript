@@ -1,3 +1,8 @@
+import {
+	FileID,
+	fileIDToHumanFriendly,
+	splitFileIDAtColon,
+} from "../../lang/parser";
 import { Editor } from "../editor";
 import * as tgui from "../tgui";
 import { confirmFileDiscard } from "./dialogs";
@@ -11,7 +16,7 @@ export interface NavigationRequest {
 }
 
 export interface EditorControllerOptions {
-	filename: string;
+	filename: FileID;
 	text: string;
 
 	/** called whenever the editor wants to be activated */
@@ -21,7 +26,7 @@ export interface EditorControllerOptions {
 	onClosed: () => void;
 
 	/** called before {@link EditorController.filename} changes */
-	onBeforeFilenameChange: (newFilename: string) => void;
+	onBeforeFilenameChange: (newFilename: FileID) => void;
 }
 
 export class EditorController {
@@ -34,8 +39,8 @@ export class EditorController {
 	readonly #breakpoints = new Set<number>();
 
 	readonly #onActivate: () => void;
-	readonly #onBeforeFilenameChange: (newFilename: string) => void;
-	#filename: string;
+	readonly #onBeforeFilenameChange: (newFilename: FileID) => void;
+	#filename: FileID;
 
 	readonly close: () => void;
 
@@ -50,6 +55,7 @@ export class EditorController {
 		this.#onActivate = onActivate;
 		this.close = onClosed;
 		this.#onBeforeFilenameChange = onBeforeFilenameChange;
+		const humanFriendlyName = fileIDToHumanFriendly(filename);
 
 		// create tab
 		this.tab = tgui.createElement({
@@ -60,7 +66,7 @@ export class EditorController {
 			(this.tabLabel = tgui.createElement({
 				type: "span",
 				classname: "name",
-				text: filename,
+				text: humanFriendlyName,
 				click: () => onActivate(),
 			})),
 			tgui.createElement({
@@ -79,7 +85,7 @@ export class EditorController {
 		this.runOption = tgui.createElement({
 			type: "option",
 			properties: { value: filename },
-			text: filename,
+			text: humanFriendlyName,
 		});
 
 		// create editor view
@@ -119,7 +125,7 @@ export class EditorController {
 		};
 	}
 
-	get filename(): string {
+	get filename(): FileID {
 		return this.#filename;
 	}
 
@@ -177,7 +183,7 @@ export class EditorController {
 		}
 	}
 
-	saveAs(filename: string) {
+	saveAs(filename: FileID) {
 		this.#onBeforeFilenameChange(filename);
 
 		this.tabLabel.innerText = filename;
@@ -189,10 +195,10 @@ export class EditorController {
 	}
 
 	save() {
-		localStorage.setItem(
-			"tscript.code." + this.filename,
-			this.editorView.text()
-		);
+		const [ns, suffix] = splitFileIDAtColon(this.filename);
+		if (ns !== "localstorage")
+			throw new Error("Saving only supported for files in localStorage");
+		localStorage.setItem("tscript.code." + suffix, this.editorView.text());
 		this.editorView.setClean();
 	}
 }

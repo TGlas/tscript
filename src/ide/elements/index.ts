@@ -1,6 +1,19 @@
+import { ErrorHelper } from "../../lang/errors/ErrorHelper";
 import { Interpreter } from "../../lang/interpreter/interpreter";
 import { ProgramRoot } from "../../lang/interpreter/program-elements";
-import { ParseInput, parseProgram } from "../../lang/parser";
+import {
+	ParseInput,
+	parseProgram,
+	FileID,
+	LocalStorageFileID,
+	StringFileID,
+	fileIDChangeNamespace,
+	splitFileIDAtColon,
+	fileIDHasNamespace,
+	isLoadableFileID,
+	localstorageFileID,
+	stringFileID,
+} from "../../lang/parser";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
 import * as tgui from "../tgui";
@@ -55,7 +68,7 @@ export let tab_config: { align: "horizontal" | "vertical" } = {
 export function addMessage(
 	type: "print" | "warning" | "error",
 	text: string,
-	filename?: string,
+	filename?: FileID,
 	line?: number,
 	ch?: number,
 	href?: string
@@ -102,7 +115,7 @@ export function addMessage(
 				(type !== "print" ? " ide-errormessage" : ""),
 			text: s,
 		});
-		if (filename && line != null) {
+		if (filename && line != null && isLoadableFileID(filename)) {
 			msg.addEventListener("click", (event) => {
 				event.preventDefault();
 				collection.openEditorFromFile(filename!, {
@@ -136,50 +149,82 @@ export function clear() {
 	updateProgramState({ interpreterChanged: true });
 }
 
+export type IncludeResolutionList = [StringFileID, string, StringFileID][];
+
 /** @see createParseInput */
 export type ParseInputIncludeSpecification = {
-	parseInput: ParseInput;
-	includeResolutions: [string, string, string][] | null;
-	includeSourceResolutions: Map<string, string>;
+	includeResolutions: IncludeResolutionList;
+	includeSourceResolutions: Map<StringFileID, string>;
+	main: StringFileID;
 };
 
 /**
  * Create ParseInput from the current editors
  *
- * @returns
- *	- `parseInput`: a ParseInput object
- *	- `includeResolutions`: array of triples `[includingFile, includeOperand,
+ * @returns null if the current run selection could not be resolved, otherwise
+ * `[parseInput, spec]`. `parseInput` is the entry point of the program. `spec`
+ * stores the content of the parsed
+ * inputs, how they are included, and which one is the entry point. This is used
+ * for serializing the program for creating the standalone page.
+ *	- `spec.includeResolutions`: array of triples `[includingFile, includeOperand,
  *		resolvedFilename]`, meaning that that in `includingFile`, an include with
- *		operand `includeOperand` resolves to the file `resolvedFilename`. null
- *		if resolutions weren't used (i.e. the includeOperand is always the same
- *		as the resolvedFilename)
- *	- `includeSourceResolutions`: Map from resolved filenames (third entry in
+ *		operand `includeOperand` resolves to the file `resolvedFilename`.
+ *	- `spec.includeSourceResolutions`: Map from resolved filenames (third entry in
  *		includeResolutions triples) to their sources
- *	or null if the current run selection could not be resolved.
+ *	- `spec.mainEntry`: main file/entry point
  *	`includeResolutions` and `includeSourceResolutions` will only be filled once
- *	`parseInput` is actually parsed.
+ *	`parseInput` is actually parsed. The FileIDs under `spec` have the "string"
+ *	namespace, regardless of the actual namespace the original files came from.
  */
-export async function createParseInput(): Promise<ParseInputIncludeSpecification | null> {
-	const includeSourceResolutions: Map<string, string> = new Map();
+export async function createParseInput(): Promise<
+	[ParseInput<LocalStorageFileID>, ParseInputIncludeSpecification] | null
+> {
+	const includeSourceResolutions: Map<StringFileID, string> = new Map();
+	const includeResolutions: [StringFileID, string, StringFileID][] = [];
 
+	const resolveIncludeToFileID = (
+		includingFile: LocalStorageFileID,
+		includeOperand: string
+	): LocalStorageFileID => {
+		includeResolutions.push([
+			fileIDChangeNamespace(includingFile, "string"),
+			includeOperand,
+			stringFileID(includeOperand),
+		]);
+		return localstorageFileID(includeOperand);
+	};
 	const resolveInclude = async (
-		filename: string
-	): Promise<ParseInput | null> => {
+		fileID: LocalStorageFileID
+	): Promise<ParseInput<LocalStorageFileID> | null> => {
+		const filename = splitFileIDAtColon(fileID)[1];
 		const source =
-			collection.getEditor(filename)?.editorView.text() ??
+			collection.getEditor(fileID)?.editorView?.text() ??
 			localStorage.getItem(`tscript.code.${filename}`);
 		if (source === null) return null;
-		includeSourceResolutions.set(filename, source);
-		return { source, filename, resolveInclude };
+		includeSourceResolutions.set(
+			fileIDChangeNamespace(fileID, "string"),
+			source
+		);
+		return {
+			source,
+			filename: fileID,
+			resolveInclude,
+			resolveIncludeToFileID,
+		};
 	};
 
-	const mainParseInput = await resolveInclude(getRunSelection());
+	const entryFilename = getRunSelection();
+	if (!fileIDHasNamespace(entryFilename, "localstorage")) return null;
+	const mainParseInput = await resolveInclude(entryFilename);
 	if (mainParseInput === null) return null;
-	return {
-		parseInput: mainParseInput,
-		includeSourceResolutions,
-		includeResolutions: null,
-	};
+	return [
+		mainParseInput,
+		{
+			includeSourceResolutions,
+			includeResolutions,
+			main: fileIDChangeNamespace(entryFilename, "string"),
+		},
+	];
 }
 
 let pendingInterpreterSession: Promise<InterpreterSession | null> | null = null;
@@ -200,7 +245,7 @@ export async function prepareRun(): Promise<InterpreterSession | null> {
 	));
 
 	async function createInterpreterSession() {
-		const parseInput = (await createParseInput())?.parseInput;
+		const parseInput = (await createParseInput())?.[0];
 		if (!parseInput) {
 			return null;
 		}
@@ -214,12 +259,12 @@ export async function prepareRun(): Promise<InterpreterSession | null> {
 		for (const err of errors) {
 			addMessage(
 				err.type,
-				err.type +
-					(err.filename ? " in file '" + err.filename + "'" : "") +
-					" in line " +
-					err.line +
-					": " +
-					err.message,
+				ErrorHelper.getLocatedErrorMsg(
+					err.type,
+					err.filename ?? undefined,
+					err.line,
+					err.message
+				),
 				err.filename ?? undefined,
 				err.line,
 				err.ch,
@@ -277,7 +322,7 @@ export class InterpreterSession {
 		};
 		interpreter.service.message = (
 			msg: string,
-			filename?: string,
+			filename?: FileID,
 			line?: number,
 			ch?: number,
 			href?: string
@@ -687,8 +732,9 @@ export function create(container: HTMLElement, options?: any) {
 		runselector.value = config.main;
 	}
 	if (!collection.activeEditor) {
-		if (!collection.openEditorFromFile("Main"))
-			collection.openEditorFromData("Main", "");
+		const fileID = localstorageFileID("Main");
+		if (!collection.openEditorFromFile(fileID))
+			collection.openEditorFromData(fileID, "");
 	}
 
 	let panel_messages = tgui.createPanel({
@@ -798,6 +844,6 @@ export function create(container: HTMLElement, options?: any) {
 /**
  * Returns the current filename, selected in the run-selector
  */
-export function getRunSelection() {
-	return runselector.value;
+export function getRunSelection(): FileID {
+	return runselector.value as FileID;
 }
