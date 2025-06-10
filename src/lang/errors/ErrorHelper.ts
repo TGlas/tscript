@@ -1,4 +1,4 @@
-import { FileID, fileIDToContextDependentFilename } from "../parser";
+import { FileID, fileIDToContextDependentFilename } from "../parser/file_id";
 import { AssertionError } from "./AssertionError";
 import { RuntimeError } from "./RuntimeError";
 

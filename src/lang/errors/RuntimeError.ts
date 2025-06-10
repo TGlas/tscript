@@ -1,4 +1,4 @@
-import { FileID } from "../parser";
+import { FileID } from "../parser/file_id";
 
 // exception type
 export class RuntimeError extends Error {

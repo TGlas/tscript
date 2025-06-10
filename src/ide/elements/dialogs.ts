@@ -1,11 +1,10 @@
+import { defaultParseOptions, ParseOptions } from "../../lang/parser";
 import {
 	FileID,
 	fileIDToHumanFriendly,
 	isLoadableFileID,
 	LoadableFileID,
-	defaultParseOptions,
-	ParseOptions,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
 import * as ide from "./index";

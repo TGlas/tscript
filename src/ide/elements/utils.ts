@@ -1,6 +1,6 @@
 import * as ide from ".";
 import { Interpreter } from "../../lang/interpreter/interpreter";
-import { localstorageFileID } from "../../lang/parser";
+import { localstorageFileID } from "../../lang/parser/file_id";
 import { fileDlg } from "./dialogs";
 
 export const type2css = [

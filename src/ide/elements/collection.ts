@@ -5,7 +5,7 @@ import {
 	isLoadableFileID,
 	LoadableFileID,
 	splitFileIDAtColon,
-} from "../../lang/parser";
+} from "../../lang/parser/file_id";
 import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
 import { EditorController, NavigationRequest } from "./editor-controller";
 
