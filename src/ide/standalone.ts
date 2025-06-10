@@ -10,12 +10,12 @@ export type StandaloneData = {
 	mode: "canvas" | "turtle";
 };
 
-export function showStandalonePage(
+export async function showStandalonePage(
 	container: HTMLElement,
 	data: StandaloneData
-): void {
+) {
 	const { documents } = data.code;
-	function getParseInput(filename: string): ParseInput<false> | null {
+	async function getParseInput(filename: string): Promise<ParseInput | null> {
 		if (!Object.hasOwn(documents, filename)) return null;
 		return {
 			filename,
@@ -23,10 +23,10 @@ export function showStandalonePage(
 			resolveInclude: getParseInput,
 		};
 	}
-	const mainFile = getParseInput(data.code.main);
+	const mainFile = await getParseInput(data.code.main);
 	if (!mainFile) return; // This has been validated on export
 
-	const { program } = parseProgram(mainFile);
+	const { program } = await parseProgram(mainFile);
 	if (program == null) return; // This has been validated on export
 
 	const interpreter = createIDEInterpreter(program);

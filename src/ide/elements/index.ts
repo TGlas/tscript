@@ -147,10 +147,10 @@ export function clear() {
  *
  * @returns a ParseInput object or `null` if no editors are open
  */
-export function createParseInput(
+export async function createParseInput(
 	files = new Map<string, ParseInput>()
-): ParseInput | null {
-	function getFile(filename: string): ParseInput | null {
+): Promise<ParseInput | null> {
+	async function getFile(filename: string): Promise<ParseInput | null> {
 		const existing = files.get(filename);
 		if (existing) return existing;
 
@@ -159,7 +159,11 @@ export function createParseInput(
 			localStorage.getItem(`tscript.code.${filename}`);
 		if (!source) return null;
 
-		const file: ParseInput = { filename, source, resolveInclude: getFile };
+		const file: ParseInput = {
+			filename,
+			source,
+			resolveInclude: getFile,
+		};
 		files.set(filename, file);
 		return file;
 	}
@@ -173,7 +177,7 @@ export function createParseInput(
  * @returns an {@link InterpreterSession} instance, or `null` on error
  */
 export async function prepareRun(): Promise<InterpreterSession | null> {
-	const parseInput = createParseInput();
+	const parseInput = await createParseInput();
 	if (!parseInput) {
 		return null;
 	}
