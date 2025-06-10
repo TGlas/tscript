@@ -183,9 +183,7 @@ export type ParseInputIncludeSpecification = {
 async function createParseInputProject(
 	projectName: string,
 	entryFilename: string
-): Promise<
-	[ParseInput<ProjectFileID, true>, ParseInputIncludeSpecification] | null
-> {
+): Promise<[ParseInput<ProjectFileID>, ParseInputIncludeSpecification] | null> {
 	const includeResolutions: IncludeResolutionList = [];
 	const includeSourceResolutions: Map<StringFileID, string> = new Map();
 	const projectPath = getProjectPath(projectName);
@@ -234,7 +232,7 @@ async function createParseInputProject(
 
 	const resolveInclude = async (
 		fileID: ProjectFileID
-	): Promise<ParseInput<ProjectFileID, true> | null> => {
+	): Promise<ParseInput<ProjectFileID> | null> => {
 		const projAbsPath = projectFileIDToProjAbsPath(fileID);
 		const editor = collection.getEditor(fileID);
 		if (editor) {
@@ -300,9 +298,11 @@ async function createParseInputProject(
 	];
 }
 
-function createParseInputLocalStorage(
+async function createParseInputLocalStorage(
 	entryFilename: string
-): [ParseInput<LocalStorageFileID>, ParseInputIncludeSpecification] | null {
+): Promise<
+	[ParseInput<LocalStorageFileID>, ParseInputIncludeSpecification] | null
+> {
 	const includeSourceResolutions: Map<StringFileID, string> = new Map();
 	const includeResolutions: [StringFileID, string, StringFileID][] = [];
 
@@ -317,9 +317,9 @@ function createParseInputLocalStorage(
 		]);
 		return localstorageFileID(includeOperand);
 	};
-	const resolveInclude = (
+	const resolveInclude = async (
 		fileID: LocalStorageFileID
-	): ParseInput<LocalStorageFileID, true> | null => {
+	): Promise<ParseInput<LocalStorageFileID> | null> => {
 		const filename = splitFileIDAtColon(fileID)[1];
 		const source =
 			collection.getEditor(fileID)?.editorView.text() ??
@@ -338,7 +338,7 @@ function createParseInputLocalStorage(
 	};
 
 	const entryFileID = localstorageFileID(entryFilename);
-	const mainParseInput = resolveInclude(entryFileID);
+	const mainParseInput = await resolveInclude(entryFileID);
 	if (mainParseInput === null) return null;
 	return [
 		mainParseInput,
@@ -399,9 +399,8 @@ export async function prepareRun(): Promise<InterpreterSession | null> {
 		return null;
 	}
 
-	const { program, errors } = await parseProgram(
+	const { program, errors } = await parseProgram<any>(
 		parseInput,
-		true,
 		parseOptions
 	);
 

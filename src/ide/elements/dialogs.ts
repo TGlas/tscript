@@ -1,25 +1,18 @@
 import { defaultParseOptions, ParseOptions } from "../../lang/parser";
 import {
 	FileID,
-	fileIDHasNamespace,
-	fileIDToContextDependentFilename,
 	fileIDToHumanFriendly,
 	isLoadableFileID,
 	LoadableFileID,
 	localstorageFileID,
-	LocalStorageFileID,
-	ProjectFileID,
 } from "../../lang/parser/file_id";
 import { closeProjectEditorTabsRecursively } from "../editor/editor";
 import {
 	deleteProject,
 	getCurrentProject,
-	getProjectPath,
 	InvalidProjectName,
 	listProjects,
-	recurseDirectory,
 	setCurrentProject,
-	simplifyPath,
 	tryCreateProject,
 } from "../projects-fs";
 import * as tgui from "./../tgui";

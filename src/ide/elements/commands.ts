@@ -145,7 +145,7 @@ export async function cmd_export() {
 	const [mainEntry, includeResolutions] = resolveEntryRes;
 
 	// check that the code at least compiles
-	let result = await parseProgram(mainEntry, true, parseOptions);
+	let result = await parseProgram<any>(mainEntry, parseOptions);
 
 	// everything after that should ideally be synchronous
 	ide.clear();
