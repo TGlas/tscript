@@ -1,8 +1,15 @@
 import * as ide from ".";
-import { parseProgram } from "../../lang/parser";
+import { ErrorHelper } from "../../lang/errors/ErrorHelper";
+import {
+	fileIDChangeNamespace,
+	fileIDToContextDependentFilename,
+	localstorageFileID,
+	parseProgram,
+} from "../../lang/parser";
 import { icons } from "../icons";
 import { type StandaloneCode } from "../standalone";
 import * as tgui from "./../tgui";
+import { msgBox } from "./../tgui";
 import {
 	confirmFileOverwrite,
 	fileDlg,
@@ -138,9 +145,10 @@ async function cmd_step_out() {
 export async function cmd_export() {
 	const resolveEntryRes = await ide.createParseInput();
 	if (!resolveEntryRes) return;
+	const [mainEntry, includeResolutions] = resolveEntryRes;
 
 	// check that the code at least compiles
-	let result = await parseProgram(resolveEntryRes.parseInput, parseOptions);
+	let result = await parseProgram(mainEntry, parseOptions);
 
 	// everything after that should ideally be synchronous
 	ide.clear();
@@ -152,12 +160,13 @@ export async function cmd_export() {
 			let err = errors[i];
 			ide.addMessage(
 				err.type,
-				err.type +
-					(err.filename ? " in file '" + err.filename + "'" : "") +
-					" in line " +
-					err.line +
-					": " +
-					err.message,
+				ErrorHelper.getLocatedErrorMsg(
+					err.type,
+					err.filename ?? undefined,
+					err.line,
+					err.message
+				),
+
 				err.filename ?? undefined,
 				err.line,
 				err.ch,
@@ -172,7 +181,10 @@ export async function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = resolveEntryRes.parseInput.filename;
+	const humandReadableFilename = fileIDToContextDependentFilename(
+		mainEntry.filename
+	);
+	let title = humandReadableFilename;
 	let fn = "tscript-export";
 	if (
 		!fn.endsWith("html") &&
@@ -219,10 +231,10 @@ export async function cmd_export() {
 
 	const standaloneCode: StandaloneCode = {
 		includeSourceResolutions: Object.fromEntries(
-			resolveEntryRes.includeSourceResolutions.entries()
+			includeResolutions.includeSourceResolutions.entries()
 		),
-		includeResolutions: resolveEntryRes.includeResolutions,
-		main: resolveEntryRes.parseInput.filename,
+		includeResolutions: includeResolutions.includeResolutions,
+		main: includeResolutions.main,
 	};
 	// escape the TScript source code; prepare it to reside inside an html document
 	let source = JSON.stringify(standaloneCode);
@@ -302,13 +314,14 @@ function cmd_new() {
 		const isSavedDoc =
 			localStorage.getItem("tscript.code." + name) !== null;
 
-		if (isSavedDoc || ide.collection.getEditor(name)) {
+		const fileID = localstorageFileID(name);
+		if (isSavedDoc || ide.collection.getEditor(fileID)) {
 			confirmFileOverwrite(name, () => {
 				// replace the existing file/editor
-				ide.collection.openEditorFromData(name, "");
+				ide.collection.openEditorFromData(fileID, "");
 			});
 		} else {
-			ide.collection.openEditorFromData(name, "");
+			ide.collection.openEditorFromData(fileID, "");
 		}
 
 		return false;
@@ -317,7 +330,7 @@ function cmd_new() {
 
 function cmd_load() {
 	fileDlg("Load file", "", false, "Load", (name) => {
-		ide.collection.openEditorFromFile(name);
+		ide.collection.openEditorFromFile(localstorageFileID(name));
 	});
 }
 
@@ -335,7 +348,7 @@ function cmd_save_as() {
 		true,
 		"Save",
 		(filename) => {
-			controller.saveAs(filename);
+			controller.saveAs(localstorageFileID(filename));
 		}
 	);
 }
@@ -365,7 +378,7 @@ export function cmd_upload() {
 export function cmd_download() {
 	const controller = ide.collection.activeEditor;
 	if (!controller) return;
-	const filename = controller.filename;
+	const filename = fileIDToContextDependentFilename(controller.filename);
 	const content = controller.editorView.text();
 
 	const link = tgui.createElement({

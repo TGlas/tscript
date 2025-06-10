@@ -13,7 +13,7 @@ import { parse_include } from "./parse_include";
 
 export interface ParserPosition {
 	/** filename or null */
-	filename: string | null;
+	filename: FileID | null;
 
 	/** zero-based position in the source code string */
 	pos: number;
@@ -68,7 +68,7 @@ export interface ParserState extends ParserPosition {
 		this: ParserState,
 		source: string,
 		impl?: object | null,
-		filename?: string | null
+		filename?: FileID | null
 	): void;
 
 	/** @returns Whether there is text to parse and no errors have occurred */
@@ -140,37 +140,122 @@ export const defaultParseOptions: ParseOptions = {
 	checkstyle: false,
 };
 
-interface BaseParseInput {
-	filename: string;
+/**
+ * Namespaces used as the prefix in FileID. "string" is used for inputs that
+ * aren't attached to a file, as in parseProgramFromString.
+ *
+ * localstorage: The corresponding FileID suffix is just the name of the "file"
+ * string: The corresponding FileID suffix should be the context dependent
+ *		filename as returned by fileIDToContextDependentFilename.
+ */
+export const fileIDNamespaces = ["localstorage", "string"] as const;
+export type FileIDNamespace = (typeof fileIDNamespaces)[number];
+export const loadableFileIDNamespaces = ["localstorage"] as const;
+export type LoadableFileIDNamespace = (typeof loadableFileIDNamespaces)[number];
+
+export type StringFileID = `string:${string}`;
+export type LocalStorageFileID = `localstorage:${string}`;
+export type FileID = StringFileID | LocalStorageFileID;
+/** Subset of files that are actually stored somewhere */
+export type LoadableFileID = LocalStorageFileID;
+
+export function isLoadableFileID(fileID: FileID): fileID is LoadableFileID {
+	return loadableFileIDNamespaces.some((ns) =>
+		fileIDHasNamespace(fileID, ns)
+	);
+}
+
+export function localstorageFileID(filename: string): LocalStorageFileID {
+	return `localstorage:${filename}`;
+}
+
+export function stringFileID(filename: string): StringFileID {
+	return `string:${filename}`;
+}
+
+/**
+ * Given a file id, returns a string that unambiguously represents that file to
+ * the user, but leaving out the namespace (and in future uses, other contexts
+ * that the user should be aware of).
+ */
+export function fileIDToContextDependentFilename(fileID: FileID): string {
+	const [ns, suffix] = splitFileIDAtColon(fileID);
+	switch (ns) {
+		case "localstorage":
+			return suffix;
+		case "string":
+			return suffix;
+	}
+}
+
+export function fileIDToHumanFriendly(fileID: FileID): string {
+	const [ns, suffix] = splitFileIDAtColon(fileID);
+	switch (ns) {
+		case "localstorage":
+			return suffix;
+		case "string":
+			return `${suffix} (no file)`;
+	}
+}
+
+export function fileIDHasNamespace<NamespaceT extends FileIDNamespace>(
+	fileID: FileID,
+	namespace: NamespaceT
+): fileID is `${NamespaceT}:${string}` {
+	return fileID.startsWith(namespace);
+}
+
+export function splitFileIDAtColon(fileID: FileID): [FileIDNamespace, string] {
+	const ns = fileID.split(":", 1)[0] as FileIDNamespace;
+	const suffix = fileID.slice(ns.length + 1);
+	return [ns, suffix];
+}
+
+export function localStorageFileIDToFilename(
+	fileID: LocalStorageFileID
+): string {
+	return splitFileIDAtColon(fileID)[1];
+}
+
+export function fileIDChangeNamespace<FileIDNamespaceT extends FileIDNamespace>(
+	fileID: FileID,
+	namespace: FileIDNamespaceT
+): `${FileIDNamespaceT}:${string}` {
+	const [_, suffix] = splitFileIDAtColon(fileID);
+	return `${namespace}:${suffix}`;
+}
+
+interface BaseParseInput<FileIDT extends FileID> {
+	/** file id as returned by ParseInput.resolveIncludeToFileID. */
+	filename: FileIDT;
 	/** file content / source code associated with this ParseInput */
 	source: string;
 }
 
-export interface ParseInput extends BaseParseInput {
+export interface ParseInput<FileIDT extends FileID = FileID>
+	extends BaseParseInput<FileIDT> {
 	/**
-	 * Resolve an include statement to a standardized filename. If not
-	 * specified, the mapping `(includeFile, includeOperand) => includeOperand`
-	 * is used.
+	 * Resolve an include statement to a FileID.
 	 *
 	 * @param includingFile `ParseInput.filename` of the file where the include
 	 * statement occured
 	 * @param includeOperand the filename as specified in the include statement
-	 * @returns the standardized filename or `null` if could not be resolved
+	 * @returns the FileID or `null` if could not be resolved
 	 */
-	resolveIncludeToStdFilename?: (
-		includingFile: string,
+	resolveIncludeToFileID: (
+		includingFile: FileIDT,
 		includeOperand: string
-	) => string | null;
+	) => FileIDT | null;
 
 	/**
-	 * Given a standardized filename for an include as returned by
-	 * `ParseInput.resolveIncludeToStdFilename`, return corresponding
+	 * Given a FileID for an include, return corresponding
 	 * `ParseInput`, or `null` to signal that it is invalid.
 	 */
-	resolveInclude(filename: string): Promise<ParseInput | null>;
+	resolveInclude(fileID: FileIDT): Promise<this | null>;
 }
 
-export interface ParseInputWithoutIncludes extends BaseParseInput {
+export interface ParseInputWithoutIncludes<FileIDT extends FileID>
+	extends BaseParseInput<FileIDT> {
 	resolveInclude?: undefined;
 }
 
@@ -186,7 +271,7 @@ export function parseProgramFromString(
 ): ParseResult {
 	return parseProgram(
 		{
-			filename: "main",
+			filename: stringFileID("main"),
 			source,
 		},
 		options
@@ -199,20 +284,20 @@ export function parseProgramFromString(
  * Synchronous if `mainInput` is a `ParseInputWithoutIncludes`, asynchronous if
  * `mainInput` is a `ParseInput`.
  */
-export function parseProgram(
-	mainInput: ParseInput,
+export function parseProgram<FileIDT extends FileID>(
+	mainInput: ParseInput<FileIDT>,
 	options?: ParseOptions
 ): Promise<ParseResult>;
-export function parseProgram(
-	mainInput: ParseInputWithoutIncludes,
+export function parseProgram<FileIDT extends FileID>(
+	mainInput: ParseInputWithoutIncludes<FileIDT>,
 	options?: ParseOptions
 ): ParseResult;
-export function parseProgram(
-	mainInput: ParseInputWithoutIncludes | ParseInput,
+export function parseProgram<FileIDT extends FileID>(
+	mainInput: ParseInputWithoutIncludes<FileIDT> | ParseInput<FileIDT>,
 	options: ParseOptions = defaultParseOptions
 ): Promise<ParseResult> | ParseResult {
 	/** List of filenames of all included ParseInputs */
-	const includedFiles = new Set<string>();
+	const includedFiles = new Set<FileIDT>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
 	const program = createEmptyProgram();
@@ -225,7 +310,7 @@ export function parseProgram(
 	function parseString(
 		source: string,
 		impl: any = null,
-		filename: string | null = null
+		filename: FileIDT | null = null
 	) {
 		state.setSource(source, impl, filename);
 		while (state.good()) {
@@ -244,7 +329,7 @@ export function parseProgram(
 	}
 
 	/** Parse one library or program from a file. Includes are supported. */
-	async function parseFileWithIncludes(file: ParseInput) {
+	async function parseFileWithIncludes(file: ParseInput<FileIDT>) {
 		includedFiles.add(file.filename);
 		state.setSource(file.source, null, file.filename);
 		while (state.good()) {
@@ -256,27 +341,22 @@ export function parseProgram(
 				continue;
 			}
 
-			let targetFileId: string | null;
-			if (file.resolveIncludeToStdFilename) {
-				targetFileId = file.resolveIncludeToStdFilename(
-					file.filename,
-					inc.filename
-				);
-			} else {
-				targetFileId = inc.filename;
-			}
-			if (targetFileId === null) {
+			const targetFileID = file.resolveIncludeToFileID(
+				file.filename,
+				inc.filename
+			);
+			if (targetFileID === null) {
 				// the include could not be resolved
 				state.set(inc.position);
 				state.error("/argument-mismatch/am-48", [inc.filename]);
 				return;
 			}
 
-			if (includedFiles.has(targetFileId)) {
+			if (includedFiles.has(targetFileID)) {
 				continue;
 			}
 
-			const targetFile = await file.resolveInclude(targetFileId);
+			const targetFile = await file.resolveInclude(targetFileID);
 			if (targetFile === null) {
 				// the file was not found
 				state.set(inc.position);
@@ -450,7 +530,7 @@ const createParserState = (
 	setSource(
 		source: string,
 		impl: any = null,
-		filename: string | null = null
+		filename: FileID | null = null
 	) {
 		this.source = source;
 		this.impl = impl;
