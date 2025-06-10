@@ -142,15 +142,30 @@ export const defaultParseOptions: ParseOptions = {
 
 interface BaseParseInput {
 	filename: string;
+	/** file content / source code associated with this ParseInput */
 	source: string;
 }
 
 export interface ParseInput extends BaseParseInput {
 	/**
-	 * Resolve an include statement.
+	 * Resolve an include statement to a standardized filename. If not
+	 * specified, the mapping `(includeFile, includeOperand) => includeOperand`
+	 * is used.
 	 *
-	 * @param filename the filename as specified in the include statement
-	 * @returns the file to be included or null if none could be found
+	 * @param includingFile `ParseInput.filename` of the file where the include
+	 * statement occured
+	 * @param includeOperand the filename as specified in the include statement
+	 * @returns the standardized filename or `null` if could not be resolved
+	 */
+	resolveIncludeToStdFilename?: (
+		includingFile: string,
+		includeOperand: string
+	) => string | null;
+
+	/**
+	 * Given a standardized filename for an include as returned by
+	 * `ParseInput.resolveIncludeToStdFilename`, return corresponding
+	 * `ParseInput`, or `null` to signal that it is invalid.
 	 */
 	resolveInclude(filename: string): Promise<ParseInput | null>;
 }
@@ -196,6 +211,7 @@ export function parseProgram(
 	mainInput: ParseInputWithoutIncludes | ParseInput,
 	options: ParseOptions = defaultParseOptions
 ): Promise<ParseResult> | ParseResult {
+	/** List of filenames of all included ParseInputs */
 	const includedFiles = new Set<string>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
@@ -239,17 +255,35 @@ export function parseProgram(
 				program.children.push(p);
 				continue;
 			}
-			const targetFile = await file.resolveInclude(inc.filename);
-			if (!targetFile) {
+
+			let targetFileId: string | null;
+			if (file.resolveIncludeToStdFilename) {
+				targetFileId = file.resolveIncludeToStdFilename(
+					file.filename,
+					inc.filename
+				);
+			} else {
+				targetFileId = inc.filename;
+			}
+			if (targetFileId === null) {
+				// the include could not be resolved
+				state.set(inc.position);
+				state.error("/argument-mismatch/am-48", [inc.filename]);
+				return;
+			}
+
+			if (includedFiles.has(targetFileId)) {
+				continue;
+			}
+
+			const targetFile = await file.resolveInclude(targetFileId);
+			if (targetFile === null) {
 				// the file was not found
 				state.set(inc.position);
 				state.error("/argument-mismatch/am-48", [inc.filename]);
 				return;
 			}
 
-			if (includedFiles.has(targetFile.filename)) {
-				continue;
-			}
 			// safe the state
 			let backup = {
 				source: state.source,

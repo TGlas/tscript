@@ -1,6 +1,7 @@
 import * as ide from ".";
-import { ParseInput, parseProgram } from "../../lang/parser";
+import { parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
+import { type StandaloneCode } from "../standalone";
 import * as tgui from "./../tgui";
 import {
 	confirmFileOverwrite,
@@ -135,12 +136,15 @@ async function cmd_step_out() {
 }
 
 export async function cmd_export() {
-	const parsedFiles = new Map<string, ParseInput>();
-	const parseInput = await ide.createParseInput(parsedFiles);
-	if (!parseInput) return;
+	const resolveEntryRes = await ide.createParseInput();
+	if (!resolveEntryRes) return;
 
 	// check that the code at least compiles
-	let result = await parseProgram(parseInput, parseOptions);
+	let result = await parseProgram(resolveEntryRes.parseInput, parseOptions);
+
+	// everything after that should ideally be synchronous
+	ide.clear();
+
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {
@@ -168,7 +172,7 @@ export async function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = parseInput.filename;
+	let title = resolveEntryRes.parseInput.filename;
 	let fn = "tscript-export";
 	if (
 		!fn.endsWith("html") &&
@@ -213,13 +217,15 @@ export async function cmd_export() {
 
 	tgui.startModal(dlg);
 
-	// escape the TScript source code; prepare it to reside inside an html document
-	let source = JSON.stringify({
-		documents: Object.fromEntries(
-			Array.from(parsedFiles.values(), (f) => [f.filename, f.source])
+	const standaloneCode: StandaloneCode = {
+		includeSourceResolutions: Object.fromEntries(
+			resolveEntryRes.includeSourceResolutions.entries()
 		),
-		main: parseInput.filename,
-	});
+		includeResolutions: resolveEntryRes.includeResolutions,
+		main: resolveEntryRes.parseInput.filename,
+	};
+	// escape the TScript source code; prepare it to reside inside an html document
+	let source = JSON.stringify(standaloneCode);
 
 	// obtain the page itself as a string
 	{
