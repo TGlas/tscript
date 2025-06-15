@@ -2,7 +2,13 @@ import * as ide from ".";
 import { ParseInput, parseProgram } from "../../lang/parser";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { fileDlg, gitDlg, parseOptions } from "./dialogs";
+import {
+	createFileDlgFileView,
+	loadFileProjDlg,
+	fileDlgSize,
+	parseOptions,
+  gitDlg
+} from "./dialogs";
 import {
 	closeEditor,
 	createEditorTabByModal,
@@ -11,6 +17,9 @@ import {
 import { showdoc, showdocConfirm } from "./show-docs";
 import { interpreterEnded, updateControls } from "./utils";
 
+/**
+ * click may be async
+ */
 export let buttons: any = [
 	{
 		click: cmd_new,
@@ -98,9 +107,9 @@ export let buttons: any = [
 	},
 ];
 
-async function cmd_reset() {
+function cmd_reset() {
 	ide.clear();
-	await updateControls();
+	updateControls();
 }
 
 /**
@@ -312,16 +321,7 @@ function cmd_new() {
 }
 
 function cmd_load() {
-	fileDlg("Load file", "", false, "Load", function (name) {
-		let ed = ide.collection.getEditor(name);
-		if (ed) {
-			ed.focus();
-			return;
-		}
-
-		openEditorFromLocalStorage(name);
-		return updateControls().then(() => undefined);
-	});
+	loadFileProjDlg();
 }
 
 function cmd_save() {
@@ -337,17 +337,36 @@ function cmd_save_as() {
 	const ed = ide.collection.getActiveEditor();
 	if (!ed) return;
 
-	fileDlg(
-		"Save file as ...",
-		ed.properties().name,
+	const filename = ed.properties.name;
+	const fileView = createFileDlgFileView(
+		filename,
 		true,
-		"Save",
 		function (filename) {
 			closeEditor(filename);
 			localStorage.setItem("tscript.code." + filename, ed.text());
 			openEditorFromLocalStorage(filename);
+		},
+		{
+			switchView: null,
+			clickConfirmation: () => dlg.pressButton(confirmationButton),
 		}
 	);
+	const confirmationButton = {
+		text: "Save",
+		isDefault: true,
+		onClick: () => fileView.onClickConfirmation(),
+	};
+	let dlg = tgui.createModal({
+		title: "Save file as ...",
+		minsize: [...fileDlgSize.minsize],
+		scalesize: [...fileDlgSize.scalesize],
+		buttons: [confirmationButton, { text: "Cancel" }],
+		enterConfirms: true,
+	});
+
+	tgui.startModal(dlg);
+	dlg.content.replaceChildren(fileView.element);
+	return dlg;
 }
 
 export function cmd_upload() {
@@ -373,7 +392,7 @@ export function cmd_upload() {
 					} else {
 						openEditorFromLocalStorage(filename);
 					}
-					await updateControls();
+					updateControls();
 				}
 			},
 		},

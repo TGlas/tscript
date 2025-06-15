@@ -23,7 +23,7 @@ import "./css-dark/tutorial.css";
 import { app_id_gitlab, client_id_github, proxy_server_url } from "../github_creds";
 import { validJWT } from "./git_token";
 
-window.addEventListener("load", async () => {
+window.addEventListener("load", () => {
 	const container = document.getElementById("ide-container")!;
 	container.replaceChildren(); // empties the container
 
@@ -42,8 +42,8 @@ window.addEventListener("load", async () => {
 		replaceUrl(redirectUrl);
 		currentUrl = redirectUrl;
 	}
-
-	const gitCode = currentUrl.searchParams.get("code");
+  
+  const gitCode = currentUrl.searchParams.get("code");
 	const git_auth_type = sessionStorage.getItem("git_auth_type");
 	if(gitCode && git_auth_type) {
 		let res;
@@ -65,7 +65,7 @@ window.addEventListener("load", async () => {
 		sessionStorage.removeItem("git_auth_type");
 	}
 
-	await initializeNavigation(currentUrl, container, (url) => {
+	initializeNavigation(currentUrl, container, (url) => {
 		if (url.searchParams.has("doc")) return DocumentationPageController;
 		return IDEPageController;
 	});
@@ -93,17 +93,10 @@ function translateLegacyURL(currentUrl: URL): URL | null {
 }
 
 class IDEPageController implements IPageController {
-	container: HTMLElement;
-	location: URL;
 	constructor(container: HTMLElement, location: URL) {
-		this.container = container;
-		this.location = location;
-	}
+		elements.create(container);
 
-	async init() {
-		await elements.create(this.container);
-
-		const loadUrl = this.location.searchParams.get("load");
+		const loadUrl = location.searchParams.get("load");
 		if (loadUrl) loadScriptFromUrl(loadUrl);
 	}
 
@@ -125,16 +118,9 @@ async function loadScriptFromUrl(url: string): Promise<void> {
 }
 
 class DocumentationPageController implements IPageController {
-	container: HTMLElement;
-	location: URL;
 	constructor(container: HTMLElement, location: URL) {
-		this.container = container;
-		this.location = location;
-	}
-
-	async init() {
-		await doc.create(this.container);
-		this.showPage(this.location.searchParams);
+		doc.create(container);
+		this.showPage(location.searchParams);
 	}
 
 	navigate(newLocation: URL): boolean {

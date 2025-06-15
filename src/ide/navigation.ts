@@ -1,5 +1,4 @@
 export interface IPageController {
-	init(): Promise<void>;
 	navigate?(newLocation: URL): boolean;
 	checkUnsavedChanges?(): boolean;
 }
@@ -20,18 +19,17 @@ let pageResolver: PageResolver | undefined;
  * @param container the container element to place the page in
  * @param resolver a function mapping URLs to their controller classes
  */
-export async function initializeNavigation(
+export function initializeNavigation(
 	url: URL,
 	container: HTMLElement,
 	resolver: PageResolver
-): Promise<void> {
+): void {
 	if (pageResolver) return;
 
 	const controllerType = resolver(url);
 	if (!controllerType) return;
 
 	currentController = new controllerType(container, url);
-	await currentController.init();
 	pageResolver = resolver;
 
 	window.addEventListener("popstate", () => {
