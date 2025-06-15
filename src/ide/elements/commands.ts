@@ -7,6 +7,7 @@ import {
 	loadFileProjDlg,
 	fileDlgSize,
 	parseOptions,
+  gitDlg
 } from "./dialogs";
 import {
 	closeEditor,
@@ -46,6 +47,13 @@ export let buttons: any = [
 		icon: icons.saveDocumentAs,
 		tooltip: "Save document as ...",
 		hotkey: "shift-control-s",
+		group: "file",
+	},
+	{
+		click: cmd_git,
+		icon: icons.git,
+		tooltip: "GIT",
+		hotkey: "shift-control-g",
 		group: "file",
 	},
 	{
@@ -115,6 +123,10 @@ function getOrRestartSession() {
 	}
 
 	return session;
+}
+
+function cmd_git() {
+	gitDlg();
 }
 
 function cmd_run() {

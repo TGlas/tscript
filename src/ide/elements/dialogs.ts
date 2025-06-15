@@ -15,6 +15,8 @@ import { buttons } from "./commands";
 import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
 import * as ide from "./index";
 import { updateControls } from "./utils";
+import { app_id_gitlab, client_id_github, proxy_server_url } from "../../github_creds";
+import { decodeJWT, getRawToken, validJWT } from "../git_token";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -999,4 +1001,164 @@ export function tabNameDlg(
 	});
 
 	tgui.startModal(modal);
+}
+
+export function gitDlg() {
+	let dlg = tgui.createModal({
+		title: "Git",
+		scalesize: [0, 0],
+		minsize: [330, 200],
+		buttons: [
+			{
+				text: 'Cancel',
+			},
+		],
+		contentstyle: {
+			display: "flex",
+			"align-items": "center",
+		},
+	});
+
+	let content = tgui.createElement({
+		parent: dlg.content,
+		type: 'div',
+		style: {
+			margin: "auto",
+			width: "100%",
+			display: "flex",
+			"justify-content": "space-between",
+		},
+	});
+	if(!validJWT(localStorage.getItem("git_token"))) {
+		gitLogout();
+		let loginBtnGithub = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				color: "#fff",
+				"background-color": "#08872B",
+				padding: "5px 20px",
+				cursor: "pointer",
+			},
+			text: "Login w/ GitHub",
+			click: () => startGitLoginFlow("hub"),
+		});
+
+		let loginBtnGitlab = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				color: "#fff",
+				"background-color": "#554488",
+				padding: "5px 20px",
+				cursor: "pointer",
+				"margin-left": "10px",
+			},
+			text: "Login w/ GitLab",
+			click: () => startGitLoginFlow("lab")
+		});
+	} else {
+		let pullBtn = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				color: "#fff",
+				margin: "10px, 0px",
+				"background-color": "red",
+				padding: "5px 20px",
+				cursor: "pointer",
+			},
+			text: "Pull",
+		});
+
+		let pushBtn = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				padding: "5px 20px",
+				color: "#fff",
+				margin: "10px, 0px",
+				"background-color": "green",
+				cursor: "pointer",
+			},
+			text: "Push",
+		});
+
+		let logout = tgui.createElement({
+			parent: content,
+			type: "button",
+			style: {
+				padding: "5px 20px",
+				margin: "10px, 0px",
+				color: "#fff",
+				"background-color": "red",
+				cursor: "pointer",
+			},
+			text: "Logout",
+			click: () => {
+				gitLogout();
+				tgui.stopModal();
+			},
+		});
+	}
+
+	let infoBtn = tgui.createElement({
+		parent: content,
+		type: "button",
+		style: {
+			width: "30px",
+			height: "30px",
+			"border-radius": "100px",
+			"font-size": "20px",
+			cursor: "pointer",
+			"margin-left": "10px",
+		},
+		text: "?",
+		click: () => openDocs(),
+	});
+
+	tgui.startModal(dlg);
+
+	async function startGitLoginFlow(type: string) {
+		switch (type) {
+			case "hub":
+				sessionStorage.setItem("git_auth_type", "hub");
+				window.location.href = `https://github.com/login/oauth/authorize?client_id=${client_id_github}&scope=repo&redirect_uri=${window.location.href}`;
+				break;
+			case "lab":
+				sessionStorage.setItem("git_auth_type", "lab");
+				window.location.href = `https://gitlab.ruhr-uni-bochum.de/oauth/authorize?client_id=${app_id_gitlab}&redirect_uri=${window.location.href}&response_type=code&scope=api+write_repository`;
+				break;
+		}
+	}
+
+	async function gitLogout() {
+		try {
+			const token = localStorage.getItem("git_token");
+			if(token) {
+				let decoded = decodeJWT(token);
+				let result;
+				if(decoded.data.type == "lab") {
+					result = await fetch(`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${app_id_gitlab}&type=lab`, {
+						method: 'delete',
+					});
+				} else if(decoded.data.type == "hub") {
+					result = await fetch(`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${client_id_github}&type=hub`, {
+						method: "delete",
+					});
+				}
+
+				if(result.status == 200) {
+					localStorage.removeItem("git_token");
+				}
+			}
+
+		} catch(err) {
+
+		}
+	}
+
+	function openDocs() {
+		return;
+	}
 }

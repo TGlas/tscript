@@ -46,6 +46,14 @@ module.exports = (_, options) => {
 		resolve: {
 			extensions: [".tsx", ".ts", ".js", ".css", ".html"],
 		},
+		devServer: {
+			static: {
+				directory: path.join(__dirname, 'out'),
+			},
+			compress: true,
+			port: 9000,
+		},
+		mode: isProd ? 'production' : 'development',
 		plugins,
 		output: {
 			path: path.resolve(__dirname, "./out"),
