@@ -17,6 +17,7 @@ import * as ide from "./index";
 import { updateControls } from "./utils";
 import { app_id_gitlab, client_id_github, proxy_server_url } from "../../github_creds";
 import { decodeJWT, getRawToken, validJWT } from "../git_token";
+import { showdoc } from "./show-docs";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -1114,7 +1115,7 @@ export function gitDlg() {
 			"margin-left": "10px",
 		},
 		text: "?",
-		click: () => openDocs(),
+		click: () => showdoc("/git"),
 	});
 
 	tgui.startModal(dlg);
@@ -1156,9 +1157,5 @@ export function gitDlg() {
 		} catch(err) {
 
 		}
-	}
-
-	function openDocs() {
-		return;
 	}
 }

@@ -23,7 +23,7 @@ import "./css-dark/tutorial.css";
 import { app_id_gitlab, client_id_github, proxy_server_url } from "../github_creds";
 import { validJWT } from "./git_token";
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
 	const container = document.getElementById("ide-container")!;
 	container.replaceChildren(); // empties the container
 
@@ -43,7 +43,7 @@ window.addEventListener("load", () => {
 		currentUrl = redirectUrl;
 	}
   
-  const gitCode = currentUrl.searchParams.get("code");
+  	const gitCode = currentUrl.searchParams.get("code");
 	const git_auth_type = sessionStorage.getItem("git_auth_type");
 	if(gitCode && git_auth_type) {
 		let res;
@@ -65,7 +65,7 @@ window.addEventListener("load", () => {
 		sessionStorage.removeItem("git_auth_type");
 	}
 
-	initializeNavigation(currentUrl, container, (url) => {
+	await initializeNavigation(currentUrl, container, (url) => {
 		if (url.searchParams.has("doc")) return DocumentationPageController;
 		return IDEPageController;
 	});
