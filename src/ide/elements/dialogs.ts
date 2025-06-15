@@ -1097,8 +1097,15 @@ export function gitDlg() {
 			},
 			text: "Logout",
 			click: () => {
-				gitLogout();
-				tgui.stopModal();
+				gitLogout().then((success) => {
+					if(success) {
+						ide.addMessage("print", "Successfully logged out from git.");
+						tgui.stopModal();
+					} else {
+						ide.addMessage("error", `Could not logout from ${decodeJWT(getRawToken()).data.type == 'hub' ? 'GitHub' : 'GitLab'}.`);
+						tgui.stopModal();
+					}
+				});
 			},
 		});
 	}
@@ -1133,7 +1140,7 @@ export function gitDlg() {
 		}
 	}
 
-	async function gitLogout() {
+	async function gitLogout(): Promise<boolean> {
 		try {
 			const token = localStorage.getItem("git_token");
 			if(token) {
@@ -1151,11 +1158,15 @@ export function gitDlg() {
 
 				if(result.status == 200) {
 					localStorage.removeItem("git_token");
+					return true;
+				} else {
+					return false;
 				}
 			}
 
 		} catch(err) {
-
+			return false;
 		}
+		return false;
 	}
 }
