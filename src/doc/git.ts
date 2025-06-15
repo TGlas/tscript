@@ -13,11 +13,12 @@ export const doc_git: Documentation = {
     <p>
     Without git, the team would have to decide in what order the changes should take effect.
     This can be especially tricky when two users work on the exact same line of code.
-    With git, changes can be tracked and even individually (in different versions) before combining changes
+    With git, changes can be tracked and tested individually (in different versions) before combining changes
     or (when working on the same line of code) deciding on which version to use.
     </p>
     <p>
-    Another advantage of git is the ability to save changes remotely (i.e on platforms such as GitHub or GitLab)
+    Another advantage of git and the main purpose of the current TScript git integration
+    is the ability to save changes remotely (i.e on platforms such as GitHub or GitLab)
     so that the newest version can be downloaded and worked on anywhere.
     </p>
     <p>
@@ -35,7 +36,12 @@ export const doc_git: Documentation = {
             content: `
             <p>
             In order to understand the following pages, one needs to understand the git terminology first.
-            [TBD]
+            </p>
+            <p>
+            A project in git is called a repository (or repo for short). Changes that were made locally can be pushed ('uploaded')
+            to or pulled ('donwloaded') from the remote repository.
+            This requires that a copy from the remote repository already exists locally.
+            If the project is not yet saved locally, the remote repository can be cloned ('copied') to the local file system. [TBD]
             </p>
             `,
             children: [],
@@ -58,7 +64,7 @@ export const doc_git: Documentation = {
             When permission is given, the login page will redirect to the TScript IDE and the account is now linked.
             </p>
             <p>
-            When opening the git dialog again with a linked account [TBD]
+            When opening the git dialog again with a linked account, the dialog shows three different options. [TBD]
             </p>
             `,
             children: [],
