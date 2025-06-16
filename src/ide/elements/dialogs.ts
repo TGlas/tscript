@@ -15,9 +15,10 @@ import { buttons } from "./commands";
 import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
 import * as ide from "./index";
 import { updateControls } from "./utils";
-import { app_id_gitlab, client_id_github, proxy_server_url } from "../../github_creds";
+import { app_id_gitlab, client_id_github } from "../../github_creds";
 import { decodeJWT, getRawToken, validJWT } from "../git_token";
 import { showdoc } from "./show-docs";
+import { gitLogout, startGitLoginFlow } from "../git_logic";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -1004,6 +1005,7 @@ export function tabNameDlg(
 	tgui.startModal(modal);
 }
 
+// Dialog for all git related actions
 export function gitDlg() {
 	let dlg = tgui.createModal({
 		title: "Git",
@@ -1126,47 +1128,4 @@ export function gitDlg() {
 	});
 
 	tgui.startModal(dlg);
-
-	async function startGitLoginFlow(type: string) {
-		switch (type) {
-			case "hub":
-				sessionStorage.setItem("git_auth_type", "hub");
-				window.location.href = `https://github.com/login/oauth/authorize?client_id=${client_id_github}&scope=repo&redirect_uri=${window.location.href}`;
-				break;
-			case "lab":
-				sessionStorage.setItem("git_auth_type", "lab");
-				window.location.href = `https://gitlab.ruhr-uni-bochum.de/oauth/authorize?client_id=${app_id_gitlab}&redirect_uri=${window.location.href}&response_type=code&scope=api+write_repository`;
-				break;
-		}
-	}
-
-	async function gitLogout(): Promise<boolean> {
-		try {
-			const token = localStorage.getItem("git_token");
-			if(token) {
-				let decoded = decodeJWT(token);
-				let result;
-				if(decoded.data.type == "lab") {
-					result = await fetch(`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${app_id_gitlab}&type=lab`, {
-						method: 'delete',
-					});
-				} else if(decoded.data.type == "hub") {
-					result = await fetch(`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${client_id_github}&type=hub`, {
-						method: "delete",
-					});
-				}
-
-				if(result.status == 200) {
-					localStorage.removeItem("git_token");
-					return true;
-				} else {
-					return false;
-				}
-			}
-
-		} catch(err) {
-			return false;
-		}
-		return false;
-	}
 }
