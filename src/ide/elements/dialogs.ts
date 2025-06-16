@@ -1095,7 +1095,11 @@ export function gitDlg() {
 				cursor: "pointer",
 			},
 			text: "Pull",
-			
+			click: () => {
+				git_clone("https://github.com/PplaysMine/ColorConverter").then(success => {
+					tgui.stopModal();
+				});
+			},
 		});
 
 		let pushBtn = tgui.createElement({
