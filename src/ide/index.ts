@@ -49,20 +49,30 @@ window.addEventListener("load", async () => {
 		let res;
 		if(git_auth_type == "hub") {
 			replaceUrl(currentUrl.origin);
-			res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`, {
-				method: 'get',
-			});
+			try {
+				res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`, {
+					method: 'get',
+				});
+			} catch(err) {
+				alert("Error trying to login with GitHub.");
+			}
 		} else if(git_auth_type == "lab") {
 			replaceUrl(currentUrl.origin);
-			res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`, {
-				method: 'get',
-			});
+			try {
+				res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`, {
+					method: 'get',
+				});
+			} catch(err) {
+				alert("Error trying to login with GitLab.");
+			}
 		}
 		
-		res.text().then((token) => {
-			if(validJWT(token)) localStorage.setItem("git_token", token);
-		});
-		sessionStorage.removeItem("git_auth_type");
+		if(res) {
+			res.text().then((token) => {
+				if(validJWT(token)) localStorage.setItem("git_token", token);
+			});
+			sessionStorage.removeItem("git_auth_type");
+		}
 	}
 
 	await initializeNavigation(currentUrl, container, (url) => {
