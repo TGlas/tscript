@@ -1,10 +1,19 @@
 import { jwtDecode } from "jwt-decode";
 
+/**
+ * 
+ * @param token The encoded jwt git token
+ * @returns Decoded JSON object
+ */
 export function decodeJWT(token: string): any {
     if(!validJWT(token)) throw "InvalidToken";
 	return JSON.parse(JSON.stringify(jwtDecode(token)));;
 }
 
+/**
+ * 
+ * @returns Encoded jwt token from localStorage or empty string if no token found
+ */
 export function getRawToken(): string {
     try {
         const token = localStorage.getItem("git_token");
@@ -18,6 +27,11 @@ export function getRawToken(): string {
     }
 }
 
+/**
+ * 
+ * @param token The encoded jwt git token
+ * @returns true if the token is valid and not expired, else false
+ */
 export function validJWT(token: string | null): boolean {
     if(!token) return false;
     try {
