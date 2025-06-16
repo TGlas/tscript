@@ -15,10 +15,9 @@ import { buttons } from "./commands";
 import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
 import * as ide from "./index";
 import { updateControls } from "./utils";
-import { app_id_gitlab, client_id_github } from "../../github_creds";
-import { decodeJWT, getRawToken, validJWT } from "../git_token";
+import { decodeJWT, getLoginTypeFromToken, getRawToken, validJWT } from "../git_token";
 import { showdoc } from "./show-docs";
-import { gitLogout, startGitLoginFlow } from "../git_logic";
+import { git_clone, git_status, gitLogout, startGitLoginFlow } from "../git_logic";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -1010,7 +1009,7 @@ export function gitDlg() {
 	let dlg = tgui.createModal({
 		title: "Git",
 		scalesize: [0, 0],
-		minsize: [330, 200],
+		minsize: [360, 200],
 		buttons: [
 			{
 				text: 'Cancel',
@@ -1029,13 +1028,31 @@ export function gitDlg() {
 			margin: "auto",
 			width: "100%",
 			display: "flex",
-			"justify-content": "space-between",
+			"flex-direction": "column",
+			"align-items": "center",
 		},
 	});
+
+	let textWrapper = tgui.createElement({
+		parent: content,
+		type: 'div',
+	});
+
+	let buttons = tgui.createElement({
+		parent: content,
+		type: 'div',
+		style: {
+			"align-items": "center",
+			"justify-content": "space-evenly",
+			width: "100%",
+			display: "flex"
+		}
+	});
+
 	if(!validJWT(localStorage.getItem("git_token"))) {
 		gitLogout();
 		let loginBtnGithub = tgui.createElement({
-			parent: content,
+			parent: buttons,
 			type: "button",
 			style: {
 				color: "#fff",
@@ -1048,7 +1065,7 @@ export function gitDlg() {
 		});
 
 		let loginBtnGitlab = tgui.createElement({
-			parent: content,
+			parent: buttons,
 			type: "button",
 			style: {
 				color: "#fff",
@@ -1061,8 +1078,14 @@ export function gitDlg() {
 			click: () => startGitLoginFlow("lab")
 		});
 	} else {
+		let text = tgui.createElement({
+			parent: textWrapper,
+			type: 'p',
+			text: `Currently logged in with ${getLoginTypeFromToken(getRawToken()) == 'hub' ? 'GitHub' : 'GitLab'}`,
+		});
+
 		let pullBtn = tgui.createElement({
-			parent: content,
+			parent: buttons,
 			type: "button",
 			style: {
 				color: "#fff",
@@ -1072,10 +1095,11 @@ export function gitDlg() {
 				cursor: "pointer",
 			},
 			text: "Pull",
+			
 		});
 
 		let pushBtn = tgui.createElement({
-			parent: content,
+			parent: buttons,
 			type: "button",
 			style: {
 				padding: "5px 20px",
@@ -1088,7 +1112,7 @@ export function gitDlg() {
 		});
 
 		let logout = tgui.createElement({
-			parent: content,
+			parent: buttons,
 			type: "button",
 			style: {
 				padding: "5px 20px",
@@ -1113,7 +1137,7 @@ export function gitDlg() {
 	}
 
 	let infoBtn = tgui.createElement({
-		parent: content,
+		parent: buttons,
 		type: "button",
 		style: {
 			width: "30px",

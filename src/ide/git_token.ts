@@ -27,6 +27,10 @@ export function getRawToken(): string {
     }
 }
 
+export function getLoginTypeFromToken(token: string): string {
+	return decodeJWT(token).data.type;
+}
+
 /**
  * 
  * @param token The encoded jwt git token
