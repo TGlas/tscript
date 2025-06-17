@@ -1,7 +1,15 @@
 import * as ide from ".";
-import { ParseInput, parseProgram } from "../../lang/parser";
+import { ErrorHelper } from "../../lang/errors/ErrorHelper";
+import { parseProgram } from "../../lang/parser";
+import {
+	fileIDChangeNamespace,
+	fileIDToContextDependentFilename,
+	localstorageFileID,
+} from "../../lang/parser/file_id";
 import { icons } from "../icons";
+import { type StandaloneCode } from "../standalone";
 import * as tgui from "./../tgui";
+import { msgBox } from "./../tgui";
 import {
 	confirmFileOverwrite,
 	fileDlg,
@@ -98,18 +106,18 @@ function cmd_reset() {
 /**
  * Gets the active interpreter session or creates a new one if no program is running
  */
-function getOrRestartSession() {
+async function getOrRestartSession() {
 	let session = ide.interpreterSession;
-	if (!session || interpreterEnded(session.interpreter)) {
+	if (session && !interpreterEnded(session.interpreter)) {
+		return session;
+	} else {
 		// (re-)start the interpreter
-		session = ide.prepareRun();
+		return await ide.prepareRun();
 	}
-
-	return session;
 }
 
-function cmd_run() {
-	getOrRestartSession()?.interpreter.run();
+async function cmd_run() {
+	(await getOrRestartSession())?.interpreter.run();
 }
 
 function cmd_interrupt() {
@@ -117,25 +125,29 @@ function cmd_interrupt() {
 	if (interpreter && !interpreterEnded(interpreter)) interpreter.interrupt();
 }
 
-function cmd_step_into() {
-	getOrRestartSession()?.interpreter.step_into();
+async function cmd_step_into() {
+	(await getOrRestartSession())?.interpreter.step_into();
 }
 
-function cmd_step_over() {
-	getOrRestartSession()?.interpreter.step_over();
+async function cmd_step_over() {
+	(await getOrRestartSession())?.interpreter.step_over();
 }
 
-function cmd_step_out() {
-	getOrRestartSession()?.interpreter.step_out();
+async function cmd_step_out() {
+	(await getOrRestartSession())?.interpreter.step_out();
 }
 
-export function cmd_export() {
-	const parsedFiles = new Map<string, ParseInput>();
-	const parseInput = ide.createParseInput(parsedFiles);
-	if (!parseInput) return;
+export async function cmd_export() {
+	const resolveEntryRes = await ide.createParseInput();
+	if (!resolveEntryRes) return;
+	const [mainEntry, includeResolutions] = resolveEntryRes;
 
 	// check that the code at least compiles
-	let result = parseProgram(parseInput, parseOptions);
+	let result = await parseProgram(mainEntry, parseOptions);
+
+	// everything after that should ideally be synchronous
+	ide.clear();
+
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {
@@ -143,12 +155,13 @@ export function cmd_export() {
 			let err = errors[i];
 			ide.addMessage(
 				err.type,
-				err.type +
-					(err.filename ? " in file '" + err.filename + "'" : "") +
-					" in line " +
-					err.line +
-					": " +
-					err.message,
+				ErrorHelper.getLocatedErrorMsg(
+					err.type,
+					err.filename ?? undefined,
+					err.line,
+					err.message
+				),
+
 				err.filename ?? undefined,
 				err.line,
 				err.ch,
@@ -163,7 +176,10 @@ export function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = parseInput.filename;
+	const humandReadableFilename = fileIDToContextDependentFilename(
+		mainEntry.filename
+	);
+	let title = humandReadableFilename;
 	let fn = "tscript-export";
 	if (
 		!fn.endsWith("html") &&
@@ -208,13 +224,15 @@ export function cmd_export() {
 
 	tgui.startModal(dlg);
 
-	// escape the TScript source code; prepare it to reside inside an html document
-	let source = JSON.stringify({
-		documents: Object.fromEntries(
-			Array.from(parsedFiles.values(), (f) => [f.filename, f.source])
+	const standaloneCode: StandaloneCode = {
+		includeSourceResolutions: Object.fromEntries(
+			includeResolutions.includeSourceResolutions.entries()
 		),
-		main: parseInput.filename,
-	});
+		includeResolutions: includeResolutions.includeResolutions,
+		main: includeResolutions.main,
+	};
+	// escape the TScript source code; prepare it to reside inside an html document
+	let source = JSON.stringify(standaloneCode);
 
 	// obtain the page itself as a string
 	{
@@ -291,13 +309,14 @@ function cmd_new() {
 		const isSavedDoc =
 			localStorage.getItem("tscript.code." + name) !== null;
 
-		if (isSavedDoc || ide.collection.getEditor(name)) {
+		const fileID = localstorageFileID(name);
+		if (isSavedDoc || ide.collection.getEditor(fileID)) {
 			confirmFileOverwrite(name, () => {
 				// replace the existing file/editor
-				ide.collection.openEditorFromData(name, "");
+				ide.collection.openEditorFromData(fileID, "");
 			});
 		} else {
-			ide.collection.openEditorFromData(name, "");
+			ide.collection.openEditorFromData(fileID, "");
 		}
 
 		return false;
@@ -306,7 +325,7 @@ function cmd_new() {
 
 function cmd_load() {
 	fileDlg("Load file", "", false, "Load", (name) => {
-		ide.collection.openEditorFromFile(name);
+		ide.collection.openEditorFromFile(localstorageFileID(name));
 	});
 }
 
@@ -324,7 +343,7 @@ function cmd_save_as() {
 		true,
 		"Save",
 		(filename) => {
-			controller.saveAs(filename);
+			controller.saveAs(localstorageFileID(filename));
 		}
 	);
 }
@@ -354,7 +373,7 @@ export function cmd_upload() {
 export function cmd_download() {
 	const controller = ide.collection.activeEditor;
 	if (!controller) return;
-	const filename = controller.filename;
+	const filename = fileIDToContextDependentFilename(controller.filename);
 	const content = controller.editorView.text();
 
 	const link = tgui.createElement({
