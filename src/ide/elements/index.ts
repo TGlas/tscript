@@ -181,40 +181,49 @@ export async function createParseInput(): Promise<
 	const includeSourceResolutions: Map<StringFileID, string> = new Map();
 	const includeResolutions: [StringFileID, string, StringFileID][] = [];
 
-	const resolveIncludeToFileID = (
-		includingFile: LocalStorageFileID,
-		includeOperand: string
-	): LocalStorageFileID => {
-		includeResolutions.push([
-			fileIDChangeNamespace(includingFile, "string"),
-			includeOperand,
-			stringFileID(includeOperand),
-		]);
-		return localstorageFileID(includeOperand);
-	};
-	const resolveInclude = async (
-		fileID: LocalStorageFileID
-	): Promise<ParseInput<LocalStorageFileID> | null> => {
-		const filename = splitFileIDAtColon(fileID)[1];
-		const source =
-			collection.getEditor(fileID)?.editorView?.text() ??
-			localStorage.getItem(`tscript.code.${filename}`);
-		if (source === null) return null;
-		includeSourceResolutions.set(
-			fileIDChangeNamespace(fileID, "string"),
-			source
-		);
-		return {
-			source,
-			filename: fileID,
-			resolveInclude,
-			resolveIncludeToFileID,
-		};
-	};
+	class LStorageParseInput implements ParseInput<LocalStorageFileID> {
+		declare filename: LocalStorageFileID;
+		declare source: string;
+
+		constructor(filename: LocalStorageFileID, source: string) {
+			this.filename = filename;
+			this.source = source;
+		}
+
+		resolveIncludeToFileID(includeOperand: string): LocalStorageFileID {
+			includeResolutions.push([
+				fileIDChangeNamespace(this.filename, "string"),
+				includeOperand,
+				stringFileID(includeOperand),
+			]);
+			return localstorageFileID(includeOperand);
+		}
+
+		async resolveInclude(
+			fileID: LocalStorageFileID
+		): Promise<ParseInput<LocalStorageFileID> | null> {
+			return LStorageParseInput.getParseInput(fileID);
+		}
+
+		static getParseInput(
+			fileID: LocalStorageFileID
+		): ParseInput<LocalStorageFileID> | null {
+			const filename = splitFileIDAtColon(fileID)[1];
+			const source =
+				collection.getEditor(fileID)?.editorView?.text() ??
+				localStorage.getItem(`tscript.code.${filename}`);
+			if (source === null) return null;
+			includeSourceResolutions.set(
+				fileIDChangeNamespace(fileID, "string"),
+				source
+			);
+			return new LStorageParseInput(fileID, source);
+		}
+	}
 
 	const entryFilename = getRunSelection();
 	if (!fileIDHasNamespace(entryFilename, "localstorage")) return null;
-	const mainParseInput = await resolveInclude(entryFilename);
+	const mainParseInput = LStorageParseInput.getParseInput(entryFilename);
 	if (mainParseInput === null) return null;
 	return [
 		mainParseInput,

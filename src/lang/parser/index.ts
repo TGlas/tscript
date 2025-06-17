@@ -153,21 +153,16 @@ export interface ParseInput<FileIDT extends FileID = FileID>
 	/**
 	 * Resolve an include statement to a FileID.
 	 *
-	 * @param includingFile `ParseInput.filename` of the file where the include
-	 * statement occured
 	 * @param includeOperand the filename as specified in the include statement
 	 * @returns the FileID or `null` if could not be resolved
 	 */
-	resolveIncludeToFileID: (
-		includingFile: FileIDT,
-		includeOperand: string
-	) => FileIDT | null;
+	resolveIncludeToFileID: (includeOperand: string) => FileIDT | null;
 
 	/**
 	 * Given a FileID for an include, return corresponding
 	 * `ParseInput`, or `null` to signal that it is invalid.
 	 */
-	resolveInclude(fileID: FileIDT): Promise<this | null>;
+	resolveInclude(fileID: FileIDT): Promise<ParseInput<FileIDT> | null>;
 }
 
 export interface ParseInputWithoutIncludes<FileIDT extends FileID>
@@ -257,10 +252,7 @@ export function parseProgram<FileIDT extends FileID>(
 				continue;
 			}
 
-			const targetFileID = file.resolveIncludeToFileID(
-				file.filename,
-				inc.filename
-			);
+			const targetFileID = file.resolveIncludeToFileID(inc.filename);
 			if (targetFileID === null) {
 				// the include could not be resolved
 				state.set(inc.position);

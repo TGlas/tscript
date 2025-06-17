@@ -35,34 +35,44 @@ export async function showStandalonePage(
 	data: StandaloneData
 ) {
 	const { includeSourceResolutions, includeResolutions } = data.code;
-	function resolveIncludeToFileID(
-		includingFile: StringFileID,
-		includeOperand: string
-	): StringFileID | null {
-		const relevantTriple = includeResolutions.find(
-			(val) => val[0] === includingFile && val[1] === includeOperand
-		);
-		if (relevantTriple === undefined) {
-			console.error(
-				`Unexpectedly could not resolve include in ${fileIDToHumanFriendly(
-					includingFile
-				)} operand "${includeOperand}" to fileID`
-			);
-			return null;
+	class StandaloneParseInput implements ParseInput<StringFileID> {
+		declare filename: StringFileID;
+		declare source: string;
+
+		constructor(filename: StringFileID, source: string) {
+			this.filename = filename;
+			this.source = source;
 		}
-		return relevantTriple[2];
+
+		resolveIncludeToFileID(includeOperand: string): StringFileID | null {
+			const relevantTriple = includeResolutions.find(
+				(val) => val[0] === this.filename && val[1] === includeOperand
+			);
+			if (relevantTriple === undefined) {
+				console.error(
+					`Unexpectedly could not resolve include in ${fileIDToHumanFriendly(
+						this.filename
+					)} operand "${includeOperand}" to fileID`
+				);
+				return null;
+			}
+			return relevantTriple[2];
+		}
+		async resolveInclude(
+			fileID: StringFileID
+		): Promise<ParseInput<StringFileID> | null> {
+			return StandaloneParseInput.getParseInput(fileID);
+		}
+		static getParseInput(
+			fileID: StringFileID
+		): ParseInput<StringFileID> | null {
+			return new StandaloneParseInput(
+				fileID,
+				includeSourceResolutions[fileID]
+			);
+		}
 	}
-	async function getParseInput(
-		fileID: StringFileID
-	): Promise<ParseInput<StringFileID> | null> {
-		return {
-			filename: fileID,
-			source: includeSourceResolutions[fileID],
-			resolveIncludeToFileID: resolveIncludeToFileID,
-			resolveInclude: getParseInput,
-		};
-	}
-	const mainFile = await getParseInput(data.code.main);
+	const mainFile = StandaloneParseInput.getParseInput(data.code.main);
 	if (!mainFile) return; // This has been validated on export
 
 	const { program } = await parseProgram(mainFile);
