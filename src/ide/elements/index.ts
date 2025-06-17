@@ -6,13 +6,7 @@ import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
 import { EditorCollection } from "./collection";
-import {
-	buttons,
-	cmd_download,
-	cmd_export,
-	cmd_upload,
-	existsActiveSession,
-} from "./commands";
+import { buttons, cmd_download, cmd_export, cmd_upload } from "./commands";
 import {
 	createCanvas,
 	createIDEInterpreter,
@@ -171,53 +165,64 @@ export async function createParseInput(
 	return getFile(getRunSelection());
 }
 
+let pendingInterpreterSession: Promise<InterpreterSession | null> | null = null;
+
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
- * @returns an {@link InterpreterSession} instance, or `null` on error
+ * If this function is called while an earlier call to this function is still
+ * ongoing, it returns the promise from the first call. Destroys current
+ * interpreter.
+ * @returns an {@link InterpreterSession} instance, or `null` on error.
  */
 export async function prepareRun(): Promise<InterpreterSession | null> {
-	const parseInput = await createParseInput();
-	if (!parseInput) {
-		return null;
-	}
+	return (pendingInterpreterSession ??= createInterpreterSession().finally(
+		() => {
+			pendingInterpreterSession = null;
+		}
+	));
 
-	const { program, errors } = await parseProgram(parseInput, parseOptions);
+	async function createInterpreterSession() {
+		const parseInput = await createParseInput();
+		if (!parseInput) {
+			return null;
+		}
 
-	// everything after that should ideally be synchronous
-	if (existsActiveSession()) {
-		return null;
-	}
-
-	clear();
-	for (const err of errors) {
-		addMessage(
-			err.type,
-			err.type +
-				(err.filename ? " in file '" + err.filename + "'" : "") +
-				" in line " +
-				err.line +
-				": " +
-				err.message,
-			err.filename ?? undefined,
-			err.line,
-			err.ch,
-			err.type === "error" ? err.href : undefined
+		const { program, errors } = await parseProgram(
+			parseInput,
+			parseOptions
 		);
-	}
-	if (!program) {
-		return null;
-	}
 
-	interpreterSession = new InterpreterSession(
-		program,
-		turtleContainer,
-		canvasContainer
-	);
+		clear();
+		for (const err of errors) {
+			addMessage(
+				err.type,
+				err.type +
+					(err.filename ? " in file '" + err.filename + "'" : "") +
+					" in line " +
+					err.line +
+					": " +
+					err.message,
+				err.filename ?? undefined,
+				err.line,
+				err.ch,
+				err.type === "error" ? err.href : undefined
+			);
+		}
+		if (!program) {
+			return null;
+		}
 
-	// the IDE has an InterpreterSession now
-	updateProgramState({ interpreterChanged: true });
-	return interpreterSession;
+		interpreterSession = new InterpreterSession(
+			program,
+			turtleContainer,
+			canvasContainer
+		);
+
+		// the IDE has an InterpreterSession now
+		updateProgramState({ interpreterChanged: true });
+		return interpreterSession;
+	}
 }
 
 export class InterpreterSession {

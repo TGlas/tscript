@@ -95,11 +95,6 @@ function cmd_reset() {
 	ide.clear();
 }
 
-export function existsActiveSession(): boolean {
-	let session = ide.interpreterSession;
-	return session !== null && !interpreterEnded(session.interpreter);
-}
-
 /**
  * Gets the active interpreter session or creates a new one if no program is running
  */
