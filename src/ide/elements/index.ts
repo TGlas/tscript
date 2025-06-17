@@ -136,33 +136,50 @@ export function clear() {
 	updateProgramState({ interpreterChanged: true });
 }
 
+/** @see createParseInput */
+export type ParseInputIncludeSpecification = {
+	parseInput: ParseInput;
+	includeResolutions: [string, string, string][] | null;
+	includeSourceResolutions: Map<string, string>;
+};
+
 /**
  * Create ParseInput from the current editors
  *
- * @returns a ParseInput object or `null` if no editors are open
+ * @returns
+ *	- `parseInput`: a ParseInput object
+ *	- `includeResolutions`: array of triples `[includingFile, includeOperand,
+ *		resolvedFilename]`, meaning that that in `includingFile`, an include with
+ *		operand `includeOperand` resolves to the file `resolvedFilename`. null
+ *		if resolutions weren't used (i.e. the includeOperand is always the same
+ *		as the resolvedFilename)
+ *	- `includeSourceResolutions`: Map from resolved filenames (third entry in
+ *		includeResolutions triples) to their sources
+ *	or null if the current run selection could not be resolved.
+ *	`includeResolutions` and `includeSourceResolutions` will only be filled once
+ *	`parseInput` is actually parsed.
  */
-export async function createParseInput(
-	files = new Map<string, ParseInput>()
-): Promise<ParseInput | null> {
-	async function getFile(filename: string): Promise<ParseInput | null> {
-		const existing = files.get(filename);
-		if (existing) return existing;
+export async function createParseInput(): Promise<ParseInputIncludeSpecification | null> {
+	const includeSourceResolutions: Map<string, string> = new Map();
 
+	const resolveInclude = async (
+		filename: string
+	): Promise<ParseInput | null> => {
 		const source =
 			collection.getEditor(filename)?.editorView.text() ??
 			localStorage.getItem(`tscript.code.${filename}`);
-		if (!source) return null;
+		if (source === null) return null;
+		includeSourceResolutions.set(filename, source);
+		return { source, filename, resolveInclude };
+	};
 
-		const file: ParseInput = {
-			filename,
-			source,
-			resolveInclude: getFile,
-		};
-		files.set(filename, file);
-		return file;
-	}
-
-	return getFile(getRunSelection());
+	const mainParseInput = await resolveInclude(getRunSelection());
+	if (mainParseInput === null) return null;
+	return {
+		parseInput: mainParseInput,
+		includeSourceResolutions,
+		includeResolutions: null,
+	};
 }
 
 let pendingInterpreterSession: Promise<InterpreterSession | null> | null = null;
@@ -183,7 +200,7 @@ export async function prepareRun(): Promise<InterpreterSession | null> {
 	));
 
 	async function createInterpreterSession() {
-		const parseInput = await createParseInput();
+		const parseInput = (await createParseInput())?.parseInput;
 		if (!parseInput) {
 			return null;
 		}
