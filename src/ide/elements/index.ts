@@ -141,10 +141,10 @@ export function clear() {
  *
  * @returns a ParseInput object or `null` if no editors are open
  */
-export function createParseInput(
+export async function createParseInput(
 	files = new Map<string, ParseInput>()
-): ParseInput | null {
-	function getFile(filename: string): ParseInput | null {
+): Promise<ParseInput | null> {
+	async function getFile(filename: string): Promise<ParseInput | null> {
 		const existing = files.get(filename);
 		if (existing) return existing;
 
@@ -153,7 +153,11 @@ export function createParseInput(
 			localStorage.getItem(`tscript.code.${filename}`);
 		if (!source) return null;
 
-		const file: ParseInput = { filename, source, resolveInclude: getFile };
+		const file: ParseInput = {
+			filename,
+			source,
+			resolveInclude: getFile,
+		};
 		files.set(filename, file);
 		return file;
 	}
@@ -161,43 +165,64 @@ export function createParseInput(
 	return getFile(getRunSelection());
 }
 
+let pendingInterpreterSession: Promise<InterpreterSession | null> | null = null;
+
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
+ * If this function is called while an earlier call to this function is still
+ * ongoing, it returns the promise from the first call. Destroys current
+ * interpreter.
+ * @returns an {@link InterpreterSession} instance, or `null` on error.
  */
-export function prepareRun(): InterpreterSession | null {
-	clear();
+export async function prepareRun(): Promise<InterpreterSession | null> {
+	return (pendingInterpreterSession ??= createInterpreterSession().finally(
+		() => {
+			pendingInterpreterSession = null;
+		}
+	));
 
-	const parseInput = createParseInput();
-	if (!parseInput) return null;
+	async function createInterpreterSession() {
+		const parseInput = await createParseInput();
+		if (!parseInput) {
+			return null;
+		}
 
-	const { program, errors } = parseProgram(parseInput, parseOptions);
-	for (const err of errors) {
-		addMessage(
-			err.type,
-			err.type +
-				(err.filename ? " in file '" + err.filename + "'" : "") +
-				" in line " +
-				err.line +
-				": " +
-				err.message,
-			err.filename ?? undefined,
-			err.line,
-			err.ch,
-			err.type === "error" ? err.href : undefined
+		const { program, errors } = await parseProgram(
+			parseInput,
+			parseOptions
 		);
+
+		clear();
+		for (const err of errors) {
+			addMessage(
+				err.type,
+				err.type +
+					(err.filename ? " in file '" + err.filename + "'" : "") +
+					" in line " +
+					err.line +
+					": " +
+					err.message,
+				err.filename ?? undefined,
+				err.line,
+				err.ch,
+				err.type === "error" ? err.href : undefined
+			);
+		}
+		if (!program) {
+			return null;
+		}
+
+		interpreterSession = new InterpreterSession(
+			program,
+			turtleContainer,
+			canvasContainer
+		);
+
+		// the IDE has an InterpreterSession now
+		updateProgramState({ interpreterChanged: true });
+		return interpreterSession;
 	}
-	if (!program) return null;
-
-	interpreterSession = new InterpreterSession(
-		program,
-		turtleContainer,
-		canvasContainer
-	);
-
-	// the IDE has an InterpreterSession now
-	updateProgramState({ interpreterChanged: true });
-	return interpreterSession;
 }
 
 export class InterpreterSession {
