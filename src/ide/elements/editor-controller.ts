@@ -1,6 +1,5 @@
 import {
 	FileID,
-	fileIDHasNamespace,
 	fileIDToContextDependentFilename,
 	fileIDToHumanFriendly,
 	ProjectFileID,

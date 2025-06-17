@@ -1,6 +1,6 @@
 import { ParseInput, parseProgram } from "../lang/parser";
-import { StringFileID, fileIDToHumanFriendly } from "../lang/parser/file_id";
 import { IncludeResolutionList } from "./elements";
+import { StringFileID, fileIDToHumanFriendly } from "../lang/parser/file_id";
 import {
 	createCanvas,
 	createIDEInterpreter,
@@ -23,10 +23,10 @@ export type StandaloneData = {
 	mode: "canvas" | "turtle";
 };
 
-export function showStandalonePage(
+export async function showStandalonePage(
 	container: HTMLElement,
 	data: StandaloneData
-): void {
+) {
 	const { includeSourceResolutions, includeResolutions } = data.code;
 	function resolveIncludeToFileID(
 		includingFile: StringFileID,
@@ -45,9 +45,9 @@ export function showStandalonePage(
 		}
 		return relevantTriple[2];
 	}
-	function getParseInput(
+	async function getParseInput(
 		fileID: StringFileID
-	): ParseInput<StringFileID, false> | null {
+	): Promise<ParseInput<StringFileID> | null> {
 		return {
 			filename: fileID,
 			source: includeSourceResolutions[fileID],
@@ -55,13 +55,13 @@ export function showStandalonePage(
 			resolveInclude: getParseInput,
 		};
 	}
-	const mainFile = getParseInput(data.code.main);
+	const mainFile = await getParseInput(data.code.main);
 	if (!mainFile) {
 		console.error("Could not get parse input of main file");
 		return; // This has been validated on export
 	}
 
-	const { program, errors } = parseProgram(mainFile, false);
+	const { program, errors } = await parseProgram(mainFile);
 	if (program == null) {
 		console.error("Could not parse program", errors);
 		return; // This has been validated on export
