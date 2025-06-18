@@ -25,6 +25,7 @@ export async function startGitLoginFlow(type: 'hub' | 'lab') {
 export async function gitClone(url: string): Promise<boolean> {
 	const dir = getProjectPath(getCurrentProject() || '/');
 	try {
+		const tokenData = decodeJWT(getRawToken()).data;
 		await git.clone({
 			fs: projectsFS,
 			http,
@@ -34,8 +35,8 @@ export async function gitClone(url: string): Promise<boolean> {
 			corsProxy: 'https://cors.isomorphic-git.org',
 			remote: 'origin',
 			onAuth: () => ({
-				username: decodeJWT(getRawToken()).data.info.access_token,
-				password: '',
+				username: tokenData.type === 'hub' ? tokenData.info.access_token : '',
+				password: tokenData.type === 'lab' ? tokenData.info.access_token : '',
 			}),
 			onAuthFailure: () => {
 				addMessage("error", "Not authorized to clone, make sure that you have full read access to this repository.");
