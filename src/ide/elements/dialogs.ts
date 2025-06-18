@@ -17,7 +17,7 @@ import * as ide from "./index";
 import { updateControls } from "./utils";
 import { decodeJWT, getLoginTypeFromToken, getRawToken, validJWT } from "../git_token";
 import { showdoc } from "./show-docs";
-import { git_clone, git_status, gitLogout, startGitLoginFlow } from "../git_logic";
+import { getCurrentProjectGitInfo, getGitRepos, gitClone, gitLogout, gitPull, Repo, startGitLoginFlow } from "../git_logic";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -1009,7 +1009,7 @@ export function gitDlg() {
 	let dlg = tgui.createModal({
 		title: "Git",
 		scalesize: [0, 0],
-		minsize: [360, 200],
+		minsize: [360, 300],
 		buttons: [
 			{
 				text: 'Cancel',
@@ -1036,6 +1036,10 @@ export function gitDlg() {
 	let textWrapper = tgui.createElement({
 		parent: content,
 		type: 'div',
+		style: {
+			width: "100%",
+			"text-align": "center",
+		}
 	});
 
 	let buttons = tgui.createElement({
@@ -1084,22 +1088,110 @@ export function gitDlg() {
 			text: `Currently logged in with ${getLoginTypeFromToken(getRawToken()) == 'hub' ? 'GitHub' : 'GitLab'}`,
 		});
 
-		let pullBtn = tgui.createElement({
-			parent: buttons,
-			type: "button",
+		const customOption: Repo = {
+			name: 'Custom...',
+			url: '',
+			private: false,
+		};
+
+		let repoSelector: HTMLSelectElement = tgui.createElement({
+			parent: textWrapper,
+			type: 'select',
+			id: 'repoSelector',
 			style: {
-				color: "#fff",
-				margin: "10px, 0px",
-				"background-color": "red",
-				padding: "5px 20px",
-				cursor: "pointer",
+				"min-width": "90%",
+				height: "30px",
+				"padding-left": "4px",
+				"margin-bottom": "10px",
 			},
-			text: "Pull",
-			click: () => {
-				git_clone("https://github.com/PplaysMine/ColorConverter").then(success => {
-					tgui.stopModal();
-				});
+		});
+		repoSelector.addEventListener("change", (evt: any) => {
+			if(evt.target.value !== JSON.stringify(customOption)) {
+				customUrlInput.style.display = "none";
+			} else {
+				customUrlInput.style.display = "inline-block";
+			}
+		});
+
+		let customUrlInput = tgui.createElement({
+			parent: textWrapper,
+			type: 'input',
+			id: 'customUrlInput',
+			properties: {
+				placeholder: "Enter custom git url...",
 			},
+			style: {
+				"min-width": "90%",
+				height: "30px",
+				"padding-left": "4px",
+				"margin-bottom": "10px",
+				display: "inline-block",
+			},
+		});
+
+		getGitRepos().then(repos => {
+			repos.sort((a, b) => {
+				return a.name < b.name ? -1 : 1;
+			});
+			repos.unshift(customOption);
+
+			for(let repo of repos) {
+				const option = document.createElement('option');
+				option.value = JSON.stringify(repo);
+				option.innerHTML = `${repo.private ? '&#128274;' : ''} ${repo.name}`;
+				repoSelector.appendChild(option);
+			}
+
+			getCurrentProjectGitInfo().then((repo: Repo | undefined) => {
+				if(repo) {
+					const searchRepo = repos.find(el => el.url.toLowerCase() === repo.url.toLowerCase());
+					if(searchRepo) {
+						repoSelector.value = JSON.stringify(searchRepo);
+						repoSelector.disabled = true;
+						customUrlInput.style.display = "none";
+					} else {
+						repoSelector.value = JSON.stringify(customOption);
+						repoSelector.disabled = true;
+						customUrlInput.value = repo.url;
+						customUrlInput.disabled = true;
+					}
+				}
+			});
+		});
+
+		let pullBtn;
+		getCurrentProjectGitInfo().then(repo => {
+			pullBtn = tgui.createElement({
+				parent: buttons,
+				type: "button",
+				style: {
+					color: "#fff",
+					margin: "10px, 0px",
+					"background-color": "red",
+					padding: "5px 20px",
+					cursor: "pointer",
+					order: '-3',
+				},
+				text: repo ? 'Pull' : 'Clone',
+				click: () => {
+					if(repo) {
+						gitPull().then(() => {
+							tgui.stopModal();
+						});
+					} else {
+						const selectedRepo: Repo = JSON.parse(repoSelector.value);
+						if(JSON.stringify(selectedRepo) === JSON.stringify(customOption)) {
+							gitClone(customUrlInput.value).then(() => {
+								tgui.stopModal();
+							})
+						} else {
+							gitClone(selectedRepo.url).then(() => {
+								tgui.stopModal();
+							});
+						}
+					}
+				},
+			});
 		});
 
 		let pushBtn = tgui.createElement({

@@ -22,9 +22,8 @@ export async function startGitLoginFlow(type: 'hub' | 'lab') {
 	}
 }
 
-export async function git_clone(url: string): Promise<boolean> {
+export async function gitClone(url: string): Promise<boolean> {
 	const dir = getProjectPath(getCurrentProject() || '/');
-	console.log(dir);
 	try {
 		await git.clone({
 			fs: projectsFS,
@@ -33,34 +32,112 @@ export async function git_clone(url: string): Promise<boolean> {
 			url: url,
 			depth: 1,
 			corsProxy: 'https://cors.isomorphic-git.org',
-			remote: 'tscript',
+			remote: 'origin',
 			onAuth: () => ({
 				username: decodeJWT(getRawToken()).data.info.access_token,
 				password: '',
 			}),
 			onAuthFailure: () => {
-				addMessage("error", "Not authorized to clone, make sure that you have full read/write access to this repository.");
+				addMessage("error", "Not authorized to clone, make sure that you have full read access to this repository.");
 			}
 		});
-		ft?.refresh();
+		ft.refresh();
 		return true
 	} catch(err) {
-		console.log("ERROR");
+		addMessage("error", "Could not clone remote repository.");
+		console.log(err);
 		return false;
 	}
 }
 
-export async function git_status(path: string) {
-	console.log(getProjectPath(getCurrentProject() || ''));
-	projectsFS.readdir(getProjectPath(getCurrentProject() ||''), undefined, (err, files) => {
-		console.log(files);
-	});
-	git.listFiles({fs: projectsFS, dir: '/'}).then(val => console.log(val));
-	git.status({
-		fs: projectsFS,
-		filepath: path,
-		dir: getProjectPath(getCurrentProject() || ''),
-	}).then(s => console.log(s));
+export async function gitPull(): Promise<boolean> {
+	// TODO: Check why GitLab is not authorized
+	const dir = getProjectPath(getCurrentProject() || '/');
+	try {
+		await git.pull({
+			fs: projectsFS,
+			http,
+			dir: dir,
+			onAuth: () => ({
+				username: decodeJWT(getRawToken()).data.info.access_token,
+				password: '',
+			}),
+			onAuthFailure: () => {
+				addMessage("error", "Not authorized to pull, make sure that you have full read access to this repository.");
+			},
+			singleBranch: true,
+			author: {
+				name: 'tscript',
+			}
+		});
+		ft.refresh();
+		return true;
+	} catch(err) {
+		addMessage("error", "Could not pull from remote repository.");
+		console.log(err);
+		return false;
+	}
+}
+
+export interface Repo {
+	name: string,
+	url: string,
+	private: boolean | null,
+}
+
+export async function getCurrentProjectGitInfo(): Promise<Repo | undefined> {
+	const currentProject = getCurrentProject();
+	if(currentProject) {
+		let value = await git.getConfig({
+			fs: projectsFS,
+			dir: getProjectPath(currentProject),
+			path: 'remote.origin.url',
+		});
+		let repo: Repo | undefined = undefined;
+		if(value) {
+			repo = {
+				name: '',
+				url: value,
+				private: null,
+			};
+		}
+		return repo;
+	}
+	return undefined;
+}
+
+
+export async function getGitRepos(): Promise<Repo[]> {
+	const repos = sessionStorage.getItem('repos');
+	if(repos) return JSON.parse(repos);
+	try {
+		const token = decodeJWT(getRawToken());
+		if(token) {
+			let result;
+
+			if(token.data.type == "lab") {
+				result = await fetch(`${proxy_server_url}/repos?token=${token.data.info.access_token}&type=lab`, {
+					method: 'get',
+				});
+			} else if(token.data.type == "hub") {
+				result = await fetch(`${proxy_server_url}/repos?token=${token.data.info.access_token}&type=hub`, {
+					method: "get",
+				});
+			}
+
+			if(result.ok) {
+				const repoArray: Repo[] = await result.json();
+				sessionStorage.setItem('repos', JSON.stringify(repoArray));
+				return repoArray;
+			} else {
+				return []
+			}
+		} else {
+			return [];
+		}
+	} catch(err) {
+		return [];
+	}
 }
 
 /**
@@ -85,6 +162,7 @@ export async function gitLogout(): Promise<boolean> {
 
 			if(result.status == 200) {
 				localStorage.removeItem("git_token");
+				sessionStorage.removeItem("repos");
 				return true;
 			} else {
 				return false;
