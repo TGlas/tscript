@@ -1053,6 +1053,15 @@ export function gitDlg() {
 		}
 	});
 
+	let loadingTextWrapper = tgui.createElement({
+		parent: content,
+		type: 'div',
+		style: {
+			width: "100%",
+			"text-align": "center",
+		}
+	});
+
 	if(!validJWT(localStorage.getItem("git_token"))) {
 		gitLogout();
 		let loginBtnGithub = tgui.createElement({
@@ -1159,7 +1168,7 @@ export function gitDlg() {
 			});
 		});
 
-		let pullBtn;
+		let pullBtn: HTMLButtonElement;
 		getCurrentProjectGitInfo().then(repo => {
 			pullBtn = tgui.createElement({
 				parent: buttons,
@@ -1174,6 +1183,8 @@ export function gitDlg() {
 				},
 				text: repo ? 'Pull' : 'Clone',
 				click: () => {
+					showLoading(true)
+					setButtonsDisabled(true);
 					if(repo) {
 						gitPull().then(() => {
 							tgui.stopModal();
@@ -1194,7 +1205,7 @@ export function gitDlg() {
 			});
 		});
 
-		let pushBtn = tgui.createElement({
+		let pushBtn: HTMLButtonElement = tgui.createElement({
 			parent: buttons,
 			type: "button",
 			style: {
@@ -1207,7 +1218,7 @@ export function gitDlg() {
 			text: "Push",
 		});
 
-		let logout = tgui.createElement({
+		let logoutBtn: HTMLButtonElement = tgui.createElement({
 			parent: buttons,
 			type: "button",
 			style: {
@@ -1219,6 +1230,8 @@ export function gitDlg() {
 			},
 			text: "Logout",
 			click: () => {
+				setButtonsDisabled(true);
+				showLoading(true);
 				gitLogout().then((success) => {
 					if(success) {
 						ide.addMessage("print", "Successfully logged out from git.");
@@ -1230,6 +1243,26 @@ export function gitDlg() {
 				});
 			},
 		});
+
+		let loadingText = tgui.createElement({
+			parent: loadingTextWrapper,
+			type: 'p',
+			text: "Loading...",
+			style: {
+				display: "none",
+			}
+		});
+
+		function setButtonsDisabled(disabled: boolean) {
+			pushBtn.disabled = disabled;
+			pullBtn.disabled = disabled;
+			logoutBtn.disabled = disabled;
+		}
+
+		function showLoading(show: boolean) {
+			if(show) loadingText.style.display = "inline-block";
+			else loadingText.style.display = "none";
+		}
 	}
 
 	let infoBtn = tgui.createElement({
