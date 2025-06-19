@@ -22,6 +22,7 @@ import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
 import { app_id_gitlab, client_id_github, proxy_server_url } from "../github_creds";
 import { validJWT } from "./git_token";
+import { getGitRepos } from "./git_logic";
 
 window.addEventListener("load", async () => {
 	const container = document.getElementById("ide-container")!;
@@ -69,7 +70,10 @@ window.addEventListener("load", async () => {
 		
 		if(res) {
 			res.text().then((token) => {
-				if(validJWT(token)) localStorage.setItem("git_token", token);
+				if(validJWT(token)) {
+					localStorage.setItem("git_token", token);
+					getGitRepos();
+				}
 			});
 			sessionStorage.removeItem("git_auth_type");
 		}
