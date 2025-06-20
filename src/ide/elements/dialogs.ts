@@ -1137,7 +1137,6 @@ export function gitDlg() {
 				display: "inline-block",
 			},
 		});
-
 		getGitRepos().then(repos => {
 			repos.sort((a, b) => {
 				return a.name < b.name ? -1 : 1;
@@ -1153,6 +1152,7 @@ export function gitDlg() {
 
 			getCurrentProjectGitInfo().then((repo: Repo | undefined) => {
 				if(repo) {
+					setButtonsDisabled(false, [pushBtn, pullBtn, logoutBtn]);
 					const searchRepo = repos.find(el => el.url.toLowerCase() === repo.url.toLowerCase());
 					if(searchRepo) {
 						repoSelector.value = JSON.stringify(searchRepo);
@@ -1183,18 +1183,23 @@ export function gitDlg() {
 				},
 				text: repo ? 'Pull' : 'Clone',
 				click: () => {
-					showLoading(true)
-					setButtonsDisabled(true);
+					setButtonsDisabled(true, [pushBtn, pullBtn, logoutBtn]);
 					if(repo) {
+						showLoading(true);
 						gitPull().then(() => {
 							tgui.stopModal();
 						});
 					} else {
 						const selectedRepo: Repo = JSON.parse(repoSelector.value);
+						if(customUrlInput.value === "") {
+							setButtonsDisabled(false, [pushBtn, pullBtn, logoutBtn]);
+							return;
+						};
+						showLoading(true);
 						if(JSON.stringify(selectedRepo) === JSON.stringify(customOption)) {
 							gitClone(customUrlInput.value).then(() => {
 								tgui.stopModal();
-							})
+							});
 						} else {
 							gitClone(selectedRepo.url).then(() => {
 								tgui.stopModal();
@@ -1208,6 +1213,9 @@ export function gitDlg() {
 		let pushBtn: HTMLButtonElement = tgui.createElement({
 			parent: buttons,
 			type: "button",
+			properties: {
+				disabled: "true",
+			},
 			style: {
 				padding: "5px 20px",
 				color: "#fff",
@@ -1216,6 +1224,7 @@ export function gitDlg() {
 				cursor: "pointer",
 			},
 			text: "Push",
+			click: () => console.log("PUSH"),
 		});
 
 		let logoutBtn: HTMLButtonElement = tgui.createElement({
@@ -1230,7 +1239,7 @@ export function gitDlg() {
 			},
 			text: "Logout",
 			click: () => {
-				setButtonsDisabled(true);
+				setButtonsDisabled(true, [pushBtn, pullBtn, logoutBtn]);
 				showLoading(true);
 				gitLogout().then((success) => {
 					if(success) {
@@ -1253,10 +1262,10 @@ export function gitDlg() {
 			}
 		});
 
-		function setButtonsDisabled(disabled: boolean) {
-			pushBtn.disabled = disabled;
-			pullBtn.disabled = disabled;
-			logoutBtn.disabled = disabled;
+		function setButtonsDisabled(disabled: boolean, btns: HTMLButtonElement[]) {
+			for(let btn of btns) {
+				btn.disabled = disabled;
+			}
 		}
 
 		function showLoading(show: boolean) {
