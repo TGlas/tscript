@@ -63,8 +63,27 @@ export const doc_git: Documentation = {
             After a successful login, TScript needs permission to access files in private repositories.
             When permission is given, the login page will redirect to the TScript IDE and the account is now linked.
             </p>
+            <h3>Cloning</h3>
             <p>
-            When opening the git dialog again with a linked account, the dialog shows three different options. [TBD]
+            When opening the git dialog again with a linked account, the dialog shows a dropdown menu and three buttons.
+            All repositories that belong to the user who is currently logged in are listed in the dropdown menu.
+            The list also shows if a repository is private (lock icon) or public (no lock icon).
+            In addition to the user's repositories, there is also an option to clone a repository from a 3rd party using
+            a GitHub or GitLab link ('Custom...').
+            </p>
+            <p>
+            After selecting a remote repository from the dropdown menu (or providing a link to a 3rd party remote repository),
+            the remote repository can be cloned into a TScript project by pressing the clone button. If the cloning is successful,
+            the git dialog closes and the file tree shows all folders and files from the repository.
+            A file can be opened in the editor window by double clicking on the name in the file tree.
+            </p>
+            <h3>Pushing</h3>
+            <p>
+            [TBD]
+            </p>
+            <h3>Pulling</h3>
+            <p>
+            The TScript IDE will automatically detect if the current project is a valid git repository. [TBD]
             </p>
             `,
             children: [],
