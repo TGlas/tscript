@@ -5,7 +5,7 @@ const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const HTMLInlineCSSWebpackPlugin =
 	require("html-inline-css-webpack-plugin").default;
 
-const webpack = require('webpack');
+const webpack = require("webpack");
 
 module.exports = (_, options) => {
 	const isProd = options.mode === "production";
@@ -19,7 +19,7 @@ module.exports = (_, options) => {
 			template: "./src/ide/index.html",
 		}),
 		new webpack.ProvidePlugin({
-			Buffer: ['buffer', 'Buffer'],
+			Buffer: ["buffer", "Buffer"],
 		}),
 	];
 
@@ -50,16 +50,16 @@ module.exports = (_, options) => {
 		},
 		resolve: {
 			extensions: [".tsx", ".ts", ".js", ".css", ".html"],
-			fallback: { "buffer": require.resolve("buffer") }
+			fallback: { buffer: require.resolve("buffer") },
 		},
 		devServer: {
 			static: {
-				directory: path.join(__dirname, 'out'),
+				directory: path.join(__dirname, "out"),
 			},
 			compress: true,
 			port: 9000,
 		},
-		mode: isProd ? 'production' : 'development',
+		mode: isProd ? "production" : "development",
 		plugins,
 		output: {
 			path: path.resolve(__dirname, "./out"),

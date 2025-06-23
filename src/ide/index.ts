@@ -20,7 +20,11 @@ import "./css-dark/icons.css";
 import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
-import { app_id_gitlab, client_id_github, proxy_server_url } from "../github_creds";
+import {
+	app_id_gitlab,
+	client_id_github,
+	proxy_server_url,
+} from "../github_creds";
 import { validJWT } from "./git_token";
 import { getGitRepos } from "./git_logic";
 
@@ -43,34 +47,40 @@ window.addEventListener("load", async () => {
 		replaceUrl(redirectUrl);
 		currentUrl = redirectUrl;
 	}
-  
-  	const gitCode = currentUrl.searchParams.get("code");
+
+	const gitCode = currentUrl.searchParams.get("code");
 	const git_auth_type = sessionStorage.getItem("git_auth_type");
-	if(gitCode && git_auth_type) {
+	if (gitCode && git_auth_type) {
 		let res;
-		if(git_auth_type == "hub") {
+		if (git_auth_type == "hub") {
 			replaceUrl(currentUrl.origin);
 			try {
-				res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`, {
-					method: 'get',
-				});
-			} catch(err) {
+				res = await fetch(
+					`${proxy_server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`,
+					{
+						method: "get",
+					}
+				);
+			} catch (err) {
 				alert("Error trying to login with GitHub.");
 			}
-		} else if(git_auth_type == "lab") {
+		} else if (git_auth_type == "lab") {
 			replaceUrl(currentUrl.origin);
 			try {
-				res = await fetch(`${proxy_server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`, {
-					method: 'get',
-				});
-			} catch(err) {
+				res = await fetch(
+					`${proxy_server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`,
+					{
+						method: "get",
+					}
+				);
+			} catch (err) {
 				alert("Error trying to login with GitLab.");
 			}
 		}
-		
-		if(res) {
+
+		if (res) {
 			res.text().then((token) => {
-				if(validJWT(token)) {
+				if (validJWT(token)) {
 					localStorage.setItem("git_token", token);
 					getGitRepos();
 				}

@@ -15,9 +15,22 @@ import { buttons } from "./commands";
 import { openEditorFromLocalStorage, tab_config } from "./editor-tabs";
 import * as ide from "./index";
 import { updateControls } from "./utils";
-import { decodeJWT, getLoginTypeFromToken, getRawToken, validJWT } from "../git_token";
+import {
+	decodeJWT,
+	getLoginTypeFromToken,
+	getRawToken,
+	validJWT,
+} from "../git_token";
 import { showdoc } from "./show-docs";
-import { getCurrentProjectGitInfo, getGitRepos, gitClone, gitLogout, gitPull, Repo, startGitLoginFlow } from "../git_logic";
+import {
+	getCurrentProjectGitInfo,
+	getGitRepos,
+	gitClone,
+	gitLogout,
+	gitPull,
+	Repo,
+	startGitLoginFlow,
+} from "../git_logic";
 
 export let parseOptions: ParseOptions = defaultParseOptions;
 
@@ -1012,7 +1025,7 @@ export function gitDlg() {
 		minsize: [360, 300],
 		buttons: [
 			{
-				text: 'Cancel',
+				text: "Cancel",
 			},
 		],
 		contentstyle: {
@@ -1023,7 +1036,7 @@ export function gitDlg() {
 
 	let content = tgui.createElement({
 		parent: dlg.content,
-		type: 'div',
+		type: "div",
 		style: {
 			margin: "auto",
 			width: "100%",
@@ -1035,34 +1048,34 @@ export function gitDlg() {
 
 	let textWrapper = tgui.createElement({
 		parent: content,
-		type: 'div',
+		type: "div",
 		style: {
 			width: "100%",
 			"text-align": "center",
-		}
+		},
 	});
 
 	let buttons = tgui.createElement({
 		parent: content,
-		type: 'div',
+		type: "div",
 		style: {
 			"align-items": "center",
 			"justify-content": "space-evenly",
 			width: "100%",
-			display: "flex"
-		}
+			display: "flex",
+		},
 	});
 
 	let loadingTextWrapper = tgui.createElement({
 		parent: content,
-		type: 'div',
+		type: "div",
 		style: {
 			width: "100%",
 			"text-align": "center",
-		}
+		},
 	});
 
-	if(!validJWT(localStorage.getItem("git_token"))) {
+	if (!validJWT(localStorage.getItem("git_token"))) {
 		gitLogout();
 		let loginBtnGithub = tgui.createElement({
 			parent: buttons,
@@ -1088,25 +1101,29 @@ export function gitDlg() {
 				"margin-left": "10px",
 			},
 			text: "Login w/ GitLab",
-			click: () => startGitLoginFlow("lab")
+			click: () => startGitLoginFlow("lab"),
 		});
 	} else {
 		let text = tgui.createElement({
 			parent: textWrapper,
-			type: 'p',
-			text: `Currently logged in with ${getLoginTypeFromToken(getRawToken()) == 'hub' ? 'GitHub' : 'GitLab'}`,
+			type: "p",
+			text: `Currently logged in with ${
+				getLoginTypeFromToken(getRawToken()) == "hub"
+					? "GitHub"
+					: "GitLab"
+			}`,
 		});
 
 		const customOption: Repo = {
-			name: 'Custom...',
-			url: '',
+			name: "Custom...",
+			url: "",
 			private: false,
 		};
 
 		let repoSelector: HTMLSelectElement = tgui.createElement({
 			parent: textWrapper,
-			type: 'select',
-			id: 'repoSelector',
+			type: "select",
+			id: "repoSelector",
 			style: {
 				"min-width": "90%",
 				height: "30px",
@@ -1115,7 +1132,7 @@ export function gitDlg() {
 			},
 		});
 		repoSelector.addEventListener("change", (evt: any) => {
-			if(evt.target.value !== JSON.stringify(customOption)) {
+			if (evt.target.value !== JSON.stringify(customOption)) {
 				customUrlInput.style.display = "none";
 			} else {
 				customUrlInput.style.display = "inline-block";
@@ -1124,8 +1141,8 @@ export function gitDlg() {
 
 		let customUrlInput = tgui.createElement({
 			parent: textWrapper,
-			type: 'input',
-			id: 'customUrlInput',
+			type: "input",
+			id: "customUrlInput",
 			properties: {
 				placeholder: "Enter custom git url...",
 			},
@@ -1137,24 +1154,28 @@ export function gitDlg() {
 				display: "inline-block",
 			},
 		});
-		getGitRepos().then(repos => {
+		getGitRepos().then((repos) => {
 			repos.sort((a, b) => {
 				return a.name < b.name ? -1 : 1;
 			});
 			repos.unshift(customOption);
 
-			for(let repo of repos) {
-				const option = document.createElement('option');
+			for (let repo of repos) {
+				const option = document.createElement("option");
 				option.value = JSON.stringify(repo);
-				option.innerHTML = `${repo.private ? '&#128274;' : ''} ${repo.name}`;
+				option.innerHTML = `${repo.private ? "&#128274;" : ""} ${
+					repo.name
+				}`;
 				repoSelector.appendChild(option);
 			}
 
 			getCurrentProjectGitInfo().then((repo: Repo | undefined) => {
-				if(repo) {
+				if (repo) {
 					setButtonsDisabled(false, [pushBtn, pullBtn, logoutBtn]);
-					const searchRepo = repos.find(el => el.url.toLowerCase() === repo.url.toLowerCase());
-					if(searchRepo) {
+					const searchRepo = repos.find(
+						(el) => el.url.toLowerCase() === repo.url.toLowerCase()
+					);
+					if (searchRepo) {
 						repoSelector.value = JSON.stringify(searchRepo);
 						repoSelector.disabled = true;
 						customUrlInput.style.display = "none";
@@ -1169,7 +1190,7 @@ export function gitDlg() {
 		});
 
 		let pullBtn: HTMLButtonElement;
-		getCurrentProjectGitInfo().then(repo => {
+		getCurrentProjectGitInfo().then((repo) => {
 			pullBtn = tgui.createElement({
 				parent: buttons,
 				type: "button",
@@ -1179,24 +1200,33 @@ export function gitDlg() {
 					"background-color": "red",
 					padding: "5px 20px",
 					cursor: "pointer",
-					order: '-3',
+					order: "-3",
 				},
-				text: repo ? 'Pull' : 'Clone',
+				text: repo ? "Pull" : "Clone",
 				click: () => {
 					setButtonsDisabled(true, [pushBtn, pullBtn, logoutBtn]);
-					if(repo) {
+					if (repo) {
 						showLoading(true);
 						gitPull().then(() => {
 							tgui.stopModal();
 						});
 					} else {
-						const selectedRepo: Repo = JSON.parse(repoSelector.value);
-						if(customUrlInput.value === "") {
-							setButtonsDisabled(false, [pushBtn, pullBtn, logoutBtn]);
+						const selectedRepo: Repo = JSON.parse(
+							repoSelector.value
+						);
+						if (customUrlInput.value === "") {
+							setButtonsDisabled(false, [
+								pushBtn,
+								pullBtn,
+								logoutBtn,
+							]);
 							return;
-						};
+						}
 						showLoading(true);
-						if(JSON.stringify(selectedRepo) === JSON.stringify(customOption)) {
+						if (
+							JSON.stringify(selectedRepo) ===
+							JSON.stringify(customOption)
+						) {
 							gitClone(customUrlInput.value).then(() => {
 								tgui.stopModal();
 							});
@@ -1242,11 +1272,21 @@ export function gitDlg() {
 				setButtonsDisabled(true, [pushBtn, pullBtn, logoutBtn]);
 				showLoading(true);
 				gitLogout().then((success) => {
-					if(success) {
-						ide.addMessage("print", "Successfully logged out from git.");
+					if (success) {
+						ide.addMessage(
+							"print",
+							"Successfully logged out from git."
+						);
 						tgui.stopModal();
 					} else {
-						ide.addMessage("error", `Could not logout from ${decodeJWT(getRawToken()).data.type == 'hub' ? 'GitHub' : 'GitLab'}.`);
+						ide.addMessage(
+							"error",
+							`Could not logout from ${
+								decodeJWT(getRawToken()).data.type == "hub"
+									? "GitHub"
+									: "GitLab"
+							}.`
+						);
 						tgui.stopModal();
 					}
 				});
@@ -1255,21 +1295,24 @@ export function gitDlg() {
 
 		let loadingText = tgui.createElement({
 			parent: loadingTextWrapper,
-			type: 'p',
+			type: "p",
 			text: "Loading...",
 			style: {
 				display: "none",
-			}
+			},
 		});
 
-		function setButtonsDisabled(disabled: boolean, btns: HTMLButtonElement[]) {
-			for(let btn of btns) {
+		function setButtonsDisabled(
+			disabled: boolean,
+			btns: HTMLButtonElement[]
+		) {
+			for (let btn of btns) {
 				btn.disabled = disabled;
 			}
 		}
 
 		function showLoading(show: boolean) {
-			if(show) loadingText.style.display = "inline-block";
+			if (show) loadingText.style.display = "inline-block";
 			else loadingText.style.display = "none";
 		}
 	}

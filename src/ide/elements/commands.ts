@@ -7,7 +7,7 @@ import {
 	loadFileProjDlg,
 	fileDlgSize,
 	parseOptions,
-  gitDlg
+	gitDlg,
 } from "./dialogs";
 import {
 	closeEditor,

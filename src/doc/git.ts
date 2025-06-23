@@ -1,10 +1,10 @@
 import { Documentation } from ".";
 
 export const doc_git: Documentation = {
-    id: 'git',
-    name: 'git in TScript',
-    title: 'git in TScript',
-    content: `
+	id: "git",
+	name: "git in TScript",
+	title: "git in TScript",
+	content: `
     <p>
     <a href="https://git-scm.com" target="_blank">git</a> is a powerful tool for version control and filesharing.
     Whenever multiple people work on one software project, a common problem is that a file can be
@@ -28,12 +28,12 @@ export const doc_git: Documentation = {
     offers much more in-depth information about git.
     </p>
     `,
-    children: [
-        {
-            id: "basics",
-            name: "git basics",
-            title: "git basics",
-            content: `
+	children: [
+		{
+			id: "basics",
+			name: "git basics",
+			title: "git basics",
+			content: `
             <p>
             In order to understand the following pages, one needs to understand the git terminology first.
             </p>
@@ -44,13 +44,13 @@ export const doc_git: Documentation = {
             If the project is not yet saved locally, the remote repository can be cloned ('copied') to the local file system. [TBD]
             </p>
             `,
-            children: [],
-        },
-        {
-            id: "start",
-            name: "Getting started",
-            title: "Getting started with git",
-            content: `
+			children: [],
+		},
+		{
+			id: "start",
+			name: "Getting started",
+			title: "Getting started with git",
+			content: `
             <p>
             In order to use git with TScript, either a <a href="https://github.com" target="_blank">GitHub</a>
             or <a href="https://gitlab.ruhr-uni-bochum.de/" target="_blank">RUB GitLab</a> account
@@ -86,7 +86,7 @@ export const doc_git: Documentation = {
             The TScript IDE will automatically detect if the current project is a valid git repository. [TBD]
             </p>
             `,
-            children: [],
-        },
-    ],
+			children: [],
+		},
+	],
 };
