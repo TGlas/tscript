@@ -79,12 +79,21 @@ export const doc_git: Documentation = {
             </p>
             <h3>Pushing</h3>
             <p>
-            [TBD]
+            Changes that were made in TScript can be pushed to the remote repository using the push button.
+            If there is a merge conflict (remote changes clash with local changes), a prompt will appear that
+            forces you to either select the local changes to overwrite the remote changes, or to cancel the push process
+            and overwrite the local changes with the remote changes.
             </p>
             <h3>Pulling</h3>
             <p>
-            The TScript IDE will automatically detect if the current project is a valid git repository. [TBD]
+            The TScript IDE will automatically detect if the current project is a valid git repository.
+            If it is valid, the clone button will change into the pull button. When pressing the pull button,
+            the newest changes are pulled from the remote repository.
             </p>
+            <div class="warning">
+                Local changes are discarded when pulling remote changes, so make sure to push any changes before
+                pulling from the remote repository!
+		    </div>
             `,
 			children: [],
 		},

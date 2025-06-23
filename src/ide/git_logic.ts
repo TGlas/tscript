@@ -26,6 +26,11 @@ export async function startGitLoginFlow(type: "hub" | "lab") {
 	}
 }
 
+/**
+ * Function to implement git clone
+ * @param url url to the remote git repo
+ * @returns promisified boolean to indicate whether clone was successful
+ */
 export async function gitClone(url: string): Promise<boolean> {
 	const dir = getProjectPath(getCurrentProject() || "/");
 	try {
@@ -60,8 +65,11 @@ export async function gitClone(url: string): Promise<boolean> {
 	}
 }
 
+/**
+ * Function to implement git pull
+ * @returns promisified boolean to indicate whether pull was successful
+ */
 export async function gitPull(): Promise<boolean> {
-	// TODO: Check why GitLab is not authorized
 	const dir = getProjectPath(getCurrentProject() || "/");
 	try {
 		const tokenData = decodeJWT(getRawToken()).data;
@@ -101,6 +109,10 @@ export interface Repo {
 	private: boolean | null;
 }
 
+/**
+ * Function to get the info of the repo that is currently loaded in the filetree
+ * @returns a repo or undefined if the current project is not a valid git repo
+ */
 export async function getCurrentProjectGitInfo(): Promise<Repo | undefined> {
 	const currentProject = getCurrentProject();
 	if (currentProject) {
@@ -122,6 +134,10 @@ export async function getCurrentProjectGitInfo(): Promise<Repo | undefined> {
 	return undefined;
 }
 
+/**
+ * Function to get all repos from the user's GitHub / GitLab account
+ * @returns List of repos
+ */
 export async function getGitRepos(): Promise<Repo[]> {
 	const repos = sessionStorage.getItem("repos");
 	if (repos) return JSON.parse(repos);
