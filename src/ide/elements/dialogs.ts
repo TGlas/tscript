@@ -1211,29 +1211,35 @@ export function gitDlg() {
 							tgui.stopModal();
 						});
 					} else {
-						const selectedRepo: Repo = JSON.parse(
-							repoSelector.value
-						);
-						if (customUrlInput.value === "") {
-							setButtonsDisabled(false, [
-								pushBtn,
-								pullBtn,
-								logoutBtn,
-							]);
-							return;
-						}
-						showLoading(true);
-						if (
-							JSON.stringify(selectedRepo) ===
-							JSON.stringify(customOption)
-						) {
-							gitClone(customUrlInput.value).then(() => {
-								tgui.stopModal();
-							});
-						} else {
-							gitClone(selectedRepo.url).then(() => {
-								tgui.stopModal();
-							});
+						try {
+							const selectedRepo: Repo = JSON.parse(
+								repoSelector.value
+							);
+							showLoading(true);
+							if (
+								JSON.stringify(selectedRepo) ===
+								JSON.stringify(customOption)
+							) {
+								if (customUrlInput.value === "") {
+									setButtonsDisabled(false, [
+										pushBtn,
+										pullBtn,
+										logoutBtn,
+									]);
+									showLoading(false);
+									return;
+								}
+								gitClone(customUrlInput.value).then(() => {
+									tgui.stopModal();
+								});
+							} else {
+								gitClone(selectedRepo.url).then(() => {
+									tgui.stopModal();
+								});
+							}
+						} catch (err) {
+							// Could not parse repo, most likely because the repo list is not yet loaded
+							showLoading(false);
 						}
 					}
 				},
