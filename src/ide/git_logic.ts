@@ -64,13 +64,16 @@ export async function gitPull(): Promise<boolean> {
 	// TODO: Check why GitLab is not authorized
 	const dir = getProjectPath(getCurrentProject() || "/");
 	try {
+		const tokenData = decodeJWT(getRawToken()).data;
 		await git.pull({
 			fs: projectsFS,
 			http,
 			dir: dir,
 			onAuth: () => ({
-				username: decodeJWT(getRawToken()).data.info.access_token,
-				password: "",
+				username:
+					tokenData.type === "hub" ? tokenData.info.access_token : "",
+				password:
+					tokenData.type === "lab" ? tokenData.info.access_token : "",
 			}),
 			onAuthFailure: () => {
 				addMessage(
