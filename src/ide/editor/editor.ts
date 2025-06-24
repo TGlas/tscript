@@ -1,9 +1,19 @@
 import Path from "@isomorphic-git/lightning-fs/src/path";
-import { projectFileID } from "../../lang/parser/file_id";
+import {
+	fileIDToHumanFriendly,
+	ProjectFileID,
+	projectFileID,
+	projectFileIDTripleSplit,
+} from "../../lang/parser/file_id";
 import { collection } from "../elements";
 import { EditorController } from "../elements/editor-controller";
-import { getProjectPath, recurseDirectory, simplifyPath } from "../projects-fs";
-import { getResolvedTheme, ThemeName } from "../tgui";
+import {
+	getProjectPath,
+	readFileContent,
+	recurseDirectory,
+	simplifyPath,
+} from "../projects-fs";
+import { errorMsgBox, getResolvedTheme, ThemeName } from "../tgui";
 import {
 	CommentAction,
 	IndentAction,
@@ -1679,15 +1689,65 @@ export function updateTabTitle(editor: EditorController, newTitle: string) {
 	}
 }
 
-export async function closeProjectEditorTabsRecursively(
+async function* recurseProjectEditors(
 	projectName: string,
 	projAbsPath: string
-): Promise<void> {
+): AsyncGenerator<[ProjectFileID, EditorController], void, void> {
 	const projPath = simplifyPath(getProjectPath(projectName));
 	const absPath = Path.join(projPath, projAbsPath);
 	for await (const entry of recurseDirectory(absPath)) {
 		const projAbsPathToClose = simplifyPath(entry.slice(projPath.length));
 		const fileID = projectFileID(projectName, projAbsPathToClose);
-		collection.getEditor(fileID)?.close();
+		const editor = collection.getEditor(fileID);
+		if (editor !== null) {
+			yield [fileID, editor];
+		}
+	}
+}
+
+export async function closeProjectEditorTabsRecursively(
+	projectName: string,
+	projAbsPath: string
+): Promise<void> {
+	for await (const [_, ed] of recurseProjectEditors(
+		projectName,
+		projAbsPath
+	)) {
+		ed.close();
+	}
+}
+
+export async function reloadProjectEditorTabsRecursively(
+	projectName: string,
+	projAbsPath: string
+): Promise<void> {
+	for await (const [fileID, ed] of recurseProjectEditors(
+		projectName,
+		projAbsPath
+	)) {
+		const fileProjAbsPath = projectFileIDTripleSplit(fileID)[2];
+		const fileAbsPath = Path.join(
+			getProjectPath(projectName),
+			fileProjAbsPath
+		);
+		const text = await readFileContent(fileAbsPath);
+		if (text instanceof Error) {
+			if (["EISDIR", "ENONENT"].includes(text.code!)) {
+				// file was deleted
+				continue;
+			} else {
+				errorMsgBox(
+					`Error while reloading editor tab for ${fileIDToHumanFriendly(
+						fileID
+					)}: ${text.message}`
+				);
+				continue;
+			}
+		}
+		if (ed.editorView.text() === text) {
+			continue;
+		}
+		ed.editorView.setText(text);
+		ed.editorView.setClean();
 	}
 }

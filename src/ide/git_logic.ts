@@ -8,6 +8,7 @@ import * as git from "isomorphic-git";
 import { getCurrentProject, getProjectPath, projectsFS } from "./projects-fs";
 import http from "isomorphic-git/http/web/index";
 import { addMessage, filetree } from "./elements";
+import { reloadProjectEditorTabsRecursively } from "./editor/editor";
 
 /**
  * Function to start git login flow. User will be redirected to GitHub / GitLab
@@ -32,7 +33,8 @@ export async function startGitLoginFlow(type: "hub" | "lab") {
  * @returns promisified boolean to indicate whether clone was successful
  */
 export async function gitClone(url: string): Promise<boolean> {
-	const dir = getProjectPath(getCurrentProject() || "/");
+	const projName = getCurrentProject() || "/";
+	const dir = getProjectPath(projName);
 	try {
 		const tokenData = decodeJWT(getRawToken()).data;
 		await git.clone({
@@ -57,6 +59,7 @@ export async function gitClone(url: string): Promise<boolean> {
 			},
 		});
 		filetree.refresh();
+		await reloadProjectEditorTabsRecursively(projName, "/");
 		return true;
 	} catch (err) {
 		addMessage("error", "Could not clone remote repository.");
@@ -70,7 +73,8 @@ export async function gitClone(url: string): Promise<boolean> {
  * @returns promisified boolean to indicate whether pull was successful
  */
 export async function gitPull(): Promise<boolean> {
-	const dir = getProjectPath(getCurrentProject() || "/");
+	const projName = getCurrentProject() || "/";
+	const dir = getProjectPath(projName);
 	try {
 		const tokenData = decodeJWT(getRawToken()).data;
 		await git.pull({
@@ -101,6 +105,7 @@ export async function gitPull(): Promise<boolean> {
 			force: true,
 		});
 		filetree.refresh();
+		await reloadProjectEditorTabsRecursively(projName, "/");
 		return true;
 	} catch (err) {
 		addMessage("error", "Could not pull from remote repository.");

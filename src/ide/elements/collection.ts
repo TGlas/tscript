@@ -148,10 +148,7 @@ export class EditorCollection {
 			const absPath = Path.join(projPath, projAbsPath);
 			const text = await readFileContent(absPath);
 			if (text instanceof Error) {
-				if (
-					"code" in text &&
-					["EISDIR", "ENONENT"].includes(text.code as string)
-				) {
+				if (["EISDIR", "ENONENT"].includes(text.code!)) {
 					return null;
 				} else {
 					return text;

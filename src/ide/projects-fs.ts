@@ -231,11 +231,11 @@ class IsDirError extends Error {
 /**
  * Returns an error if could not read for any reason
  * @returns file content on success, otherwise error, possibly with .code
- * attribute (which can also be "EISDIR")
+ * attribute (which is "EISDIR" if filePath is a directory)
  */
 export async function readFileContent(
 	filePath: string
-): Promise<string | Error> {
+): Promise<string | (Error & { code?: string })> {
 	try {
 		const fileContent = (await projectsFSP.readFile(filePath, {
 			encoding: "utf8",
