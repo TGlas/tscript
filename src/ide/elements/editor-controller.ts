@@ -1,3 +1,10 @@
+import {
+	FileID,
+	fileIDHasNamespace,
+	fileIDToContextDependentFilename,
+	fileIDToHumanFriendly,
+	splitFileIDAtColon,
+} from "../../lang/parser/file_id";
 import { Editor } from "../editor";
 import * as tgui from "../tgui";
 import { confirmFileDiscard } from "./dialogs";
@@ -11,7 +18,7 @@ export interface NavigationRequest {
 }
 
 export interface EditorControllerOptions {
-	filename: string;
+	filename: FileID;
 	text: string;
 
 	/** called whenever the editor wants to be activated */
@@ -21,7 +28,7 @@ export interface EditorControllerOptions {
 	onClosed: () => void;
 
 	/** called before {@link EditorController.filename} changes */
-	onBeforeFilenameChange: (newFilename: string) => void;
+	onBeforeFilenameChange: (newFilename: FileID) => void;
 }
 
 export class EditorController {
@@ -34,8 +41,8 @@ export class EditorController {
 	readonly #breakpoints = new Set<number>();
 
 	readonly #onActivate: () => void;
-	readonly #onBeforeFilenameChange: (newFilename: string) => void;
-	#filename: string;
+	readonly #onBeforeFilenameChange: (newFilename: FileID) => void;
+	#filename: FileID;
 
 	readonly close: () => void;
 
@@ -60,7 +67,7 @@ export class EditorController {
 			(this.tabLabel = tgui.createElement({
 				type: "span",
 				classname: "name",
-				text: filename,
+				text: "",
 				click: () => onActivate(),
 			})),
 			tgui.createElement({
@@ -79,8 +86,9 @@ export class EditorController {
 		this.runOption = tgui.createElement({
 			type: "option",
 			properties: { value: filename },
-			text: filename,
+			text: "",
 		});
+		this.updateUITextsForFileID();
 
 		// create editor view
 		const ed = (this.editorView = new Editor({
@@ -119,7 +127,7 @@ export class EditorController {
 		};
 	}
 
-	get filename(): string {
+	get filename(): FileID {
 		return this.#filename;
 	}
 
@@ -177,22 +185,27 @@ export class EditorController {
 		}
 	}
 
-	saveAs(filename: string) {
+	saveAs(filename: FileID) {
 		this.#onBeforeFilenameChange(filename);
 
-		this.tabLabel.innerText = filename;
-		this.runOption.innerText = filename;
-		this.runOption.value = filename;
-
 		this.#filename = filename;
+		this.updateUITextsForFileID();
+		this.runOption.value = filename;
 		this.save();
 	}
 
-	save() {
-		localStorage.setItem(
-			"tscript.code." + this.filename,
-			this.editorView.text()
+	private updateUITextsForFileID() {
+		this.tabLabel.innerText = fileIDToContextDependentFilename(
+			this.#filename
 		);
+		this.runOption.innerText = fileIDToHumanFriendly(this.#filename);
+	}
+
+	save() {
+		const [ns, suffix] = splitFileIDAtColon(this.filename);
+		if (ns !== "localstorage")
+			throw new Error("Saving only supported for files in localStorage");
+		localStorage.setItem("tscript.code." + suffix, this.editorView.text());
 		this.editorView.setClean();
 	}
 }

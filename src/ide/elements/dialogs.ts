@@ -1,4 +1,11 @@
 import { defaultParseOptions, ParseOptions } from "../../lang/parser";
+import {
+	FileID,
+	fileIDToHumanFriendly,
+	isLoadableFileID,
+	LoadableFileID,
+	localstorageFileID,
+} from "../../lang/parser/file_id";
 import * as tgui from "./../tgui";
 import { buttons } from "./commands";
 import * as ide from "./index";
@@ -11,11 +18,11 @@ export let parseOptions: ParseOptions = defaultParseOptions;
  * When the document was not changed, or the user allows to discard the changes the function onConfirm is
  * called.
  */
-export function confirmFileDiscard(name: string, onConfirm: () => any) {
+export function confirmFileDiscard(name: FileID, onConfirm: () => any) {
 	tgui.msgBox({
 		prompt: "The document may have unsaved changes.\nDo you want to discard the code?",
 		icon: tgui.msgBoxQuestion,
-		title: name,
+		title: fileIDToHumanFriendly(name),
 		buttons: [
 			{ text: "Discard", onClick: onConfirm, isDefault: true },
 			{ text: "Cancel" },
@@ -38,14 +45,24 @@ export function confirmFileOverwrite(name: string, onConfirm: () => any) {
 	});
 }
 
+type Config = {
+	options: ParseOptions;
+	hotkeys: string[];
+	theme: tgui.ThemeConfiguration;
+	tabs: any;
+	open: LoadableFileID[];
+	main: FileID;
+	active: LoadableFileID | null;
+};
+
 /**
  * Load hotkeys & other settings
  */
 export function loadConfig() {
 	let str = localStorage.getItem("tscript.ide.config");
-	let config: any = null;
+	let config: Config | null = null;
 	if (str) {
-		config = JSON.parse(str);
+		config = JSON.parse(str) as Config;
 		if (config.hasOwnProperty("hotkeys")) {
 			let n = Math.min(buttons.length, config.hotkeys.length);
 			for (let i = 0; i < n; i++) {
@@ -72,12 +89,12 @@ export function loadConfig() {
  */
 export function saveConfig() {
 	const editorsState = ide.collection.getSerializedState();
-	let config: any = {
+	let config: Config = {
 		options: parseOptions,
 		hotkeys: [],
 		theme: tgui.getThemeConfig(),
 		tabs: ide.tab_config,
-		open: editorsState.open,
+		open: editorsState.open.filter(isLoadableFileID),
 		main: ide.getRunSelection(),
 		active: editorsState.active,
 	};
@@ -502,11 +519,11 @@ export function fileDlg(
 	(allowNewFilename ? (name as any) : list).focus();
 	return dlg;
 
-	function deleteFile(filename) {
+	function deleteFile(filename: string) {
 		let index = files.indexOf(filename);
 		if (index >= 0) {
 			let onDelete = () => {
-				ide.collection.getEditor(filename)?.close();
+				ide.collection.getEditor(localstorageFileID(filename))?.close();
 				localStorage.removeItem("tscript.code." + filename);
 				files.splice(index, 1);
 				list.remove(index);

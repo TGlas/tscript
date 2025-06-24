@@ -10,10 +10,11 @@ import { scopestep } from "../helpers/steps";
 import { simfalse } from "../helpers/sims";
 import { parse_statement_or_declaration } from "./parse_statementordeclaration";
 import { parse_include } from "./parse_include";
+import { FileID, stringFileID } from "./file_id";
 
 export interface ParserPosition {
 	/** filename or null */
-	filename: string | null;
+	filename: FileID | null;
 
 	/** zero-based position in the source code string */
 	pos: number;
@@ -68,7 +69,7 @@ export interface ParserState extends ParserPosition {
 		this: ParserState,
 		source: string,
 		impl?: object | null,
-		filename?: string | null
+		filename?: FileID | null
 	): void;
 
 	/** @returns Whether there is text to parse and no errors have occurred */
@@ -140,17 +141,33 @@ export const defaultParseOptions: ParseOptions = {
 	checkstyle: false,
 };
 
-export interface ParseInput {
-	filename: string;
+interface BaseParseInput<FileIDT extends FileID> {
+	/** file id as returned by ParseInput.resolveIncludeToFileID. */
+	filename: FileIDT;
+	/** file content / source code associated with this ParseInput */
 	source: string;
+}
+
+export interface ParseInput<FileIDT extends FileID = FileID>
+	extends BaseParseInput<FileIDT> {
+	/**
+	 * Resolve an include statement to a FileID.
+	 *
+	 * @param includeOperand the filename as specified in the include statement
+	 * @returns the FileID or `null` if could not be resolved
+	 */
+	resolveIncludeToFileID: (includeOperand: string) => FileIDT | null;
 
 	/**
-	 * Resolve an include statement.
-	 *
-	 * @param filename the filename as specified in the include statement
-	 * @returns the file to be included or null if none could be found
+	 * Given a FileID for an include, return corresponding
+	 * `ParseInput`, or `null` to signal that it is invalid.
 	 */
-	resolveInclude(filename: string): ParseInput | null;
+	resolveInclude(fileID: FileIDT): Promise<ParseInput<FileIDT> | null>;
+}
+
+export interface ParseInputWithoutIncludes<FileIDT extends FileID>
+	extends BaseParseInput<FileIDT> {
+	resolveInclude?: undefined;
 }
 
 export interface ParseResult {
@@ -159,22 +176,39 @@ export interface ParseResult {
 	errors: ParseErrorOrWarning[];
 }
 
-export function parseProgramFromString(source: string, options?: ParseOptions) {
+export function parseProgramFromString(
+	source: string,
+	options?: ParseOptions
+): ParseResult {
 	return parseProgram(
 		{
-			filename: "main",
+			filename: stringFileID("main"),
 			source,
-			resolveInclude: () => null,
 		},
 		options
 	);
 }
 
-export function parseProgram(
-	mainInput: ParseInput,
+/**
+ * @param options `defaultParseOptions` by default.
+ *
+ * Synchronous if `mainInput` is a `ParseInputWithoutIncludes`, asynchronous if
+ * `mainInput` is a `ParseInput`.
+ */
+export function parseProgram<FileIDT extends FileID>(
+	mainInput: ParseInput<FileIDT>,
+	options?: ParseOptions
+): Promise<ParseResult>;
+export function parseProgram<FileIDT extends FileID>(
+	mainInput: ParseInputWithoutIncludes<FileIDT>,
+	options?: ParseOptions
+): ParseResult;
+export function parseProgram<FileIDT extends FileID>(
+	mainInput: ParseInputWithoutIncludes<FileIDT> | ParseInput<FileIDT>,
 	options: ParseOptions = defaultParseOptions
-): ParseResult {
-	const includedFiles = new Set<string>();
+): Promise<ParseResult> | ParseResult {
+	/** List of filenames of all included ParseInputs */
+	const includedFiles = new Set<FileIDT>();
 	/** list of errors */
 	const errors: ParseErrorOrWarning[] = [];
 	const program = createEmptyProgram();
@@ -187,7 +221,7 @@ export function parseProgram(
 	function parseString(
 		source: string,
 		impl: any = null,
-		filename: string | null = null
+		filename: FileIDT | null = null
 	) {
 		state.setSource(source, impl, filename);
 		while (state.good()) {
@@ -205,50 +239,59 @@ export function parseProgram(
 		}
 	}
 
-	/**
-	 * Parse one library or program from a file. Includes are supported
-	 */
-	function parseFile(file: ParseInput) {
+	/** Parse one library or program from a file. Includes are supported. */
+	async function parseFileWithIncludes(file: ParseInput<FileIDT>) {
 		includedFiles.add(file.filename);
 		state.setSource(file.source, null, file.filename);
 		while (state.good()) {
 			const inc = parse_include(state, program, options);
-			if (inc !== null) {
-				const targetFile = file.resolveInclude(inc.filename);
-				if (!targetFile) {
-					// the file was not found
-					state.set(inc.position);
-					state.error("/argument-mismatch/am-48", [inc.filename]);
-					return;
-				}
-
-				if (!includedFiles.has(targetFile.filename)) {
-					// safe the state
-					let backup = {
-						source: state.source,
-						pos: state.pos,
-						line: state.line,
-						filename: state.filename,
-						ch: state.ch,
-						indent: state.indent.slice(),
-					};
-
-					// import the file
-					parseFile(targetFile);
-
-					// restore the state
-					state.source = backup.source;
-					state.pos = backup.pos;
-					state.line = backup.line;
-					state.filename = backup.filename;
-					state.ch = backup.ch;
-					state.indent = backup.indent;
-				}
-			} else {
+			if (inc === null) {
 				let p = parse_statement_or_declaration(state, program, options);
 				program.commands.push(p);
 				program.children.push(p);
+				continue;
 			}
+
+			const targetFileID = file.resolveIncludeToFileID(inc.filename);
+			if (targetFileID === null) {
+				// the include could not be resolved
+				state.set(inc.position);
+				state.error("/argument-mismatch/am-48", [inc.filename]);
+				return;
+			}
+
+			if (includedFiles.has(targetFileID)) {
+				continue;
+			}
+
+			const targetFile = await file.resolveInclude(targetFileID);
+			if (targetFile === null) {
+				// the file was not found
+				state.set(inc.position);
+				state.error("/argument-mismatch/am-48", [inc.filename]);
+				return;
+			}
+
+			// safe the state
+			let backup = {
+				source: state.source,
+				pos: state.pos,
+				line: state.line,
+				filename: state.filename,
+				ch: state.ch,
+				indent: state.indent.slice(),
+			};
+
+			// import the file
+			await parseFileWithIncludes(targetFile);
+
+			// restore the state
+			state.source = backup.source;
+			state.pos = backup.pos;
+			state.line = backup.line;
+			state.filename = backup.filename;
+			state.ch = backup.ch;
+			state.indent = backup.indent;
 		}
 	}
 
@@ -263,10 +306,34 @@ export function parseProgram(
 		parseString(lib_turtle.source, lib_turtle.impl);
 		parseString(lib_canvas.source, lib_canvas.impl);
 		parseString(lib_audio.source, lib_audio.impl);
-
-		// parse the user's source code
 		program.where = state.get();
-		parseFile(mainInput);
+	} catch (e) {
+		handleError(e);
+		return constructResult();
+	}
+
+	if (typeof mainInput.resolveInclude === "function") {
+		/** mainInput is {@link ParseInput} */
+		return (async () => {
+			try {
+				await parseFileWithIncludes(mainInput);
+				afterParse();
+			} catch (e) {
+				handleError(e);
+			}
+			return constructResult();
+		})();
+	} else {
+		try {
+			parseString(mainInput.source, null, mainInput.filename);
+			afterParse();
+		} catch (e) {
+			handleError(e);
+		}
+		return constructResult();
+	}
+
+	function afterParse() {
 		program.lines = state.line;
 
 		// append an "end" breakpoint
@@ -285,7 +352,15 @@ export function parseProgram(
 
 		// further passes may follow in the future, e.g., for optimizations
 		// compilerPass("Optimize");
-	} catch (ex: any) {
+	}
+
+	function constructResult() {
+		return errors.length > 0
+			? { program: null, errors }
+			: { program, errors: [] };
+	}
+
+	function handleError(ex: any) {
 		// ignore the actual exception and rely on state.errors instead
 		if (ex.name !== "Parse Error") {
 			// report an internal parser error
@@ -298,10 +373,6 @@ export function parseProgram(
 			});
 		}
 	}
-
-	return errors.length > 0
-		? { program: null, errors }
-		: { program, errors: [] };
 }
 
 /** recursive compiler pass through the syntax tree */
@@ -367,7 +438,7 @@ const createParserState = (
 	setSource(
 		source: string,
 		impl: any = null,
-		filename: string | null = null
+		filename: FileID | null = null
 	) {
 		this.source = source;
 		this.impl = impl;
