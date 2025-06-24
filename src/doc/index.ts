@@ -7,6 +7,7 @@ import { doc_language } from "./language";
 import { doc_data_uri } from "./datauri";
 import { doc_legal } from "./legal";
 import { doc_stdlib } from "./stdlib";
+import { doc_git } from "./git";
 
 export type Documentation = _Documentation | ErrorDocumentation;
 
@@ -68,6 +69,7 @@ doc.children.push(doc_language);
 doc.children.push(doc_stdlib);
 doc.children.push(doc_examples);
 doc.children.push(doc_errors);
+doc.children.push(doc_git);
 doc.children.push(doc_data_uri);
 doc.children.push(doc_cheatsheet);
 doc.children.push(doc_legal);
