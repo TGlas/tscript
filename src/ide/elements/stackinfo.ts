@@ -1,14 +1,15 @@
-import { interpreter } from ".";
+import { collection, interpreterSession } from ".";
 import { TScript } from "../../lang";
 import { Typeid } from "../../lang/helpers/typeIds";
 import * as tgui from "./../tgui";
-import { setCursorPosition, type2css } from "./utils";
+import { type2css } from "./utils";
 
 /**
  *  This function defines the stack trace tree.
  */
 export function stackinfo(value, node_id) {
 	let ret: tgui.TreeNodeInfo<any> = { children: [], ids: [] };
+	const interpreter = interpreterSession?.interpreter;
 	if (!interpreter) return ret;
 
 	if (value === null) {
@@ -52,9 +53,12 @@ export function stackinfo(value, node_id) {
 					classname: "ide-index",
 				});
 
-				ret.element.addEventListener("click", function (event) {
-					setCursorPosition(where.line, where.ch, where.filename);
-					return false;
+				ret.element.addEventListener("click", async (event) => {
+					event.preventDefault();
+					await collection.openEditorFromFile(where.filename, {
+						line: where.line - 1,
+						character: where.ch,
+					});
 				});
 			}
 

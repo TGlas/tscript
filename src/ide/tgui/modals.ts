@@ -497,3 +497,10 @@ export function tryStopModal(dialog?: Modal) {
 	stopModal(dialog); // close current dialog
 	return true;
 }
+
+export function errorMsgBox(text: string) {
+	msgBox({
+		title: "Error",
+		prompt: text,
+	});
+}

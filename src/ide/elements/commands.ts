@@ -1,12 +1,21 @@
 import * as ide from ".";
-import { ParseInput, parseProgram } from "../../lang/parser";
+import { parseProgram } from "../../lang/parser";
+import { type StandaloneCode } from "../standalone";
+import { loadFileProjDlg, saveAsDialog } from "./dialogs";
+import { ErrorHelper } from "../../lang/errors/ErrorHelper";
+import {
+	fileIDToContextDependentFilename,
+	localstorageFileID,
+} from "../../lang/parser/file_id";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
 import {
+  confirmFileOverwrite,
 	createFileDlgFileView,
 	loadFileProjDlg,
 	fileDlgSize,
 	parseOptions,
+  tabNameDlg,
 	gitDlg,
 } from "./dialogs";
 import {
@@ -15,7 +24,7 @@ import {
 	openEditorFromLocalStorage,
 } from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
-import { interpreterEnded, updateControls } from "./utils";
+import { cleanupExternalFilename, importData, interpreterEnded } from "./utils";
 
 /**
  * click may be async
@@ -109,28 +118,32 @@ export let buttons: any = [
 
 function cmd_reset() {
 	ide.clear();
-	updateControls();
+}
+
+export function existsActiveSession(): boolean {
+	let session = ide.interpreterSession;
+	return session !== null && !interpreterEnded(session.interpreter);
 }
 
 /**
  * Gets the active interpreter session or creates a new one if no program is running
  */
-function getOrRestartSession() {
+async function getOrRestartSession(): Promise<ide.InterpreterSession | null> {
 	let session = ide.interpreterSession;
-	if (!session || interpreterEnded(session.interpreter)) {
+	if (session && !interpreterEnded(session.interpreter)) {
+		return session;
+	} else {
 		// (re-)start the interpreter
-		session = ide.prepareRun();
+		return await ide.prepareRun();
 	}
+}
 
-	return session;
+async function cmd_run() {
+	(await getOrRestartSession())?.interpreter.run();
 }
 
 function cmd_git() {
 	gitDlg();
-}
-
-function cmd_run() {
-	getOrRestartSession()?.interpreter.run();
 }
 
 function cmd_interrupt() {
@@ -138,37 +151,29 @@ function cmd_interrupt() {
 	if (interpreter && !interpreterEnded(interpreter)) interpreter.interrupt();
 }
 
-function cmd_step_into() {
-	getOrRestartSession()?.interpreter.step_into();
+async function cmd_step_into() {
+	(await getOrRestartSession())?.interpreter.step_into();
 }
 
-function cmd_step_over() {
-	getOrRestartSession()?.interpreter.step_over();
+async function cmd_step_over() {
+	(await getOrRestartSession())?.interpreter.step_over();
 }
 
-function cmd_step_out() {
-	getOrRestartSession()?.interpreter.step_out();
+async function cmd_step_out() {
+	(await getOrRestartSession())?.interpreter.step_out();
 }
 
-export function cmd_export() {
-	// don't interrupt a running program
-	if (ide.interpreter) {
-		if (
-			ide.interpreter.status === "running" ||
-			ide.interpreter.status === "waiting" ||
-			ide.interpreter.status === "dialog"
-		)
-			return;
-	}
-
-	const parsedFiles = new Map<string, ParseInput>();
-	const parseInput = ide.createParseInput(parsedFiles);
-	if (!parseInput) return;
-
-	ide.clear();
+export async function cmd_export() {
+	const resolveEntryRes = await ide.createParseInput();
+	if (!resolveEntryRes) return;
+	const [mainEntry, includeResolutions] = resolveEntryRes;
 
 	// check that the code at least compiles
-	let result = parseProgram(parseInput, parseOptions);
+	let result = await parseProgram<any>(mainEntry, parseOptions);
+
+	// everything after that should ideally be synchronous
+	ide.clear();
+
 	let program = result.program;
 	let errors = result.errors;
 	if (errors && errors.length > 0) {
@@ -176,12 +181,13 @@ export function cmd_export() {
 			let err = errors[i];
 			ide.addMessage(
 				err.type,
-				err.type +
-					(err.filename ? " in file '" + err.filename + "'" : "") +
-					" in line " +
-					err.line +
-					": " +
-					err.message,
+				ErrorHelper.getLocatedErrorMsg(
+					err.type,
+					err.filename ?? undefined,
+					err.line,
+					err.message
+				),
+
 				err.filename ?? undefined,
 				err.line,
 				err.ch,
@@ -196,7 +202,10 @@ export function cmd_export() {
 	}
 
 	// create a filename for the file download from the title
-	let title = parseInput.filename;
+	const humandReadableFilename = fileIDToContextDependentFilename(
+		mainEntry.filename
+	);
+	let title = humandReadableFilename;
 	let fn = "tscript-export";
 	if (
 		!fn.endsWith("html") &&
@@ -241,13 +250,15 @@ export function cmd_export() {
 
 	tgui.startModal(dlg);
 
-	// escape the TScript source code; prepare it to reside inside an html document
-	let source = JSON.stringify({
-		documents: Object.fromEntries(
-			Array.from(parsedFiles.values(), (f) => [f.filename, f.source])
+	const standaloneCode: StandaloneCode = {
+		includeSourceResolutions: Object.fromEntries(
+			includeResolutions.includeSourceResolutions.entries()
 		),
-		main: parseInput.filename,
-	});
+		includeResolutions: includeResolutions.includeResolutions,
+		main: includeResolutions.main,
+	};
+	// escape the TScript source code; prepare it to reside inside an html document
+	let source = JSON.stringify(standaloneCode);
 
 	// obtain the page itself as a string
 	{
@@ -309,15 +320,33 @@ export function cmd_export() {
 }
 
 function cmd_toggle_breakpoint() {
-	let ed = ide.collection.getActiveEditor();
-	if (!ed) return;
+	const controller = ide.collection.activeEditor;
+	if (!controller) return;
 
-	let line = ed.getCursorPosition().row;
-	ed.properties().toggleBreakpoint(line);
+	const line = controller.editorView.getCursorPosition().row;
+	controller.toggleBreakpoint(line);
 }
 
 function cmd_new() {
-	createEditorTabByModal();
+	tabNameDlg((name) => {
+		// Don't accept empty filenames
+		if (!name) return true; // keep dialog open
+
+		const isSavedDoc =
+			localStorage.getItem("tscript.code." + name) !== null;
+
+		const fileID = localstorageFileID(name);
+		if (isSavedDoc || ide.collection.getEditor(fileID)) {
+			confirmFileOverwrite(name, () => {
+				// replace the existing file/editor
+				ide.collection.openEditorFromData(fileID, "");
+			});
+		} else {
+			ide.collection.openEditorFromData(fileID, "");
+		}
+
+		return false;
+	});
 }
 
 function cmd_load() {
@@ -325,48 +354,18 @@ function cmd_load() {
 }
 
 function cmd_save() {
-	const ed = ide.collection.getActiveEditor();
-	if (!ed) return;
-	let name = ed.properties().name;
-
-	localStorage.setItem("tscript.code." + name, ed.text());
-	ed.setClean();
+	ide.collection.activeEditor?.save();
 }
 
 function cmd_save_as() {
-	const ed = ide.collection.getActiveEditor();
-	if (!ed) return;
+	const controller = ide.collection.activeEditor;
+	if (!controller) return;
 
-	const filename = ed.properties.name;
-	const fileView = createFileDlgFileView(
+	const filename = fileIDToContextDependentFilename(controller.filename);
+	return saveAsDialog(
 		filename,
-		true,
-		function (filename) {
-			closeEditor(filename);
-			localStorage.setItem("tscript.code." + filename, ed.text());
-			openEditorFromLocalStorage(filename);
-		},
-		{
-			switchView: null,
-			clickConfirmation: () => dlg.pressButton(confirmationButton),
-		}
+		(filename) => void controller.saveAs(localstorageFileID(filename))
 	);
-	const confirmationButton = {
-		text: "Save",
-		isDefault: true,
-		onClick: () => fileView.onClickConfirmation(),
-	};
-	let dlg = tgui.createModal({
-		title: "Save file as ...",
-		minsize: [...fileDlgSize.minsize],
-		scalesize: [...fileDlgSize.scalesize],
-		buttons: [confirmationButton, { text: "Cancel" }],
-		enterConfirms: true,
-	});
-
-	tgui.startModal(dlg);
-	dlg.content.replaceChildren(fileView.element);
-	return dlg;
 }
 
 export function cmd_upload() {
@@ -380,19 +379,9 @@ export function cmd_upload() {
 				if (!dom_file.files) return;
 				for (let i = 0; i < dom_file.files.length; i++) {
 					let file = dom_file.files[i];
-					let filename = file.name.split(".tscript")[0];
 					let content = await file.text();
-					if (!content) continue;
-					localStorage.setItem("tscript.code." + filename, content); // write or overwrite
-					let ed = ide.collection.getEditor(filename);
-					if (ed) {
-						ide.collection.setActiveEditor(ed);
-						ed.setText(content);
-						ed.focus();
-					} else {
-						openEditorFromLocalStorage(filename);
-					}
-					updateControls();
+					if (content)
+						importData(content, cleanupExternalFilename(file.name));
 				}
 			},
 		},
@@ -402,12 +391,12 @@ export function cmd_upload() {
 }
 
 export function cmd_download() {
-	const ed = ide.collection.getActiveEditor();
-	if (!ed) return;
-	let filename = ed.properties().name;
-	let content = ed.text();
+	const controller = ide.collection.activeEditor;
+	if (!controller) return;
+	const filename = fileIDToContextDependentFilename(controller.filename);
+	const content = controller.editorView.text();
 
-	let link = tgui.createElement({
+	const link = tgui.createElement({
 		type: "a",
 		parent: document.body,
 		properties: {
