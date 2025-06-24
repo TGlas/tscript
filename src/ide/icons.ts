@@ -86,6 +86,12 @@ export const icons: { [id: string]: SVGIcon } = {
 		innerSVG:
 			'<polygon points="3.5,3.5 16.5,3.5 16.5,16.5 5.5,16.5 3.5,14.5" style="stroke: #139; fill: #36d"/><rect x="7" y="11" width="6" height="5" style="stroke: none; fill: #eef"/><rect x="8" y="12" width="2" height="3" style="stroke: none; fill: #36d"/><rect x="6" y="4" width="8" height="5" style="stroke: none; fill: #fff"/>',
 	},
+	git: {
+		width: 20,
+		height: 20,
+		innerSVG:
+			'<defs><clipPath id="a"><path d="M0 0.024h19.976V20H0Zm0 0"/></clipPath></defs><g clip-path="url(#a)"><path style="stroke:none;fill-rule:nonzero;fill:#f03c2e;fill-opacity:1" d="M19.599 9.123 10.878 0.402a1.289 1.289 0 0 0 -1.82 0l-1.81 1.811L9.544 4.51a1.533 1.533 0 0 1 1.572 0.366 1.533 1.533 0 0 1 0.363 1.582l2.214 2.214a1.533 1.533 0 0 1 1.582 0.363 1.53 1.53 0 0 1 0 2.164 1.533 1.533 0 0 1 -2.167 0 1.533 1.533 0 0 1 -0.332 -1.666L10.712 7.47v5.434a1.53 1.53 0 0 1 0.404 2.454 1.53 1.53 0 0 1 -2.164 0 1.53 1.53 0 0 1 0 -2.164 1.556 1.556 0 0 1 0.501 -0.334V7.376a1.533 1.533 0 0 1 -0.83 -2.008L6.359 3.102 0.376 9.082a1.289 1.289 0 0 0 0 1.82l8.722 8.722a1.289 1.289 0 0 0 1.82 0l8.681 -8.681a1.289 1.289 0 0 0 0 -1.82"/></g>',
+	},
 	saveDocumentAs: {
 		width: 20,
 		height: 20,

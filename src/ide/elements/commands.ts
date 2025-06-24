@@ -9,7 +9,20 @@ import {
 } from "../../lang/parser/file_id";
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
-import { confirmFileOverwrite, parseOptions, tabNameDlg } from "./dialogs";
+import {
+  confirmFileOverwrite,
+	createFileDlgFileView,
+	loadFileProjDlg,
+	fileDlgSize,
+	parseOptions,
+  tabNameDlg,
+	gitDlg,
+} from "./dialogs";
+import {
+	closeEditor,
+	createEditorTabByModal,
+	openEditorFromLocalStorage,
+} from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { cleanupExternalFilename, importData, interpreterEnded } from "./utils";
 
@@ -43,6 +56,13 @@ export let buttons: any = [
 		icon: icons.saveDocumentAs,
 		tooltip: "Save document as ...",
 		hotkey: "shift-control-s",
+		group: "file",
+	},
+	{
+		click: cmd_git,
+		icon: icons.git,
+		tooltip: "GIT",
+		hotkey: "shift-control-g",
 		group: "file",
 	},
 	{
@@ -120,6 +140,10 @@ async function getOrRestartSession(): Promise<ide.InterpreterSession | null> {
 
 async function cmd_run() {
 	(await getOrRestartSession())?.interpreter.run();
+}
+
+function cmd_git() {
+	gitDlg();
 }
 
 function cmd_interrupt() {
