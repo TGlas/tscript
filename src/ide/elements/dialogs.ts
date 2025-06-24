@@ -32,6 +32,7 @@ import {
 	gitClone,
 	gitLogout,
 	gitPull,
+	gitPush,
 	Repo,
 	startGitLoginFlow,
 } from "../git_logic";
@@ -1299,7 +1300,11 @@ export function gitDlg() {
 				cursor: "pointer",
 			},
 			text: "Push",
-			click: () => console.log("PUSH"),
+			click: () => {
+				setButtonsDisabled(true, [pushBtn, pullBtn, logoutBtn]);
+				showLoading(true);
+				gitPush().then(() => tgui.stopModal());
+			},
 		});
 
 		let logoutBtn: HTMLButtonElement = tgui.createElement({

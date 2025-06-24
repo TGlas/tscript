@@ -58,6 +58,11 @@ module.exports = (_, options) => {
 			},
 			compress: true,
 			port: 9000,
+			client: {
+				overlay: {
+					runtimeErrors: false,
+				},
+			},
 		},
 		mode: isProd ? "production" : "development",
 		plugins,

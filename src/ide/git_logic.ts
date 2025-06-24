@@ -91,14 +91,84 @@ export async function gitPull(): Promise<boolean> {
 			},
 			singleBranch: true,
 			author: {
-				name: "tscript",
+				name: "TScript",
 			},
+			fastForward: true,
+		});
+		await git.checkout({
+			fs: projectsFS,
+			dir,
+			force: true,
 		});
 		filetree.refresh();
 		return true;
 	} catch (err) {
 		addMessage("error", "Could not pull from remote repository.");
 		console.log(err);
+		return false;
+	}
+}
+
+/**
+ * Function to implement git push
+ * @returns promisified boolean to indicate whether push was successful
+ */
+export async function gitPush(): Promise<boolean> {
+	const dir = getProjectPath(getCurrentProject() || "/");
+	try {
+		const tokenData = decodeJWT(getRawToken()).data;
+
+		await git
+			.statusMatrix({
+				fs: projectsFS,
+				dir,
+			})
+			.then((status) => {
+				Promise.all(
+					status.map(([filepath, _, worktreeStatus]) => {
+						worktreeStatus
+							? git.add({ fs: projectsFS, dir, filepath })
+							: git.remove({ fs: projectsFS, dir, filepath });
+					})
+				);
+			});
+
+		let sha = await git.commit({
+			fs: projectsFS,
+			dir,
+			author: {
+				name: "TScript",
+			},
+			message: "commit from tscript",
+		});
+		console.log(sha);
+
+		let pushResult: git.PushResult = await git.push({
+			fs: projectsFS,
+			http,
+			dir,
+			onAuth: () => ({
+				username:
+					tokenData.type === "hub" ? tokenData.info.access_token : "",
+				password:
+					tokenData.type === "lab" ? tokenData.info.access_token : "",
+			}),
+			onAuthFailure: () => {
+				addMessage(
+					"error",
+					"Not authorized to push, make sure that you have full write access to this repository."
+				);
+			},
+			force: true,
+		});
+		if (pushResult.ok) {
+			return true;
+		} else {
+			return false;
+		}
+	} catch (err) {
+		console.log(err);
+		addMessage("error", "Could not push to remote repository.");
 		return false;
 	}
 }
