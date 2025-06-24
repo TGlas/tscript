@@ -24,13 +24,7 @@ import { icons } from "../icons";
 import * as tgui from "../tgui";
 import { tutorial } from "../tutorial";
 import { EditorCollection } from "./collection";
-import {
-	buttons,
-	cmd_download,
-	cmd_export,
-	cmd_upload,
-	existsActiveSession,
-} from "./commands";
+import { buttons, cmd_download, cmd_export, cmd_upload } from "./commands";
 import {
 	createCanvas,
 	createIDEInterpreter,
@@ -188,105 +182,123 @@ async function createParseInputProject(
 	const includeSourceResolutions: Map<StringFileID, string> = new Map();
 	const projectPath = getProjectPath(projectName);
 
-	/**
-	 * @param includingFileID `null` to signal that this wasn't an actual include
-	 */
-	const resolveIncludeToFileID = (
-		includingFileID: ProjectFileID | null,
-		includeOperand: string
-	): ProjectFileID | null => {
-		const includingAbs =
-			includingFileID === null
-				? null
-				: projectFileIDToProjAbsPath(includingFileID);
-		const dirname =
-			includingAbs === null ? "/" : Path.dirname(includingAbs);
+	class ProjectParseInput implements ParseInput<ProjectFileID> {
+		declare filename: ProjectFileID;
+		declare source: string;
 
-		let resolved: string;
-		try {
-			// both functions can throw
-			resolved = Path.normalize(Path.resolve(dirname, includeOperand));
-		} catch (e) {
-			return null;
+		constructor(filename: ProjectFileID, source: string) {
+			this.filename = filename;
+			this.source = source;
 		}
-		// simplifyPath for removing trailing "/"
-		resolved = simplifyPath(resolved);
-		const fileIDSuffix = `${projectName}${resolved}`;
-		if (includingFileID !== null) {
-			const newEntry: IncludeResolutionList[0] = [
-				fileIDChangeNamespace(includingFileID, "string"),
-				includeOperand,
-				stringFileID(fileIDSuffix),
-			];
-			if (
-				!includeResolutions.some((e) =>
-					e.every((val, idx) => val === newEntry[idx])
-				)
-			) {
-				// newEntry is in fact new
-				includeResolutions.push(newEntry);
-			}
-		}
-		return projectFileID(projectName, resolved);
-	};
 
-	const resolveInclude = async (
-		fileID: ProjectFileID
-	): Promise<ParseInput<ProjectFileID> | null> => {
-		const projAbsPath = projectFileIDToProjAbsPath(fileID);
-		const editor = collection.getEditor(fileID);
-		if (editor) {
-			// file is opened
-			const source = editor.editorView.text();
-			includeSourceResolutions.set(
-				fileIDChangeNamespace(fileID, "string"),
-				source
+		resolveIncludeToFileID(includeOperand: string) {
+			return ProjectParseInput.resolveIncludeToFileID(
+				this.filename,
+				includeOperand
 			);
-			return {
-				source,
-				filename: fileID,
-				resolveIncludeToFileID,
-				resolveInclude,
-			};
 		}
 
-		let readRes: string | undefined; // undefined if dir
-		try {
-			readRes = (await projectsFSP.readFile(
-				Path.join(projectPath, projAbsPath),
-				{ encoding: "utf8" }
-			)) as string | undefined;
-		} catch (e: any) {
-			// EISDIR is not actually thrown, but it's undocumented
-			if (
-				e instanceof Error &&
-				"code" in e &&
-				(e.code === "ENOENT" || e.code === "EISDIR")
-			) {
+		resolveInclude(fileID: ProjectFileID) {
+			return ProjectParseInput.getParseInput(fileID);
+		}
+
+		static async getParseInput(
+			fileID: ProjectFileID
+		): Promise<ParseInput<ProjectFileID> | null> {
+			const projAbsPath = projectFileIDToProjAbsPath(fileID);
+			const editor = collection.getEditor(fileID);
+			if (editor) {
+				// file is opened
+				const source = editor.editorView.text();
+				includeSourceResolutions.set(
+					fileIDChangeNamespace(fileID, "string"),
+					source
+				);
+				new ProjectParseInput(fileID, source);
+			}
+
+			let readRes: string | undefined; // undefined if dir
+			try {
+				readRes = (await projectsFSP.readFile(
+					Path.join(projectPath, projAbsPath),
+					{ encoding: "utf8" }
+				)) as string | undefined;
+			} catch (e: any) {
+				// EISDIR is not actually thrown, but it's undocumented
+				if (
+					e instanceof Error &&
+					"code" in e &&
+					(e.code === "ENOENT" || e.code === "EISDIR")
+				) {
+					return null;
+				} else {
+					throw e;
+				}
+			}
+			if (readRes === undefined) {
 				return null;
 			} else {
-				throw e;
+				includeSourceResolutions.set(
+					fileIDChangeNamespace(fileID, "string"),
+					readRes
+				);
+				return new ProjectParseInput(fileID, readRes);
 			}
 		}
-		if (readRes === undefined) {
-			return null;
-		} else {
-			includeSourceResolutions.set(
-				fileIDChangeNamespace(fileID, "string"),
-				readRes
-			);
-			return {
-				source: readRes,
-				filename: fileID,
-				resolveInclude,
-				resolveIncludeToFileID,
-			};
-		}
-	};
 
-	const entryStdFilename = resolveIncludeToFileID(null, entryFilename);
+		/**
+		 * @param includingFileID `null` to signal that this wasn't an actual include
+		 */
+		static resolveIncludeToFileID(
+			includingFileID: ProjectFileID | null,
+			includeOperand: string
+		): ProjectFileID | null {
+			const includingAbs =
+				includingFileID === null
+					? null
+					: projectFileIDToProjAbsPath(includingFileID);
+			const dirname =
+				includingAbs === null ? "/" : Path.dirname(includingAbs);
+
+			let resolved: string;
+			try {
+				// both functions can throw
+				resolved = Path.normalize(
+					Path.resolve(dirname, includeOperand)
+				);
+			} catch (e) {
+				return null;
+			}
+			// simplifyPath for removing trailing "/"
+			resolved = simplifyPath(resolved);
+			const fileIDSuffix = `${projectName}${resolved}`;
+			if (includingFileID !== null) {
+				const newEntry: IncludeResolutionList[0] = [
+					fileIDChangeNamespace(includingFileID, "string"),
+					includeOperand,
+					stringFileID(fileIDSuffix),
+				];
+				if (
+					!includeResolutions.some((e) =>
+						e.every((val, idx) => val === newEntry[idx])
+					)
+				) {
+					// newEntry is in fact new
+					includeResolutions.push(newEntry);
+				}
+			}
+			return projectFileID(projectName, resolved);
+		}
+	}
+
+	const entryStdFilename = ProjectParseInput.resolveIncludeToFileID(
+		null,
+		entryFilename
+	);
 	if (entryStdFilename === null) return null;
-	const mainParseInput = await resolveInclude(entryStdFilename);
+	const mainParseInput = await ProjectParseInput.getParseInput(
+		entryStdFilename
+	);
 	if (mainParseInput === null) return null;
 	return [
 		mainParseInput,
@@ -306,39 +318,48 @@ async function createParseInputLocalStorage(
 	const includeSourceResolutions: Map<StringFileID, string> = new Map();
 	const includeResolutions: [StringFileID, string, StringFileID][] = [];
 
-	const resolveIncludeToFileID = (
-		includingFile: LocalStorageFileID,
-		includeOperand: string
-	): LocalStorageFileID => {
-		includeResolutions.push([
-			fileIDChangeNamespace(includingFile, "string"),
-			includeOperand,
-			stringFileID(includeOperand),
-		]);
-		return localstorageFileID(includeOperand);
-	};
-	const resolveInclude = async (
-		fileID: LocalStorageFileID
-	): Promise<ParseInput<LocalStorageFileID> | null> => {
-		const filename = splitFileIDAtColon(fileID)[1];
-		const source =
-			collection.getEditor(fileID)?.editorView.text() ??
-			localStorage.getItem(`tscript.code.${filename}`);
-		if (source === null) return null;
-		includeSourceResolutions.set(
-			fileIDChangeNamespace(fileID, "string"),
-			source
-		);
-		return {
-			source,
-			filename: fileID,
-			resolveInclude,
-			resolveIncludeToFileID,
-		};
-	};
+	class LStorageParseInput implements ParseInput<LocalStorageFileID> {
+		declare filename: LocalStorageFileID;
+		declare source: string;
+
+		constructor(filename: LocalStorageFileID, source: string) {
+			this.filename = filename;
+			this.source = source;
+		}
+
+		resolveIncludeToFileID(includeOperand: string): LocalStorageFileID {
+			includeResolutions.push([
+				fileIDChangeNamespace(this.filename, "string"),
+				includeOperand,
+				stringFileID(includeOperand),
+			]);
+			return localstorageFileID(includeOperand);
+		}
+
+		async resolveInclude(
+			fileID: LocalStorageFileID
+		): Promise<ParseInput<LocalStorageFileID> | null> {
+			return LStorageParseInput.getParseInput(fileID);
+		}
+
+		static getParseInput(
+			fileID: LocalStorageFileID
+		): ParseInput<LocalStorageFileID> | null {
+			const filename = splitFileIDAtColon(fileID)[1];
+			const source =
+				collection.getEditor(fileID)?.editorView.text() ??
+				localStorage.getItem(`tscript.code.${filename}`);
+			if (source === null) return null;
+			includeSourceResolutions.set(
+				fileIDChangeNamespace(fileID, "string"),
+				source
+			);
+			return new LStorageParseInput(fileID, source);
+		}
+	}
 
 	const entryFileID = localstorageFileID(entryFilename);
-	const mainParseInput = await resolveInclude(entryFileID);
+	const mainParseInput = LStorageParseInput.getParseInput(entryFileID);
 	if (mainParseInput === null) return null;
 	return [
 		mainParseInput,
@@ -388,56 +409,64 @@ export async function createParseInput(): Promise<
 	}
 }
 
+let pendingInterpreterSession: Promise<InterpreterSession | null> | null = null;
+
 /**
  * Prepare everything for the program to start running,
  * put the IDE into stepping mode at the start of the program.
- * @returns an {@link InterpreterSession} instance, or `null` on error
+ * If this function is called while an earlier call to this function is still
+ * ongoing, it returns the promise from the first call. Destroys current
+ * interpreter.
+ * @returns an {@link InterpreterSession} instance, or `null` on error.
  */
 export async function prepareRun(): Promise<InterpreterSession | null> {
-	const parseInput = (await createParseInput())?.[0];
-	if (!parseInput) {
-		return null;
-	}
+	return (pendingInterpreterSession ??= createInterpreterSession().finally(
+		() => {
+			pendingInterpreterSession = null;
+		}
+	));
 
-	const { program, errors } = await parseProgram<any>(
-		parseInput,
-		parseOptions
-	);
+	async function createInterpreterSession() {
+		const parseInput = (await createParseInput())?.[0];
+		if (!parseInput) {
+			return null;
+		}
 
-	if (existsActiveSession()) {
-		return null;
-	}
+		const { program, errors } = await parseProgram<any>(
+			parseInput,
+			parseOptions
+		);
 
-	// everything after that should ideally be synchronous
-	clear();
-	for (const err of errors) {
-		addMessage(
-			err.type,
-			ErrorHelper.getLocatedErrorMsg(
+		clear();
+		for (const err of errors) {
+			addMessage(
 				err.type,
+				ErrorHelper.getLocatedErrorMsg(
+					err.type,
+					err.filename ?? undefined,
+					err.line,
+					err.message
+				),
 				err.filename ?? undefined,
 				err.line,
-				err.message
-			),
-			err.filename ?? undefined,
-			err.line,
-			err.ch,
-			err.type === "error" ? err.href : undefined
+				err.ch,
+				err.type === "error" ? err.href : undefined
+			);
+		}
+		if (!program) {
+			return null;
+		}
+
+		interpreterSession = new InterpreterSession(
+			program,
+			turtleContainer,
+			canvasContainer
 		);
-	}
-	if (!program) {
-		return null;
-	}
 
-	interpreterSession = new InterpreterSession(
-		program,
-		turtleContainer,
-		canvasContainer
-	);
-
-	// the IDE has an InterpreterSession now
-	updateProgramState({ interpreterChanged: true });
-	return interpreterSession;
+		// the IDE has an InterpreterSession now
+		updateProgramState({ interpreterChanged: true });
+		return interpreterSession;
+	}
 }
 
 export class InterpreterSession {
