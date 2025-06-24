@@ -7,7 +7,7 @@ import { decodeJWT, getRawToken } from "./git_token";
 import * as git from "isomorphic-git";
 import { getCurrentProject, getProjectPath, projectsFS } from "./projects-fs";
 import http from "isomorphic-git/http/web/index";
-import { addMessage, ft } from "./elements";
+import { addMessage, filetree } from "./elements";
 
 /**
  * Function to start git login flow. User will be redirected to GitHub / GitLab
@@ -56,7 +56,7 @@ export async function gitClone(url: string): Promise<boolean> {
 				);
 			},
 		});
-		ft.refresh();
+		filetree.refresh();
 		return true;
 	} catch (err) {
 		addMessage("error", "Could not clone remote repository.");
@@ -94,7 +94,7 @@ export async function gitPull(): Promise<boolean> {
 				name: "tscript",
 			},
 		});
-		ft.refresh();
+		filetree.refresh();
 		return true;
 	} catch (err) {
 		addMessage("error", "Could not pull from remote repository.");

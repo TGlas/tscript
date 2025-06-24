@@ -19,7 +19,6 @@ import * as tgui from "./../tgui";
 import { tryStopModal } from "./../tgui";
 import { buttons } from "./commands";
 import * as ide from "./index";
-import { updateControls } from "./utils";
 import {
 	decodeJWT,
 	getLoginTypeFromToken,

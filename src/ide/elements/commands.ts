@@ -1,7 +1,6 @@
 import * as ide from ".";
 import { parseProgram } from "../../lang/parser";
 import { type StandaloneCode } from "../standalone";
-import { loadFileProjDlg, saveAsDialog } from "./dialogs";
 import { ErrorHelper } from "../../lang/errors/ErrorHelper";
 import {
 	fileIDToContextDependentFilename,
@@ -10,19 +9,13 @@ import {
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
 import {
-  confirmFileOverwrite,
-	createFileDlgFileView,
+  	confirmFileOverwrite,
 	loadFileProjDlg,
-	fileDlgSize,
 	parseOptions,
-  tabNameDlg,
+	saveAsDialog,
+  	tabNameDlg,
 	gitDlg,
 } from "./dialogs";
-import {
-	closeEditor,
-	createEditorTabByModal,
-	openEditorFromLocalStorage,
-} from "./editor-tabs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { cleanupExternalFilename, importData, interpreterEnded } from "./utils";
 
