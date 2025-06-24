@@ -214,7 +214,7 @@ async function createParseInputProject(
 					fileIDChangeNamespace(fileID, "string"),
 					source
 				);
-				new ProjectParseInput(fileID, source);
+				return new ProjectParseInput(fileID, source);
 			}
 
 			let readRes: string | undefined; // undefined if dir
