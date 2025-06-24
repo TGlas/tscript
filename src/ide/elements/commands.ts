@@ -9,11 +9,11 @@ import {
 import { icons } from "../icons";
 import * as tgui from "./../tgui";
 import {
-  	confirmFileOverwrite,
+	confirmFileOverwrite,
 	loadFileProjDlg,
 	parseOptions,
 	saveAsDialog,
-  	tabNameDlg,
+	tabNameDlg,
 	gitDlg,
 } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";

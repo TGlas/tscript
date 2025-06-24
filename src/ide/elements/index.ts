@@ -1001,7 +1001,6 @@ export function create(container: HTMLElement, options?: any) {
 		}
 	);
 
-
 	filetree = new FileTree();
 	// for testing
 	(async () => {
