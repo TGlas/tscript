@@ -210,4 +210,10 @@ export const icons: { [id: string]: SVGIcon } = {
 		innerSVG:
 			'<path d="M 5 20 L 9 2 L 11 2 L 15 20" style="stroke-width: 3; stroke: #666; fill: none"/><polyline points="5,20 9,2 11,2 15,20" style="stroke-width: 2; stroke: #db7; fill: none"/><rect x="1.5" y="2.5" width="17" height="12" style="stroke: none; fill: #666"/><rect x="2" y="3" width="16" height="11" style="stroke: none; fill: #db7"/><rect x="3" y="4" width="14" height="9" style="stroke: none; fill: #000"/><polyline points="5,6 7,8 5,10" style="stroke: #fff; fill: none"/>',
 	},
+	fileTree: {
+		width: 20,
+		height: 20,
+		innerSVG:
+			'<polygon points="6,1.375 9.75,1.375 11.25,2.875 15.75,2.875 15.75,9.625 6,9.625" style="fill: #ec5; stroke: #330"/><polyline points="4.5,12.625 4.5,15.625" style="stroke-width: 1.5; fill: #fff; stroke: #000"/><polyline points="10,9.625 10,15.625" style="stroke-width: 1.5; fill: #fff; stroke: #000"/><polyline points="15.5,12.625 15.5,15.625" style="stroke-width: 1.5; fill: #fff; stroke: #000"/><polyline points="4.5,12.625 15.5,12.625" style="stroke-width: 1.5; fill: #fff; stroke: #000"/><polygon points="3.25,15.625 5.75,15.625 5.75,19 3.25,19" style="stroke-width: 0.5; fill: #fff; stroke: #000"/><polygon points="8.75,15.625 11.25,15.625 11.25,19 8.75,19" style="stroke-width: 0.5; fill: #fff; stroke: #000"/><polygon points="14.25,15.625 16.75,15.625 16.75,19 14.25,19" style="stroke-width: 0.5; fill: #fff; stroke: #000"/>',
+	},
 };

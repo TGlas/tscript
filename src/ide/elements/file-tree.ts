@@ -234,7 +234,7 @@ export class FileTree {
 			title: "Files",
 			state: "icon",
 			fallbackState: "left",
-			icon: icons.editor, // TODO add own icon
+			icon: icons.fileTree,
 		});
 
 		const topBar = tgui.createElement({
