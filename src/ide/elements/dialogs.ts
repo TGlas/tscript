@@ -1057,8 +1057,67 @@ export function tabNameDlg(
 	tgui.startModal(modal);
 }
 
+function pushMessageDlg(onFinished: Function) {
+	let pushMessageModal = tgui.createModal({
+		title: "Commit message",
+		scalesize: [0, 0],
+		minsize: [400, 120],
+		buttons: [
+			{
+				text: "Commit",
+				onClick: () => {
+					const msg = messageInput.value;
+					if (msg !== "") {
+						gitPush(msg).then(() => {
+							onFinished(true);
+						});
+					} else {
+						return true;
+					}
+				},
+				isDefault: true,
+			},
+			{
+				text: "Cancel",
+				onClick: () => onFinished(true),
+			},
+		],
+		enterConfirms: true,
+	});
+
+	let pushMessageModalContent = tgui.createElement({
+		parent: pushMessageModal.content,
+		type: "div",
+		style: {
+			display: "flex",
+			width: "100%",
+			"margin-top": "5px",
+		},
+	});
+
+	let messageInput = tgui.createElement({
+		parent: pushMessageModalContent,
+		type: "input",
+		id: "messageInput",
+		properties: {
+			placeholder: "Enter commit message...",
+			required: "true",
+		},
+		style: {
+			"min-width": "90%",
+			height: "30px",
+			"padding-left": "4px",
+			"margin-bottom": "10px",
+			display: "inline-block",
+		},
+	});
+
+	tgui.startModal(pushMessageModal);
+}
+
 // Dialog for all git related actions
 export function gitDlg() {
+	ide.clear();
 	let dlg = tgui.createModal({
 		title: "Git",
 		scalesize: [0, 0],
@@ -1303,7 +1362,9 @@ export function gitDlg() {
 			click: () => {
 				setButtonsDisabled(true, [pushBtn, pullBtn, logoutBtn]);
 				showLoading(true);
-				gitPush().then(() => tgui.stopModal());
+				pushMessageDlg((finished) => {
+					if (finished) tgui.stopModal();
+				});
 			},
 		});
 

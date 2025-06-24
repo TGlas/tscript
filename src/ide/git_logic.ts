@@ -118,17 +118,22 @@ export async function gitPull(): Promise<boolean> {
  * Function to implement git push
  * @returns promisified boolean to indicate whether push was successful
  */
-export async function gitPush(): Promise<boolean> {
+export async function gitPush(commitMsg: string): Promise<boolean> {
 	const dir = getProjectPath(getCurrentProject() || "/");
+
 	try {
 		const tokenData = decodeJWT(getRawToken()).data;
+		let statusMatrix: Promise<git.StatusRow[]> = git.statusMatrix({
+			fs: projectsFS,
+			dir,
+		});
 
-		await git
-			.statusMatrix({
-				fs: projectsFS,
-				dir,
-			})
-			.then((status) => {
+		const repoDirty = (await statusMatrix).some((row) => {
+			return row[1] !== row[2] || row[2] !== row[3];
+		});
+
+		if (repoDirty) {
+			statusMatrix.then((status) => {
 				Promise.all(
 					status.map(([filepath, _, worktreeStatus]) => {
 						worktreeStatus
@@ -138,38 +143,46 @@ export async function gitPush(): Promise<boolean> {
 				);
 			});
 
-		let sha = await git.commit({
-			fs: projectsFS,
-			dir,
-			author: {
-				name: "TScript",
-			},
-			message: "commit from tscript",
-		});
-		console.log(sha);
+			let sha = await git.commit({
+				fs: projectsFS,
+				dir,
+				author: {
+					name: "TScript",
+				},
+				message: commitMsg,
+			});
 
-		let pushResult: git.PushResult = await git.push({
-			fs: projectsFS,
-			http,
-			dir,
-			onAuth: () => ({
-				username:
-					tokenData.type === "hub" ? tokenData.info.access_token : "",
-				password:
-					tokenData.type === "lab" ? tokenData.info.access_token : "",
-			}),
-			onAuthFailure: () => {
-				addMessage(
-					"error",
-					"Not authorized to push, make sure that you have full write access to this repository."
-				);
-			},
-			force: true,
-		});
-		if (pushResult.ok) {
+			let pushResult: git.PushResult = await git.push({
+				fs: projectsFS,
+				http,
+				dir,
+				onAuth: () => ({
+					username:
+						tokenData.type === "hub"
+							? tokenData.info.access_token
+							: "",
+					password:
+						tokenData.type === "lab"
+							? tokenData.info.access_token
+							: "",
+				}),
+				onAuthFailure: () => {
+					addMessage(
+						"error",
+						"Not authorized to push, make sure that you have full write access to this repository."
+					);
+				},
+				force: true,
+			});
+			if (pushResult.ok) {
+				return true;
+			} else {
+				return false;
+			}
 			return true;
 		} else {
-			return false;
+			addMessage("print", "No changes to push.");
+			return true;
 		}
 	} catch (err) {
 		console.log(err);
