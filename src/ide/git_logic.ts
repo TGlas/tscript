@@ -179,7 +179,6 @@ export async function gitPush(commitMsg: string): Promise<boolean> {
 			} else {
 				return false;
 			}
-			return true;
 		} else {
 			addMessage("print", "No changes to push.");
 			return true;
@@ -204,16 +203,16 @@ export interface Repo {
 export async function getCurrentProjectGitInfo(): Promise<Repo | undefined> {
 	const currentProject = getCurrentProject();
 	if (currentProject) {
-		let value = await git.getConfig({
+		let url = await git.getConfig({
 			fs: projectsFS,
 			dir: getProjectPath(currentProject),
 			path: "remote.origin.url",
 		});
 		let repo: Repo | undefined = undefined;
-		if (value) {
+		if (url) {
 			repo = {
 				name: "",
-				url: value,
+				url,
 				private: null,
 			};
 		}
@@ -258,9 +257,11 @@ export async function getGitRepos(): Promise<Repo[]> {
 				return [];
 			}
 		} else {
+			addMessage("error", "Not authorized to get repository list.");
 			return [];
 		}
 	} catch (err) {
+		addMessage("error", "Failed to get the user's repositories.");
 		return [];
 	}
 }
