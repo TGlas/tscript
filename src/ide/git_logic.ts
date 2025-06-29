@@ -90,14 +90,18 @@ export async function gitClone(url: string): Promise<boolean> {
 export async function gitPull(): Promise<boolean> {
 	const projName = getCurrentProject() || "/";
 	const dir = getProjectPath(projName);
-	try {
-		const tokenData = decodeJWT(getRawToken()).data;
 
+	try {
 		await git.stash({
 			fs: projectsFS,
 			dir: dir,
 		});
+	} catch (err) {
+		// No local changes to stash.
+	}
 
+	try {
+		const tokenData = decodeJWT(getRawToken()).data;
 		await git.pull({
 			fs: projectsFS,
 			http,
