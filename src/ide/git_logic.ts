@@ -27,6 +27,19 @@ export async function startGitLoginFlow(type: "hub" | "lab") {
 	}
 }
 
+export async function setGitConfig() {
+	const dir = getProjectPath(getCurrentProject() || "/");
+
+	try {
+		await git.setConfig({
+			fs: projectsFS,
+			dir,
+			path: "user.name",
+			value: "TScript",
+		});
+	} catch (err) {}
+}
+
 /**
  * Function to implement git clone
  * @param url url to the remote git repo
@@ -77,6 +90,12 @@ export async function gitPull(): Promise<boolean> {
 	const dir = getProjectPath(projName);
 	try {
 		const tokenData = decodeJWT(getRawToken()).data;
+
+		await git.stash({
+			fs: projectsFS,
+			dir: dir,
+		});
+
 		await git.pull({
 			fs: projectsFS,
 			http,
@@ -99,6 +118,13 @@ export async function gitPull(): Promise<boolean> {
 			},
 			fastForward: true,
 		});
+	} catch (err) {
+		addMessage("error", "Could not pull from remote repository.");
+		console.log(err);
+		return false;
+	}
+
+	try {
 		await git.checkout({
 			fs: projectsFS,
 			dir,
@@ -108,8 +134,6 @@ export async function gitPull(): Promise<boolean> {
 		await reloadProjectEditorTabsRecursively(projName, "/");
 		return true;
 	} catch (err) {
-		addMessage("error", "Could not pull from remote repository.");
-		console.log(err);
 		return false;
 	}
 }

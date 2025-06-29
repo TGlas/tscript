@@ -34,6 +34,7 @@ import {
 	gitPull,
 	gitPush,
 	Repo,
+	setGitConfig,
 	startGitLoginFlow,
 } from "../git_logic";
 
@@ -1121,7 +1122,7 @@ export function gitDlg() {
 	let dlg = tgui.createModal({
 		title: "Git",
 		scalesize: [0, 0],
-		minsize: [360, 300],
+		minsize: [360, 250],
 		buttons: [
 			{
 				text: "Cancel",
@@ -1444,4 +1445,5 @@ export function gitDlg() {
 	});
 
 	tgui.startModal(dlg);
+	setGitConfig();
 }
