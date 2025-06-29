@@ -1122,7 +1122,7 @@ export function gitDlg() {
 	let dlg = tgui.createModal({
 		title: "Git",
 		scalesize: [0, 0],
-		minsize: [360, 250],
+		minsize: [360, 270],
 		buttons: [
 			{
 				text: "Cancel",
@@ -1321,8 +1321,8 @@ export function gitDlg() {
 								JSON.stringify(customOption)
 							) {
 								if (customUrlInput.value === "") {
+									setButtonsDisabled(true, [pushBtn]);
 									setButtonsDisabled(false, [
-										pushBtn,
 										pullBtn,
 										logoutBtn,
 									]);
