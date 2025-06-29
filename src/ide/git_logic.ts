@@ -2,6 +2,7 @@ import {
 	app_id_gitlab,
 	client_id_github,
 	proxy_server_url,
+	server_url,
 } from "../github_creds";
 import { decodeJWT, getRawToken } from "./git_token";
 import * as git from "isomorphic-git";
@@ -57,7 +58,7 @@ export async function gitClone(url: string): Promise<boolean> {
 			dir: dir,
 			url: url,
 			depth: 1,
-			corsProxy: "https://cors.isomorphic-git.org",
+			corsProxy: proxy_server_url,
 			remote: "origin",
 			singleBranch: true,
 			onAuth: () => ({
@@ -265,14 +266,14 @@ export async function getGitRepos(): Promise<Repo[]> {
 
 			if (token.data.type == "lab") {
 				result = await fetch(
-					`${proxy_server_url}/repos?token=${token.data.info.access_token}&type=lab`,
+					`${server_url}/repos?token=${token.data.info.access_token}&type=lab`,
 					{
 						method: "get",
 					}
 				);
 			} else if (token.data.type == "hub") {
 				result = await fetch(
-					`${proxy_server_url}/repos?token=${token.data.info.access_token}&type=hub`,
+					`${server_url}/repos?token=${token.data.info.access_token}&type=hub`,
 					{
 						method: "get",
 					}
@@ -308,14 +309,14 @@ export async function gitLogout(): Promise<boolean> {
 			let result;
 			if (decoded.data.type == "lab") {
 				result = await fetch(
-					`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${app_id_gitlab}&type=lab`,
+					`${server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${app_id_gitlab}&type=lab`,
 					{
 						method: "delete",
 					}
 				);
 			} else if (decoded.data.type == "hub") {
 				result = await fetch(
-					`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${client_id_github}&type=hub`,
+					`${server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${client_id_github}&type=hub`,
 					{
 						method: "delete",
 					}

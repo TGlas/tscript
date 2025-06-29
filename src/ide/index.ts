@@ -21,11 +21,7 @@ import "./css-dark/icons.css";
 import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
-import {
-	app_id_gitlab,
-	client_id_github,
-	proxy_server_url,
-} from "../github_creds";
+import { app_id_gitlab, client_id_github, server_url } from "../github_creds";
 import { validJWT } from "./git_token";
 import { getGitRepos } from "./git_logic";
 
@@ -57,7 +53,7 @@ window.addEventListener("load", async () => {
 			replaceUrl(currentUrl.origin);
 			try {
 				res = await fetch(
-					`${proxy_server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`,
+					`${server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`,
 					{
 						method: "get",
 					}
@@ -69,7 +65,7 @@ window.addEventListener("load", async () => {
 			replaceUrl(currentUrl.origin);
 			try {
 				res = await fetch(
-					`${proxy_server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`,
+					`${server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`,
 					{
 						method: "get",
 					}
