@@ -29,14 +29,15 @@ export async function startGitLoginFlow(type: "hub" | "lab") {
 
 export async function setGitConfig() {
 	const dir = getProjectPath(getCurrentProject() || "/");
-
 	try {
-		await git.setConfig({
-			fs: projectsFS,
-			dir,
-			path: "user.name",
-			value: "TScript",
-		});
+		if (await getCurrentProjectGitInfo()) {
+			await git.setConfig({
+				fs: projectsFS,
+				dir,
+				path: "user.name",
+				value: "TScript",
+			});
+		}
 	} catch (err) {}
 }
 
@@ -58,6 +59,7 @@ export async function gitClone(url: string): Promise<boolean> {
 			depth: 1,
 			corsProxy: "https://cors.isomorphic-git.org",
 			remote: "origin",
+			singleBranch: true,
 			onAuth: () => ({
 				username:
 					tokenData.type === "hub" ? tokenData.info.access_token : "",
