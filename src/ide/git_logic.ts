@@ -38,7 +38,7 @@ export async function setGitConfig() {
 				value: "TScript",
 			});
 		}
-	} catch (err) {}
+	} catch (_) {}
 }
 
 /**
@@ -96,7 +96,7 @@ export async function gitPull(): Promise<boolean> {
 			fs: projectsFS,
 			dir: dir,
 		});
-	} catch (err) {
+	} catch (_) {
 		// No local changes to stash.
 	}
 
@@ -139,7 +139,7 @@ export async function gitPull(): Promise<boolean> {
 		filetree.refresh();
 		await reloadProjectEditorTabsRecursively(projName, "/");
 		return true;
-	} catch (err) {
+	} catch (_) {
 		return false;
 	}
 }
@@ -290,7 +290,7 @@ export async function getGitRepos(): Promise<Repo[]> {
 			addMessage("error", "Not authorized to get repository list.");
 			return [];
 		}
-	} catch (err) {
+	} catch (_) {
 		addMessage("error", "Failed to get the user's repositories.");
 		return [];
 	}
@@ -330,7 +330,7 @@ export async function gitLogout(): Promise<boolean> {
 				return false;
 			}
 		}
-	} catch (err) {
+	} catch (_) {
 		return false;
 	}
 	return false;
