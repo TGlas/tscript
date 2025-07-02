@@ -82,8 +82,8 @@ export const doc_git: Documentation = {
             Changes that were made in TScript can be pushed to the remote repository using the push button.
             </p>
             <div class="warning">
-                Remote changes are discarded when pushing local changes, so make sure to pull any changes before
-                pushing to the remote repository!
+                Remote changes are discarded when pushing local changes, so make sure to pull from
+                the remote repository before making new changes!
 		    </div>
             <h3>Pulling</h3>
             <p>
@@ -91,6 +91,10 @@ export const doc_git: Documentation = {
             If it is valid, the clone button will change into the pull button. When pressing the pull button,
             the newest changes are pulled from the remote repository.
             </p>
+            <div class="warning">
+                Local changes are discarded when pulling remote changes, so make sure to push before
+                pulling from the remote repository!
+		    </div>
             `,
 			children: [],
 		},
