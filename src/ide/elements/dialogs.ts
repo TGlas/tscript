@@ -1244,7 +1244,7 @@ export function gitDlg() {
 			type: "input",
 			id: "customUrlInput",
 			properties: {
-				placeholder: "Enter custom git url...",
+				placeholder: "Enter custom Git url...",
 			},
 			style: {
 				"min-width": "90%",
