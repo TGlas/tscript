@@ -391,6 +391,9 @@ export class FileTree {
 			for (const entry of dir) {
 				const absEntry = simplifyPath(`${absPath}/${entry}`);
 				const projRelEntry = simplifyPath(`${value.path}/${entry}`);
+				if (projRelEntry === "/.git") {
+					continue;
+				}
 				const stat = await projectsFSP.stat(absEntry);
 				const ftn = {
 					type: stat.type,
