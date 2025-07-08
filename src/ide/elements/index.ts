@@ -1031,12 +1031,6 @@ export function create(container: HTMLElement, options?: any) {
 	);
 
 	filetree = new FileTree();
-	// for testing
-	(async () => {
-		await filetree.addSampleContent();
-		await filetree.init();
-		await setCurrentProject("tmp");
-	})();
 
 	tgui.arrangePanels();
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
