@@ -118,14 +118,14 @@ export function createModal(description: ModalDescription): Modal {
 		if (button && button.onClick) {
 			let keepOpen = button.onClick();
 			if (!(keepOpen instanceof Promise)) {
-				if (!keepOpen) tryStopModal();
+				if (!keepOpen) tryStopModal(control);
 			} else {
 				keepOpen.then((keepOpenResolved) => {
-					if (!keepOpenResolved) tryStopModal();
+					if (!keepOpenResolved) tryStopModal(control);
 				});
 			}
 		} else {
-			tryStopModal();
+			tryStopModal(control);
 		}
 		return false;
 	};
