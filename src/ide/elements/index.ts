@@ -1030,7 +1030,8 @@ export function create(container: HTMLElement, options?: any) {
 		}
 	);
 
-	filetree = new FileTree();
+	setCurrentProject(config?.currentProject ?? undefined);
+	(filetree = new FileTree()).init();
 
 	tgui.arrangePanels();
 	window["TScriptIDE"] = { tgui: tgui, ide: module };

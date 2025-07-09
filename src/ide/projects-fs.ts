@@ -1,5 +1,6 @@
 import FS from "@isomorphic-git/lightning-fs";
 import Path from "@isomorphic-git/lightning-fs/src/path";
+import { saveConfig } from "./elements/dialogs";
 
 /**
  * The error handling of lightning-fs is not that great. Currently, the
@@ -205,6 +206,10 @@ export function getProjectPath(projectName: string): string {
 export async function listProjects(): Promise<string[]> {
 	return await projectsFSP.readdir("/");
 }
+
+Promise.resolve().then(() => {
+	addListenerOnChangeProject(() => void saveConfig());
+});
 
 /**
  * @throws ENOTDIR if dir is not dir

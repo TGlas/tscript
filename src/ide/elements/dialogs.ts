@@ -80,12 +80,13 @@ type Config = {
 	open: LoadableFileID[];
 	main: FileID;
 	active: LoadableFileID | null;
+	currentProject: string | null;
 };
 
 /**
  * Load hotkeys & other settings
  */
-export function loadConfig() {
+export function loadConfig(): Config | null {
 	let str = localStorage.getItem("tscript.ide.config");
 	let config: Config | null = null;
 	if (str) {
@@ -124,6 +125,7 @@ export function saveConfig() {
 		open: editorsState.open.filter(isLoadableFileID),
 		main: ide.getRunSelection(),
 		active: editorsState.active,
+		currentProject: getCurrentProject() ?? null,
 	};
 	for (let i = 0; i < buttons.length; i++) {
 		config.hotkeys.push(buttons[i].hotkey);
