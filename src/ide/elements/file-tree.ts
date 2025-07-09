@@ -565,7 +565,11 @@ print("Hello sfile");`
 
 	private readonly onNodeClick: tgui.NodeEventHandler<FileTreeNode, "click"> =
 		(_event, value, _id) => {
-			this.selectPath(value.path);
+			if (this.selectedPath === value.path) {
+				this.selectPath(null);
+			} else {
+				this.selectPath(value.path);
+			}
 		};
 
 	private toAbs(path: string): string {
