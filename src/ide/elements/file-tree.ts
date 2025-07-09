@@ -314,9 +314,9 @@ export class FileTree {
 	 * asynchroncity managed internally by the instance, see class description
 	 */
 	init(): Promise<void> {
-		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
-			await this.refresh();
-		}));
+		return this.chainToPromise(async () => {
+			await this.refreshMux(true);
+		});
 	}
 
 	/**
@@ -325,11 +325,11 @@ export class FileTree {
 	changeRootDir(newProjectName: string | null): Promise<void> {
 		const dir =
 			newProjectName === null ? null : getProjectPath(newProjectName);
-		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
+		return this.chainToPromise(async () => {
 			this.dir = dir;
 			this.openedProject = newProjectName;
-			return await this.refresh();
-		}));
+			return await this.refreshMux(true);
+		});
 	}
 
 	/**
@@ -338,22 +338,44 @@ export class FileTree {
 	 * asynchroncity managed internally by the instance, see class description
 	 */
 	refresh(): Promise<void> {
-		this.path2NodeInfo = {};
-		this.path2FileTreeNode = {};
-		return (this.refreshDoneProm = new Promise((res) => {
-			this.treeControl.update(undefined, async () => {
-				if (
-					this.selectedPath &&
-					this.pathToNodeInfo(this.selectedPath) === null
-				) {
-					this.selectPath(null);
-				} else {
-					// add the css class
-					this.selectPath(this.selectedPath);
-				}
-				res();
+		return this.refreshMux(false);
+	}
+
+	/**
+	 * @param hasLocak If true, then the execution is not chained to
+	 * {@link refreshDoneProm} but executed immediately. This should be true if
+	 * coming from an already sequentialized call, i.e., there is no concurrent
+	 * call to any async method of this instance and the current call needs to
+	 * be completed for this.refreshDoneProm to be resolved.
+	 */
+	private refreshMux(hasLock: boolean = false): Promise<void> {
+		/**
+		 * Performs update and returns promise that resolves when it's done
+		 */
+		const performUpdate = (): Promise<void> => {
+			this.path2NodeInfo = {};
+			this.path2FileTreeNode = {};
+			return new Promise((res) => {
+				this.treeControl.update(undefined, async () => {
+					if (
+						this.selectedPath &&
+						this.pathToNodeInfo(this.selectedPath) === null
+					) {
+						this.selectPath(null);
+					} else {
+						// add the css class
+						this.selectPath(this.selectedPath);
+					}
+					res(undefined);
+				});
 			});
-		}));
+		};
+
+		if (hasLock) {
+			return performUpdate();
+		} else {
+			return this.chainToPromise(performUpdate);
+		}
 	}
 
 	/**
@@ -436,7 +458,7 @@ export class FileTree {
 	 * asynchroncity managed internally by the instance, see class description
 	 */
 	async addSampleContent() {
-		return (this.refreshDoneProm = this.refreshDoneProm.then(async () => {
+		return this.chainToPromise(async () => {
 			try {
 				await deleteProject("tmp");
 			} catch (e) {
@@ -474,7 +496,7 @@ print("Hello file2");`
 include "../../root";
 print("Hello sfile");`
 			);
-		}));
+		});
 	}
 
 	private pathToNodeInfo(
@@ -554,8 +576,10 @@ print("Hello sfile");`
 					await projectsFSP.unlink(abs);
 					break;
 			}
-			this.selectPath(null);
-			await this.refresh();
+			this.chainToPromise(async () => {
+				this.selectPath(null);
+				await this.refreshMux(true);
+			});
 
 			return false;
 		};
@@ -668,12 +692,27 @@ print("Hello sfile");`
 					simplifyPath(newProjPath)
 				);
 				await projectsFSP.rename(this.toAbs(this.selectedPath), newAbs);
-				this.selectPath(newProjPath);
-				await this.refresh();
+				this.chainToPromise(async () => {
+					this.selectPath(newProjPath);
+					await this.refresh();
+				});
 				return false;
 			},
 			"Rename into...",
 			this.pathToFileTreeNode(this.selectedPath)!.basename
 		);
+	}
+
+	/**
+	 * Adds {@link callback} to sequentialized queue and returns Promise that
+	 * resolves once {@link callback} is done.
+	 */
+	private chainToPromise(callback: () => Promise<void>): Promise<void> {
+		return (this.refreshDoneProm = this.refreshDoneProm
+			.then(callback)
+			.catch((e) => {
+				const msg = e instanceof Error ? e.message : "" + e;
+				errorMsgBox(`Error in file tree: ${msg}`);
+			}));
 	}
 }
