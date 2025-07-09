@@ -922,6 +922,9 @@ function createFileDlgProjectView(ctx: FileViewContext): FileDlgView {
 			await deleteProject(proj);
 			ret.removeItemFromList(proj);
 			ret.updateStatusText();
+			if (ide.filetree.projectName === proj) {
+				ide.filetree.changeRootDir(null);
+			}
 			return false;
 		};
 		let msgBoxOpen = true;

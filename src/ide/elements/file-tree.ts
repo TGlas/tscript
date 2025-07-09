@@ -715,4 +715,8 @@ print("Hello sfile");`
 				errorMsgBox(`Error in file tree: ${msg}`);
 			}));
 	}
+
+	get projectName(): string | null {
+		return this.openedProject;
+	}
 }
