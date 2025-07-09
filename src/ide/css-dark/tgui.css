@@ -32,19 +32,24 @@
 	border-color: #444;
 }
 
-.dark-theme .tgui-button-text:hover {
+.dark-theme .tgui-button-text:hover:not(:disabled) {
 	background: #444;
 	border-color: #666;
 }
 
-.dark-theme .tgui-button-text:focus {
+.dark-theme .tgui-button-text:focus:not(:disabled) {
 	border-color: #fff;
 }
 
-.dark-theme .tgui-button-text:active {
+.dark-theme .tgui-button-text:active:not(:disabled) {
 	background: #222;
 	border-color: #000;
 	box-shadow: inset 0px 0px 2px #000;
+}
+
+.dark-theme .tgui-button-text:disabled {
+	color: #bbb;
+	background: #202020;
 }
 
 .dark-theme .tgui-button-icon {
@@ -52,19 +57,23 @@
 	border-color: #444;
 }
 
-.dark-theme .tgui-button-icon:hover {
+.dark-theme .tgui-button-icon:hover:not(:disabled) {
 	background: #444;
 	border-color: #666;
 }
 
-.dark-theme .tgui-button-icon:focus {
+.dark-theme .tgui-button-icon:focus:not(:disabled) {
 	border-color: #fff;
 }
 
-.dark-theme .tgui-button-icon:active {
+.dark-theme .tgui-button-icon:active:not(:disabled) {
 	background: #222;
 	border-color: #000;
 	box-shadow: inset 0px 0px 2px #000;
+}
+
+.dark-theme .tgui-button-icon:disabled {
+	background: #202020;
 }
 
 .dark-theme .tgui-list-box {

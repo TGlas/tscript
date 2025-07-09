@@ -227,6 +227,7 @@ export class FileTree {
 	 * overwrite this with the resulting promise
 	 */
 	private refreshDoneProm: Promise<void> = Promise.resolve();
+	private buttons: HTMLButtonElement[];
 
 	constructor() {
 		this.panel = tgui.createPanel({
@@ -251,26 +252,33 @@ export class FileTree {
 			classname: "file-tree",
 			parent: this.panel.content,
 		});
-		tgui.createButton({
+		const btnNew = tgui.createButton({
 			click: this.handleCreate.bind(this),
 			parent: topBar,
 			text: "New",
 		});
-		tgui.createButton({
+		const btnRename = tgui.createButton({
 			click: this.handleRename.bind(this),
 			parent: topBar,
 			text: "Rename",
 		});
-		tgui.createButton({
+		const btnDelete = tgui.createButton({
 			click: this.handleDelete.bind(this),
 			parent: topBar,
 			text: "Delete",
 		});
-		tgui.createButton({
+		const btnNewDir = tgui.createButton({
 			click: this.handleCreateDir.bind(this),
 			parent: topBar,
 			text: "New Dir",
 		});
+		this.buttons = [
+			btnNew.dom,
+			btnRename.dom,
+			btnDelete.dom,
+			btnNewDir.dom,
+		];
+		this.setButtonsDisabled(true);
 
 		const treeContainer = tgui.createElement({
 			type: "div",
@@ -353,6 +361,7 @@ export class FileTree {
 		 * Performs update and returns promise that resolves when it's done
 		 */
 		const performUpdate = (): Promise<void> => {
+			this.setButtonsDisabled(true);
 			this.path2NodeInfo = {};
 			this.path2FileTreeNode = {};
 			return new Promise((res) => {
@@ -366,6 +375,9 @@ export class FileTree {
 						// add the css class
 						this.selectPath(this.selectedPath);
 					}
+					if (this.projectName !== null) {
+						this.setButtonsDisabled(false);
+					}
 					res(undefined);
 				});
 			});
@@ -375,6 +387,12 @@ export class FileTree {
 			return performUpdate();
 		} else {
 			return this.chainToPromise(performUpdate);
+		}
+	}
+
+	private setButtonsDisabled(disabled: boolean) {
+		for (const btn of this.buttons) {
+			btn.disabled = disabled;
 		}
 	}
 
