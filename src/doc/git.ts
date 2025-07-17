@@ -41,7 +41,7 @@ export const doc_git: Documentation = {
             A project in Git is called a repository (or repo for short). Changes that were made locally can be pushed ('uploaded')
             to or pulled ('donwloaded') from the remote repository.
             This requires that a copy from the remote repository already exists locally.
-            If the project is not yet saved locally, the remote repository can be cloned ('copied') to the local file system. [TBD]
+            If the project is not yet saved locally, the remote repository can be cloned ('copied') to the local file system.
             </p>
             `,
 			children: [],
