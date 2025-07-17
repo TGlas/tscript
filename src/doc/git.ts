@@ -80,6 +80,7 @@ export const doc_git: Documentation = {
             <h3>Pushing</h3>
             <p>
             Changes that were made in TScript can be pushed to the remote repository using the push button.
+            Just make sure to save the edited file(s) using the control-s shortcut or the save button before pushing.
             </p>
             <div class="warning">
                 Remote changes are discarded when pushing local changes, so make sure to pull from
