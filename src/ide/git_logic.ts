@@ -2,6 +2,7 @@ import {
 	app_id_gitlab,
 	client_id_github,
 	proxy_server_url,
+	server_url,
 } from "../github_creds";
 import { decodeJWT, getRawToken } from "./git_token";
 import * as git from "isomorphic-git";
@@ -27,6 +28,20 @@ export async function startGitLoginFlow(type: "hub" | "lab") {
 	}
 }
 
+export async function setGitConfig() {
+	const dir = getProjectPath(getCurrentProject() || "/");
+	try {
+		if (await getCurrentProjectGitInfo()) {
+			await git.setConfig({
+				fs: projectsFS,
+				dir,
+				path: "user.name",
+				value: "TScript",
+			});
+		}
+	} catch (_) {}
+}
+
 /**
  * Function to implement git clone
  * @param url url to the remote git repo
@@ -43,8 +58,9 @@ export async function gitClone(url: string): Promise<boolean> {
 			dir: dir,
 			url: url,
 			depth: 1,
-			corsProxy: "https://cors.isomorphic-git.org",
+			corsProxy: proxy_server_url,
 			remote: "origin",
+			singleBranch: true,
 			onAuth: () => ({
 				username:
 					tokenData.type === "hub" ? tokenData.info.access_token : "",
@@ -75,6 +91,16 @@ export async function gitClone(url: string): Promise<boolean> {
 export async function gitPull(): Promise<boolean> {
 	const projName = getCurrentProject() || "/";
 	const dir = getProjectPath(projName);
+
+	try {
+		await git.stash({
+			fs: projectsFS,
+			dir: dir,
+		});
+	} catch (_) {
+		// No local changes to stash.
+	}
+
 	try {
 		const tokenData = decodeJWT(getRawToken()).data;
 		await git.pull({
@@ -99,6 +125,13 @@ export async function gitPull(): Promise<boolean> {
 			},
 			fastForward: true,
 		});
+	} catch (err) {
+		addMessage("error", "Could not pull from remote repository.");
+		console.log(err);
+		return false;
+	}
+
+	try {
 		await git.checkout({
 			fs: projectsFS,
 			dir,
@@ -107,9 +140,7 @@ export async function gitPull(): Promise<boolean> {
 		filetree.refresh();
 		await reloadProjectEditorTabsRecursively(projName, "/");
 		return true;
-	} catch (err) {
-		addMessage("error", "Could not pull from remote repository.");
-		console.log(err);
+	} catch (_) {
 		return false;
 	}
 }
@@ -118,17 +149,22 @@ export async function gitPull(): Promise<boolean> {
  * Function to implement git push
  * @returns promisified boolean to indicate whether push was successful
  */
-export async function gitPush(): Promise<boolean> {
+export async function gitPush(commitMsg: string): Promise<boolean> {
 	const dir = getProjectPath(getCurrentProject() || "/");
+
 	try {
 		const tokenData = decodeJWT(getRawToken()).data;
+		let statusMatrix: Promise<git.StatusRow[]> = git.statusMatrix({
+			fs: projectsFS,
+			dir,
+		});
 
-		await git
-			.statusMatrix({
-				fs: projectsFS,
-				dir,
-			})
-			.then((status) => {
+		const repoDirty = (await statusMatrix).some((row) => {
+			return row[1] !== row[2] || row[2] !== row[3];
+		});
+
+		if (repoDirty) {
+			statusMatrix.then((status) => {
 				Promise.all(
 					status.map(([filepath, _, worktreeStatus]) => {
 						worktreeStatus
@@ -138,38 +174,45 @@ export async function gitPush(): Promise<boolean> {
 				);
 			});
 
-		let sha = await git.commit({
-			fs: projectsFS,
-			dir,
-			author: {
-				name: "TScript",
-			},
-			message: "commit from tscript",
-		});
-		console.log(sha);
+			let sha = await git.commit({
+				fs: projectsFS,
+				dir,
+				author: {
+					name: "TScript",
+				},
+				message: commitMsg,
+			});
 
-		let pushResult: git.PushResult = await git.push({
-			fs: projectsFS,
-			http,
-			dir,
-			onAuth: () => ({
-				username:
-					tokenData.type === "hub" ? tokenData.info.access_token : "",
-				password:
-					tokenData.type === "lab" ? tokenData.info.access_token : "",
-			}),
-			onAuthFailure: () => {
-				addMessage(
-					"error",
-					"Not authorized to push, make sure that you have full write access to this repository."
-				);
-			},
-			force: true,
-		});
-		if (pushResult.ok) {
-			return true;
+			let pushResult: git.PushResult = await git.push({
+				fs: projectsFS,
+				http,
+				dir,
+				onAuth: () => ({
+					username:
+						tokenData.type === "hub"
+							? tokenData.info.access_token
+							: "",
+					password:
+						tokenData.type === "lab"
+							? tokenData.info.access_token
+							: "",
+				}),
+				onAuthFailure: () => {
+					addMessage(
+						"error",
+						"Not authorized to push, make sure that you have full write access to this repository."
+					);
+				},
+				force: true,
+			});
+			if (pushResult.ok) {
+				return true;
+			} else {
+				return false;
+			}
 		} else {
-			return false;
+			addMessage("print", "No changes to push.");
+			return true;
 		}
 	} catch (err) {
 		console.log(err);
@@ -191,16 +234,16 @@ export interface Repo {
 export async function getCurrentProjectGitInfo(): Promise<Repo | undefined> {
 	const currentProject = getCurrentProject();
 	if (currentProject) {
-		let value = await git.getConfig({
+		let url = await git.getConfig({
 			fs: projectsFS,
 			dir: getProjectPath(currentProject),
 			path: "remote.origin.url",
 		});
 		let repo: Repo | undefined = undefined;
-		if (value) {
+		if (url) {
 			repo = {
 				name: "",
-				url: value,
+				url,
 				private: null,
 			};
 		}
@@ -223,14 +266,14 @@ export async function getGitRepos(): Promise<Repo[]> {
 
 			if (token.data.type == "lab") {
 				result = await fetch(
-					`${proxy_server_url}/repos?token=${token.data.info.access_token}&type=lab`,
+					`${server_url}/repos?token=${token.data.info.access_token}&type=lab`,
 					{
 						method: "get",
 					}
 				);
 			} else if (token.data.type == "hub") {
 				result = await fetch(
-					`${proxy_server_url}/repos?token=${token.data.info.access_token}&type=hub`,
+					`${server_url}/repos?token=${token.data.info.access_token}&type=hub`,
 					{
 						method: "get",
 					}
@@ -245,9 +288,11 @@ export async function getGitRepos(): Promise<Repo[]> {
 				return [];
 			}
 		} else {
+			addMessage("error", "Not authorized to get repository list.");
 			return [];
 		}
-	} catch (err) {
+	} catch (_) {
+		addMessage("error", "Failed to get the user's repositories.");
 		return [];
 	}
 }
@@ -264,14 +309,14 @@ export async function gitLogout(): Promise<boolean> {
 			let result;
 			if (decoded.data.type == "lab") {
 				result = await fetch(
-					`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${app_id_gitlab}&type=lab`,
+					`${server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${app_id_gitlab}&type=lab`,
 					{
 						method: "delete",
 					}
 				);
 			} else if (decoded.data.type == "hub") {
 				result = await fetch(
-					`${proxy_server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${client_id_github}&type=hub`,
+					`${server_url}/auth-token?token=${decoded.data.info.access_token}&client_id=${client_id_github}&type=hub`,
 					{
 						method: "delete",
 					}
@@ -286,7 +331,7 @@ export async function gitLogout(): Promise<boolean> {
 				return false;
 			}
 		}
-	} catch (err) {
+	} catch (_) {
 		return false;
 	}
 	return false;

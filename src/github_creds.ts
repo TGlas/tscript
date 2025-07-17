@@ -1,5 +1,6 @@
 // url of git proxy server
-export const proxy_server_url = "http://localhost:7000";
+export const server_url = "http://localhost:7000";
+export const proxy_server_url = "http://localhost:7001";
 
 // GitHub specific
 export const client_id_github = "Ov23li79J7jZEgnG3sdL";
