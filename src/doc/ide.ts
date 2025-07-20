@@ -45,7 +45,7 @@ export const doc_ide: Documentation = {
 		document, open a document from a file, save to file, and save
 		under a different name. The rightmost button is used to integrate 
 		<a href="?doc=/git">Git</a>, which is an advanced feature 
-		that is not necessary to reach 100% in the course.
+		for the curious or experienced.
 		<div class="warning">
 			Local storage is not a safe place to store data! It can be
 			cleared at any time by the browser, and it is actively
@@ -91,7 +91,8 @@ export const doc_ide: Documentation = {
 		previous non-icon state of a panel. The icon with the folder corresponds 
 		to a seperate file system that implements a file tree. It is used for 
 		the <a href="?doc=/git">Git</a> integration and is only necessary for 
-		that. Be careful, where you store your files!
+		that. Be careful, where you store your files! To create a new project 
+		go to 'Open document' => 'Show projects'.
 		</p>
 		<p>
 		Finally, the button on the far right opens the documentation (i.e.,
