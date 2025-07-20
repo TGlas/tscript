@@ -45,7 +45,7 @@ export const doc_ide: Documentation = {
 		document, open a document from a file, save to file, and save
 		under a different name. The rightmost button is used to integrate 
 		<a href="?doc=/git">Git</a>, which is an advanced feature 
-		that is not necessary to reach 100% in the course.
+		for the curious or experienced.
 		<div class="warning">
 			Local storage is not a safe place to store data! It can be
 			cleared at any time by the browser, and it is actively
