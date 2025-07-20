@@ -91,7 +91,8 @@ export const doc_ide: Documentation = {
 		previous non-icon state of a panel. The icon with the folder corresponds 
 		to a seperate file system that implements a file tree. It is used for 
 		the <a href="?doc=/git">Git</a> integration and is only necessary for 
-		that. Be careful, where you store your files!
+		that. Be careful, where you store your files! To create a new project 
+		go to 'Open document' => 'Show projects'.
 		</p>
 		<p>
 		Finally, the button on the far right opens the documentation (i.e.,
