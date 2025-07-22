@@ -6,7 +6,7 @@ import {
 	fileIDToHumanFriendly,
 	isLoadableFileID,
 	LoadableFileID,
-	projectFileIDTripleSplit,
+	projectFileIDSplit,
 	splitFileIDAtColon,
 } from "../../lang/parser/file_id";
 import { getProjectPath, readFileContent } from "../projects-fs";
@@ -142,8 +142,7 @@ export class EditorCollection {
 				controller = this.openEditorFromData(filename, text);
 			}
 		} else {
-			const [_, projName, projAbsPath] =
-				projectFileIDTripleSplit(filename);
+			const [projName, projAbsPath] = projectFileIDSplit(filename);
 			const projPath = getProjectPath(projName);
 			const absPath = Path.join(projPath, projAbsPath);
 			const text = await readFileContent(absPath);

@@ -69,7 +69,7 @@ export function fileIDToHumanFriendly(fileID: FileID): string {
 		case "localstorage":
 			return suffix;
 		case "project":
-			const [_, projName, path] = projectFileIDTripleSplit(
+			const [projName, path] = projectFileIDSplit(
 				fileID as ProjectFileID
 			);
 			return `${path} (${projName})`;
@@ -92,7 +92,7 @@ export function splitFileIDAtColon(fileID: FileID): [FileIDNamespace, string] {
 }
 
 export function projectFileIDToProjAbsPath(fileID: ProjectFileID): string {
-	return projectFileIDTripleSplit(fileID)[2];
+	return projectFileIDSplit(fileID)[1];
 }
 
 export function localStorageFileIDToFilename(
@@ -102,15 +102,13 @@ export function localStorageFileIDToFilename(
 }
 
 /**
- * @returns [namespace, projectName, projAbsPath]
+ * @returns [projectName, projAbsPath]
  */
-export function projectFileIDTripleSplit(
-	fileID: ProjectFileID
-): [FileIDNamespace, string, string] {
-	const [ns, suffix] = splitFileIDAtColon(fileID);
+export function projectFileIDSplit(fileID: ProjectFileID): [string, string] {
+	const [_, suffix] = splitFileIDAtColon(fileID);
 	const projectName = suffix.split("/", 1)[0];
 	const projAbsPath = suffix.slice(projectName.length);
-	return [ns, projectName, projAbsPath];
+	return [projectName, projAbsPath];
 }
 
 export function fileIDChangeNamespace<FileIDNamespaceT extends FileIDNamespace>(

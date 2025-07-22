@@ -12,7 +12,7 @@ import {
 	splitFileIDAtColon,
 	fileIDHasNamespace,
 	localStorageFileIDToFilename,
-	projectFileIDTripleSplit,
+	projectFileIDSplit,
 	localstorageFileID,
 	projectFileID,
 	stringFileID,
@@ -398,7 +398,7 @@ export async function createParseInput(): Promise<
 > {
 	const selection = getRunSelection();
 	if (fileIDHasNamespace(selection, "project")) {
-		const [_, projName, projAbsPath] = projectFileIDTripleSplit(selection);
+		const [projName, projAbsPath] = projectFileIDSplit(selection);
 		return createParseInputProject(projName, projAbsPath);
 	} else if (fileIDHasNamespace(selection, "localstorage")) {
 		return createParseInputLocalStorage(

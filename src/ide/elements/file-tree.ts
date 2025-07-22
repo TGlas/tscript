@@ -26,7 +26,7 @@ import {
 	projectFileID,
 	ProjectFileID,
 	projectFileIDToProjAbsPath,
-	projectFileIDTripleSplit,
+	projectFileIDSplit,
 	splitFileIDAtColon,
 } from "../../lang/parser/file_id";
 import { Editor } from "../editor";
@@ -81,7 +81,7 @@ export async function saveFileTreeFile(
 	fileID: ProjectFileID,
 	editorContent: string
 ) {
-	const [_, projName, projAbsPath] = projectFileIDTripleSplit(fileID);
+	const [projName, projAbsPath] = projectFileIDSplit(fileID);
 	const fileTreePath = Path.join(getProjectPath(projName), projAbsPath);
 	if (!(await pathExists(fileTreePath))) {
 		let modal = tgui.createModal({
@@ -142,7 +142,7 @@ function renameFilePathsInEditors(
 		if (!fileIDHasNamespace(edFileID, "project")) {
 			continue;
 		}
-		const [_, edProjName, curPath] = projectFileIDTripleSplit(edFileID);
+		const [edProjName, curPath] = projectFileIDSplit(edFileID);
 		if (edProjName !== projectName) {
 			continue;
 		}

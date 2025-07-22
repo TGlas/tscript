@@ -3,7 +3,8 @@ import {
 	fileIDToHumanFriendly,
 	ProjectFileID,
 	projectFileID,
-	projectFileIDTripleSplit,
+	projectFileIDToProjAbsPath,
+	projectFileIDSplit,
 } from "../../lang/parser/file_id";
 import { collection } from "../elements";
 import { EditorController } from "../elements/editor-controller";
@@ -1725,7 +1726,7 @@ export async function reloadProjectEditorTabsRecursively(
 		projectName,
 		projAbsPath
 	)) {
-		const fileProjAbsPath = projectFileIDTripleSplit(fileID)[2];
+		const fileProjAbsPath = projectFileIDToProjAbsPath(fileID);
 		const fileAbsPath = Path.join(
 			getProjectPath(projectName),
 			fileProjAbsPath
