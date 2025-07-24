@@ -680,7 +680,7 @@ class FileDlgView {
 			});
 			let name = { value: dsc.initItem };
 			if (dsc.includeInputField) {
-				name = tgui.createElement({
+				const inputName = tgui.createElement({
 					parent: container,
 					type: "input",
 					style: {
@@ -695,6 +695,8 @@ class FileDlgView {
 						value: dsc.initItem,
 					},
 				});
+				inputName.select();
+				name = inputName;
 			}
 
 			// populate options
@@ -893,7 +895,7 @@ function createFileDlgProjectView(ctx: FileViewContext): FileDlgView {
 	const projs = listProjects().then((projs) => projs.sort());
 	const ret = new FileDlgView(
 		{
-			initItem: getCurrentProject() ?? "",
+			initItem: "New project name",
 			includeInputField: true,
 			initItemListP: projs,
 			onClickDelete: handleDelete,
