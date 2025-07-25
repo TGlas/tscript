@@ -593,7 +593,37 @@ const icons = (function () {
 
 		draw.setStyle("stroke: #fff; fill: none");
 		draw.polyline([5, 6], [7, 8], [5, 10]);
-	}); //*/
+	});
+
+	icons.fileTree = svgIcon(20, 20, (draw: SVGDrawingContext) => {
+		draw.setStyle("fill: #ec5; stroke: #330");
+		// Folder
+		draw.polygon(
+			[6.0, 1.375],
+			[9.75, 1.375],
+			[11.25, 2.875],
+			[15.75, 2.875],
+			[15.75, 9.625],
+			[6.0, 9.625]
+		);
+		// Lines
+		draw.setStyle("stroke-width: 1.5; fill: #fff; stroke: #000");
+		draw.polyline([4.5, 12.625], [4.5, 15.625]);
+		draw.polyline([10, 9.625], [10, 15.625]);
+		draw.polyline([15.5, 12.625], [15.5, 15.625]);
+		draw.polyline([4.5, 12.625], [15.5, 12.625]);
+		// 'Files' (reactangles)
+		draw.setStyle("stroke-width: 0.5; fill: #fff; stroke: #000");
+		draw.polygon([3.25, 15.625], [5.75, 15.625], [5.75, 19], [3.25, 19]);
+		draw.polygon([8.75, 15.625], [11.25, 15.625], [11.25, 19], [8.75, 19]);
+		draw.polygon(
+			[14.25, 15.625],
+			[16.75, 15.625],
+			[16.75, 19],
+			[14.25, 19]
+		);
+	});
+	//*/
 
 	return icons;
 })();

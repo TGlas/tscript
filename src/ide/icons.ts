@@ -86,6 +86,12 @@ export const icons: { [id: string]: SVGIcon } = {
 		innerSVG:
 			'<polygon points="3.5,3.5 16.5,3.5 16.5,16.5 5.5,16.5 3.5,14.5" style="stroke: #139; fill: #36d"/><rect x="7" y="11" width="6" height="5" style="stroke: none; fill: #eef"/><rect x="8" y="12" width="2" height="3" style="stroke: none; fill: #36d"/><rect x="6" y="4" width="8" height="5" style="stroke: none; fill: #fff"/>',
 	},
+	git: {
+		width: 20,
+		height: 20,
+		innerSVG:
+			'<defs><clipPath id="a"><path d="M0 0.024h19.976V20H0Zm0 0"/></clipPath></defs><g clip-path="url(#a)"><path style="stroke:none;fill-rule:nonzero;fill:#f03c2e;fill-opacity:1" d="M19.599 9.123 10.878 0.402a1.289 1.289 0 0 0 -1.82 0l-1.81 1.811L9.544 4.51a1.533 1.533 0 0 1 1.572 0.366 1.533 1.533 0 0 1 0.363 1.582l2.214 2.214a1.533 1.533 0 0 1 1.582 0.363 1.53 1.53 0 0 1 0 2.164 1.533 1.533 0 0 1 -2.167 0 1.533 1.533 0 0 1 -0.332 -1.666L10.712 7.47v5.434a1.53 1.53 0 0 1 0.404 2.454 1.53 1.53 0 0 1 -2.164 0 1.53 1.53 0 0 1 0 -2.164 1.556 1.556 0 0 1 0.501 -0.334V7.376a1.533 1.533 0 0 1 -0.83 -2.008L6.359 3.102 0.376 9.082a1.289 1.289 0 0 0 0 1.82l8.722 8.722a1.289 1.289 0 0 0 1.82 0l8.681 -8.681a1.289 1.289 0 0 0 0 -1.82"/></g>',
+	},
 	saveDocumentAs: {
 		width: 20,
 		height: 20,
@@ -209,5 +215,11 @@ export const icons: { [id: string]: SVGIcon } = {
 		height: 20,
 		innerSVG:
 			'<path d="M 5 20 L 9 2 L 11 2 L 15 20" style="stroke-width: 3; stroke: #666; fill: none"/><polyline points="5,20 9,2 11,2 15,20" style="stroke-width: 2; stroke: #db7; fill: none"/><rect x="1.5" y="2.5" width="17" height="12" style="stroke: none; fill: #666"/><rect x="2" y="3" width="16" height="11" style="stroke: none; fill: #db7"/><rect x="3" y="4" width="14" height="9" style="stroke: none; fill: #000"/><polyline points="5,6 7,8 5,10" style="stroke: #fff; fill: none"/>',
+	},
+	fileTree: {
+		width: 20,
+		height: 20,
+		innerSVG:
+			'<polygon points="6,1.375 9.75,1.375 11.25,2.875 15.75,2.875 15.75,9.625 6,9.625" style="fill: #ec5; stroke: #330"/><polyline points="4.5,12.625 4.5,15.625" style="stroke-width: 1.5; fill: #fff; stroke: #000"/><polyline points="10,9.625 10,15.625" style="stroke-width: 1.5; fill: #fff; stroke: #000"/><polyline points="15.5,12.625 15.5,15.625" style="stroke-width: 1.5; fill: #fff; stroke: #000"/><polyline points="4.5,12.625 15.5,12.625" style="stroke-width: 1.5; fill: #fff; stroke: #000"/><polygon points="3.25,15.625 5.75,15.625 5.75,19 3.25,19" style="stroke-width: 0.5; fill: #fff; stroke: #000"/><polygon points="8.75,15.625 11.25,15.625 11.25,19 8.75,19" style="stroke-width: 0.5; fill: #fff; stroke: #000"/><polygon points="14.25,15.625 16.75,15.625 16.75,19 14.25,19" style="stroke-width: 0.5; fill: #fff; stroke: #000"/>',
 	},
 };

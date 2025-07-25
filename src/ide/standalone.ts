@@ -1,13 +1,6 @@
 import { ParseInput, parseProgram } from "../lang/parser";
-import {
-	FileID,
-	StringFileID,
-	fileIDToContextDependentFilename,
-	splitFileIDAtColon,
-	fileIDToHumanFriendly,
-	stringFileID,
-} from "../lang/parser/file_id";
 import { IncludeResolutionList } from "./elements";
+import { StringFileID, fileIDToHumanFriendly } from "../lang/parser/file_id";
 import {
 	createCanvas,
 	createIDEInterpreter,
@@ -73,10 +66,16 @@ export async function showStandalonePage(
 		}
 	}
 	const mainFile = StandaloneParseInput.getParseInput(data.code.main);
-	if (!mainFile) return; // This has been validated on export
+	if (!mainFile) {
+		console.error("Could not get parse input of main file");
+		return; // This has been validated on export
+	}
 
-	const { program } = await parseProgram(mainFile);
-	if (program == null) return; // This has been validated on export
+	const { program, errors } = await parseProgram(mainFile);
+	if (program == null) {
+		console.error("Could not parse program", errors);
+		return; // This has been validated on export
+	}
 
 	const interpreter = createIDEInterpreter(program);
 

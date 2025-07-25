@@ -21,8 +21,11 @@ import "./css-dark/icons.css";
 import "./css-dark/ide.css";
 import "./css-dark/tgui.css";
 import "./css-dark/tutorial.css";
+import { app_id_gitlab, client_id_github, server_url } from "../github_creds";
+import { validJWT } from "./git_token";
+import { getGitRepos } from "./git_logic";
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
 	const container = document.getElementById("ide-container")!;
 	container.replaceChildren(); // empties the container
 
@@ -42,7 +45,48 @@ window.addEventListener("load", () => {
 		currentUrl = redirectUrl;
 	}
 
-	initializeNavigation(currentUrl, container, (url) => {
+	const gitCode = currentUrl.searchParams.get("code");
+	const git_auth_type = sessionStorage.getItem("git_auth_type");
+	if (gitCode && git_auth_type) {
+		let res;
+		if (git_auth_type == "hub") {
+			replaceUrl(currentUrl.origin);
+			try {
+				res = await fetch(
+					`${server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`,
+					{
+						method: "get",
+					}
+				);
+			} catch (err) {
+				alert("Error trying to login with GitHub.");
+			}
+		} else if (git_auth_type == "lab") {
+			replaceUrl(currentUrl.origin);
+			try {
+				res = await fetch(
+					`${server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`,
+					{
+						method: "get",
+					}
+				);
+			} catch (err) {
+				alert("Error trying to login with GitLab.");
+			}
+		}
+
+		if (res) {
+			res.text().then((token) => {
+				if (validJWT(token)) {
+					localStorage.setItem("git_token", token);
+					getGitRepos();
+				}
+			});
+			sessionStorage.removeItem("git_auth_type");
+		}
+	}
+
+	await initializeNavigation(currentUrl, container, (url) => {
 		if (url.searchParams.has("doc")) return DocumentationPageController;
 		return IDEPageController;
 	});

@@ -53,9 +53,9 @@ export function stackinfo(value, node_id) {
 					classname: "ide-index",
 				});
 
-				ret.element.addEventListener("click", (event) => {
+				ret.element.addEventListener("click", async (event) => {
 					event.preventDefault();
-					collection.openEditorFromFile(where.filename, {
+					await collection.openEditorFromFile(where.filename, {
 						line: where.line - 1,
 						character: where.ch,
 					});

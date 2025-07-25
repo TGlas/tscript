@@ -337,7 +337,24 @@ export interface TreeDescription<NodeDataT> {
 	/** function describing the tree content */
 	info?: TreeInfoCb<NodeDataT>;
 	/** event handler, taking an "event" argument */
-	nodeclick?: (event: MouseEvent, value: NodeDataT, id: string) => any;
+	nodeclick?: (
+		event: MouseEvent,
+		value: NodeDataT,
+		id: string
+	) => void | Promise<void>;
+	/** event handlers for events on nodes */
+	nodeEventHandlers?: {
+		[key in keyof HTMLElementEventMap]?: (
+			event: HTMLElementEventMap[key],
+			value: NodeDataT,
+			id: string
+		) => void | Promise<void>;
+	};
+	/**
+	 * Css style for .cursor. Assumed to be "pointer" if nodeclick is defined,
+	 * unless cursorStyle is set to something different.
+	 */
+	cursorStyle?: string;
 }
 
 interface TreeControlState<NodeDataT> {
@@ -368,6 +385,14 @@ interface TreeControlState<NodeDataT> {
 	id: string;
 }
 
+export type NodeEventHandler<
+	NodeDataT,
+	E extends keyof HTMLElementEventMap
+> = Exclude<
+	Exclude<TreeDescription<NodeDataT>["nodeEventHandlers"], undefined>[E],
+	undefined
+>;
+
 export class TreeControl<NodeDataT> {
 	readonly description: Readonly<Omit<TreeDescription<NodeDataT>, "info">>;
 	private readonly dom: HTMLElement;
@@ -384,7 +409,9 @@ export class TreeControl<NodeDataT> {
 	private visible: number | null;
 
 	#currentUpdate: Promise<void> | null = null;
-	#queuedUpdate: TreeInfoCb<NodeDataT> | null = null;
+	#queuedUpdate:
+		| [TreeInfoCb<NodeDataT>, (() => void | Promise<void>) | undefined]
+		| null = null;
 
 	constructor(description: Readonly<TreeDescription<NodeDataT>>) {
 		// control with styling
@@ -422,26 +449,39 @@ export class TreeControl<NodeDataT> {
 	 * Update the tree to represent new data, i.e., replace the stored
 	 * info function and apply the new function to obtain the tree. If no info
 	 * is provided, then it just (re-) renders.
+	 * @param onUpdateDone async callback that will be executed when the update
+	 * is done, and all updates are blocked until it settles
 	 */
-	update(info: TreeInfoCb<NodeDataT> | undefined = this.info): void {
+	update(
+		info: TreeInfoCb<NodeDataT> | undefined = this.info,
+		onUpdateDone?: () => Promise<void> | void
+	): void {
 		if (!info) return; // no update function
 
 		// there is an ongoing update, queue the next
 		if (this.#currentUpdate) {
-			this.#queuedUpdate = info;
+			this.#queuedUpdate = [info, onUpdateDone];
 			return;
 		}
 
-		this.#currentUpdate = this.#doUpdate(info).finally(() => {
-			this.#currentUpdate = null;
+		this.#currentUpdate = (async () => {
+			try {
+				await this.#doUpdate(info);
+			} finally {
+				try {
+					await onUpdateDone?.();
+				} finally {
+					this.#currentUpdate = null;
 
-			// start the next update if there is one queued
-			const queued = this.#queuedUpdate;
-			if (queued) {
-				this.#queuedUpdate = null;
-				this.update(queued);
+					// start the next update if there is one queued
+					const queued = this.#queuedUpdate;
+					if (queued) {
+						this.#queuedUpdate = null;
+						this.update(...queued);
+					}
+				}
 			}
-		});
+		})();
 	}
 
 	async #doUpdate(info: TreeInfoCb<NodeDataT>) {
@@ -637,14 +677,39 @@ export class TreeControl<NodeDataT> {
 				});
 			}
 
+			const eventHandlerWrapper = <T extends Event>(
+				innerHandler: (
+					event: T,
+					value: NodeDataT,
+					id: string
+				) => void | Promise<void>
+			) => {
+				return async (event: T) => {
+					let element = td2.children[0];
+					let state = this.element2state[element.id];
+					await innerHandler(event, state.value!, state.id);
+				};
+			};
 			// make the element clickable
 			if (this.description.nodeclick) {
 				td2.style.cursor = "pointer";
-				td2.addEventListener("click", (event: MouseEvent) => {
-					let element = td2.children[0];
-					let state = this.element2state[element.id];
-					this.description.nodeclick!(event, state.value!, state.id);
-				});
+				td2.addEventListener(
+					"click",
+					eventHandlerWrapper(this.description.nodeclick!)
+				);
+			}
+			if (this.description.nodeEventHandlers) {
+				for (const eventName in this.description.nodeEventHandlers) {
+					td2.addEventListener(
+						eventName,
+						eventHandlerWrapper<any>(
+							this.description.nodeEventHandlers[eventName]
+						)
+					);
+				}
+			}
+			if (this.description.cursorStyle) {
+				td2.style.cursor = this.description.cursorStyle;
 			}
 		}
 

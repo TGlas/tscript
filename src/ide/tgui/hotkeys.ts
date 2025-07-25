@@ -87,7 +87,6 @@ document.addEventListener("keydown", function (event) {
 			hotkeys[key](event);
 			event.preventDefault();
 			event.stopPropagation();
-			return false;
 		}
 	}
 	return true;

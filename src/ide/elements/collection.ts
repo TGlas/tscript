@@ -1,11 +1,15 @@
+import Path from "@isomorphic-git/lightning-fs/src/path";
 import * as ide from ".";
 import {
 	FileID,
+	fileIDHasNamespace,
 	fileIDToHumanFriendly,
 	isLoadableFileID,
 	LoadableFileID,
+	projectFileIDSplit,
 	splitFileIDAtColon,
 } from "../../lang/parser/file_id";
+import { getProjectPath, readFileContent } from "../projects-fs";
 import { getResolvedTheme, subscribeOnThemeChange } from "../tgui";
 import { EditorController, NavigationRequest } from "./editor-controller";
 
@@ -71,13 +75,17 @@ export class EditorCollection {
 		};
 	}
 
-	restoreState(state: SavedEditorCollectionState) {
+	async restoreState(state: SavedEditorCollectionState) {
 		for (const controller of this.#editors) this.#removeEditor(controller);
 
 		let active: EditorController | null = null;
 		for (const filename of state.open) {
-			const controller = this.openEditorFromFile(filename);
-			if (filename === state.active) active = controller;
+			const controller = await this.openEditorFromFile(filename);
+			if (
+				controller instanceof EditorController &&
+				filename === state.active
+			)
+				active = controller;
 		}
 		if (active) this.#setActiveEditor(active);
 	}
@@ -117,21 +125,35 @@ export class EditorCollection {
 	 *
 	 * @param filename the file to open
 	 * @param navigateTo a position to navigate to
-	 * @returns the editor controller or `null` if the file doesn't exist
+	 * @returns the editor controller, `null` if the file doesn't exist, an
+	 * Error if there was some other error while opening the file
 	 */
-	openEditorFromFile(
+	async openEditorFromFile(
 		filename: LoadableFileID,
 		navigateTo?: NavigationRequest
-	): EditorController | null {
+	): Promise<EditorController | null | Error> {
 		let controller = this.getEditor(filename);
 		if (controller) {
 			this.#setActiveEditor(controller);
-		} else {
+		} else if (fileIDHasNamespace(filename, "localstorage")) {
 			const [_, suffix] = splitFileIDAtColon(filename);
 			const text = localStorage.getItem("tscript.code." + suffix);
 			if (text !== null) {
 				controller = this.openEditorFromData(filename, text);
 			}
+		} else {
+			const [projName, projAbsPath] = projectFileIDSplit(filename);
+			const projPath = getProjectPath(projName);
+			const absPath = Path.join(projPath, projAbsPath);
+			const text = await readFileContent(absPath);
+			if (text instanceof Error) {
+				if (["EISDIR", "ENONENT"].includes(text.code!)) {
+					return null;
+				} else {
+					return text;
+				}
+			}
+			controller = this.openEditorFromData(filename, text);
 		}
 
 		if (navigateTo) controller?.navigate(navigateTo);

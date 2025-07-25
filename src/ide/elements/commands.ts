@@ -1,24 +1,27 @@
 import * as ide from ".";
-import { ErrorHelper } from "../../lang/errors/ErrorHelper";
 import { parseProgram } from "../../lang/parser";
+import { type StandaloneCode } from "../standalone";
+import { ErrorHelper } from "../../lang/errors/ErrorHelper";
 import {
-	fileIDChangeNamespace,
 	fileIDToContextDependentFilename,
 	localstorageFileID,
 } from "../../lang/parser/file_id";
 import { icons } from "../icons";
-import { type StandaloneCode } from "../standalone";
 import * as tgui from "./../tgui";
-import { msgBox } from "./../tgui";
 import {
 	confirmFileOverwrite,
-	fileDlg,
+	loadFileProjDlg,
 	parseOptions,
+	saveAsDialog,
 	tabNameDlg,
+	gitDlg,
 } from "./dialogs";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { cleanupExternalFilename, importData, interpreterEnded } from "./utils";
 
+/**
+ * click may be async
+ */
 export let buttons: any = [
 	{
 		click: cmd_new,
@@ -46,6 +49,13 @@ export let buttons: any = [
 		icon: icons.saveDocumentAs,
 		tooltip: "Save document as ...",
 		hotkey: "shift-control-s",
+		group: "file",
+	},
+	{
+		click: cmd_git,
+		icon: icons.git,
+		tooltip: "GIT",
+		hotkey: "shift-control-g",
 		group: "file",
 	},
 	{
@@ -106,7 +116,7 @@ function cmd_reset() {
 /**
  * Gets the active interpreter session or creates a new one if no program is running
  */
-async function getOrRestartSession() {
+async function getOrRestartSession(): Promise<ide.InterpreterSession | null> {
 	let session = ide.interpreterSession;
 	if (session && !interpreterEnded(session.interpreter)) {
 		return session;
@@ -118,6 +128,10 @@ async function getOrRestartSession() {
 
 async function cmd_run() {
 	(await getOrRestartSession())?.interpreter.run();
+}
+
+function cmd_git() {
+	gitDlg();
 }
 
 function cmd_interrupt() {
@@ -143,7 +157,7 @@ export async function cmd_export() {
 	const [mainEntry, includeResolutions] = resolveEntryRes;
 
 	// check that the code at least compiles
-	let result = await parseProgram(mainEntry, parseOptions);
+	let result = await parseProgram<any>(mainEntry, parseOptions);
 
 	// everything after that should ideally be synchronous
 	ide.clear();
@@ -324,9 +338,7 @@ function cmd_new() {
 }
 
 function cmd_load() {
-	fileDlg("Load file", "", false, "Load", (name) => {
-		ide.collection.openEditorFromFile(localstorageFileID(name));
-	});
+	loadFileProjDlg();
 }
 
 function cmd_save() {
@@ -337,14 +349,10 @@ function cmd_save_as() {
 	const controller = ide.collection.activeEditor;
 	if (!controller) return;
 
-	fileDlg(
-		"Save file as ...",
-		controller.filename,
-		true,
-		"Save",
-		(filename) => {
-			controller.saveAs(localstorageFileID(filename));
-		}
+	const filename = fileIDToContextDependentFilename(controller.filename);
+	return saveAsDialog(
+		filename,
+		(filename) => void controller.saveAs(localstorageFileID(filename))
 	);
 }
 

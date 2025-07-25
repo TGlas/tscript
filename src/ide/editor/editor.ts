@@ -1,4 +1,20 @@
-import { getResolvedTheme, ThemeName } from "../tgui";
+import Path from "@isomorphic-git/lightning-fs/src/path";
+import {
+	fileIDToHumanFriendly,
+	ProjectFileID,
+	projectFileID,
+	projectFileIDToProjAbsPath,
+	projectFileIDSplit,
+} from "../../lang/parser/file_id";
+import { collection } from "../elements";
+import { EditorController } from "../elements/editor-controller";
+import {
+	getProjectPath,
+	readFileContent,
+	recurseDirectory,
+	simplifyPath,
+} from "../projects-fs";
+import { errorMsgBox, getResolvedTheme, ThemeName } from "../tgui";
 import {
 	CommentAction,
 	IndentAction,
@@ -187,6 +203,7 @@ export class Editor {
 		this.dom_content.style.height = "100%";
 		this.dom_content.style.width = "100%";
 		this.dom_content.style.flexGrow = "1";
+		this.dom_content.style.cursor = "text";
 		this.dom_container.appendChild(this.dom_content);
 
 		this.dom_display = document.createElement("canvas");
@@ -1658,4 +1675,80 @@ export class Editor {
 		"Enter",
 		"Escape",
 	]);
+}
+
+export function updateTabTitle(editor: EditorController, newTitle: string) {
+	if (!editor.tab) return;
+	const nameSpan = editor.tab.querySelector(".name");
+	if (nameSpan) {
+		nameSpan.textContent = newTitle;
+	}
+
+	if (editor.runOption) {
+		editor.runOption.textContent = newTitle;
+		editor.runOption.value = newTitle;
+	}
+}
+
+async function* recurseProjectEditors(
+	projectName: string,
+	projAbsPath: string
+): AsyncGenerator<[ProjectFileID, EditorController], void, void> {
+	const projPath = simplifyPath(getProjectPath(projectName));
+	const absPath = Path.join(projPath, projAbsPath);
+	for await (const entry of recurseDirectory(absPath)) {
+		const projAbsPathToClose = simplifyPath(entry.slice(projPath.length));
+		const fileID = projectFileID(projectName, projAbsPathToClose);
+		const editor = collection.getEditor(fileID);
+		if (editor !== null) {
+			yield [fileID, editor];
+		}
+	}
+}
+
+export async function closeProjectEditorTabsRecursively(
+	projectName: string,
+	projAbsPath: string
+): Promise<void> {
+	for await (const [_, ed] of recurseProjectEditors(
+		projectName,
+		projAbsPath
+	)) {
+		ed.close();
+	}
+}
+
+export async function reloadProjectEditorTabsRecursively(
+	projectName: string,
+	projAbsPath: string
+): Promise<void> {
+	for await (const [fileID, ed] of recurseProjectEditors(
+		projectName,
+		projAbsPath
+	)) {
+		const fileProjAbsPath = projectFileIDToProjAbsPath(fileID);
+		const fileAbsPath = Path.join(
+			getProjectPath(projectName),
+			fileProjAbsPath
+		);
+		const text = await readFileContent(fileAbsPath);
+		if (text instanceof Error) {
+			if (["EISDIR", "ENONENT"].includes(text.code!)) {
+				// file was deleted
+				continue;
+			} else {
+				errorMsgBox(
+					`Error while reloading editor tab for ${fileIDToHumanFriendly(
+						fileID
+					)}: ${text.message}`
+				);
+				continue;
+			}
+		}
+		if (ed.editorView.text() === text) {
+			continue;
+		}
+		ed.editorView.setText(text);
+		ed.editorView.setClean();
+	}
 }

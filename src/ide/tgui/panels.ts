@@ -65,7 +65,7 @@ interface PanelDescription {
 	fallbackState?: any;
 }
 
-interface Panel extends PanelDescription {
+export interface Panel extends PanelDescription {
 	/** a DOM element, that represents the content of the dialog */
 	content: HTMLElement;
 	/** a DOM element, that represents the whole dialog */

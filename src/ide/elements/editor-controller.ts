@@ -1,13 +1,14 @@
 import {
 	FileID,
-	fileIDHasNamespace,
 	fileIDToContextDependentFilename,
 	fileIDToHumanFriendly,
+	ProjectFileID,
 	splitFileIDAtColon,
 } from "../../lang/parser/file_id";
 import { Editor } from "../editor";
 import * as tgui from "../tgui";
 import { confirmFileDiscard } from "./dialogs";
+import { saveFileTreeFile } from "./file-tree";
 import * as ide from "./index";
 
 export interface NavigationRequest {
@@ -203,9 +204,19 @@ export class EditorController {
 
 	save() {
 		const [ns, suffix] = splitFileIDAtColon(this.filename);
-		if (ns !== "localstorage")
-			throw new Error("Saving only supported for files in localStorage");
-		localStorage.setItem("tscript.code." + suffix, this.editorView.text());
+		if (ns === "project") {
+			saveFileTreeFile(
+				this.filename as ProjectFileID,
+				this.editorView.text()
+			);
+		} else if (ns === "localstorage") {
+			localStorage.setItem(
+				"tscript.code." + suffix,
+				this.editorView.text()
+			);
+		} else {
+			tgui.errorMsgBox(`Can't save files with FileID namespace "${ns}"`);
+		}
 		this.editorView.setClean();
 	}
 }

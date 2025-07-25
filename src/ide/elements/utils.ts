@@ -1,7 +1,7 @@
 import * as ide from ".";
 import { Interpreter } from "../../lang/interpreter/interpreter";
 import { localstorageFileID } from "../../lang/parser/file_id";
-import { fileDlg } from "./dialogs";
+import { saveAsDialog } from "./dialogs";
 
 export const type2css = [
 	"ide-keyword",
@@ -48,7 +48,7 @@ export function importData(text: string, filename?: string) {
 		}
 	}
 
-	fileDlg("Save file as ...", filename ?? "", true, "Save", (filename) => {
+	return saveAsDialog(filename ?? null, (filename) => {
 		// the user has chosen, replace existing files
 		ide.collection.openEditorFromData(localstorageFileID(filename), text);
 	});

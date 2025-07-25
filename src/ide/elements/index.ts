@@ -4,14 +4,20 @@ import { ProgramRoot } from "../../lang/interpreter/program-elements";
 import { ParseInput, parseProgram } from "../../lang/parser";
 import {
 	FileID,
+	ProjectFileID,
+	projectFileIDToProjAbsPath,
 	LocalStorageFileID,
 	StringFileID,
 	fileIDChangeNamespace,
 	splitFileIDAtColon,
 	fileIDHasNamespace,
-	isLoadableFileID,
+	localStorageFileIDToFilename,
+	projectFileIDSplit,
 	localstorageFileID,
+	projectFileID,
 	stringFileID,
+	fileIDToContextDependentFilename,
+	isLoadableFileID,
 } from "../../lang/parser/file_id";
 import { toClipboard } from "../clipboard";
 import { icons } from "../icons";
@@ -24,10 +30,20 @@ import {
 	createIDEInterpreter,
 	createTurtle,
 } from "./create-interpreter";
+import { FileTree, fileTreePathToProjectNameFileName } from "./file-tree";
+import {
+	getProjectPath,
+	projectsFSP,
+	setCurrentProject,
+	simplifyPath,
+} from "../projects-fs";
+import Path from "@isomorphic-git/lightning-fs/src/path";
+
 import { configDlg, loadConfig, parseOptions, saveConfig } from "./dialogs";
 import { programinfo } from "./programinfo";
 import { showdoc, showdocConfirm } from "./show-docs";
 import { stackinfo } from "./stackinfo";
+import { EditorController } from "./editor-controller";
 
 ///////////////////////////////////////////////////////////
 // IDE for TScript development
@@ -57,6 +73,7 @@ let iconlist: any = null;
 let highlight: any = null;
 export let runselector: HTMLSelectElement;
 
+export let filetree!: FileTree;
 export let tab_config: { align: "horizontal" | "vertical" } = {
 	align: "horizontal",
 };
@@ -157,25 +174,145 @@ export type ParseInputIncludeSpecification = {
 	main: StringFileID;
 };
 
-/**
- * Create ParseInput from the current editors
- *
- * @returns null if the current run selection could not be resolved, otherwise
- * `[parseInput, spec]`. `parseInput` is the entry point of the program. `spec`
- * stores the content of the parsed
- * inputs, how they are included, and which one is the entry point. This is used
- * for serializing the program for creating the standalone page.
- *	- `spec.includeResolutions`: array of triples `[includingFile, includeOperand,
- *		resolvedFilename]`, meaning that that in `includingFile`, an include with
- *		operand `includeOperand` resolves to the file `resolvedFilename`.
- *	- `spec.includeSourceResolutions`: Map from resolved filenames (third entry in
- *		includeResolutions triples) to their sources
- *	- `spec.mainEntry`: main file/entry point
- *	`includeResolutions` and `includeSourceResolutions` will only be filled once
- *	`parseInput` is actually parsed. The FileIDs under `spec` have the "string"
- *	namespace, regardless of the actual namespace the original files came from.
- */
-export async function createParseInput(): Promise<
+async function createParseInputProject(
+	projectName: string,
+	entryFilename: string
+): Promise<[ParseInput<ProjectFileID>, ParseInputIncludeSpecification] | null> {
+	const includeResolutions: IncludeResolutionList = [];
+	const includeSourceResolutions: Map<StringFileID, string> = new Map();
+	const projectPath = getProjectPath(projectName);
+
+	class ProjectParseInput implements ParseInput<ProjectFileID> {
+		declare filename: ProjectFileID;
+		declare source: string;
+
+		constructor(filename: ProjectFileID, source: string) {
+			this.filename = filename;
+			this.source = source;
+		}
+
+		resolveIncludeToFileID(includeOperand: string) {
+			return ProjectParseInput.resolveIncludeToFileID(
+				this.filename,
+				includeOperand
+			);
+		}
+
+		resolveInclude(fileID: ProjectFileID) {
+			return ProjectParseInput.getParseInput(fileID);
+		}
+
+		static async getParseInput(
+			fileID: ProjectFileID
+		): Promise<ParseInput<ProjectFileID> | null> {
+			const projAbsPath = projectFileIDToProjAbsPath(fileID);
+			const editor = collection.getEditor(fileID);
+			if (editor) {
+				// file is opened
+				const source = editor.editorView.text();
+				includeSourceResolutions.set(
+					fileIDChangeNamespace(fileID, "string"),
+					source
+				);
+				return new ProjectParseInput(fileID, source);
+			}
+
+			let readRes: string | undefined; // undefined if dir
+			try {
+				readRes = (await projectsFSP.readFile(
+					Path.join(projectPath, projAbsPath),
+					{ encoding: "utf8" }
+				)) as string | undefined;
+			} catch (e: any) {
+				// EISDIR is not actually thrown, but it's undocumented
+				if (
+					e instanceof Error &&
+					"code" in e &&
+					(e.code === "ENOENT" || e.code === "EISDIR")
+				) {
+					return null;
+				} else {
+					throw e;
+				}
+			}
+			if (readRes === undefined) {
+				return null;
+			} else {
+				includeSourceResolutions.set(
+					fileIDChangeNamespace(fileID, "string"),
+					readRes
+				);
+				return new ProjectParseInput(fileID, readRes);
+			}
+		}
+
+		/**
+		 * @param includingFileID `null` to signal that this wasn't an actual include
+		 */
+		static resolveIncludeToFileID(
+			includingFileID: ProjectFileID | null,
+			includeOperand: string
+		): ProjectFileID | null {
+			const includingAbs =
+				includingFileID === null
+					? null
+					: projectFileIDToProjAbsPath(includingFileID);
+			const dirname =
+				includingAbs === null ? "/" : Path.dirname(includingAbs);
+
+			let resolved: string;
+			try {
+				// both functions can throw
+				resolved = Path.normalize(
+					Path.resolve(dirname, includeOperand)
+				);
+			} catch (e) {
+				return null;
+			}
+			// simplifyPath for removing trailing "/"
+			resolved = simplifyPath(resolved);
+			const fileIDSuffix = `${projectName}${resolved}`;
+			if (includingFileID !== null) {
+				const newEntry: IncludeResolutionList[0] = [
+					fileIDChangeNamespace(includingFileID, "string"),
+					includeOperand,
+					stringFileID(fileIDSuffix),
+				];
+				if (
+					!includeResolutions.some((e) =>
+						e.every((val, idx) => val === newEntry[idx])
+					)
+				) {
+					// newEntry is in fact new
+					includeResolutions.push(newEntry);
+				}
+			}
+			return projectFileID(projectName, resolved);
+		}
+	}
+
+	const entryStdFilename = ProjectParseInput.resolveIncludeToFileID(
+		null,
+		entryFilename
+	);
+	if (entryStdFilename === null) return null;
+	const mainParseInput = await ProjectParseInput.getParseInput(
+		entryStdFilename
+	);
+	if (mainParseInput === null) return null;
+	return [
+		mainParseInput,
+		{
+			includeResolutions,
+			includeSourceResolutions,
+			main: fileIDChangeNamespace(entryStdFilename, "string"),
+		},
+	];
+}
+
+async function createParseInputLocalStorage(
+	entryFilename: string
+): Promise<
 	[ParseInput<LocalStorageFileID>, ParseInputIncludeSpecification] | null
 > {
 	const includeSourceResolutions: Map<StringFileID, string> = new Map();
@@ -210,7 +347,7 @@ export async function createParseInput(): Promise<
 		): ParseInput<LocalStorageFileID> | null {
 			const filename = splitFileIDAtColon(fileID)[1];
 			const source =
-				collection.getEditor(fileID)?.editorView?.text() ??
+				collection.getEditor(fileID)?.editorView.text() ??
 				localStorage.getItem(`tscript.code.${filename}`);
 			if (source === null) return null;
 			includeSourceResolutions.set(
@@ -221,18 +358,55 @@ export async function createParseInput(): Promise<
 		}
 	}
 
-	const entryFilename = getRunSelection();
-	if (!fileIDHasNamespace(entryFilename, "localstorage")) return null;
-	const mainParseInput = LStorageParseInput.getParseInput(entryFilename);
+	const entryFileID = localstorageFileID(entryFilename);
+	const mainParseInput = LStorageParseInput.getParseInput(entryFileID);
 	if (mainParseInput === null) return null;
 	return [
 		mainParseInput,
 		{
 			includeSourceResolutions,
 			includeResolutions,
-			main: fileIDChangeNamespace(entryFilename, "string"),
+			main: fileIDChangeNamespace(entryFileID, "string"),
 		},
 	];
+}
+
+/**
+ * Create ParseInput from the current editors
+ *
+ * @returns null if the current run selection could not be resolved, otherwise
+ * `[parseInput, spec]`. `parseInput` is the entry point of the program. `spec`
+ * stores the content of the parsed
+ * inputs, how they are included, and which one is the entry point. This is used
+ * for serializing the program for creating the standalone page.
+ *	- `spec.includeResolutions`: array of triples `[includingFile, includeOperand,
+ *		resolvedFilename]`, meaning that that in `includingFile`, an include with
+ *		operand `includeOperand` resolves to the file `resolvedFilename`.
+ *	- `spec.includeSourceResolutions`: Map from resolved filenames (third entry in
+ *		includeResolutions triples) to their sources
+ *	- `spec.mainEntry`: main file/entry point
+ *	`includeResolutions` and `includeSourceResolutions` will only be filled once
+ *	`parseInput` is actually parsed. The FileIDs under `spec` have the "string"
+ *	namespace, regardless of the actual namespace the original files came from.
+ */
+export async function createParseInput(): Promise<
+	| [
+			ParseInput<ProjectFileID> | ParseInput<LocalStorageFileID>,
+			ParseInputIncludeSpecification
+	  ]
+	| null
+> {
+	const selection = getRunSelection();
+	if (fileIDHasNamespace(selection, "project")) {
+		const [projName, projAbsPath] = projectFileIDSplit(selection);
+		return createParseInputProject(projName, projAbsPath);
+	} else if (fileIDHasNamespace(selection, "localstorage")) {
+		return createParseInputLocalStorage(
+			localStorageFileIDToFilename(selection)
+		);
+	} else {
+		throw new Error("Not implemented");
+	}
 }
 
 let pendingInterpreterSession: Promise<InterpreterSession | null> | null = null;
@@ -258,7 +432,7 @@ export async function prepareRun(): Promise<InterpreterSession | null> {
 			return null;
 		}
 
-		const { program, errors } = await parseProgram(
+		const { program, errors } = await parseProgram<any>(
 			parseInput,
 			parseOptions
 		);
@@ -735,19 +909,26 @@ export function create(container: HTMLElement, options?: any) {
 		runselector,
 		scheduleEditorStateSave
 	);
-
-	collection.restoreState({
-		open: config?.open ?? [],
-		active: config?.active ?? null,
-	});
-	if (config && config.hasOwnProperty("main")) {
-		runselector.value = config.main;
-	}
-	if (!collection.activeEditor) {
-		const fileID = localstorageFileID("Main");
-		if (!collection.openEditorFromFile(fileID))
-			collection.openEditorFromData(fileID, "");
-	}
+	collection
+		.restoreState({
+			open: config?.open ?? [],
+			active: config?.active ?? null,
+		})
+		.then(async () => {
+			if (config && config.hasOwnProperty("main")) {
+				runselector.value = config.main;
+			}
+			if (!collection.activeEditor) {
+				const fileID = localstorageFileID("Main");
+				if (
+					!(
+						(await collection.openEditorFromFile(fileID)) instanceof
+						EditorController
+					)
+				)
+					collection.openEditorFromData(fileID, "");
+			}
+		});
 
 	let panel_messages = tgui.createPanel({
 		name: "messages",
@@ -791,9 +972,9 @@ export function create(container: HTMLElement, options?: any) {
 
 	programtree = new tgui.TreeControl<any>({
 		parent: panel_programview.content,
-		nodeclick: function (event, value, id) {
+		nodeclick: async function (event, value, id) {
 			if (value.where) {
-				collection.openEditorFromFile(value.where.filename, {
+				await collection.openEditorFromFile(value.where.filename, {
 					line: value.where.line - 1,
 					character: value.where.ch,
 				});
@@ -848,6 +1029,9 @@ export function create(container: HTMLElement, options?: any) {
 			addMessage("error", error);
 		}
 	);
+
+	setCurrentProject(config?.currentProject ?? undefined);
+	(filetree = new FileTree()).init();
 
 	tgui.arrangePanels();
 	window["TScriptIDE"] = { tgui: tgui, ide: module };
