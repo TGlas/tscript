@@ -1,6 +1,6 @@
 // url of git proxy server (including ports)
-export const server_url = "http://togla.ini.rub.de:31234";
-export const proxy_server_url = "http://togla.ini.rub.de:31235";
+export const server_url = "https://togla.ini.rub.de:31234";
+export const proxy_server_url = "https://togla.ini.rub.de:31235";
 
 // GitHub specific
 // This is the client ID that is issued by GitHub when creating a new OAuth application.
