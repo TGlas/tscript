@@ -27,6 +27,9 @@ export const doc_git: Documentation = {
     The <a href="https://git-scm.com/docs" target="_blank">official Git documentation</a>
     offers much more in-depth information about Git.
     </p>
+    <div class="warning">
+        Please ensure that you use the online version of the TScript IDE. Git will not work if you run the TScript IDE locally!
+    </div>
     `,
 	children: [
 		{
