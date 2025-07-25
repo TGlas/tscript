@@ -1019,7 +1019,7 @@ export function tabNameDlg(
 ) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
-		return onOkay(name.value);
+		return onOkay(name?.value ?? "");
 	};
 
 	// create dialog and its controls
