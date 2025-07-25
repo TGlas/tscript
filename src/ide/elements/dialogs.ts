@@ -680,7 +680,7 @@ class FileDlgView {
 			});
 			let name = { value: dsc.initItem };
 			if (dsc.includeInputField) {
-				name = tgui.createElement({
+				const inputName = tgui.createElement({
 					parent: container,
 					type: "input",
 					style: {
@@ -695,6 +695,8 @@ class FileDlgView {
 						value: dsc.initItem,
 					},
 				});
+				inputName.select();
+				name = inputName;
 			}
 
 			// populate options
@@ -893,7 +895,7 @@ function createFileDlgProjectView(ctx: FileViewContext): FileDlgView {
 	const projs = listProjects().then((projs) => projs.sort());
 	const ret = new FileDlgView(
 		{
-			initItem: getCurrentProject() ?? "",
+			initItem: "New project name",
 			includeInputField: true,
 			initItemListP: projs,
 			onClickDelete: handleDelete,
@@ -1017,7 +1019,7 @@ export function tabNameDlg(
 ) {
 	// return true on failure, that is when the dialog should be kept open
 	let onFileConfirmation = function () {
-		return onOkay(name.value);
+		return onOkay(name?.value ?? "");
 	};
 
 	// create dialog and its controls
@@ -1040,7 +1042,6 @@ export function tabNameDlg(
 		},
 	});
 
-	let name = { value: "" };
 	const inputProps: Record<string, string> = {
 		type: "text",
 		placeholder: customPlaceholder ?? "Filename",
@@ -1048,7 +1049,7 @@ export function tabNameDlg(
 	if (defaultInput !== undefined) {
 		inputProps.value = defaultInput;
 	}
-	name = tgui.createElement({
+	const name = tgui.createElement({
 		parent: modal.content,
 		type: "input",
 		style: {
@@ -1059,8 +1060,8 @@ export function tabNameDlg(
 		classname: "tgui-text-box",
 		properties: inputProps,
 	});
-
 	tgui.startModal(modal);
+	name.focus();
 }
 
 function pushMessageDlg(onFinished: Function) {

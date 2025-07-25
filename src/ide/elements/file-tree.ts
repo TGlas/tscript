@@ -715,8 +715,8 @@ print("Hello sfile");`
 				);
 				await projectsFSP.rename(this.toAbs(this.selectedPath), newAbs);
 				this.chainToPromise(async () => {
+					await this.refreshMux(true);
 					this.selectPath(newProjPath);
-					await this.refresh();
 				});
 				return false;
 			},
