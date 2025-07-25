@@ -1042,7 +1042,6 @@ export function tabNameDlg(
 		},
 	});
 
-	let name = { value: "" };
 	const inputProps: Record<string, string> = {
 		type: "text",
 		placeholder: customPlaceholder ?? "Filename",
@@ -1050,7 +1049,7 @@ export function tabNameDlg(
 	if (defaultInput !== undefined) {
 		inputProps.value = defaultInput;
 	}
-	name = tgui.createElement({
+	const name = tgui.createElement({
 		parent: modal.content,
 		type: "input",
 		style: {
@@ -1061,8 +1060,8 @@ export function tabNameDlg(
 		classname: "tgui-text-box",
 		properties: inputProps,
 	});
-
 	tgui.startModal(modal);
+	name.focus();
 }
 
 function pushMessageDlg(onFinished: Function) {
