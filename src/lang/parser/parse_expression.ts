@@ -942,7 +942,8 @@ export function parse_expression(
 									if (
 										reference.petype === "variable" &&
 										reference.where.hasOwnProperty("pos") &&
-										op.where.pos < reference.where.pos
+										op.where.totalpos <
+											reference.where.totalpos
 									) {
 										state.error("/name/ne-5", [
 											"expression",
