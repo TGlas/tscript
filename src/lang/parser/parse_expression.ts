@@ -1049,7 +1049,7 @@ export function parse_expression(
 									) {
 										state.error("/name/ne-30", [op.name]);
 									} else {
-										ex.petype = "non-value name"; // this name must be qualified further to yield a value
+										op.petype = "non-value name"; // this name must be qualified further to yield a value
 									}
 								}
 							} else {
@@ -1061,9 +1061,9 @@ export function parse_expression(
 						}
 					},
 					passResolveBack: function (state) {
-						if (ex.petype == "non-value name") {
-							state.set(ex.where);
-							state.error("/name/ne-10", [ex.name]);
+						if (op.petype == "non-value name") {
+							state.set(op.where);
+							state.error("/name/ne-10", [op.name]);
 						}
 					},
 				};
