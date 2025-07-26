@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export const lt_source = `
+export const lt_source = String.raw`
 #[file] main.tscript
 ###
 ##

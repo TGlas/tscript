@@ -56,15 +56,23 @@ export class TestRunner {
 		let result = new Array();
 
 		// parse the program
-		let parsed: ParseResult;
-		try {
-			parsed = parseProgramFromString(test.code);
-			if (test.parseOnly) {
+		let parsed = parseProgramFromString(test.code);
+
+		if (test.parseOnly) {
+			// report result and return
+			if (parsed.errors.length === 0) {
 				cb.suc(test);
-				return;
+			} else {
+				const msgs = parsed.errors.map((err) => {
+					return ErrorHelper.getLocatedErrorMsg(
+						err.type,
+						err.filename ?? undefined,
+						err.line,
+						err.message
+					);
+				});
+				cb.fail(test, msgs.join("\n"));
 			}
-		} catch (ex) {
-			cb.fail(test, ex);
 			return;
 		}
 
