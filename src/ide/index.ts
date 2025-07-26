@@ -50,7 +50,7 @@ window.addEventListener("load", async () => {
 	if (gitCode && git_auth_type) {
 		let res;
 		if (git_auth_type == "hub") {
-			replaceUrl(currentUrl.origin);
+			replaceUrl(currentUrl.href.split("?")[0]);
 			try {
 				res = await fetch(
 					`${server_url}/auth-token-exchange?client_id=${client_id_github}&code=${gitCode}&type=hub`,
@@ -62,7 +62,7 @@ window.addEventListener("load", async () => {
 				alert("Error trying to login with GitHub.");
 			}
 		} else if (git_auth_type == "lab") {
-			replaceUrl(currentUrl.origin);
+			replaceUrl(currentUrl.href.split("?")[0]);
 			try {
 				res = await fetch(
 					`${server_url}/auth-token-exchange?client_id=${app_id_gitlab}&code=${gitCode}&type=lab`,
