@@ -1,4 +1,4 @@
-import { assert, expect } from "chai";
+import { assert } from "chai";
 import "mocha";
 import { TestRunner } from "./testRunner";
 import { tests, TscriptTest } from "./tests";
@@ -6,8 +6,8 @@ import { tests, TscriptTest } from "./tests";
 let testcases = tests;
 
 let cb = {
-	suc: function () {},
-	fail: function (ex) {
+	suc: function (_test: TscriptTest) {},
+	fail: function (_test: TscriptTest, ex: string) {
 		assert.fail(ex);
 	},
 };
@@ -31,7 +31,10 @@ describe("tests can fail", () => {
 	it("should fail", async () => {
 		await TestRunner.runTest(
 			failTest,
-			{ suc: cb.fail, fail: cb.suc },
+			{
+				suc: (t) => cb.fail(t, "Test was expected to fail"),
+				fail: cb.suc,
+			},
 			false
 		);
 	});
