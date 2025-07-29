@@ -6,7 +6,15 @@ import {
 } from "../github_creds";
 import { decodeJWT, getRawToken } from "./git_token";
 import * as git from "isomorphic-git";
-import { getCurrentProject, getProjectPath, projectsFS } from "./projects-fs";
+import {
+	getCurrentProject,
+	getProjectPath,
+	InvalidProjectName,
+	ProjectNotFoundError,
+	projectsFS,
+	setCurrentProject,
+	tryCreateProject,
+} from "./projects-fs";
 import http from "isomorphic-git/http/web/index";
 import { addMessage, filetree } from "./elements";
 import { reloadProjectEditorTabsRecursively } from "./editor/editor";
@@ -47,7 +55,35 @@ export async function setGitConfig() {
  * @param url url to the remote git repo
  * @returns promisified boolean to indicate whether clone was successful
  */
-export async function gitClone(url: string): Promise<boolean> {
+export async function gitClone(url: string, name?: string): Promise<boolean> {
+	try {
+		const splitUrl = url.split("/");
+		const nameFromUrl = splitUrl[splitUrl.length - 1];
+		const done: boolean = await tryCreateProject(name || nameFromUrl);
+		if (done) {
+			await setCurrentProject(name || nameFromUrl);
+		} else {
+			addMessage("error", "Could not clone repository.");
+		}
+	} catch (err) {
+		console.error(err);
+		if (err instanceof InvalidProjectName) {
+			addMessage(
+				"error",
+				"Could not clone repository, a project with the same name already exists."
+			);
+		} else if (err instanceof ProjectNotFoundError) {
+			addMessage(
+				"error",
+				"Could not clone repository, error creating a new project."
+			);
+		} else {
+			console.log(err);
+			addMessage("error", "Could not clone repository.");
+		}
+		return false;
+	}
+
 	const projName = getCurrentProject() || "";
 	if (projName === "") {
 		addMessage("error", "No project selected.");
