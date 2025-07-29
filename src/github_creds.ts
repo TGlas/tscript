@@ -2,6 +2,8 @@
 export const server_url = "https://togla.ini.rub.de:31234";
 export const proxy_server_url = "https://togla.ini.rub.de:31235";
 
+export const frontend_url = "https://tglas.github.io/tscript/";
+
 // GitHub specific
 // This is the client ID that is issued by GitHub when creating a new OAuth application.
 export const client_id_github = "Ov23li79J7jZEgnG3sdL";

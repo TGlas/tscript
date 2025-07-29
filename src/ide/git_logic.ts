@@ -1,6 +1,7 @@
 import {
 	app_id_gitlab,
 	client_id_github,
+	frontend_url,
 	proxy_server_url,
 	server_url,
 } from "../github_creds";
@@ -27,11 +28,11 @@ export async function startGitLoginFlow(type: "hub" | "lab") {
 	switch (type) {
 		case "hub":
 			sessionStorage.setItem("git_auth_type", "hub");
-			window.location.href = `https://github.com/login/oauth/authorize?client_id=${client_id_github}&scope=repo&redirect_uri=${window.location.href}`;
+			window.location.href = `https://github.com/login/oauth/authorize?client_id=${client_id_github}&scope=repo&redirect_uri=${frontend_url}`;
 			break;
 		case "lab":
 			sessionStorage.setItem("git_auth_type", "lab");
-			window.location.href = `https://gitlab.ruhr-uni-bochum.de/oauth/authorize?client_id=${app_id_gitlab}&redirect_uri=${window.location.href}&response_type=code&scope=api+write_repository`;
+			window.location.href = `https://gitlab.ruhr-uni-bochum.de/oauth/authorize?client_id=${app_id_gitlab}&redirect_uri=${frontend_url}&response_type=code&scope=api+write_repository`;
 			break;
 	}
 }
