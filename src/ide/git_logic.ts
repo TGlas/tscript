@@ -57,7 +57,7 @@ export async function setGitConfig() {
  * @returns promisified boolean to indicate whether clone was successful
  */
 export async function gitClone(url: string, name?: string): Promise<boolean> {
-	if(!getCurrentProject()) {
+	if (!getCurrentProject()) {
 		try {
 			const splitUrl = url.split("/");
 			const nameFromUrl = splitUrl[splitUrl.length - 1];

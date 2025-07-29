@@ -79,7 +79,9 @@ export async function setCurrentProject(
 	for (const listener of projectChangeListeners.keys()) {
 		listener(projectName, oldProjectName);
 	}
-	filetree.panel.titlebar.textContent = `Files (${projectName ? "Selected project: " + projectName : "No project selected"})`;
+	filetree.panel.titlebar.textContent = `Files (${
+		projectName ? "Selected project: " + projectName : "No project selected"
+	})`;
 }
 
 /**

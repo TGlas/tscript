@@ -14,6 +14,7 @@ import {
 	tryCreateProject,
 	simplifyPath,
 	readFileContent,
+	setCurrentProject,
 } from "../projects-fs";
 import { collection, filetree } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
@@ -272,11 +273,17 @@ export class FileTree {
 			parent: topBar,
 			text: "New Dir",
 		});
+		const btnCloseProject = tgui.createButton({
+			click: this.handleCloseProject.bind(this),
+			parent: topBar,
+			text: "Close Project",
+		});
 		this.buttons = [
 			btnNew.dom,
 			btnRename.dom,
 			btnDelete.dom,
 			btnNewDir.dom,
+			btnCloseProject.dom,
 		];
 		this.setButtonsDisabled(true);
 
@@ -723,6 +730,10 @@ print("Hello sfile");`
 			"Rename into...",
 			this.pathToFileTreeNode(this.selectedPath)!.basename
 		);
+	}
+
+	private handleCloseProject() {
+		setCurrentProject(undefined);
 	}
 
 	/**
