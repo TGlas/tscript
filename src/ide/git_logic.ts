@@ -48,7 +48,11 @@ export async function setGitConfig() {
  * @returns promisified boolean to indicate whether clone was successful
  */
 export async function gitClone(url: string): Promise<boolean> {
-	const projName = getCurrentProject() || "/";
+	const projName = getCurrentProject() || "";
+	if (projName === "") {
+		addMessage("error", "No project selected.");
+		return false;
+	}
 	const dir = getProjectPath(projName);
 	try {
 		const tokenData = decodeJWT(getRawToken()).data;
