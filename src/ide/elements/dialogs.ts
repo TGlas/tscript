@@ -1339,7 +1339,10 @@ export function gitDlg() {
 									tgui.stopModal();
 								});
 							} else {
-								gitClone(selectedRepo.url).then(() => {
+								gitClone(
+									selectedRepo.url,
+									selectedRepo.name
+								).then(() => {
 									tgui.stopModal();
 								});
 							}
