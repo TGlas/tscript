@@ -49,7 +49,7 @@ export async function setGitConfig() {
  */
 export async function gitClone(url: string): Promise<boolean> {
 	const projName = getCurrentProject() || "";
-	if(projName === "") {
+	if (projName === "") {
 		addMessage("error", "No project selected.");
 		return false;
 	}
