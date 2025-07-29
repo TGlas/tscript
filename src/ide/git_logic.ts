@@ -57,32 +57,34 @@ export async function setGitConfig() {
  * @returns promisified boolean to indicate whether clone was successful
  */
 export async function gitClone(url: string, name?: string): Promise<boolean> {
-	try {
-		const splitUrl = url.split("/");
-		const nameFromUrl = splitUrl[splitUrl.length - 1];
-		const done: boolean = await tryCreateProject(name || nameFromUrl);
-		if (done) {
-			await setCurrentProject(name || nameFromUrl);
-		} else {
-			addMessage("error", "Could not clone repository.");
+	if(!getCurrentProject()) {
+		try {
+			const splitUrl = url.split("/");
+			const nameFromUrl = splitUrl[splitUrl.length - 1];
+			const done: boolean = await tryCreateProject(name || nameFromUrl);
+			if (done) {
+				await setCurrentProject(name || nameFromUrl);
+			} else {
+				addMessage("error", "Could not clone repository.");
+			}
+		} catch (err) {
+			console.error(err);
+			if (err instanceof InvalidProjectName) {
+				addMessage(
+					"error",
+					"Could not clone repository, a project with the same name already exists."
+				);
+			} else if (err instanceof ProjectNotFoundError) {
+				addMessage(
+					"error",
+					"Could not clone repository, error creating a new project."
+				);
+			} else {
+				console.log(err);
+				addMessage("error", "Could not clone repository.");
+			}
+			return false;
 		}
-	} catch (err) {
-		console.error(err);
-		if (err instanceof InvalidProjectName) {
-			addMessage(
-				"error",
-				"Could not clone repository, a project with the same name already exists."
-			);
-		} else if (err instanceof ProjectNotFoundError) {
-			addMessage(
-				"error",
-				"Could not clone repository, error creating a new project."
-			);
-		} else {
-			console.log(err);
-			addMessage("error", "Could not clone repository.");
-		}
-		return false;
 	}
 
 	const projName = getCurrentProject() || "";
