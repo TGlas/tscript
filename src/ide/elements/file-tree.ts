@@ -14,6 +14,7 @@ import {
 	tryCreateProject,
 	simplifyPath,
 	readFileContent,
+	setCurrentProject,
 } from "../projects-fs";
 import { collection, filetree } from "./index";
 import { deleteFileDlg, tabNameDlg } from "./dialogs";
@@ -210,7 +211,7 @@ function informNodeAlreadyExists(path: string) {
  * sequentially (one after another by chaining them using Promise.then)
  */
 export class FileTree {
-	private panel: Panel;
+	panel: Panel;
 	private treeControl: tgui.TreeControl<FileTreeNode>;
 	/** The current root directory */
 	private dir: string | null = null;
@@ -232,7 +233,7 @@ export class FileTree {
 	constructor() {
 		this.panel = tgui.createPanel({
 			name: "file_tree",
-			title: "Files",
+			title: "Files (No project selected)",
 			state: "icon",
 			fallbackState: "left",
 			icon: icons.fileTree,
@@ -272,11 +273,17 @@ export class FileTree {
 			parent: topBar,
 			text: "New Dir",
 		});
+		const btnCloseProject = tgui.createButton({
+			click: this.handleCloseProject.bind(this),
+			parent: topBar,
+			text: "Close Project",
+		});
 		this.buttons = [
 			btnNew.dom,
 			btnRename.dom,
 			btnDelete.dom,
 			btnNewDir.dom,
+			btnCloseProject.dom,
 		];
 		this.setButtonsDisabled(true);
 
@@ -723,6 +730,10 @@ print("Hello sfile");`
 			"Rename into...",
 			this.pathToFileTreeNode(this.selectedPath)!.basename
 		);
+	}
+
+	private handleCloseProject() {
+		setCurrentProject(undefined);
 	}
 
 	/**

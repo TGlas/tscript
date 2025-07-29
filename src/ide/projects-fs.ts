@@ -1,6 +1,7 @@
 import FS from "@isomorphic-git/lightning-fs";
 import Path from "@isomorphic-git/lightning-fs/src/path";
 import { saveConfig } from "./elements/dialogs";
+import { filetree } from "./elements";
 
 /**
  * The error handling of lightning-fs is not that great. Currently, the
@@ -78,6 +79,9 @@ export async function setCurrentProject(
 	for (const listener of projectChangeListeners.keys()) {
 		listener(projectName, oldProjectName);
 	}
+	filetree.panel.titlebar.textContent = `Files (${
+		projectName ? "Selected project: " + projectName : "No project selected"
+	})`;
 }
 
 /**
