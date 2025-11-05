@@ -164,6 +164,11 @@ export function createCanvas(
 	// resize the canvas with its container
 	const resizeObserver = new ResizeObserver((entries) => {
 		const size = entries[0].contentBoxSize[0];
+		if (
+			canvas.width === size.inlineSize &&
+			canvas.height === size.blockSize
+		)
+			return; // webkit fix
 		canvas.width = size.inlineSize;
 		canvas.height = size.blockSize;
 
