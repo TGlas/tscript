@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>TScript IDE</title>
+	</head>
+	<body>
+		<h1>The IDE moved!</h1>
+		<p>You can find it <a id="link" href="../">here</a>.</p>
+		<script type="text/javascript">
+			"use strict";
+			var url = new URL(
+				"../" + location.search + location.hash,
+				location.href
+			);
+			document.getElementById("link").href = url.toString();
+			location.replace(url);
+		</script>
+	</body>
+</html>
